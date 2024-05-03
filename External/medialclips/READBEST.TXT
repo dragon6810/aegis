@@ -1,0 +1,166 @@
+***** Important Notice *****
+
+If your system does not have the hardware and software to play MPEG movies
+in Windows, then you must first install the Video for Windows runtime player
+for the movies to work.  Go to the Windows Program Manager and select FILE,
+then RUN, and type "D:\VFWSETUP\SETUP" (where D is the letter of your
+CD-ROM drive).  Even if you have already loaded a version of Video for
+Windows, you will still need to run this setup program to load the
+SuperMatch Cinepak(TM) decompressor.
+
+****************************
+
+**** Welcome to Aris Entertainment's The Best of Media Clips(tm) ****
+
+Thank you for your purchase.  Your Aris disc was created by leading
+professionals in the electronic publishing field.
+
+
+
+-----------------
+MISC. INFORMATION
+-----------------
+
+Please note that while there is no royalty on use of Media
+Clips(TM), they are copyrighted materials owned by Aris
+Entertainment and the participating artists. Media Clips can be reproduced
+royalty-free, in print and digital publications, except that resale in the
+form of clip art collections or as clip art is not permitted. Users must
+not reproduce more than 20% of the individual pictures, sounds, or videos
+without the prior written permission of Aris Multimedia Entertainment, Inc.
+Users must credit the artists and reproduce the following notice in the
+publication's listing of copyrights, as well as adjacent to the
+reproduction in print works:
+   "© Aris Multimedia Entertainment, Inc., 1991-1993."
+
+See The Best of Media Clips program for copyright and artist information.
+
+The SuperMatch Cinepak decompressor may not be redistributed by
+users of Aris products without a valid license agreement from SuperMac
+Technology. They can be reached at (408) 245-2202.
+
+Choosing the full installation in the SETUP.EXE program provides much better
+performance than choosing to install just the launcher program. However,
+doing so adds about 1.5 MB of files to your hard drive.
+
+You must have Windows version 3.1 or later to use our navigational
+program, though you can still use the image files on the CD in a DOS
+application if you have a program that can display them.
+
+
+
+-----------------------------------------
+PRODUCTS BY ARIS MULTIMEDIA ENTERTAINMENT
+-----------------------------------------
+
+Multimedia Starter Pak(TM)
+     *Special 3-disc set*
+     Get the most out of your multimedia system with three of the best
+     selling CD-ROMs ever made. The Starter Pak includes:
+          * WinTutor 3.1
+               It's the easy way to learn Windows 3.1! Learn what you want
+               at your own pace. An ideal companion to quickly get started,
+               or improve your skills.
+          * The MPC Wizard 2.0
+          * World View
+
+Video Cube: Space(TM)
+     A radically new CD-ROM game that pits you against the Video Cube.
+     It's like the cube puzzle game you couldn't put down...only way
+     cooler! Unscramble the images to solve the puzzle and then stand
+     back for the show! But do it fast because it's you against the
+     cube. Fail and you're blown to interstellar bits!
+
+The MPC Wizard(TM)
+     Get your Multimedia Windows system up and running fast!
+     Diagnostics tests check out your graphics, sound, and CD-ROM
+     performance. Extensive Troubleshooting Tips help you solve your
+     multimedia problems. Includes one of the most comprehensive
+     collections of Windows graphics and sound drivers available
+     anywhere. Also includes The Best of MediaClips(TM), featuring 60
+     images, 60 sounds, and 8 movies from our extensive MediaClips(TM)
+     series.
+
+Americana(TM)
+     From the Purple Mountains to the Great Plains, from the big cities to
+     the small towns, from sea to shining sea--experience the land we call
+     home!
+     
+New York, NY(TM)
+     The best of the Big Apple is here! The sights and sounds of New York
+     City from the World Trade Center to the subways. Experience the
+     excitement and culture of the city that never sleeps!
+
+Animal Kingdom(TM)
+     From the Great Plains to the savannas, from the Sahara to the coldest
+     tundra, a multitude of creatures abound. With outstanding new-age
+     clips accompanying every image, explore nature and let Animal Kingdom
+     take you on a safari you'll never forget.
+
+World View(TM)
+     Pictures of the earth and other planets from above.  Liftoffs,
+     landings, and other photos and videos from the best of the space
+     program.
+
+Full Bloom(TM)
+     A bouquet of beautiful and exotic flowers from around the world.
+     You'll find 100 images bright and bursting with color, 100
+     soothing solo piano music clips, and 25 Video for Windows videos
+     of flowers that bloom before your eyes.
+
+Deep Voyage(TM)
+     Journey for 20,000 leagues under the sea! Dive in exotic coral
+     reefs and majestic kelp beds. Deep and uncharted waters come
+     alive with plant and animal life right before your eyes.
+
+Tropical Rain forest(TM)
+     The overwhelming abundance of the world's most exciting natural
+     wonder unfolds before your eyes. Exotic creatures and plants that
+     are found nowhere else on earth come alive as you explore the
+     uncharted regions of the forest.
+
+Majestic Places(TM)
+     Dynamic Mt. Everest, breathtaking Mt. McKinley, the remotest
+     parts of Tibet and other natural wonders along with 100 audio
+     clips of contemporary music.
+
+Island Designs(TM)
+     *Special 2-disc set*
+     Disc 1 (Vintage Aloha)(TM) contains playful and rare "antique"
+     Hawaiian shirt patterns from the 1920's through the 1950's,
+     teamed with the best of early Hawaiian music.
+     Disc 2 (Batik Designs)(TM) contains alluring and richly-colored
+     fabric designs from exotic Bali, combined with enchanting
+     Balinese drum and xylophone music, and other ambient sounds.
+
+Wild Places(TM)
+     Award-winning natural landscapes and close-ups featuring deserts,
+     rocks, jungles, seascapes, and forests, paired with originally-
+     scored "new age" audio tracks.
+
+Jets and Props(TM)
+     *Special 2-disc set*
+     Graphic and spectacular photos of civilian and military jet and
+     classic props.  Hundreds of photos and sound clips make this an
+     airshow on a disc!
+
+Business Backgrounds(TM)
+     Business equipment, offices, buildings and situations for use in
+     business presentations.
+
+Money, Money, Money!(TM)
+     Pictures of US and international currency, along with 25 MPC
+     movies of money hot off the press.  One hundred audio tracks,
+     descriptions on each currency, and sound-effects.
+
+
+If you can't find our products at your local software vendor, you can
+order them from us directly. Write:
+
+Aris Multimedia Entertainment, Inc.
+310 Washington Blvd, Suite 100
+Marina del Rey, CA  90292
+USA
+
+voice (310) 821-0234
+fax   (310) 821-6463

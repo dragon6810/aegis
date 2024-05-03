@@ -1,0 +1,57 @@
+[Source Media Descriptions]
+	"1", "Runtime", "_mssetup.ex_", "."
+
+[Default File Settings]
+"STF_BACKUP"     = ""
+"STF_COPY"       = "YES"
+"STF_DECOMPRESS" = "YES"
+"STF_OVERWRITE"  = "ALWAYS"
+"STF_READONLY"   = "YES"
+"STF_ROOT"       = ""
+"STF_SETTIME"    = "YES"
+"STF_TIME"       = "0"
+"STF_VITAL"      = "YES"
+
+[AVICodecs]
+	1, indeo.drv,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 115648,,,, 1.0.0.153,
+	1, msvidc.drv,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 38432,,,, 1.1.0.99,
+	1, iccvid.drv,,,, 1993-05-04,!DECOMPRESS,, OLDER, !READONLY,,,,, SHARED, 23984,,,, 1.3.0.0,
+
+[Files]
+	1, msuilstf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 6144,,,, 2.1.0.23,
+
+[MPlayer]
+	1, mciole.dll,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 8704,,,, 1.1.0.99,
+	1, mplayer.exe,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 113488,,,, 3.11.0.99,
+	1, mplayer.hlp,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 78201,,,,,
+	1, mplayer.reg,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 674,,,,,
+
+[Remove Files]
+	1, msvideo.dll,,, !COPY,,,,,, REMOVE,,,,, 0,,,,,
+
+[Setup FIles]
+	1, mscpydis.inc,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 7410,,,,,
+
+[Setup Files]
+	1, _mssetup.exe,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 9813,,,,,
+	1, _mstest.exe,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 89504,,,,,
+	1, mscomstf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 74528,,,, 2.1.0.23,
+	1, mscpydis.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 11472,,,, 2.1.0.23,
+	1, mscuistf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 40384,,,, 2.1.0.23,
+	1, msdetect.inc,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 22097,,,,,
+	1, msdetstf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 24544,,,, 2.1.0.23,
+	1, msinsstf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 65440,,,, 2.1.0.23,
+	1, msshlstf.dll,,,, 1992-10-28,,,, !READONLY,,,,, SHARED, 14928,,,, 2.1.0.23,
+	1, profdisp.exe,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 5392,,,,,
+	1, setup.exe,,,, 1992-10-28, !DECOMPRESS,, OLDER, !READONLY,,,,, SHARED, 24624,,,, 2.1.0.23,
+	1, setup.inf,,,, 1992-10-28, !DECOMPRESS,,, !READONLY,,,,, SHARED, 2727,,,,,
+	1, setup.ini,,,, 1992-10-28, !DECOMPRESS,,, !READONLY,,,,, SHARED, 149,,,,,
+	1, setup.lst,,,, 1992-10-28, !DECOMPRESS,, OLDER, !READONLY,,,,, SHARED, 679,,,,,
+	1, setup.mst,,,, 1992-10-28, !DECOMPRESS,, OLDER, !READONLY,,,,, SHARED, 4889,,,,,
+	1, setupapi.inc,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 55620,,,,,
+	1, ver.dll,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 9008,,,, 3.10.0.103,
+
+[VfW Runtime]
+	1, dispdib.dll,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 5744,,,, 3.11.0.99,
+	1, mciavi.drv,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 61136,,,, 1.1.0.99,
+	1, msvideo.dll,,,, 1992-10-28,,, OLDER, !READONLY,,,,, SHARED, 39600,,,, 1.1.0.99,

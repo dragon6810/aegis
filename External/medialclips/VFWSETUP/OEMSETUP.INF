@@ -1,0 +1,7 @@
+
+[disks]
+    1 =. ,"Cinepak Decompressor by SuperMatch",iccvid.drv
+
+[Installable.Drivers]
+VIDC.CVID =  1:iccvid.drv, "VIDC.CVID", "Cinepak Decompressor by SuperMatch",,
+

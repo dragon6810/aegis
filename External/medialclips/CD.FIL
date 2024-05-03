@@ -1,0 +1,5 @@
+request "An older version of the file" && vFilename && "is in directory " & uppercase(svBookPath) & ", or elsewhere in your path." & crlf & crlf & "Replace your old" && vFilename && "file with the newer one on the CD containing """ & caption of this book & ","" and run """ & caption of this book & """ again." with vReply1
+request "The CD containing """ & caption of this book & """ is not in your CD-ROM drive." & crlf & crlf & "Put the CD into your drive and click ""Retry,"" or click ""Exit"""& " to leave this program." with vReply1 or vReply2
+request "An older version of the file" && vFilename && "is in directory " & uppercase(svBookPath) & ", or elsewhere in your path." & crlf & crlf & "When you are finished using """ & caption of this book & ","" replace your old" && vFilename && "file with the newer one on the CD containing """ & caption of this book & "."""
+Retry
+Exit
