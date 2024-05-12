@@ -8,6 +8,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using UnityEditor;
+using Unity.VisualScripting;
+using System.Linq;
+using TriangleNet.Geometry;
+using TriangleNet.Topology;
+using TriangleNet.Meshing;
+
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class LoadMap : MonoBehaviour
@@ -63,6 +70,9 @@ public class LoadMap : MonoBehaviour
     const int PLANE_ANYY = 4;
     const int PLANE_ANYZ = 5;
 
+    List<plane_t> planes;
+    List<face_t> faces;
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct lump_t
     {
@@ -102,6 +112,11 @@ public class LoadMap : MonoBehaviour
     public struct vector3_t
     {
         public float x, y, z;
+
+        public Vector3 toVec3()
+        {
+            return new Vector3(x, y, z);
+        }
     };
 
     public struct plane_t
@@ -140,10 +155,10 @@ public class LoadMap : MonoBehaviour
         }
     };
 
-    const string testname = "maps/c4a1b.bsp";
-
-    public List<plane_t> planes;
+    const string testname = "maps/c1a2.bsp";
     public List<Vector3> vertices;
+    List<edge_t> edges;
+    List<int> surfedges;
 
     void Start()
     {
@@ -153,6 +168,116 @@ public class LoadMap : MonoBehaviour
     void Update()
     {
         
+    }
+
+    // Calculate normal of the triangle from three points
+    private Vector3 CalculateNormal(Vector3 a, Vector3 b, Vector3 c)
+    {
+        Vector3 ab = b - a;
+        Vector3 ac = c - a;
+        return Vector3.Cross(ab, ac).normalized;
+    }
+
+    // Check if normal is consistent with winding order, if not, flip winding
+    private Vector3[] CorrectWinding(Vector3 a, Vector3 b, Vector3 c, Vector3 normal)
+    {
+        Vector3 calculatedNormal = CalculateNormal(a, b, c);
+        if (Vector3.Dot(calculatedNormal, normal) < 0)
+        {
+            // If the dot product is negative, the winding is opposite to the normal
+            return new Vector3[] { c, b, a }; // Swap b and c to flip winding
+        }
+        return new Vector3[] { a, b, c };
+    }
+
+    // Method to check the orientation of the triangle formed by three points
+    private bool IsTriangleOrientedClockwise(Vector3 a, Vector3 b, Vector3 c)
+    {
+        // Calculation assuming Vector3.X and Vector3.Z are the 2D coordinates
+        return (b.x - a.x) * (c.z - a.z) - (c.x - a.x) * (b.z - a.z) < 0;
+    }
+
+    // Method to ensure the index wraps around the list correctly
+    private int ClampListIndex(int index, int count)
+    {
+        if (index < 0) return count - 1;
+        if (index >= count) return 0;
+        return index;
+    }
+
+    // Method to check if a point is inside the triangle formed by three vertices
+    private bool IsPointInTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
+    {
+        float area = 0.5f * (-b.z * c.x + a.z * (-b.x + c.x) + a.x * (b.z - c.z) + b.x * c.z);
+        float s = 1f / (2f * area) * (a.z * c.x - a.x * c.z + (c.z - a.z) * point.x + (a.x - c.x) * point.z);
+        float t = 1f / (2f * area) * (a.x * b.z - a.z * b.x + (a.z - b.z) * point.x + (b.x - a.x) * point.z);
+
+        return s >= 0 && t >= 0 && 1 - s - t >= 0;
+    }
+
+    // Main method to triangulate a concave polygon given vertices in counterclockwise order
+    public List<Vector3[]> TriangulateConcavePolygon(List<Vector3> points, Vector3 normal)
+    {
+        if(points.Count == 3)
+            return new List<Vector3[]> {points.ToArray()};
+
+        Vector3 center = Vector3.zero;
+        foreach(Vector3 point in points)
+            center += point;
+        
+        center /= points.Count;
+
+        //normal = CalculateNormal(points[0], points[1], points[2]);
+
+        Vector3 right;
+        if (normal == Vector3.up || normal == Vector3.down)
+            right = Vector3.Cross(normal, Vector3.forward);
+        else
+            right = Vector3.Cross(normal, Vector3.up);
+
+        if (right == Vector3.zero)
+            right = Vector3.Cross(normal, Vector3.right);
+
+        Vector3 up = Vector3.Cross(right, normal);
+
+        Matrix4x4 toWorld = new Matrix4x4
+        (
+            new Vector4(right.x, right.y, right.z, 0.0F),
+            new Vector4(up.x, up.y, up.z, 0.0F),
+            new Vector4(normal.x, normal.y, normal.z, 0.0F),
+            new Vector4(0.0F, 0.0F, 0.0F, 1.0F)
+        );
+
+        IPolygon polygon = new Polygon();
+        int id = 0;
+        foreach (Vector3 point in points)
+        {
+            Vector4 transformedPoint = toWorld * new Vector4(point.x - center.x, point.y - center.y, point.z - center.z, 1.0F);
+            polygon.Points.Add(new Vertex((double) transformedPoint.x, (double) transformedPoint.y) { ID = id++ });
+        }
+
+        IMesh mesh = polygon.Triangulate();
+
+        // Convert Triangle.NET mesh triangles back into Unity Vector3 triangles
+        List<Vector3[]> triangles = new List<Vector3[]>();
+        foreach (Triangle triangle in mesh.Triangles)
+        {
+            Vector3[] triPoints = new Vector3[3];
+            triPoints[0] = new Vector3((float)triangle.GetVertex(0).X, (float)triangle.GetVertex(0).Y, 0);
+            triPoints[1] = new Vector3((float)triangle.GetVertex(1).X, (float)triangle.GetVertex(1).Y, 0);
+            triPoints[2] = new Vector3((float)triangle.GetVertex(2).X, (float)triangle.GetVertex(2).Y, 0);
+
+            Vector4 p0 = toWorld.transpose * new Vector4(triPoints[0].x, triPoints[0].y, triPoints[0].z, 1.0F);
+            Vector4 p1 = toWorld.transpose * new Vector4(triPoints[1].x, triPoints[1].y, triPoints[1].z, 1.0F);
+            Vector4 p2 = toWorld.transpose * new Vector4(triPoints[2].x, triPoints[2].y, triPoints[2].z, 1.0F);
+            triPoints[0] = new Vector3(p0.x + center.x, p0.y + center.y, p0.z + center.z);
+            triPoints[1] = new Vector3(p1.x + center.x, p1.y + center.y, p1.z + center.z);
+            triPoints[2] = new Vector3(p2.x + center.x, p2.y + center.y, p2.z + center.z);
+
+            triangles.Add(triPoints);
+        }
+
+        return triangles;
     }
 
     void loadMap(String filename)
@@ -172,23 +297,64 @@ public class LoadMap : MonoBehaviour
         int entitySize = header.lumps[LUMP_ENTITIES].size;
         List<Entity> entities = ParseEntities(bytes, entityStart, entitySize);
 
-        List<plane_t> planes = DeserializePlanes(bytes, header.lumps[LUMP_PLANES].offset, header.lumps[LUMP_PLANES].size);
+        planes = DeserializePlanes(bytes, header.lumps[LUMP_PLANES].offset, header.lumps[LUMP_PLANES].size);
 
         this.vertices = DeserializeVertices(bytes, header.lumps[LUMP_VERTICES].offset, header.lumps[LUMP_VERTICES].size);
 
-        List<edge_t> edges = DeserializeEdges(bytes, header.lumps[LUMP_EDGES].offset, header.lumps[LUMP_EDGES].size);
-        List<UInt32> surfedges = DeserializeSurfedges(bytes, header.lumps[LUMP_SURFEDGES].offset, header.lumps[LUMP_SURFEDGES].size);
+        edges = DeserializeEdges(bytes, header.lumps[LUMP_EDGES].offset, header.lumps[LUMP_EDGES].size);
+        surfedges = DeserializeSurfedges(bytes, header.lumps[LUMP_SURFEDGES].offset, header.lumps[LUMP_SURFEDGES].size);
+        faces = DeserializeFaces(bytes, header.lumps[LUMP_FACES].offset, header.lumps[LUMP_FACES].size);
+
+        List<Vector3> meshVertices = new List<Vector3>();
+        List<int> meshIndices = new List<int>();
+
+        Debug.Log(faces.Count + " faces.");
+
+        for(int i = 0; i < faces.Count; i++)
+        {
+            face_t face = faces[i];
+            List<Vector3> polyVerts = new List<Vector3>();
+
+            for(int s = (int) face.iFirstEdge; s < face.nEdges + face.iFirstEdge; s++)
+            {
+                edge_t edge = edges[Math.Abs(surfedges[s])];
+                Vector3[] verts = {vertices[edge.v1], vertices[edge.v2]};
+                if(surfedges[s] < 0)
+                {
+                    Vector3 temp = verts[0];
+                    verts[0] = verts[1];
+                    verts[1] = temp;
+                }
+
+                polyVerts.Add(swizzleToXZY(verts[0]));
+            }
+
+            Vector3 normal = swizzleToXZY(planes[faces[i].iPlane].vNormal.toVec3());
+            if(faces[i].nPlaneSide != 0)
+                normal *= -1.0F;
+
+            List<Vector3[]> triangulated = TriangulateConcavePolygon(polyVerts, normal);
+            for(int t = 0; t < triangulated.Count; t++)
+                triangulated[t] = CorrectWinding(triangulated[t][0], triangulated[t][1], triangulated[t][2], normal);
+
+            for(int t = 0; t < triangulated.Count; t++)
+            {
+                for(int v = 0; v < 3; v++)
+                {
+                    meshVertices.Add(triangulated[t][v]);
+                    meshIndices.Add(meshIndices.Count);
+                }
+            }
+        }
 
         MeshFilter mf = this.GetComponent<MeshFilter>();
         Mesh mesh = new Mesh();
         mf.mesh = mesh;
-        mesh.vertices = this.vertices.ToArray();
-
-        List<int> indices = new List<int>();
-        for(int i = 0; i < this.vertices.Count; i++)
-            indices.Add(i);
-
-        mesh.triangles = indices.ToArray();
+        mesh.vertices = meshVertices.ToArray();
+        mesh.triangles = meshIndices.ToArray();
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+        mesh.RecalculateTangents();
     }
 
     header_t DeserializeHeader(byte[] data)
@@ -249,9 +415,14 @@ public class LoadMap : MonoBehaviour
         return entities;
     }
 
+    public static unsafe float Int32BitsToSingle(int value) 
+    {
+        return *(float*)(&value);
+    }
+
     public List<plane_t> DeserializePlanes(byte[] data, int offset, int size)
     {
-        const int planeSize = 16;
+        const int planeSize = 20;
 
         int numPlanes = size / planeSize;
 
@@ -262,12 +433,22 @@ public class LoadMap : MonoBehaviour
             int currentOffset = offset + i * planeSize;
             plane_t plane;
 
-            plane.vNormal.x = BitConverter.Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset));
-            plane.vNormal.y = BitConverter.Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset + sizeof(float)));
-            plane.vNormal.z = BitConverter.Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset + sizeof(float) * 2));
+            plane.vNormal.x = Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset));
+            currentOffset += sizeof(float);
+            plane.vNormal.y = Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset));
+            currentOffset += sizeof(float);
+            plane.vNormal.z = Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset));
+            currentOffset += sizeof(float);
 
-            plane.fDist = BitConverter.Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset + sizeof(float) * 3));
-            plane.nType = BitConverter.ToInt32(data, currentOffset + sizeof(float) * 4);
+            if(plane.vNormal.toVec3().Equals(Vector3.zero))
+            {
+                Debug.Log("Null normal plane");
+            }
+
+            plane.fDist = Int32BitsToSingle(BitConverter.ToInt32(data, currentOffset));
+            currentOffset += sizeof(float);
+            plane.nType = BitConverter.ToInt32(data, currentOffset);
+            currentOffset += sizeof(int);
 
             planes.Add(plane);
         }
@@ -321,18 +502,18 @@ public class LoadMap : MonoBehaviour
         return edges;
     }
 
-    public List<UInt32> DeserializeSurfedges(byte[] data, int offset, int size)
+    public List<Int32> DeserializeSurfedges(byte[] data, int offset, int size)
     {
-        const int surfedgeSize = sizeof(UInt32);
+        const int surfedgeSize = sizeof(Int32);
 
         int numSurfedges = size / surfedgeSize;
 
-        List<UInt32> surfedges = new List<UInt32>();
+        List<Int32> surfedges = new List<Int32>();
         for(int i = 0; i < numSurfedges; i++)
         {
             int currentOffset = offset + i * surfedgeSize;
 
-            surfedges.Add(BitConverter.ToUInt32(data, currentOffset));
+            surfedges.Add(BitConverter.ToInt32(data, currentOffset));
         }
 
         return surfedges;
@@ -359,15 +540,120 @@ public class LoadMap : MonoBehaviour
             currentOffset += sizeof(UInt16);
             face.iTextureInfo = BitConverter.ToUInt16(data, currentOffset);
             currentOffset += sizeof(UInt16);
-            face.nLightmapOffset = BitConverter.ToUInt32(data, currentOffset);
-            currentOffset += sizeof(UInt32);
             for(int j = 0; j < 4; j++)
             {
                 face.nStyles[j] = (byte) BitConverter.ToChar(data, currentOffset);
                 currentOffset += sizeof(byte);
             }
             face.nLightmapOffset = BitConverter.ToUInt32(data, currentOffset);
-            currentOffset += sizeof(UInt32);
+            currentOffset += sizeof(int);
+
+            faces.Add(face);
+        }
+
+        return faces;
+    }
+
+    Vector3 swizzleToXZY(Vector3 v)
+    {
+        float temp = v.y;
+        v.y = v.z;
+        v.z = temp;
+        return v;
+    }
+/*
+    #if UNITY_EDITOR
+    void OnDrawGizmos()
+    {
+        if(!Application.isPlaying)
+            return;
+
+        foreach(face_t face in faces)
+        {
+            plane_t plane = planes[face.iPlane];
+            Vector3 normal = plane.vNormal.toVec3().normalized;
+            if(face.nPlaneSide != 0)
+                normal *= -1.0F;
+
+            if(normal == Vector3.zero)
+                continue;
+
+            Vector3 center = Vector3.zero;
+
+            for(int s = (int) face.iFirstEdge; s < face.nEdges + face.iFirstEdge; s++)
+            {
+                edge_t edge = edges[Math.Abs(surfedges[s])];
+                Vector3[] verts = {vertices[edge.v1], vertices[edge.v2]};
+                if(surfedges[s] < 0)
+                    verts.Reverse();
+
+                center += verts[0];
+            }
+
+            center /= (float) face.nEdges;
+
+            Vector3 bitangent = Vector3.up;
+            Vector3 tangent = Vector3.Cross(bitangent, normal);
+            bitangent = Vector3.Cross(tangent, normal);
+
+            float minBoundsTangent = 0.0F;
+            float minBoundsBitangent = 0.0F;
+
+            for(int s = (int) face.iFirstEdge; s < face.nEdges + face.iFirstEdge; s++)
+            {
+                edge_t edge = edges[Math.Abs(surfedges[s])];
+                Vector3 vPos;
+                if(surfedges[s] < 0)
+                    vPos = vertices[edge.v2] - center;
+                else
+                    vPos = vertices[edge.v1] - center;
+
+                float tanVal = Mathf.Abs(Vector3.Dot(vPos, tangent));
+                float bitanVal = Mathf.Abs(Vector3.Dot(vPos, bitangent));
+
+                minBoundsTangent = Mathf.Max(minBoundsTangent, tanVal);
+                minBoundsBitangent = Mathf.Max(minBoundsBitangent, bitanVal);
+            }
+
+            Vector3[] rectangleCorners = new Vector3[4];
+            rectangleCorners[0] = swizzleToXZY(center - tangent * minBoundsTangent - bitangent * minBoundsBitangent);
+            rectangleCorners[1] = swizzleToXZY(center + tangent * minBoundsTangent - bitangent * minBoundsBitangent);
+            rectangleCorners[2] = swizzleToXZY(center + tangent * minBoundsTangent + bitangent * minBoundsBitangent);
+            rectangleCorners[3] = swizzleToXZY(center - tangent * minBoundsTangent + bitangent * minBoundsBitangent);
+
+            Handles.color = Color.white;
+            Handles.DrawSolidRectangleWithOutline(rectangleCorners, new Color(0.5f, 0.5f, 0.5f, 0.1f), Color.black);
+            Handles.color = Color.blue;
+            Handles.ArrowHandleCap(0, swizzleToXZY(center), Quaternion.LookRotation(swizzleToXZY(normal), Vector3.up), 10.0F, EventType.Repaint);
+
+            for(int s = (int) face.iFirstEdge; s < face.nEdges + face.iFirstEdge; s++)
+            {
+                edge_t edge = edges[Math.Abs(surfedges[s])];
+                Vector3[] verts = {vertices[edge.v1], vertices[edge.v2]};
+                Vector3 vPos;
+                if(surfedges[s] < 0)
+                    verts.Reverse();
+
+                Handles.color = Color.white;
+                Handles.DrawLine(verts[0], verts[1]);
+            }
+        }
+
+        foreach(edge_t edge in edges)
+        {
+            Vector3 v1 = swizzleToXZY(vertices[edge.v1]);
+            Vector3 v2 = swizzleToXZY(vertices[edge.v2]);
+
+            Handles.color = Color.white;
+            Handles.DrawLine(v1, v2);
+        }
+
+        foreach(Vector3 v in vertices)
+        {
+            Handles.color = Color.yellow;
+            Handles.SphereHandleCap(0, swizzleToXZY(v), Quaternion.identity, 1.0F, EventType.Repaint);
         }
     }
+    #endif
+*/
 }
