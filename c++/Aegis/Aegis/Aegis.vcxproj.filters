@@ -13,10 +13,33 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\loadstuff">
+      <UniqueIdentifier>{3ab0184a-1303-45be-970b-511d921d725b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\loadstuff">
+      <UniqueIdentifier>{bd95aaf8-24e5-4b71-b899-094dcc99244f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="binaryloader.cpp">
+      <Filter>Source Files\loadstuff</Filter>
+    </ClCompile>
+    <ClCompile Include="mstudioload.cpp">
+      <Filter>Source Files\loadstuff</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="defs.h">
+      <Filter>Header Files\loadstuff</Filter>
+    </ClInclude>
+    <ClInclude Include="mstudioload.h">
+      <Filter>Header Files\loadstuff</Filter>
+    </ClInclude>
+    <ClInclude Include="binaryloader.h">
+      <Filter>Header Files\loadstuff</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

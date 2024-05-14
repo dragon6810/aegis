@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "mstudioload.h"
 
 const char* vertexShaderSource = R"glsl(
 #version 330 core
@@ -22,6 +23,9 @@ void main()
 
 int main() 
 {
+    mstudioload barney;
+    barney.load("models/barney.mdl");
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

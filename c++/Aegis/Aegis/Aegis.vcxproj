@@ -140,6 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp" />
+    <ClCompile Include="binaryloader.cpp" />
+    <ClCompile Include="mstudioload.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="binaryloader.h" />
+    <ClInclude Include="defs.h" />
+    <ClInclude Include="mstudioload.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
