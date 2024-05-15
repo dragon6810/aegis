@@ -2,30 +2,41 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "mstudioload.h"
+#include "rendermodel.h"
+#include "loadtexture.h"
 
 const char* vertexShaderSource = R"glsl(
 #version 330 core
 layout (location = 0) in vec3 aPos;
-void main()
+layout (location = 1) in vec2 tex;
+uniform mat4 projection;
+uniform mat4 view;
+
+out vec2 texcoord;
+
+void main() 
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = projection * view * vec4(aPos, 1.0);
+    texcoord = tex;
 }
 )glsl";
 
 const char* fragmentShaderSource = R"glsl(
 #version 330 core
 out vec4 FragColor;
+
+in vec2 texcoord;
+
+uniform sampler2D albedosampler;
+
 void main()
 {
-    FragColor = vec4(1.0, 0.5, 0.2, 1.0); // Orange color
+    FragColor = texture(albedosampler, texcoord);
 }
 )glsl";
 
 int main() 
 {
-    mstudioload barney;
-    barney.load("models/barney.mdl");
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -63,27 +74,24 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // Set up vertex data and buffers and configure vertex attributes
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,  // left  
-         0.5f, -0.5f, 0.0f,  // right 
-         0.0f,  0.5f, 0.0f   // top   
-    };
+    mstudioload barney;
+    barney.load("models/barney.mdl");
+    
+    rendermodel modelrenderer = rendermodel(shaderProgram);
 
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    GLuint* textures = (GLuint*) malloc(barney.header.numtextures);
+    for (int t = 0; t < barney.header.numtextures; t++)
+    {
+        char* texdata = nullptr;
+        int width = 0, height = 0;
+        loadmstudiotexture(barney.data, barney.header.textureindex + t * sizeof(mstudiotexture_t), TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
+        glGenTextures(1, &textures[t]);
+        glBindTexture(GL_TEXTURE_2D, textures[t]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata);
+        free(texdata);
+    }
 
     // Render loop
     while (!glfwWindowShouldClose(window)) 
@@ -91,20 +99,18 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw the triangle
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
+        float pos[] = { 0.0F, 0.0F, 0.0F };
+
+        modelrenderer.render(barney, pos, textures);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Deallocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
+
+    for (int t = 0; t < barney.header.numtextures; t++)
+        glDeleteTextures(1, &textures[t]);
 
     // Clean up
     glfwDestroyWindow(window);

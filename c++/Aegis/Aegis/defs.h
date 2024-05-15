@@ -5,6 +5,17 @@
 typedef unsigned char ubyte_t;
 typedef char byte_t;
 
+typedef enum
+{
+	STUDIO_NF_FLATSHADE		= 0x0001,
+    STUDIO_NF_CHROME		= 0x0002,
+    STUDIO_NF_FULLBRIGHT	= 0x0004,
+    STUDIO_NF_NOMIPS        = 0x0008,
+    STUDIO_NF_ALPHA         = 0x0010,
+    STUDIO_NF_ADDITIVE      = 0x0020,
+    STUDIO_NF_MASKED        = 0x0040
+} mstudiotexflags_t;
+
 typedef struct
 {
 	float x, y, z;

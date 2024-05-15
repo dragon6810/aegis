@@ -19,6 +19,12 @@
     <Filter Include="Source Files\loadstuff">
       <UniqueIdentifier>{bd95aaf8-24e5-4b71-b899-094dcc99244f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\rendering">
+      <UniqueIdentifier>{36517fa1-4fdf-4701-b079-55d4f31a729e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rendering">
+      <UniqueIdentifier>{3f1c33d6-e598-442f-8853-17574572a145}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
@@ -30,6 +36,12 @@
     <ClCompile Include="mstudioload.cpp">
       <Filter>Source Files\loadstuff</Filter>
     </ClCompile>
+    <ClCompile Include="rendermodel.cpp">
+      <Filter>Source Files\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="loadtexture.cpp">
+      <Filter>Source Files\loadstuff</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -39,6 +51,12 @@
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
     <ClInclude Include="binaryloader.h">
+      <Filter>Header Files\loadstuff</Filter>
+    </ClInclude>
+    <ClInclude Include="rendermodel.h">
+      <Filter>Header Files\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="loadtexture.h">
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
   </ItemGroup>
