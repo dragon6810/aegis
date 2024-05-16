@@ -12,6 +12,7 @@ void mstudioload::load(const char* filename)
 	loadBytes(filename, &data);
 
 	header = *((mstudioheader_t*)data);
+	printf("Loading model \"%s\".\n", header.name);
 
 	if (header.id[0] != 'I' || header.id[1] != 'D' || header.id[2] != 'S' || header.id[3] != 'T')
 	{

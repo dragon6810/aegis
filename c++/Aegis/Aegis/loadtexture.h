@@ -7,4 +7,4 @@ typedef enum
 } texturetype_t;
 
 
-void loadmstudiotexture(char* data, int texoffset, texturetype_t type, int** out, int* width, int* height);
+void loadmstudiotexture(char* data, int which, texturetype_t type, int** out, int* width, int* height);

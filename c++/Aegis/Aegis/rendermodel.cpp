@@ -47,21 +47,21 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
         for (int m = 0; m < pmodel->nummesh; m++)
         {
             mstudiomesh_t* pmesh = (mstudiomesh_t*)(model.data + pmodel->meshindex) + m;
-            mstudiotrivert_t* triverts = (mstudiotrivert_t*)(model.data + pmesh->triindex);
             int numverts = pmesh->numtris < 0 ? -pmesh->numtris : pmesh->numtris;
 
-            Vertex vertices[MSTUDIOMAXMESHVERTS]{};
+            Vertex* vertices = (Vertex*) malloc(numverts * sizeof(Vertex));                                 
             int texindex = pmesh->skinref;
 
             for (int v = 0; v < numverts; v++)
             {
-                vec3_t position = positions[triverts[v].vertindex];
-                vertices[v] = { position.x, position.y, position.z, (float)triverts[v].s / (float)ptextures[texindex].width, (float)triverts[v].t / (float)ptextures[texindex].height };
+                mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex) + v;
+                vec3_t position = positions[ptrivert->vertindex];
+                vertices[v] = { position.x, position.y, position.z, (float)ptrivert->s / (float)ptextures[texindex].width, (float)ptrivert->t / (float)ptextures[texindex].height };
             }
 
             // Bind the VBO to update the vertex data
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, numverts * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
 
             glUseProgram(shaderProgram);
 
@@ -75,11 +75,18 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
             glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
+            GLenum err;
+            while ((err = glGetError()) != GL_NO_ERROR)
+                std::cerr << "OpenGL error pre swap: " << err << std::endl;
+
             glActiveTexture(GL_TEXTURE0);
+            while ((err = glGetError()) != GL_NO_ERROR)
+                std::cerr << "OpenGL error post swap: " << err << std::endl;
             glBindTexture(GL_TEXTURE_2D, textures[texindex]);
             glUniform1i(glGetUniformLocation(shaderProgram, "albedosampler"), 0);
 
             glDrawArrays(pmesh->numtris < 0 ? GL_TRIANGLE_FAN : GL_TRIANGLE_STRIP, 0, numverts);
+            free(vertices);
         }
     }
 

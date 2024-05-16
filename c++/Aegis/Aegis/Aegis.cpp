@@ -74,7 +74,7 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    mstudioload barney;
+    mstudioload barney = mstudioload();
     barney.load("models/barney.mdl");
     
     rendermodel modelrenderer = rendermodel(shaderProgram);
@@ -84,7 +84,7 @@ int main()
     {
         char* texdata = nullptr;
         int width = 0, height = 0;
-        loadmstudiotexture(barney.data, barney.header.textureindex + t * sizeof(mstudiotexture_t), TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
+        loadmstudiotexture(barney.data, t, TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
         glGenTextures(1, &textures[t]);
         glBindTexture(GL_TEXTURE_2D, textures[t]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
