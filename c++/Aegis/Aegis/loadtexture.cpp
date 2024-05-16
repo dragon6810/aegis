@@ -23,15 +23,15 @@ mdltex:
 	*width = ptex->width;
 	*height = ptex->height;
 	printf("Loading texture \"%s\".\n", ptex->name);
-	palette_t* pallete = (palette_t*)(data + ptexoffset + ptex->width * ptex->height);
+	palette_t* pallete = (palette_t*)(data + ptex->index + ptex->width * ptex->height);
 	*out = (int*) malloc(ptex->width * ptex->height * sizeof(int));
 	int moderncolors[COLORSINPALETTE]{};
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
 		int col = 0;
-		col |= ((int)pallete->colors[c].r) <<  0;
+		col |= ((int)pallete->colors[c].r) << 16;
 		col |= ((int)pallete->colors[c].g) <<  8;
-		col |= ((int)pallete->colors[c].b) << 16;
+		col |= ((int)pallete->colors[c].b) <<  0;
 		col |= 0xFF000000;
 
 		moderncolors[c] = col;
