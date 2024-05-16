@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "defs.h"
+#include "binaryloader.h"
 
 void loadmstudiotexture(char* data, int which, texturetype_t type, int** out, int* width, int* height)
 {
@@ -15,18 +16,8 @@ void loadmstudiotexture(char* data, int which, texturetype_t type, int** out, in
 	}
 
 mdltex:
-	/*
 	mstudioheader_t* pheader = (mstudioheader_t*)(data);
-	if (pheader->numtextures == 0)
-	{
-		char texturename[256];
-
-		strcpy(texturename, pheader->name);
-		strcpy(&texturename[strlen(texturename) - 4], "T.mdl");
-
-		data = LoadModel(texturename);
-	}
-	*/
+	
 	int ptexoffset = ((mstudioheader_t*)(data))->textureindex;
 	mstudiotexture_t* ptex = (mstudiotexture_t*)(data + ptexoffset) + which;
 	*width = ptex->width;

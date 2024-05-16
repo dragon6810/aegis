@@ -25,6 +25,16 @@ void mstudioload::load(const char* filename)
 		printf("Unrecognized studio model version %d on model %s. Expect 10.\n", header.version, header.name);
 		return;
 	}
+
+	printf("Model \"%s\" has %d body parts:\n", header.name, header.numbodyparts);
+	for (int b = 0; b < header.numbodyparts; b++)
+	{
+		mstudiobodypart_t* pbodypart = (mstudiobodypart_t*)(data + header.bodypartindex) + b;
+		if(pbodypart->nummodels == 1)
+			printf("\t\"%s\" (%d model)\n", pbodypart->name, pbodypart->nummodels);
+		else
+			printf("\t\"%s\" (%d models)\n", pbodypart->name, pbodypart->nummodels);
+	}
 }
 
 mstudioload::~mstudioload()

@@ -4,6 +4,7 @@
 #include "mstudioload.h"
 #include "rendermodel.h"
 #include "loadtexture.h"
+#include "binaryloader.h"
 
 const char* vertexShaderSource = R"glsl(
 #version 330 core
@@ -75,16 +76,29 @@ int main()
     glDeleteShader(fragmentShader);
 
     mstudioload barney = mstudioload();
-    barney.load("models/barney.mdl");
+    barney.load("valve/models/barney.mdl");
     
     rendermodel modelrenderer = rendermodel(shaderProgram);
+    mstudioload texmodel = barney;
+    
+    if (barney.header.numtextures == 0)
+    {
+        char texturename[256];
 
-    GLuint* textures = (GLuint*) malloc(barney.header.numtextures);
-    for (int t = 0; t < barney.header.numtextures; t++)
+        strcpy(texturename, barney.header.name);
+        strcpy(&texturename[strlen(texturename) - 4], "T.mdl");
+
+        texmodel.load(texturename);
+    }
+
+    mstudioheader_t* textureHeader = (mstudioheader_t*)texmodel.data;
+    GLuint* textures = (GLuint*)malloc(textureHeader->numtextures);
+
+    for (int t = 0; t < textureHeader->numtextures; t++)
     {
         char* texdata = nullptr;
         int width = 0, height = 0;
-        loadmstudiotexture(barney.data, t, TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
+        loadmstudiotexture(texmodel.data, t, TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
         glGenTextures(1, &textures[t]);
         glBindTexture(GL_TEXTURE_2D, textures[t]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -101,7 +115,7 @@ int main()
 
         float pos[] = { 0.0F, 0.0F, 0.0F };
 
-        modelrenderer.render(barney, pos, textures);
+        modelrenderer.render(barney, pos, textures, texmodel);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

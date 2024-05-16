@@ -19,5 +19,5 @@ public:
 	rendermodel(unsigned int shaderProgram);
 	~rendermodel();
 
-	void render(const mstudioload& model, float pos[3], GLuint* textures);
+	void render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel);
 };
