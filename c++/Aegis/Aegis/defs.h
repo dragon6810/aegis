@@ -16,6 +16,16 @@ typedef enum
     STUDIO_NF_MASKED        = 0x0040
 } mstudiotexflags_t;
 
+typedef enum
+{
+	STUDIO_X =  0,
+	STUDIO_Y =  1,
+	STUDIO_Z =  2,
+	STUDIO_XR = 3,
+	STUDIO_YR = 4,
+	STUDIO_ZR = 5
+} mstudiomotionmodes_t;
+
 typedef struct
 {
 	float x, y, z;
@@ -63,7 +73,9 @@ typedef struct
 
 typedef struct
 {
-	ubyte_t r, g, b;
+	ubyte_t r;
+	ubyte_t g;
+	ubyte_t b;
 } color24_t;
 
 typedef struct

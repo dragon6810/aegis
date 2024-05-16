@@ -38,7 +38,7 @@ mdltex:
 	}
 
 	for (int p = 0; p < ptex->width * ptex->height; p++)
-		(*out)[p] = moderncolors[*(unsigned char*)(data + ptex->index + p)];
+		(*out)[p] = moderncolors[*((unsigned char*)(data + ptex->index + p))];
 
 	return;
 }

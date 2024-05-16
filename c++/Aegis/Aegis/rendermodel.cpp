@@ -42,8 +42,10 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
         index = index % pbodypart->nummodels;
 
         mstudiomodel_t* pmodel = (mstudiomodel_t*)(model.data + pbodypart->modelindex) + index;
-        vec3_t* positions = (vec3_t*)(model.data + pmodel->vertindex);
         vec3_t* normals = (vec3_t*)(model.data + pmodel->normindex);
+
+        mstudiobone_t* pbones = (mstudiobone_t*)(model.data + model.header.boneindex);
+        mstudiobonecontroller_t* pbonecontrollers = (mstudiobonecontroller_t*)(model.data + model.header.bonecontrollerindex);
 
         for (int m = 0; m < pmodel->nummesh; m++)
         {
@@ -56,7 +58,11 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
             for (int v = 0; v < numverts; v++)
             {
                 mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex) + v;
-                vec3_t position = positions[ptrivert->vertindex];
+                ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + v;
+                vec3_t position = *((vec3_t*)(model.data + pmodel->vertindex) + ptrivert->vertindex);
+                position.x += pbones[*boneindex].value[STUDIO_X];
+                position.y += pbones[*boneindex].value[STUDIO_Y];
+                position.z += pbones[*boneindex].value[STUDIO_Z];
                 vertices[v] = { position.x, position.y, position.z, (float)ptrivert->s / (float)ptextures[texindex].width, (float)ptrivert->t / (float)ptextures[texindex].height };
             }
             
