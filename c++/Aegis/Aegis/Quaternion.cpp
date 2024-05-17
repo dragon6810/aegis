@@ -3,6 +3,43 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <math.h>
+
+Quaternion Quaternion::AngleAxis(float theta, float axis[3])
+{
+    Quaternion q;
+    float halfTheta = theta * 0.5F;
+    float sinHalfTheta = sinf(halfTheta);
+
+    q.q[0] = cosf(halfTheta);
+    q.q[1] = axis[0] * sinHalfTheta;
+    q.q[2] = axis[1] * sinHalfTheta;
+    q.q[3] = axis[2] * sinHalfTheta;
+
+    return q;
+}
+
+Mat3x4 Quaternion::toMat()
+{
+    Mat3x4 mat = Mat3x4();
+    mat.val[0][0] = 1.0F - 2.0F * q[2] * q[2] - 2.0F * q[3] * q[3];
+    mat.val[0][1] = 2.0F * q[1] * q[2] - 2.0F * q[0] * q[3];
+    mat.val[0][2] = 2.0F * q[1] * q[3] + 2.0F * q[0] * q[2];
+    mat.val[0][3] = 0.0F;
+
+    mat.val[1][0] = 2.0F * q[1] * q[2] + 2.0F * q[0] * q[3];
+    mat.val[1][1] = 1.0F - 2.0F * q[1] * q[1] - 2.0F * q[3] * q[3];
+    mat.val[1][2] = 2.0F * q[2] * q[3] - 2.0F * q[0] * q[1];
+    mat.val[1][3] = 0.0F;
+
+    mat.val[2][0] = 2.0F * q[1] * q[3] - 2.0F * q[0] * q[2];
+    mat.val[2][1] = 2.0F * q[2] * q[3] - 2.0F * q[0] * q[1];
+    mat.val[2][2] = 1.0F - 2.0F * q[1] * q[1] - 2.0F * q[2] * q[2];
+    mat.val[2][3] = 0.0F;
+
+    return mat;
+}
+
 Quaternion Quaternion::operator=(Quaternion a)
 {
 	memcpy(&this->q, a.q, sizeof(float) * 4);

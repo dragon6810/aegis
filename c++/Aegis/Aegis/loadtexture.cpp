@@ -29,9 +29,9 @@ mdltex:
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
 		int col = 0;
-		col |= ((int)pallete->colors[c].r) << 16;
+		col |= ((int)pallete->colors[c].r) <<  0;
 		col |= ((int)pallete->colors[c].g) <<  8;
-		col |= ((int)pallete->colors[c].b) <<  0;
+		col |= ((int)pallete->colors[c].b) << 16;
 		col |= 0xFF000000;
 
 		moderncolors[c] = col;

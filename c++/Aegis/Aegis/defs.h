@@ -89,9 +89,7 @@ typedef struct
 
 typedef struct
 {
-	short colorsinpalette;
 	color24_t colors[COLORSINPALETTE];
-	short pad;
 } palette_t;
 
 typedef struct

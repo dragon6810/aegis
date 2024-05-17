@@ -25,6 +25,12 @@
     <Filter Include="Header Files\rendering">
       <UniqueIdentifier>{3f1c33d6-e598-442f-8853-17574572a145}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\math">
+      <UniqueIdentifier>{5303eb8a-7eca-4805-b845-7f6e185412d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\math">
+      <UniqueIdentifier>{84140e48-340a-451d-9790-3149a6de6e53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
@@ -42,6 +48,15 @@
     <ClCompile Include="loadtexture.cpp">
       <Filter>Source Files\loadstuff</Filter>
     </ClCompile>
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="Mat3x4.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -58,6 +73,15 @@
     </ClInclude>
     <ClInclude Include="loadtexture.h">
       <Filter>Header Files\loadstuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="Mat3x4.h">
+      <Filter>Header Files\math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

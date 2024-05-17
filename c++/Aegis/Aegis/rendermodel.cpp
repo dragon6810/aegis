@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <gtc/matrix_transform.hpp>
+#include "Quaternion.h"
 
 rendermodel::rendermodel(unsigned int shaderProgram)
 {
@@ -60,10 +61,10 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
                 mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex) + v;
                 ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + v;
                 vec3_t position = *((vec3_t*)(model.data + pmodel->vertindex) + ptrivert->vertindex);
-                position.x += pbones[*boneindex].value[STUDIO_X];
-                position.y += pbones[*boneindex].value[STUDIO_Y];
-                position.z += pbones[*boneindex].value[STUDIO_Z];
-                vertices[v] = { position.x, position.y, position.z, (float)ptrivert->s / (float)ptextures[texindex].width, (float)ptrivert->t / (float)ptextures[texindex].height };
+                Vector3 vpos = Vector3(new float[3] {position.x, position.y, position.z});
+                Mat3x4 bonetransform = recursetransformfrombone(*boneindex, model.data);
+                vpos = bonetransform * vpos;
+                vertices[v] = { vpos.get(0), vpos.get(1), vpos.get(2), (float)ptrivert->s / (float)ptextures[texindex].width, (float)ptrivert->t / (float)ptextures[texindex].height};
             }
             
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -84,6 +85,34 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
     }
 
     glBindVertexArray(0);
+}
+
+Mat3x4 rendermodel::transformfrombone(float values[6])
+{
+    Quaternion axis[3]{};
+    axis[STUDIO_XR - 3] = Quaternion::AngleAxis(values[STUDIO_XR], new float[3] {1.0F, 0.0F, 0.0F});
+    axis[STUDIO_YR - 3] = Quaternion::AngleAxis(values[STUDIO_YR], new float[3] {0.0F, 1.0F, 0.0F});
+    axis[STUDIO_ZR - 3] = Quaternion::AngleAxis(values[STUDIO_ZR], new float[3] {0.0F, 0.0F, 1.0F});
+
+    Quaternion rotation = axis[STUDIO_XR - 3] * axis[STUDIO_YR - 3] * axis[STUDIO_ZR - 3];
+    Mat3x4 transform = rotation.toMat();
+
+    transform.val[0][3] = values[STUDIO_X];
+    transform.val[1][3] = values[STUDIO_Y];
+    transform.val[2][3] = values[STUDIO_Z];
+
+    return transform;
+}
+
+Mat3x4 rendermodel::recursetransformfrombone(int bone, char* data)
+{
+    mstudioheader_t* pheader = (mstudioheader_t*)data;
+    mstudiobone_t* pbones = (mstudiobone_t*)(data + pheader->boneindex);
+
+    if (pbones[bone].parent == -1)
+        return transformfrombone(pbones[bone].value);
+
+    return recursetransformfrombone(pbones[bone].parent, data) * transformfrombone(pbones[bone].value);
 }
 
 rendermodel::~rendermodel()
