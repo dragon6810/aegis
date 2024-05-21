@@ -76,7 +76,7 @@ int main()
     glDeleteShader(fragmentShader);
 
     mstudioload barney = mstudioload();
-    barney.load("valve/models/barney.mdl");
+    barney.load("valve/models/hgrunt.mdl");
     
     rendermodel modelrenderer = rendermodel(shaderProgram);
     mstudioload texmodel = barney;
@@ -123,7 +123,7 @@ int main()
 
     glDeleteProgram(shaderProgram);
 
-    for (int t = 0; t < barney.header.numtextures; t++)
+    for (int t = 0; t < texmodel.header.numtextures; t++)
         glDeleteTextures(1, &textures[t]);
 
     // Clean up

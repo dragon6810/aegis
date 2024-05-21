@@ -35,9 +35,13 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
     mstudiobodypart_t* bodyparts = ((mstudiobodypart_t*) (model.data + model.header.bodypartindex));
     mstudiotexture_t* ptextures = (mstudiotexture_t*)(texmodel.data + texmodel.header.textureindex);
 
+    Mat3x4* boneTransforms = (Mat3x4*) malloc(model.header.numbones * sizeof(Mat3x4));
+    for (int b = 0; b < model.header.numbones; b++)
+        boneTransforms[b] = recursetransformfrombone(b, model.data);
+
     for (int b = 0; b < model.header.numbodyparts; b++)
     {
-        mstudiobodypart_t* pbodypart = bodyparts + b;
+        mstudiobodypart_t* pbodypart = &bodyparts[b];
 
         int index = model.header.numbodyparts / pbodypart->base;
         index = index % pbodypart->nummodels;
@@ -51,27 +55,29 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
         for (int m = 0; m < pmodel->nummesh; m++)
         {
             mstudiomesh_t* pmesh = (mstudiomesh_t*)(model.data + pmodel->meshindex) + m;
-            int numverts = pmesh->numtris < 0 ? -pmesh->numtris : pmesh->numtris;
+            short numverts = *((short*)(model.data + pmesh->triindex));
+            short absnumverts = numverts;
+            if (numverts < 0)
+                absnumverts = -numverts;
 
-            Vertex* vertices = (Vertex*) malloc(numverts * sizeof(Vertex));                                 
+            Vertex* vertices = (Vertex*) malloc(absnumverts * sizeof(Vertex));
             int texindex = pmesh->skinref;
 
-            for (int v = 0; v < numverts; v++)
+            for (int v = 0; v < absnumverts; v++)
             {
-                mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex) + v;
-                ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + v;
+                mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex + sizeof(short)) + v;
+                ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + ptrivert->vertindex;
                 vec3_t position = *((vec3_t*)(model.data + pmodel->vertindex) + ptrivert->vertindex);
                 Vector3 vpos = Vector3(new float[3] {position.x, position.y, position.z});
-                Mat3x4 bonetransform = recursetransformfrombone(*boneindex, model.data);
-                vpos = bonetransform * vpos;
+                vpos = boneTransforms[*boneindex] * vpos;
                 vertices[v] = { vpos.get(0), vpos.get(1), vpos.get(2), (float)ptrivert->s / (float)ptextures[texindex].width, (float)ptrivert->t / (float)ptextures[texindex].height};
             }
             
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, numverts * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, absnumverts * sizeof(Vertex), vertices, GL_DYNAMIC_DRAW);
             glUseProgram(shaderProgram);
             glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)4 / (float)3, 10.0f, 1000.0f);
-            glm::mat4 view = glm::lookAt(glm::vec3(30.0f, 30.0f, 30.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::mat4 view = glm::lookAt(glm::vec3(60.0f, 60.0f, 60.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             unsigned int projLoc = glGetUniformLocation(shaderProgram, "projection");
             unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
             glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
@@ -79,15 +85,17 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textures[texindex]);
             glUniform1i(glGetUniformLocation(shaderProgram, "albedosampler"), 0);
-            glDrawArrays(pmesh->numtris < 0 ? GL_TRIANGLE_FAN : GL_TRIANGLE_STRIP, 0, numverts);
+            glDrawArrays(numverts < 0 ? GL_TRIANGLE_FAN : GL_TRIANGLE_STRIP, 0, numverts);
             free(vertices);
         }
     }
 
     glBindVertexArray(0);
+
+    free(boneTransforms);
 }
 
-Mat3x4 rendermodel::transformfrombone(float values[6])
+Mat3x4 rendermodel::transformfrombone(float values[6], float scales[6])
 {
     Quaternion axis[3]{};
     axis[STUDIO_XR - 3] = Quaternion::AngleAxis(values[STUDIO_XR], new float[3] {1.0F, 0.0F, 0.0F});
@@ -104,15 +112,15 @@ Mat3x4 rendermodel::transformfrombone(float values[6])
     return transform;
 }
 
-Mat3x4 rendermodel::recursetransformfrombone(int bone, char* data)
+Mat3x4 rendermodel::recursetransformfrombone(ubyte_t bone, char* data) 
 {
     mstudioheader_t* pheader = (mstudioheader_t*)data;
     mstudiobone_t* pbones = (mstudiobone_t*)(data + pheader->boneindex);
 
     if (pbones[bone].parent == -1)
-        return transformfrombone(pbones[bone].value);
+        return transformfrombone(pbones[bone].value, pbones[bone].scale);
 
-    return recursetransformfrombone(pbones[bone].parent, data) * transformfrombone(pbones[bone].value);
+    return recursetransformfrombone(pbones[bone].parent, data) * transformfrombone(pbones[bone].value, pbones[bone].scale);
 }
 
 rendermodel::~rendermodel()
