@@ -67,3 +67,23 @@ Quaternion Quaternion::operator*(Quaternion a)
 
     return result;
 }
+
+Quaternion Quaternion::FromAngle(float axis[3])
+{
+    float sy = sin(axis[2] * 0.5F);
+    float cy = cos(axis[2] * 0.5F);
+
+    float sp = sin(axis[1] * 0.5F);
+    float cp = cos(axis[1] * 0.5F);
+
+    float sr = sin(axis[0] * 0.5F);
+    float cr = cos(axis[0] * 0.5F);
+
+    Quaternion q;
+    q.q[0] = sr * cp * cy - cr * sp * sy; // X component
+    q.q[1] = cr * sp * cy + sr * cp * sy; // Y component
+    q.q[2] = cr * cp * sy - sr * sp * cy; // Z component
+    q.q[3] = cr * cp * cy + sr * sp * sy; // W component
+
+    return q;
+}

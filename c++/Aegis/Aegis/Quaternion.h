@@ -7,6 +7,7 @@ struct Quaternion
 	float q[4];
 
 	static Quaternion AngleAxis(float theta, float axis[3]);
+	static Quaternion FromAngle(float axis[3]);
 
 	Mat3x4 toMat();
 

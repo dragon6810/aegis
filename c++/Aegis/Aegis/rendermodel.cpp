@@ -60,10 +60,10 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
             if (numverts < 0)
                 absnumverts = -numverts;
 
-            Vertex* vertices = (Vertex*) malloc(absnumverts * sizeof(Vertex));
+            Vertex* vertices = (Vertex*) malloc((absnumverts + 1) * sizeof(Vertex));
             int texindex = pmesh->skinref;
 
-            for (int v = 0; v < absnumverts; v++)
+            for (int v = 0; v < absnumverts + 1; v++)
             {
                 mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex + sizeof(short)) + v;
                 ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + ptrivert->vertindex;
@@ -97,17 +97,15 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
 
 Mat3x4 rendermodel::transformfrombone(float values[6], float scales[6])
 {
-    Quaternion axis[3]{};
-    axis[STUDIO_XR - 3] = Quaternion::AngleAxis(values[STUDIO_XR], new float[3] {1.0F, 0.0F, 0.0F});
-    axis[STUDIO_YR - 3] = Quaternion::AngleAxis(values[STUDIO_YR], new float[3] {0.0F, 1.0F, 0.0F});
-    axis[STUDIO_ZR - 3] = Quaternion::AngleAxis(values[STUDIO_ZR], new float[3] {0.0F, 0.0F, 1.0F});
+    Quaternion rotation = Quaternion::FromAngle(&values[3]);
+    Mat3x4 rotationMat = rotation.toMat();
 
-    Quaternion rotation = axis[STUDIO_XR - 3] * axis[STUDIO_YR - 3] * axis[STUDIO_ZR - 3];
-    Mat3x4 transform = rotation.toMat();
+    Mat3x4 translationMat = Mat3x4::getIdentity();
+    translationMat.val[0][3] = values[STUDIO_X];
+    translationMat.val[1][3] = values[STUDIO_Y];
+    translationMat.val[2][3] = values[STUDIO_Z];
 
-    transform.val[0][3] = values[STUDIO_X];
-    transform.val[1][3] = values[STUDIO_Y];
-    transform.val[2][3] = values[STUDIO_Z];
+    Mat3x4 transform = translationMat * rotationMat;
 
     return transform;
 }
