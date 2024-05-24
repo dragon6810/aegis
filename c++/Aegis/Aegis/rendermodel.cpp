@@ -60,10 +60,10 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
             if (numverts < 0)
                 absnumverts = -numverts;
 
-            Vertex* vertices = (Vertex*) malloc((absnumverts + 1) * sizeof(Vertex));
+            Vertex* vertices = (Vertex*) malloc((absnumverts) * sizeof(Vertex));
             int texindex = pmesh->skinref;
 
-            for (int v = 0; v < absnumverts + 1; v++)
+            for (int v = 0; v < absnumverts; v++)
             {
                 mstudiotrivert_t* ptrivert = (mstudiotrivert_t*)(model.data + pmesh->triindex + sizeof(short)) + v;
                 ubyte_t* boneindex = (ubyte_t*)(model.data + pmodel->vertinfoindex) + ptrivert->vertindex;

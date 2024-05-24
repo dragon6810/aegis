@@ -1,4 +1,23 @@
-﻿  Mat3x4.cpp
+﻿  Aegis.cpp
+  binaryloader.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\binaryloader.cpp(13,20): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+  loadtexture.cpp
+  Mat3x4.cpp
+  mstudioload.cpp
+  Quaternion.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(77,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(78,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(80,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(81,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(83,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(84,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  rendermodel.cpp
+  Vector3.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Vector3.cpp(13,28): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Generating Code...
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
