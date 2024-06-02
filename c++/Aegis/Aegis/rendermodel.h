@@ -14,13 +14,12 @@ public:
 		float tex[2];
 	} Vertex;
 
-	unsigned int VAO, VBO;
-	unsigned int shaderProgram;
 	mstudioload model;
 	rendermodel(unsigned int shaderProgram);
 	~rendermodel();
 
+	int bgroup = 0;
+
 	void render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel);
 	Mat3x4 transformfrombone(float values[6], float scales[6]);
-	Mat3x4 recursetransformfrombone(ubyte_t bone, char* data);
 };

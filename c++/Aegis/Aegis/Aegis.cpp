@@ -6,99 +6,105 @@
 #include "loadtexture.h"
 #include "binaryloader.h"
 
-const char* vertexShaderSource = R"glsl(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 tex;
-uniform mat4 projection;
-uniform mat4 view;
-
-out vec2 texcoord;
-
-void main() 
+void renderCube()
 {
-    gl_Position = projection * view * vec4(aPos, 1.0);
-    texcoord = tex;
+    glBegin(GL_QUADS);
+
+    // Front face
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+
+    // Back face
+    glColor3f(0.0f, 1.0f, 0.0f);  // Green
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
+
+    // Left face
+    glColor3f(0.0f, 0.0f, 1.0f);  // Blue
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+
+    // Right face
+    glColor3f(1.0f, 1.0f, 0.0f);  // Yellow
+    glVertex3f(1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+
+    // Top face
+    glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+
+    // Bottom face
+    glColor3f(0.0f, 1.0f, 1.0f);  // Cyan
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
+
+    glEnd();
 }
-)glsl";
 
-const char* fragmentShaderSource = R"glsl(
-#version 330 core
-out vec4 FragColor;
-
-in vec2 texcoord;
-
-uniform sampler2D albedosampler;
-
-void main()
+int main()
 {
-    FragColor = texture(albedosampler, texcoord);
-}
-)glsl";
-
-int main() 
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Triangle", NULL, NULL);
-    if (window == NULL) 
+    if (!glfwInit())
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Debug", nullptr, nullptr);
+    if (window == nullptr)
+    {
+        std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glewInit();
 
-    // Vertex Shader
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
 
-    // Fragment Shader
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // Shader Program
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
+    // Initialize model
     mstudioload barney = mstudioload();
-    barney.load("valve/models/hgrunt.mdl");
-    
-    rendermodel modelrenderer = rendermodel(shaderProgram);
+    barney.load("valve/models/barney.mdl");
+
+    rendermodel modelrenderer = rendermodel(0);
     mstudioload texmodel = barney;
-    
+
     if (barney.header.numtextures == 0)
     {
         char texturename[256];
-
         strcpy(texturename, barney.header.name);
         strcpy(&texturename[strlen(texturename) - 4], "T.mdl");
-
         texmodel.load(texturename);
     }
 
     mstudioheader_t* textureHeader = (mstudioheader_t*)texmodel.data;
-    GLuint* textures = (GLuint*)malloc(textureHeader->numtextures);
+    GLuint* textures = (GLuint*)malloc(textureHeader->numtextures * sizeof(GLuint));
 
     for (int t = 0; t < textureHeader->numtextures; t++)
     {
         char* texdata = nullptr;
         int width = 0, height = 0;
-        loadmstudiotexture(texmodel.data, t, TEXTYPE_MSTUDIO, (int**) &(texdata), &width, &height);
+        loadmstudiotexture(texmodel.data, t, TEXTYPE_MSTUDIO, (int**)&(texdata), &width, &height);
         glGenTextures(1, &textures[t]);
         glBindTexture(GL_TEXTURE_2D, textures[t]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -107,24 +113,40 @@ int main()
         free(texdata);
     }
 
-    // Render loop
-    while (!glfwWindowShouldClose(window)) 
+    //glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);  // Enable depth test
+    glDepthFunc(GL_LEQUAL);   // Specify the depth function
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(50.0, 4.0 / 3.0, 0.1, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(10.0, 10.0, 10.0,
+        0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0);
+
+    glViewport(0, 0, 800, 600);
+
+    glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+
+    while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
 
-        float pos[] = { 0.0F, 0.0F, 0.0F };
+        glDisable(GL_CULL_FACE);
 
+        float pos[] = { 0.0f, 0.0f, 0.0f };
         modelrenderer.render(barney, pos, textures, texmodel);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteProgram(shaderProgram);
-
     for (int t = 0; t < texmodel.header.numtextures; t++)
         glDeleteTextures(1, &textures[t]);
+
+    free(textures);
 
     // Clean up
     glfwDestroyWindow(window);

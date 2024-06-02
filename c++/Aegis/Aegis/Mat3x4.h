@@ -11,5 +11,6 @@ public:
 
 	Vector3 operator*(Vector3 a);
 	Mat3x4 operator*(Mat3x4 b);
+	bool operator==(Mat3x4 a);
 };
 

@@ -2,6 +2,7 @@
 
 #include "defs.h"
 
+#define MSTUDIOMAXBONES 128
 #define MSTUDIOMAXMESHVERTS 2048
 
 class mstudioload

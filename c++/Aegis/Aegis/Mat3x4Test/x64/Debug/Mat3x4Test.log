@@ -1,0 +1,5 @@
+﻿  pch.cpp
+  test.cpp
+Mat3x4.obj : error LNK2019: unresolved external symbol "public: __cdecl Vector3::Vector3(float * const)" (??0Vector3@@QEAA@QEAM@Z) referenced in function "public: class Vector3 __cdecl Mat3x4::operator*(class Vector3)" (??DMat3x4@@QEAA?AVVector3@@V1@@Z)
+Mat3x4.obj : error LNK2019: unresolved external symbol "public: float __cdecl Vector3::get(int)" (?get@Vector3@@QEAAMH@Z) referenced in function "public: class Vector3 __cdecl Mat3x4::operator*(class Vector3)" (??DMat3x4@@QEAA?AVVector3@@V1@@Z)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Mat3x4Test.exe : fatal error LNK1120: 2 unresolved externals

@@ -37,3 +37,17 @@ Mat3x4 Mat3x4::getIdentity()
 
     return mat;
 }
+
+bool Mat3x4::operator==(Mat3x4 a)
+{
+    for (int r = 0; r < 3; r++)
+    {
+        for (int c = 0; c < 4; c++)
+        {
+            if (!((a.val[r][c] > val[r][c] - 0.001F) && (a.val[r][c] < val[r][c] + 0.001F)))
+                return false;
+        }
+    }
+
+    return true;
+}
