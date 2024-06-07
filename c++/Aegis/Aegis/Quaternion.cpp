@@ -22,20 +22,20 @@ Quaternion Quaternion::AngleAxis(float theta, float axis[3])
 Mat3x4 Quaternion::toMat()
 {
     Mat3x4 mat = Mat3x4();
-    float s = 1.0F / (q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-    mat.val[0][0] = 1.0F - 2.0F * s * (q[2] * q[2] + q[3] * q[3]);
-    mat.val[0][1] = 2.0F * s * (q[1] * q[2] - q[3] * q[0]);
-    mat.val[0][2] = 2.0F * s * (q[1] * q[3] + q[2] * q[0]);
+
+    mat.val[0][0] = 1.0F - 2.0F * (q[2] * q[2] + q[3] * q[3]);
+    mat.val[0][1] = 2.0F * (q[1] * q[2] - q[3] * q[0]);
+    mat.val[0][2] = 2.0F * (q[1] * q[3] + q[2] * q[0]);
     mat.val[0][3] = 0.0F;
 
-    mat.val[1][0] = 2.0F * s * (q[1] * q[2] + q[3] * q[0]);
-    mat.val[1][1] = 1.0F - 2.0F * s * (q[1] * q[1] + q[3] * q[3]);
-    mat.val[1][2] = 2.0F * s * (q[2] * q[3] - q[1] * q[0]);
+    mat.val[1][0] = 2.0F * (q[1] * q[2] + q[3] * q[0]);
+    mat.val[1][1] = 1.0F - 2.0F * (q[1] * q[1] + q[3] * q[3]);
+    mat.val[1][2] = 2.0F * (q[2] * q[3] - q[1] * q[0]);
     mat.val[1][3] = 0.0F;
 
-    mat.val[2][0] = 2.0F * s * (q[1] * q[3] - q[2] * q[0]);
-    mat.val[2][1] = 2.0F * s * (q[2] * q[3] + q[1] * q[0]);
-    mat.val[2][2] = 1.0F - 2.0F * s * (q[0] * q[0] + q[2] * q[2]);
+    mat.val[2][0] = 2.0F * (q[1] * q[3] - q[2] * q[0]);
+    mat.val[2][1] = 2.0F * (q[2] * q[3] + q[1] * q[0]);
+    mat.val[2][2] = 1.0F - 2.0F * (q[1] * q[1] + q[2] * q[2]);
     mat.val[2][3] = 0.0F;
 
     return mat;
@@ -71,9 +71,22 @@ Quaternion Quaternion::operator*(Quaternion a)
 
 Quaternion Quaternion::FromAngle(float axis[3])
 {
-    Quaternion x = Quaternion::AngleAxis(axis[0], new float[3] { 1.0F, 0.0F, 0.0F });
-    Quaternion y = Quaternion::AngleAxis(axis[1], new float[3] { 0.0F, 1.0F, 0.0F });
-    Quaternion z = Quaternion::AngleAxis(axis[2], new float[3] { 0.0F, 0.0F, 1.0F });
+    float axisvals[3]{};
+
+    axisvals[0] = 1.0F;
+    axisvals[1] = 0.0F;
+    axisvals[2] = 0.0F;
+    Quaternion x = Quaternion::AngleAxis(axis[0], axisvals);
+
+    axisvals[0] = 0.0F;
+    axisvals[1] = 1.0F;
+    axisvals[2] = 0.0F;
+    Quaternion y = Quaternion::AngleAxis(axis[1], axisvals);
+
+    axisvals[0] = 0.0F;
+    axisvals[1] = 0.0F;
+    axisvals[2] = 1.0F;
+    Quaternion z = Quaternion::AngleAxis(axis[2], axisvals);
 
     return x * y * z;
 }

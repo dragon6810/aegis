@@ -6,25 +6,32 @@
 
 Vector3 Mat3x4::operator*(Vector3 a)
 {
-	float x = a.get(0) * val[0][0] + a.get(1) * val[0][1] + a.get(2) * val[0][2] + val[0][3];
-	float y = a.get(0) * val[1][0] + a.get(1) * val[1][1] + a.get(2) * val[1][2] + val[1][3];
-	float z = a.get(0) * val[2][0] + a.get(1) * val[2][1] + a.get(2) * val[2][2] + val[2][3];
-	return Vector3(new float[3] { x, y, z });
+    float v[3]{};
+	v[0] = a.get(0) * val[0][0] + a.get(1) * val[0][1] + a.get(2) * val[0][2] + val[0][3];
+    v[1] = a.get(0) * val[1][0] + a.get(1) * val[1][1] + a.get(2) * val[1][2] + val[1][3];
+    v[2] = a.get(0) * val[2][0] + a.get(1) * val[2][1] + a.get(2) * val[2][2] + val[2][3];
+	return Vector3(v);
 }
 
 Mat3x4 Mat3x4::operator*(Mat3x4 b)
 {
     Mat3x4 result;
-    for (int i = 0; i < 3; ++i)
-    {
-        for (int j = 0; j < 4; ++j)
-        {
-            result.val[i][j] = val[i][0] * b.val[0][j] +
-                val[i][1] * b.val[1][j] +
-                val[i][2] * b.val[2][j] +
-                (j == 3 ? val[i][3] + b.val[i][3] : 0);  // Properly handle the translation components
-        }
-    }
+    
+    result.val[0][0] = val[0][0] * b.val[0][0] + val[0][1] * b.val[1][0] + val[0][2] * b.val[2][0];
+    result.val[0][1] = val[0][0] * b.val[0][1] + val[0][1] * b.val[1][1] + val[0][2] * b.val[2][1];
+    result.val[0][2] = val[0][0] * b.val[0][2] + val[0][1] * b.val[1][2] + val[0][2] * b.val[2][2];
+    result.val[0][3] = val[0][0] * b.val[0][3] + val[0][1] * b.val[1][3] + val[0][2] * b.val[2][3] + val[0][3];
+
+    result.val[1][0] = val[1][0] * b.val[0][0] + val[1][1] * b.val[1][0] + val[1][2] * b.val[2][0];
+    result.val[1][1] = val[1][0] * b.val[0][1] + val[1][1] * b.val[1][1] + val[1][2] * b.val[2][1];
+    result.val[1][2] = val[1][0] * b.val[0][2] + val[1][1] * b.val[1][2] + val[1][2] * b.val[2][2];
+    result.val[1][3] = val[1][0] * b.val[0][3] + val[1][1] * b.val[1][3] + val[1][2] * b.val[2][3] + val[1][3];
+
+    result.val[2][0] = val[2][0] * b.val[0][0] + val[2][1] * b.val[1][0] + val[2][2] * b.val[2][0];
+    result.val[2][1] = val[2][0] * b.val[0][1] + val[2][1] * b.val[1][1] + val[2][2] * b.val[2][1];
+    result.val[2][2] = val[2][0] * b.val[0][2] + val[2][1] * b.val[1][2] + val[2][2] * b.val[2][2];
+    result.val[2][3] = val[2][0] * b.val[0][3] + val[2][1] * b.val[1][3] + val[2][2] * b.val[2][3] + val[2][3];
+
     return result;
 }
 

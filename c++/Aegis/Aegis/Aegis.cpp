@@ -81,8 +81,7 @@ int main()
         std::cerr << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
-
-    // Initialize model
+    
     mstudioload barney = mstudioload();
     barney.load("valve/models/barney.mdl");
 
