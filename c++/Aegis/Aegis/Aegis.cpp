@@ -6,55 +6,7 @@
 #include "rendermodel.h"
 #include "loadtexture.h"
 #include "binaryloader.h"
-
-void renderCube()
-{
-    glBegin(GL_QUADS);
-
-    // Front face
-    glColor3f(1.0f, 0.0f, 0.0f);  // Red
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-
-    // Back face
-    glColor3f(0.0f, 1.0f, 0.0f);  // Green
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-    glVertex3f(1.0f, 1.0f, -1.0f);
-    glVertex3f(1.0f, -1.0f, -1.0f);
-
-    // Left face
-    glColor3f(0.0f, 0.0f, 1.0f);  // Blue
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-
-    // Right face
-    glColor3f(1.0f, 1.0f, 0.0f);  // Yellow
-    glVertex3f(1.0f, -1.0f, -1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, -1.0f);
-
-    // Top face
-    glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, -1.0f);
-
-    // Bottom face
-    glColor3f(0.0f, 1.0f, 1.0f);  // Cyan
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, -1.0f);
-
-    glEnd();
-}
+#include "AssetManager.h"
 
 int main()
 {
@@ -82,52 +34,6 @@ int main()
         std::cerr << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
-    
-    mstudioload barney = mstudioload();
-    const char* mdlname = "valve/models/hgrunt.mdl";
-    barney.load(mdlname);
-
-    rendermodel modelrenderer = rendermodel(0);
-    mstudioload texmodel = barney;
-
-    if (barney.header.numtextures == 0)
-    {
-        char texturename[256];
-        strcpy(texturename, barney.header.name);
-        strcpy(&texturename[strlen(texturename) - 4], "T.mdl");
-        texmodel.load(texturename);
-    }
-
-    mstudioheader_t* textureHeader = (mstudioheader_t*)texmodel.data;
-    GLuint* textures = (GLuint*)malloc(textureHeader->numtextures * sizeof(GLuint));
-
-    for (int t = 0; t < textureHeader->numtextures; t++)
-    {
-        char* texdata = nullptr;
-        int width = 0, height = 0;
-        loadmstudiotexture(texmodel.data, t, TEXTYPE_MSTUDIO, (int**)&(texdata), &width, &height);
-        glGenTextures(1, &textures[t]);
-        glBindTexture(GL_TEXTURE_2D, textures[t]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata);
-        free(texdata);
-    }
-
-    mstudioseqheader_t* seqheaders[32];
-
-    if (barney.header.numseqgroups > 1)
-    {
-        for (int i = 1; i < barney.header.numseqgroups; i++)
-        {
-            char seqgroupname[256];
-
-            strcpy(seqgroupname, mdlname);
-            sprintf(&seqgroupname[strlen(seqgroupname) - 4], "%02d.mdl", i);
-
-            loadBytes(&seqgroupname[0], (char**) &seqheaders[i]);
-        }
-    }
 
     //glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
@@ -146,7 +52,15 @@ int main()
 
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
 
-    modelrenderer.startseq(0);
+    SModel barney;
+    barney.Load("valve/models/barney.mdl");
+    barney.startseq(4);
+    barney.SetPosition(-20.0, 0.0, 0.0);
+
+    SModel hgrunt;
+    hgrunt.Load("valve/models/hgrunt.mdl");
+    hgrunt.startseq(0);
+    hgrunt.SetPosition(20.0, 0.0, 0.0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -154,23 +68,18 @@ int main()
 
         glDisable(GL_CULL_FACE);
 
-        float pos[] = { 0.0f, 0.0f, 0.0f };
-        modelrenderer.render(barney, pos, textures, texmodel, &seqheaders[0]);
+        barney.render();
+        hgrunt.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    for (int t = 0; t < texmodel.header.numtextures; t++)
-        glDeleteTextures(1, &textures[t]);
-
-    free(textures);
-
-    for (int s = 1; s < barney.header.numseqgroups; s++)
-        free(seqheaders[s]);
-
+    
     // Clean up
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    AssetManager::getInst().cleanup();
+
     return 0;
 }

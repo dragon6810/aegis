@@ -1,4 +1,7 @@
-﻿  Aegis.cpp
+﻿  loadtexture.cpp
+  rendermodel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(84,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

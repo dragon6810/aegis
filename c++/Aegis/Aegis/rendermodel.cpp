@@ -4,19 +4,77 @@
 #include <iostream>
 #include <gtc/matrix_transform.hpp>
 #include "Quaternion.h"
+#include "binaryloader.h"
 #include <chrono>
+#include "AssetManager.h"
 
-rendermodel::rendermodel(unsigned int shaderProgram)
+void SModel::Load(const char* modelname)
 {
+    loadBytes(modelname, (char**) &header);
+
+    char texturename[256];
+    if (header->numtextures == 0)
+    {
+        strcpy(texturename, modelname);
+        strcpy(&texturename[strlen(texturename) - 4], "T.mdl");
+        loadBytes(texturename, (char**)&texheader);
+    }
+    else
+    {
+        strcpy(texturename, modelname);
+        texheader = header;
+    }
+
+    textures = (int*) malloc(sizeof(int) * texheader->numtextures);
+
+    mstudiotexture_t* ptex = (mstudiotexture_t*) ((char*)texheader + texheader->textureindex);
+    for (int t = 0; t < texheader->numtextures; t++)
+    {
+        textures[t] = AssetManager::getInst().getTextureIndex(ptex[t].name, header->name);
+
+        char* texdata = nullptr;
+        int width = 0, height = 0;
+        loadmstudiotexture((char*)texheader, t, TEXTYPE_MSTUDIO, (int**)&(texdata), &width, &height);
+        if (textures[t] < 0)
+        {
+            textures[t] = -textures[t] + 1;
+            glGenTextures(1, (GLuint*)&textures[t]);
+            glBindTexture(GL_TEXTURE_2D, textures[t]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata);
+        }
+        free(texdata);
+    }
+
+    if (header->numseqgroups > 1)
+    {
+        for (int i = 1; i < header->numseqgroups; i++)
+        {
+            char seqgroupname[256];
+
+            strcpy(seqgroupname, modelname);
+            sprintf(&seqgroupname[strlen(seqgroupname) - 4], "%02d.mdl", i);
+
+            loadBytes(&seqgroupname[0], (char**)&seqheader[i]);
+        }
+    }
 }
 
-void rendermodel::startseq(int seqindex)
+void SModel::SetPosition(float x, float y, float z)
+{
+    pos[0] = x;
+    pos[1] = y;
+    pos[2] = z;
+}
+
+void SModel::startseq(int seqindex)
 {
     curseq = seqindex;
     seqstarttime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-void rendermodel::render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel, mstudioseqheader_t** seqheaders)
+void SModel::render()
 {
     if (seqstarttime == 0)
         frame = 0.0F;
@@ -24,37 +82,35 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         float delta = (float)(now - seqstarttime) / 1000.0;
-        mstudioseqdescription_t* seq = (mstudioseqdescription_t*)(model.data + model.header.seqindex);
+        mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex);
         frame = delta * seq->fps;
     }
 
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glEnable(GL_TEXTURE_2D);
 
-    this->model = model;
-
-    mstudiobodypart_t* bodyparts = (mstudiobodypart_t*)(model.data + model.header.bodypartindex);
-    mstudiotexture_t* ptextures = (mstudiotexture_t*)(texmodel.data + texmodel.header.textureindex);
-    mstudiobone_t* pbones = (mstudiobone_t*)(model.data + model.header.boneindex);
-    mstudiobonecontroller_t* pbonecontrollers = (mstudiobonecontroller_t*)(model.data + model.header.bonecontrollerindex);
+    mstudiobodypart_t* bodyparts = (mstudiobodypart_t*)((char*)header + header->bodypartindex);
+    mstudiotexture_t* ptextures = (mstudiotexture_t*)((char*)texheader + texheader->textureindex);
+    mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
+    mstudiobonecontroller_t* pbonecontrollers = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex);
     
     Mat3x4 boneTransforms[MSTUDIOMAXBONES]{};
-    for (int b = 0; b < model.header.numbones; b++)
-        boneTransforms[b] = transformfrombone(b, seqheaders);
+    for (int b = 0; b < header->numbones; b++)
+        boneTransforms[b] = transformfrombone(b);
 
-    for (int b = 0; b < model.header.numbones; b++)
+    for (int b = 0; b < header->numbones; b++)
     {
         if (pbones[b].parent == -1)
             continue;
         boneTransforms[b] = boneTransforms[pbones[b].parent] * boneTransforms[b];
     }
 
-    for (int b = 0; b < model.header.numbodyparts; b++)
+    for (int b = 0; b < header->numbodyparts; b++)
     {
         mstudiobodypart_t* pbodypart = &bodyparts[b];
-        mstudiomodel_t* pmodel = (mstudiomodel_t*)(model.data + pbodypart->modelindex);
-        vec3_t* pstudioverts = (vec3_t*)(model.data + pmodel->vertindex);
-        ubyte_t* pvertbone = (ubyte_t*)(model.data + pmodel->vertinfoindex);
+        mstudiomodel_t* pmodel = (mstudiomodel_t*)((char*)header + pbodypart->modelindex);
+        vec3_t* pstudioverts = (vec3_t*)((char*)header + pmodel->vertindex);
+        ubyte_t* pvertbone = (ubyte_t*)((char*)header + pmodel->vertinfoindex);
 
         vec3_t xformverts[MSTUDIOMAXMESHVERTS]{};
         for (int v = 0; v < pmodel->numverts; v++)
@@ -71,8 +127,8 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
 
         for (int m = 0; m < pmodel->nummesh; m++)
         {
-            mstudiomesh_t* pmesh = (mstudiomesh_t*)(model.data + pmodel->meshindex) + m;
-            short* ptricmds = (short*)(model.data + pmesh->triindex);
+            mstudiomesh_t* pmesh = (mstudiomesh_t*)((char*)header + pmodel->meshindex) + m;
+            short* ptricmds = (short*)((char*)header + pmesh->triindex);
 
             int texindex = pmesh->skinref;
             glBindTexture(GL_TEXTURE_2D, textures[texindex]);
@@ -94,7 +150,7 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
                     vec3_t position = xformverts[ptricmds[0]];
                     glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     glTexCoord2f((float)ptricmds[2] / (float)ptextures[texindex].width, (float)ptricmds[3] / (float)ptextures[texindex].height);
-                    glVertex3f(position.x, position.y, position.z);
+                    glVertex3f(position.x + pos[0], position.y + pos[1], position.z + pos[2]);
                 }
                 glEnd();
             }
@@ -104,24 +160,24 @@ void rendermodel::render(const mstudioload& model, float pos[3], GLuint* texture
     glDisable(GL_TEXTURE_2D);
 }
 
-Mat3x4 rendermodel::transformfrombone(int boneindex, mstudioseqheader_t** seqheaders)
+Mat3x4 SModel::transformfrombone(int boneindex)
 {
     int sequence = curseq;
     int f = (int)frame;
     float s = frame - f;
 
-    mstudiobone_t* pbone = (mstudiobone_t*)(model.data + model.header.boneindex) + boneindex;
+    mstudiobone_t* pbone = (mstudiobone_t*)((char*)header + header->boneindex) + boneindex;
 
-    mstudioseqdescription_t* pseqdesc = (mstudioseqdescription_t*)(model.data + model.header.seqindex) + sequence;
-    mstudioseqgroup_t* pseqgroup = (mstudioseqgroup_t*)(model.data + model.header.seqgroupindex) + pseqdesc->seqgroup;
+    mstudioseqdescription_t* pseqdesc = (mstudioseqdescription_t*)((char*)header + header->seqindex) + sequence;
+    mstudioseqgroup_t* pseqgroup = (mstudioseqgroup_t*)((char*)header + header->seqgroupindex) + pseqdesc->seqgroup;
 
     f %= pseqdesc->numframes - 1;
 
     mstudioanimchunk_t* panim;
     if (pseqdesc->seqgroup == 0)
-        panim = (mstudioanimchunk_t*)(model.data + pseqgroup->unused2 + pseqdesc->animindex) + boneindex;
+        panim = (mstudioanimchunk_t*)((char*)header + pseqgroup->unused2 + pseqdesc->animindex) + boneindex;
     else
-        panim = (mstudioanimchunk_t*)(seqheaders[pseqdesc->seqgroup] + pseqdesc->animindex) + boneindex;
+        panim = (mstudioanimchunk_t*)(seqheader[pseqdesc->seqgroup] + pseqdesc->animindex) + boneindex;
 
     float pos[3];
     Quaternion rot;
@@ -243,6 +299,10 @@ Mat3x4 rendermodel::transformfrombone(int boneindex, mstudioseqheader_t** seqhea
     return rotationMat;
 }
 
-rendermodel::~rendermodel()
+SModel::~SModel()
 {
+    for (int s = 1; s < header->numseqgroups; s++)
+        free(seqheader[s]);
+
+    free(textures);
 }

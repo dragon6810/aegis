@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="binaryloader.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssetManager.h" />
     <ClInclude Include="binaryloader.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="loadtexture.h" />

@@ -5,7 +5,7 @@
 #include "defs.h"
 #include <gl/glew.h>
 
-class rendermodel
+class SModel
 {
 public:
 
@@ -15,9 +15,15 @@ public:
 		float tex[2];
 	} Vertex;
 
-	mstudioload model;
-	rendermodel(unsigned int shaderProgram);
-	~rendermodel();
+	mstudioheader_t* header;
+	mstudioheader_t* texheader;
+	mstudioseqheader_t* seqheader[32];
+
+	int* textures;
+
+	~SModel();
+
+	float pos[3] = { 0.0, 0.0, 0.0 };
 
 	int bgroup = 0;
 	float adj[4];
@@ -26,7 +32,9 @@ public:
 	float frame;
 	long long seqstarttime = 0;
 
+	void Load(const char* modelname);
+	void SetPosition(float x, float y, float z);
 	void startseq(int seqindex);
-	void render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel, mstudioseqheader_t** seqheaders);
-	Mat3x4 transformfrombone(int boneindex, mstudioseqheader_t** seqheaders);
+	void render();
+	Mat3x4 transformfrombone(int boneindex);
 };
