@@ -22,6 +22,9 @@ public:
 	Mat3x4 boneTransforms[MSTUDIOMAXBONES]{};
 	vec3_t xformverts[MSTUDIOMAXMESHVERTS]{};
 	vec3_t xformnorms[MSTUDIOMAXMESHVERTS]{};
+	vec3_t lightvals[MSTUDIOMAXMESHVERTS]{};
+	vec3_t boneup[MSTUDIOMAXBONES]{};
+	vec3_t boneright[MSTUDIOMAXBONES]{};
 
 	int* textures;
 

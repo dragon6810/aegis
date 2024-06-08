@@ -76,6 +76,8 @@ void SModel::startseq(int seqindex)
 
 void SModel::render()
 {
+    float camerapos[3]{ 53.0, 53.0, 88.0 };
+
     if (seqstarttime == 0)
         frame = 0.0F;
     else
@@ -102,6 +104,32 @@ void SModel::render()
         if (pbones[b].parent == -1)
             continue;
         boneTransforms[b] = boneTransforms[pbones[b].parent] * boneTransforms[b];
+    }
+
+    for (int b = 0; b < header->numbones; b++)
+    {
+        float up[3] =    { 0.0, 0.0, 1.0 };
+        float right[3] = { 1.0, 0.0, 0.0 };
+
+        float bone[3] = { boneTransforms[b].val[0][3], boneTransforms[b].val[1][3], boneTransforms[b].val[2][3] };
+        Vector3 bonev = Vector3(bone).normalize();
+
+        Mat3x4 rotonly = boneTransforms[b];
+        rotonly.val[0][3] = 0.0;
+        rotonly.val[1][3] = 0.0;
+        rotonly.val[2][3] = 0.0;
+
+        bonev = rotonly * bonev;
+
+        Vector3 boner = Vector3::cross(Vector3(up), bonev);
+        boneright[b].x = boner.get(0);
+        boneright[b].y = boner.get(1);
+        boneright[b].z = boner.get(2);
+
+        Vector3 boneu = Vector3::cross(bonev, boner);
+        boneup[b].x = boneu.get(0);
+        boneup[b].y = boneu.get(1);
+        boneup[b].z = boneu.get(2);
     }
 
     for (int b = 0; b < header->numbodyparts; b++)
@@ -133,6 +161,14 @@ void SModel::render()
             xformnorms[n].x = vec.get(0);
             xformnorms[n].y = vec.get(1);
             xformnorms[n].z = vec.get(2);
+
+            float norm[3] = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
+            float lightdir[3] = { 0.0, 0.0, 1.0 };
+            float ambient = 0.75;
+            float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
+            lightvals[n].x = light;
+            lightvals[n].y = light;
+            lightvals[n].z = light;
         }
 
         glCullFace(GL_FRONT);
@@ -140,6 +176,7 @@ void SModel::render()
         for (int m = 0; m < pmodel->nummesh; m++)
         {
             mstudiomesh_t* pmesh = (mstudiomesh_t*)((char*)header + pmodel->meshindex) + m;
+
             short* ptricmds = (short*)((char*)header + pmesh->triindex);
 
             int texindex = pmesh->skinref;
@@ -160,12 +197,28 @@ void SModel::render()
                 for (; i > 0; i--, ptricmds += 4)
                 {
                     vec3_t position = xformverts[ptricmds[0]];
-                    float norm[3] = {xformnorms[ptricmds[1]].x, xformnorms[ptricmds[1]].y,xformnorms[ptricmds[1]].z};
-                    float lightdir[3] = { 0.0, 0.0, 1.0 };
-                    float ambient = 0.75;
-                    float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
-                    glColor4f(1.0F * light, 1.0F * light, 1.0F * light, 1.0F);
-                    glTexCoord2f((float)ptricmds[2] / (float)ptextures[texindex].width, (float)ptricmds[3] / (float)ptextures[texindex].height);
+                    vec3_t norm = xformnorms[ptricmds[1]];
+                    
+                    glColor4f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z, 1.0F);
+
+                    if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
+                    {
+                        float posv[3] = { position.x, position.y, position.z };
+                        float normv[3] = { norm.x, norm.y, norm.z };
+                        Vector3 toeye = Vector3(camerapos) - Vector3(posv);
+                        toeye.normalize();
+                        Vector3 reflected = Vector3::reflect(toeye, Vector3(normv));
+                        float bup[3] = { boneup[pvertbone[ptricmds[0]]].x, boneup[pvertbone[ptricmds[0]]].y, boneup[pvertbone[ptricmds[0]]].z };
+                        float bright[3] = { boneright[pvertbone[ptricmds[0]]].x, boneright[pvertbone[ptricmds[0]]].y, boneright[pvertbone[ptricmds[0]]].z };
+                        float s = (Vector3::dot(reflected, Vector3(bup)) * ((float) ptextures[texindex].width / 2.0)) + ((float) ptextures[texindex].width / 2.0);
+                        float t = (Vector3::dot(reflected, Vector3(bright)) * ((float) ptextures[texindex].height / 2.0)) + ((float) ptextures[texindex].height / 2.0);
+                        glTexCoord2f(s / (float)ptextures[texindex].width, t / (float)ptextures[texindex].height);
+                    }
+                    else
+                    {
+                        glTexCoord2f((float)ptricmds[2] / (float)ptextures[texindex].width, (float)ptricmds[3] / (float)ptextures[texindex].height);
+                    }
+                    
                     glVertex3f(position.x + pos[0], position.y + pos[1], position.z + pos[2]);
                 }
                 glEnd();

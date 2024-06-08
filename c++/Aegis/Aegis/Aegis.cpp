@@ -41,7 +41,7 @@ int main()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50.0, 4.0 / 3.0, 0.1, 1000.0);
+    gluPerspective(65.0, 4.0 / 3.0, 0.1, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(53.0, 53.0, 88.0,

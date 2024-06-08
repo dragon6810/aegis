@@ -62,11 +62,11 @@ float Vector3::dot(Vector3 a, Vector3 b)
 	return a.get(0) * b.get(0) + a.get(1) * b.get(1) + a.get(2) * b.get(2);
 }
 
-Vector3 Vector3::cross(Vector3 a, Vector3 b)
+Vector3 Vector3::cross(Vector3 a, Vector3 b) 
 {
 	float v[3]{};
 	v[0] = a.get(1) * b.get(2) - a.get(2) * b.get(1);
-	v[1] = a.get(0) * b.get(2) - a.get(2) * b.get(0);
+	v[1] = a.get(2) * b.get(0) - a.get(0) * b.get(2);
 	v[2] = a.get(0) * b.get(1) - a.get(1) * b.get(0);
 
 	return Vector3(v);
