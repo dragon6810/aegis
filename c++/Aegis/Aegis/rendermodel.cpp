@@ -93,8 +93,7 @@ void SModel::render()
     mstudiotexture_t* ptextures = (mstudiotexture_t*)((char*)texheader + texheader->textureindex);
     mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
     mstudiobonecontroller_t* pbonecontrollers = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex);
-    
-    Mat3x4 boneTransforms[MSTUDIOMAXBONES]{};
+       
     for (int b = 0; b < header->numbones; b++)
         boneTransforms[b] = transformfrombone(b);
 
@@ -110,9 +109,10 @@ void SModel::render()
         mstudiobodypart_t* pbodypart = &bodyparts[b];
         mstudiomodel_t* pmodel = (mstudiomodel_t*)((char*)header + pbodypart->modelindex);
         vec3_t* pstudioverts = (vec3_t*)((char*)header + pmodel->vertindex);
+        vec3_t* pstudionorms = (vec3_t*)((char*)header + pmodel->normindex);
         ubyte_t* pvertbone = (ubyte_t*)((char*)header + pmodel->vertinfoindex);
-
-        vec3_t xformverts[MSTUDIOMAXMESHVERTS]{};
+        ubyte_t* pnormbone = (ubyte_t*)((char*)header + pmodel->norminfoindex);
+        
         for (int v = 0; v < pmodel->numverts; v++)
         {
             float coords[3] = { pstudioverts[v].x, pstudioverts[v].y, pstudioverts[v].z };
@@ -121,6 +121,18 @@ void SModel::render()
             xformverts[v].x = vec.get(0);
             xformverts[v].y = vec.get(1);
             xformverts[v].z = vec.get(2);
+        }
+        
+        for (int n = 0; n < pmodel->numnorms; n++)
+        {
+            float coords[3] = { pstudionorms[n].x, pstudionorms[n].y, pstudionorms[n].z };
+            Vector3 vec = Vector3(coords);
+            Mat3x4 rotonly = boneTransforms[pnormbone[n]];
+            rotonly.val[0][3] = rotonly.val[1][3] = rotonly.val[2][3] = 0.0;
+            vec = rotonly * vec;
+            xformnorms[n].x = vec.get(0);
+            xformnorms[n].y = vec.get(1);
+            xformnorms[n].z = vec.get(2);
         }
 
         glCullFace(GL_FRONT);
@@ -148,7 +160,11 @@ void SModel::render()
                 for (; i > 0; i--, ptricmds += 4)
                 {
                     vec3_t position = xformverts[ptricmds[0]];
-                    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    float norm[3] = {xformnorms[ptricmds[1]].x, xformnorms[ptricmds[1]].y,xformnorms[ptricmds[1]].z};
+                    float lightdir[3] = { 0.0, 0.0, 1.0 };
+                    float ambient = 0.75;
+                    float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
+                    glColor4f(1.0F * light, 1.0F * light, 1.0F * light, 1.0F);
                     glTexCoord2f((float)ptricmds[2] / (float)ptextures[texindex].width, (float)ptricmds[3] / (float)ptextures[texindex].height);
                     glVertex3f(position.x + pos[0], position.y + pos[1], position.z + pos[2]);
                 }

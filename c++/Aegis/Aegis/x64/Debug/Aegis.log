@@ -1,4 +1,4 @@
-﻿  loadtexture.cpp
+﻿  Aegis.cpp
   rendermodel.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(84,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Generating Code...

@@ -12,6 +12,10 @@ public:
 	Vector3 normalize();
 	Vector3 normalized();
 
+	static float dot(Vector3 a, Vector3 b);
+	static Vector3 cross(Vector3 a, Vector3 b);
+	static Vector3 reflect(Vector3 i, Vector3 n);
+
 	Vector3 operator+(Vector3 a);
 	Vector3 operator-(Vector3 a);
 	Vector3 operator*(float a);

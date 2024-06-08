@@ -19,6 +19,10 @@ public:
 	mstudioheader_t* texheader;
 	mstudioseqheader_t* seqheader[32];
 
+	Mat3x4 boneTransforms[MSTUDIOMAXBONES]{};
+	vec3_t xformverts[MSTUDIOMAXMESHVERTS]{};
+	vec3_t xformnorms[MSTUDIOMAXMESHVERTS]{};
+
 	int* textures;
 
 	~SModel();
