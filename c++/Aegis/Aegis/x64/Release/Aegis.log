@@ -5,19 +5,18 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\binaryloader.cpp(13,20): w
   Mat3x4.cpp
   mstudioload.cpp
   Quaternion.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(73,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(74,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(76,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(77,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(79,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(80,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   rendermodel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(8,1): warning C4005: '_CRTDBG_MAP_ALLOC': macro redefinition
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(8,1):
+  '_CRTDBG_MAP_ALLOC' previously declared on the command line
+  
   Vector3.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Vector3.cpp(13,28): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  Previous IPDB not found, fall back to full compilation.
-  All 194 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  15 of 169 functions ( 8.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Release\Aegis.exe

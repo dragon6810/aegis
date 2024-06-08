@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <chrono>
 #include "mstudioload.h"
 #include "rendermodel.h"
 #include "loadtexture.h"
@@ -83,7 +84,8 @@ int main()
     }
     
     mstudioload barney = mstudioload();
-    barney.load("valve/models/barney.mdl");
+    const char* mdlname = "valve/models/hgrunt.mdl";
+    barney.load(mdlname);
 
     rendermodel modelrenderer = rendermodel(0);
     mstudioload texmodel = barney;
@@ -112,22 +114,39 @@ int main()
         free(texdata);
     }
 
+    mstudioseqheader_t* seqheaders[32];
+
+    if (barney.header.numseqgroups > 1)
+    {
+        for (int i = 1; i < barney.header.numseqgroups; i++)
+        {
+            char seqgroupname[256];
+
+            strcpy(seqgroupname, mdlname);
+            sprintf(&seqgroupname[strlen(seqgroupname) - 4], "%02d.mdl", i);
+
+            loadBytes(&seqgroupname[0], (char**) &seqheaders[i]);
+        }
+    }
+
     //glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
     glDepthFunc(GL_LEQUAL);   // Specify the depth function
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50.0, 4.0 / 3.0, 0.1, 100.0);
+    gluPerspective(50.0, 4.0 / 3.0, 0.1, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(10.0, 10.0, 10.0,
-        0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0);
+    gluLookAt(53.0, 53.0, 88.0,
+        0.0, 0.0, 35.0,
+        0.0, 0.0, 1.0);
 
     glViewport(0, 0, 800, 600);
 
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+
+    modelrenderer.startseq(0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -136,7 +155,7 @@ int main()
         glDisable(GL_CULL_FACE);
 
         float pos[] = { 0.0f, 0.0f, 0.0f };
-        modelrenderer.render(barney, pos, textures, texmodel);
+        modelrenderer.render(barney, pos, textures, texmodel, &seqheaders[0]);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -146,6 +165,9 @@ int main()
         glDeleteTextures(1, &textures[t]);
 
     free(textures);
+
+    for (int s = 1; s < barney.header.numseqgroups; s++)
+        free(seqheaders[s]);
 
     // Clean up
     glfwDestroyWindow(window);

@@ -69,6 +69,17 @@ Quaternion Quaternion::operator*(Quaternion a)
     return result;
 }
 
+Quaternion Quaternion::operator*(float a)
+{
+    Quaternion o;
+    o.q[0] = q[0] * a;
+    o.q[1] = q[1] * a;
+    o.q[2] = q[2] * a;
+    o.q[3] = q[3] * a;
+
+    return o;
+}
+
 Quaternion Quaternion::FromAngle(float axis[3])
 {
     float axisvals[3]{};
@@ -88,5 +99,52 @@ Quaternion Quaternion::FromAngle(float axis[3])
     axisvals[2] = 1.0F;
     Quaternion z = Quaternion::AngleAxis(axis[2], axisvals);
 
-    return x * y * z;
+    return z * y * x;
+}
+
+Quaternion Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, float t)
+{
+    float dot = q1.q[0] * q2.q[0] + q1.q[1] * q2.q[1] + q1.q[2] * q2.q[2] + q1.q[3] * q2.q[3];
+
+    Quaternion q2Copy = q2;
+    if (dot < 0.0f)
+    {
+        dot = -dot;
+        q2Copy.q[0] = -q2.q[0];
+        q2Copy.q[1] = -q2.q[1];
+        q2Copy.q[2] = -q2.q[2];
+        q2Copy.q[3] = -q2.q[3];
+    }
+
+    const float DOT_THRESHOLD = 0.9995f;
+    if (dot > DOT_THRESHOLD)
+    {
+        Quaternion result;
+        result.q[0] = q1.q[0] + t * (q2Copy.q[0] - q1.q[0]);
+        result.q[1] = q1.q[1] + t * (q2Copy.q[1] - q1.q[1]);
+        result.q[2] = q1.q[2] + t * (q2Copy.q[2] - q1.q[2]);
+        result.q[3] = q1.q[3] + t * (q2Copy.q[3] - q1.q[3]);
+        float mag = sqrt(result.q[0] * result.q[0] + result.q[1] * result.q[1] + result.q[2] * result.q[2] + result.q[3] * result.q[3]);
+        result.q[0] /= mag;
+        result.q[1] /= mag;
+        result.q[2] /= mag;
+        result.q[3] /= mag;
+        return result;
+    }
+
+    float theta_0 = acos(dot);
+    float theta = theta_0 * t;
+    float sin_theta = sin(theta);
+    float sin_theta_0 = sin(theta_0);
+
+    float s1 = cos(theta) - dot * sin_theta / sin_theta_0;
+    float s2 = sin_theta / sin_theta_0;
+
+    Quaternion result;
+    result.q[0] = (s1 * q1.q[0]) + (s2 * q2Copy.q[0]);
+    result.q[1] = (s1 * q1.q[1]) + (s2 * q2Copy.q[1]);
+    result.q[2] = (s1 * q1.q[2]) + (s2 * q2Copy.q[2]);
+    result.q[3] = (s1 * q1.q[3]) + (s2 * q2Copy.q[3]);
+
+    return result;
 }

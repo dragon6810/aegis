@@ -2,6 +2,7 @@
 
 #include "mstudioload.h"
 #include "Mat3x4.h"
+#include "defs.h"
 #include <gl/glew.h>
 
 class rendermodel
@@ -19,7 +20,13 @@ public:
 	~rendermodel();
 
 	int bgroup = 0;
+	float adj[4];
 
-	void render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel);
-	Mat3x4 transformfrombone(float values[6], float scales[6]);
+	int curseq;
+	float frame;
+	long long seqstarttime = 0;
+
+	void startseq(int seqindex);
+	void render(const mstudioload& model, float pos[3], GLuint* textures, const mstudioload& texmodel, mstudioseqheader_t** seqheaders);
+	Mat3x4 transformfrombone(int boneindex, mstudioseqheader_t** seqheaders);
 };
