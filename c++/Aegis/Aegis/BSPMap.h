@@ -9,6 +9,10 @@ public:
 	void SetCameraPosition(vec3_t pos);
 	void Draw();
 
+	~BSPMap();
+
+	int* gltextures;
+
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
 	bspheader_t* mhdr;
 private:

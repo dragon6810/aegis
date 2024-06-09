@@ -5,13 +5,16 @@
 #include <string>
 #include <GL/glew.h>
 
-int AssetManager::getTextureIndex(char* texture, char* source)
+int AssetManager::getTextureIndex(const char* texture, const char* source)
 {
 	// source:texture
 	char* fullname = (char*) malloc(strlen(source) + 1 + strlen(texture) + 1);
 	strcpy(fullname, source);
 	strcat(fullname, ":");
 	strcat(fullname, texture);
+
+	for (int i = 0; i < strlen(fullname); i++)
+		fullname[i] = tolower(fullname[i]);
 
 	for (int i = 0; i < numtextures; i++)
 	{

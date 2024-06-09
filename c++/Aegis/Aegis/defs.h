@@ -96,6 +96,13 @@ typedef struct
 
 typedef struct
 {
+	short pad1;
+	color24_t colors[COLORSINPALETTE];
+	short pad2;
+} miptexpalette_t;
+
+typedef struct
+{
 	char name[32];
 	int parent;
 	int flags;
@@ -348,13 +355,6 @@ typedef struct
 	uint32_t nMipTextures; // Number of BSPMIPTEX structures
 } bsptextureheader_t;
 
-typedef struct _BSPMIPTEX
-{
-	char szName[BSP_MAXTEXTURENAME];  // Name of texture
-	uint32_t nWidth, nHeight;         // Extends of the texture
-	uint32_t nOffsets[BSP_MIPLEVELS]; // Offsets to texture mipmaps BSPMIPTEX;
-} BSPMIPTEX;
-
 typedef struct
 {
 	uint32_t iPlane;            // Index into Planes lump
@@ -406,3 +406,41 @@ typedef struct
 	int32_t nVisLeafs;                     // ???
 	int32_t iFirstFace, nFaces;            // Index and count into faces
 } bspmodel_t;
+
+#define WAD_QPIC           0x42
+#define WAD_MIPTEX         0x43
+#define WAD_FONT           0x45
+
+#define WAD_MAX_TEXTURELEN 16
+#define MIPTEX_MAX_PAL
+
+typedef struct
+{
+	char magic[4]; // File format magic number
+	int numdirs;   // Number of directory entries
+	int diroffset; // Offset to first directory entry
+} wadheader_t;
+
+typedef struct
+{
+	int entryoffset;
+	int disksize;
+	int entrysize;
+	char filetype;
+	ubyte_t compressed;
+	short pad;
+	char name[WAD_MAX_TEXTURELEN];
+} waddirentry_t;
+
+typedef struct
+{
+	char name[BSP_MAXTEXTURENAME];  // Name of texture
+	uint32_t width, height;         // Extends of the texture
+	uint32_t offsets[BSP_MIPLEVELS]; // Offsets to texture mipmaps BSPMIPTEX;
+} miptex_t;
+
+typedef struct
+{
+	short colorsused;			   // Always 256
+	color24_t pal[MIPTEX_MAX_PAL]; // Palette, solid blue = transparent
+} miptexpal_t;

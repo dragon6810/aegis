@@ -42,3 +42,36 @@ mdltex:
 
 	return;
 }
+
+void loadmiptex(char* data, int** out, int* width, int* height)
+{
+	miptex_t* texture = (miptex_t*)data;
+
+	*width = texture->width;
+	*height = texture->height;
+	printf("Loading texture \"%s\".\n", texture->name);
+	int palleteIndex = texture->offsets[BSP_MIPLEVELS - 1] + (*width >> (BSP_MIPLEVELS - 1)) * (*height >> (BSP_MIPLEVELS - 1));
+
+	miptexpalette_t* pallete = (miptexpalette_t*)((char*)texture + palleteIndex);
+	int moderncolors[COLORSINPALETTE]{};
+	for (int c = 0; c < COLORSINPALETTE; c++)
+	{
+		int col = 0;
+		col |= ((int)pallete->colors[c].r) << 0;
+		col |= ((int)pallete->colors[c].g) << 8;
+		col |= ((int)pallete->colors[c].b) << 16;
+
+		if(!(pallete->colors[c].r == 0 && pallete->colors[c].g == 0 && pallete->colors[c].b == 255))
+			col |= 0xFF000000;
+
+		moderncolors[c] = col;
+	}
+
+	for (int i = 0; i < BSP_MIPLEVELS; i++)
+	{
+		out[i] = (int*)malloc((*width >> i) * (*height >> i) * sizeof(int));
+
+		for (int p = 0; p < ((*width >> i) * (*height >> i)); p++)
+			out[i][p] = moderncolors[*((unsigned char*)texture + texture->offsets[i] + p)];
+	}
+}

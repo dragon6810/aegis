@@ -1,14 +1,4 @@
-﻿  Aegis.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Aegis.cpp')
-  
-  BSPMap.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'BSPMap.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(70,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(75,39): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
+﻿  AssetManager.cpp
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

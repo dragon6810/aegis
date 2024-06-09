@@ -9,7 +9,7 @@ public:
 	}
 
 	// Source would be the name of the mdl, wad, bsp, etc.
-	int getTextureIndex(char* texture, char* source);
+	int getTextureIndex(const char* texture, const char* source);
 
 	void cleanup();
 private:

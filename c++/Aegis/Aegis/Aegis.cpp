@@ -8,6 +8,7 @@
 #include "binaryloader.h"
 #include "AssetManager.h"
 #include "BSPMap.h"
+#include "Wad.h"
 
 int main()
 {
@@ -64,12 +65,24 @@ int main()
     hgrunt.startseq(0);
     hgrunt.SetPosition(20.0, 0.0, 0.0);
 
+    Wad wad;
+    wad.Load("valve/halflife.wad");
+
     BSPMap map;
     map.Load("valve/maps/c2a5a.bsp");
     map.SetCameraPosition({ 530.0, 530.0, 880.0 });
 
+    long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
     while (!glfwWindowShouldClose(window))
     {
+        long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        long long delta = now - lastFrame;
+        float fps = 1.0 / ((float)delta / 1000.0);
+
+        printf("%d FPS.\n", (int)fps);
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
 
         map.Draw();
@@ -79,6 +92,8 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        lastFrame = now;
     }
     
     // Clean up

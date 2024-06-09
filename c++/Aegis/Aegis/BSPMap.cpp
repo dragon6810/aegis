@@ -2,15 +2,49 @@
 
 #include <GL/glew.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "binaryloader.h"
+#include "loadtexture.h"
+#include "AssetManager.h"
 
 void BSPMap::Load(const char* filename)
 {
 	loadBytes(filename, (char**) &mhdr);
 	
 	printf("Loading Map %s (version %d).\n", filename, mhdr->nVersion);
+
+	bsptextureheader_t* texhdr = (bsptextureheader_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
+	gltextures = (int*)malloc(texhdr->nMipTextures * sizeof(int));
+	for (int i = 0; i < texhdr->nMipTextures; i++)
+	{
+		int** texdata = (int**) malloc(sizeof(int*) * BSP_MIPLEVELS);
+		int width, height;
+
+		int texoffset = *((int*)(texhdr + i + 1));
+		miptex_t* miptex = (miptex_t*)((char*)texhdr + texoffset);
+
+		loadmiptex((char*)miptex, texdata, &width, &height);
+
+		if(miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
+			gltextures[i] = AssetManager::getInst().getTextureIndex(miptex->name, "wad");
+		else
+			gltextures[i] = AssetManager::getInst().getTextureIndex(miptex->name, filename);
+
+		if (gltextures[i] < 0)
+		{
+			gltextures[i] = -gltextures[i] + 1;
+			glGenTextures(1, (GLuint*)&gltextures[i]);
+			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width >> 0, height >> 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[0]);
+			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, width >> 1, height >> 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[1]);
+			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA, width >> 2, height >> 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[2]);
+			glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA, width >> 3, height >> 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[3]);
+		}
+	}
 }
 
 void BSPMap::SetCameraPosition(vec3_t pos)
@@ -57,9 +91,14 @@ void BSPMap::RenderLeaf(short leafnum)
 	vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
 	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
+	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glEnable(GL_TEXTURE_2D);
 
 	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
 	{
+		glBindTexture(GL_TEXTURE_2D, gltextures[texinfo[faces[i].iTextureInfo].iMiptex]);
 		vec3_t normal = planes[faces[i].iPlane].vNormal;
 		if (faces[i].nPlaneSide != 0)
 		{
@@ -80,9 +119,21 @@ void BSPMap::RenderLeaf(short leafnum)
 			else
 				pos = vertices[edges[-surfedges[j]].iVertex[1]];
 
+			float s = pos.x * texinfo[faces[i].iTextureInfo].vS.x + pos.y * texinfo[faces[i].iTextureInfo].vS.y + pos.z * texinfo[faces[i].iTextureInfo].vS.z;
+			s += texinfo[faces[i].iTextureInfo].fSShift;
+			float t = pos.x * texinfo[faces[i].iTextureInfo].vT.x + pos.y * texinfo[faces[i].iTextureInfo].vT.y + pos.z * texinfo[faces[i].iTextureInfo].vT.z;
+			t += texinfo[faces[i].iTextureInfo].fTShift;
+			glTexCoord2f(s, t);
 			glColor4f(light, light, light, 1.0);
 			glVertex3f(pos.x, pos.y, pos.z);
 		}
 		glEnd();
 	}
+
+	glDisable(GL_TEXTURE_2D);
+}
+
+BSPMap::~BSPMap()
+{
+	free(gltextures);
 }
