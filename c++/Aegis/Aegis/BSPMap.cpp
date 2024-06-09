@@ -92,6 +92,7 @@ void BSPMap::RenderLeaf(short leafnum)
 	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset);
+	int* texoffsets = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
 
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glEnable(GL_TEXTURE_2D);
@@ -99,6 +100,7 @@ void BSPMap::RenderLeaf(short leafnum)
 	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, gltextures[texinfo[faces[i].iTextureInfo].iMiptex]);
+		miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo[faces[i].iTextureInfo].iMiptex]);
 		vec3_t normal = planes[faces[i].iPlane].vNormal;
 		if (faces[i].nPlaneSide != 0)
 		{
@@ -121,8 +123,10 @@ void BSPMap::RenderLeaf(short leafnum)
 
 			float s = pos.x * texinfo[faces[i].iTextureInfo].vS.x + pos.y * texinfo[faces[i].iTextureInfo].vS.y + pos.z * texinfo[faces[i].iTextureInfo].vS.z;
 			s += texinfo[faces[i].iTextureInfo].fSShift;
+			s /= miptex->width;
 			float t = pos.x * texinfo[faces[i].iTextureInfo].vT.x + pos.y * texinfo[faces[i].iTextureInfo].vT.y + pos.z * texinfo[faces[i].iTextureInfo].vT.z;
 			t += texinfo[faces[i].iTextureInfo].fTShift;
+			t /= miptex->height;
 			glTexCoord2f(s, t);
 			glColor4f(light, light, light, 1.0);
 			glVertex3f(pos.x, pos.y, pos.z);
