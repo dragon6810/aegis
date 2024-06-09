@@ -35,6 +35,11 @@ typedef struct
 
 typedef struct
 {
+	float x, y;
+} vec2_t;
+
+typedef struct
+{
 	char id[4];             // Should be IDST
 	int version;            // Should be 10
 	char name[64];
@@ -297,6 +302,8 @@ typedef struct
 #define BSP_MAX_MAP_MIPTEX       0x200000
 #define BSP_MAX_MAP_LIGHTING     0x200000
 #define BSP_MAX_MAP_VISIBILITY   0x200000
+
+#define BSP_LIGHTMAP_LUXELLEN    4
 
 #define BSP_MAX_MAP_PORTALS     65536
 

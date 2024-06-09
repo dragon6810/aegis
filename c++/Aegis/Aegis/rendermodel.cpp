@@ -88,6 +88,7 @@ void SModel::render()
         frame = delta * seq->fps;
     }
 
+    glActiveTexture(GL_TEXTURE0);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glEnable(GL_TEXTURE_2D);
 
@@ -180,6 +181,7 @@ void SModel::render()
             short* ptricmds = (short*)((char*)header + pmesh->triindex);
 
             int texindex = pmesh->skinref;
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textures[texindex]);
             
             while (int i = *(ptricmds++))
