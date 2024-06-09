@@ -1,7 +1,11 @@
 ﻿  Aegis.cpp
-glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  loadtexture.cpp
+  mstudioload.cpp
+  rendermodel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(86,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(213,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(214,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

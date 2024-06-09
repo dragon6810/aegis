@@ -129,7 +129,7 @@ void SModel::render()
         Vector3 boneu = Vector3::cross(bonev, boner);
         boneup[b].x = boneu.get(0);
         boneup[b].y = boneu.get(1);
-        boneup[b].z = boneu.get(2);
+        boneup[b].z = bonev.get(2);
     }
 
     for (int b = 0; b < header->numbodyparts; b++)
