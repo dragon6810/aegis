@@ -21,13 +21,8 @@ void BSPMap::Load(const char* filename)
 	gltextures = (int*)malloc(texhdr->nMipTextures * sizeof(int));
 	for (int i = 0; i < texhdr->nMipTextures; i++)
 	{
-		int** texdata = (int**) malloc(sizeof(int*) * BSP_MIPLEVELS);
-		int width, height;
-
 		int texoffset = *((int*)(texhdr + i + 1));
 		miptex_t* miptex = (miptex_t*)((char*)texhdr + texoffset);
-
-		loadmiptex((char*)miptex, texdata, &width, &height);
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
@@ -36,6 +31,11 @@ void BSPMap::Load(const char* filename)
 		else
 		{
 			gltextures[i] = AssetManager::getInst().setTexture(miptex->name, filename);
+
+			int** texdata = (int**)malloc(sizeof(int*) * BSP_MIPLEVELS);
+			int width, height;
+
+			loadmiptex((char*)miptex, texdata, &width, &height);
 
 			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -69,7 +69,7 @@ int main()
     wad.Load("valve/halflife.wad");
 
     BSPMap map;
-    map.Load("valve/maps/c2a5c.bsp");
+    map.Load("valve/maps/c2a5.bsp");
     map.SetCameraPosition({ 530.0, 530.0, 880.0 });
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
