@@ -137,17 +137,10 @@ void BSPMap::RenderNode(short nodenum)
 	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
 
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
-	
-	if (side < 0.0)
-	{
-		RenderNode(node->iChildren[1]);
-		RenderNode(node->iChildren[0]);
-	}
-	else
-	{
-		RenderNode(node->iChildren[0]);
-		RenderNode(node->iChildren[1]);
-	}
+	int firstchild = side < 0;
+
+	RenderNode(node->iChildren[firstchild]);
+	RenderNode(node->iChildren[!firstchild]);
 }
 
 void BSPMap::RenderLeaf(short leafnum)
@@ -222,13 +215,13 @@ void BSPMap::RenderLeaf(short leafnum)
 			lightmapCoords.y += (pos.y - facecenters[marksurfaces[i]].y) * texinfo[face->iTextureInfo].vT.y / tl;
 			lightmapCoords.y += (pos.z - facecenters[marksurfaces[i]].z) * texinfo[face->iTextureInfo].vT.z / tl;
 
-			int luxelsx = (int)(facebounds[marksurfaces[i]].x * 2.0)/ BSP_LIGHTMAP_LUXELLEN + 1;
-			int luxelsy = (int)(facebounds[marksurfaces[i]].y * 2.0)/ BSP_LIGHTMAP_LUXELLEN + 1;
+			int luxelsx = (int)(facebounds[marksurfaces[i]].x * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
+			int luxelsy = (int)(facebounds[marksurfaces[i]].y * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
 
 			lightmapCoords.x /= BSP_LIGHTMAP_LUXELLEN;
 			lightmapCoords.y /= BSP_LIGHTMAP_LUXELLEN;
-			lightmapCoords.x /= luxelsx * 2.0;
-			lightmapCoords.y /= luxelsy * 2.0;
+			lightmapCoords.x /= luxelsx;
+			lightmapCoords.y /= luxelsy;
 			lightmapCoords.x += 0.5;
 			lightmapCoords.y += 0.5;
 
