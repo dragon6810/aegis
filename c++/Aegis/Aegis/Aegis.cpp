@@ -44,10 +44,10 @@ int main()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(65.0, 4.0 / 3.0, 0.1, 1000.0);
+    gluPerspective(65.0, 4.0 / 3.0, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(53.0, 53.0, 88.0,
+    gluLookAt(530.0, 530.0, 880.0,
         0.0, 0.0, 35.0,
         0.0, 0.0, 1.0);
 
@@ -70,7 +70,7 @@ int main()
 
     BSPMap map;
     map.Load("valve/maps/c2a5c.bsp");
-    map.SetCameraPosition({ 53.0, 53.0, 88.0 });
+    map.SetCameraPosition({ 530.0, 530.0, 880.0 });
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 

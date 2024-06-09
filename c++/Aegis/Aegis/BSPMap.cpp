@@ -64,8 +64,28 @@ void BSPMap::Load(const char* filename)
 		bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset) + face->iTextureInfo;
 		color24_t* lightmap = (color24_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset + face->nLightmapOffset);
 
-		int luxelsx = (int)ceilf(facebounds[i].x / BSP_LIGHTMAP_LUXELLEN);
-		int luxelsy = (int)ceilf(facebounds[i].y / BSP_LIGHTMAP_LUXELLEN);
+		if (face->nLightmapOffset < 0)
+		{
+			int texdata = 0xFFFFFFFF;
+
+			char name[14];
+			sprintf(name, "lightmap%d", i);
+			lightmaptextures[i] = AssetManager::getInst().getTextureIndex(name, "map");
+
+			if (lightmaptextures[i] < 0)
+				lightmaptextures[i] = -lightmaptextures[i] - 1;
+
+			glGenTextures(1, (GLuint*)&lightmaptextures[i]);
+			glBindTexture(GL_TEXTURE_2D, lightmaptextures[i]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texdata);
+
+			continue;
+		}
+
+		int luxelsx = (int)(facebounds[i].x * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
+		int luxelsy = (int)(facebounds[i].y * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
 
 		int* texdata = (int*)malloc(sizeof(int) * luxelsx * luxelsy);
 		memset(texdata, 0xFF000000, sizeof(int) * luxelsx * luxelsy);
@@ -164,7 +184,6 @@ void BSPMap::RenderLeaf(short leafnum)
 			normal.y = -normal.y;
 			normal.z = -normal.z;
 		}
-		float light = normal.z + 0.5;
 
 		glCullFace(GL_FRONT);
 
@@ -177,29 +196,44 @@ void BSPMap::RenderLeaf(short leafnum)
 			else
 				pos = vertices[edges[-surfedges[j]].iVertex[1]];
 
-			vec2_t lightmapCoords{};
 			float s = pos.x * texinfo[face->iTextureInfo].vS.x + pos.y * texinfo[face->iTextureInfo].vS.y + pos.z * texinfo[face->iTextureInfo].vS.z;
-			lightmapCoords.x = s;
 			s += texinfo[face->iTextureInfo].fSShift;
 			s /= miptex->width;
 			float t = pos.x * texinfo[face->iTextureInfo].vT.x + pos.y * texinfo[face->iTextureInfo].vT.y + pos.z * texinfo[face->iTextureInfo].vT.z;
-			lightmapCoords.y = t;
 			t += texinfo[face->iTextureInfo].fTShift;
 			t /= miptex->height;
 
-			int luxelsx = (int)ceilf(facebounds[i].x / BSP_LIGHTMAP_LUXELLEN);
-			int luxelsy = (int)ceilf(facebounds[i].y / BSP_LIGHTMAP_LUXELLEN);
+			float sl = texinfo[face->iTextureInfo].vS.x * texinfo[face->iTextureInfo].vS.x;
+			sl += texinfo[face->iTextureInfo].vS.y * texinfo[face->iTextureInfo].vS.y;
+			sl += texinfo[face->iTextureInfo].vS.z * texinfo[face->iTextureInfo].vS.z;
+			sl = sqrtf(sl);
+			float tl = texinfo[face->iTextureInfo].vT.x * texinfo[face->iTextureInfo].vT.x;
+		    tl += texinfo[face->iTextureInfo].vT.y * texinfo[face->iTextureInfo].vT.y;
+		    tl += texinfo[face->iTextureInfo].vT.z * texinfo[face->iTextureInfo].vT.z;
+		    tl = sqrtf(tl);
+
+			vec2_t lightmapCoords{};
+
+			lightmapCoords.x  = (pos.x - facecenters[marksurfaces[i]].x) * texinfo[face->iTextureInfo].vS.x / sl;
+			lightmapCoords.x += (pos.y - facecenters[marksurfaces[i]].y) * texinfo[face->iTextureInfo].vS.y / sl;
+			lightmapCoords.x += (pos.z - facecenters[marksurfaces[i]].z) * texinfo[face->iTextureInfo].vS.z / sl;
+
+			lightmapCoords.y  = (pos.x - facecenters[marksurfaces[i]].x) * texinfo[face->iTextureInfo].vT.x / tl;
+			lightmapCoords.y += (pos.y - facecenters[marksurfaces[i]].y) * texinfo[face->iTextureInfo].vT.y / tl;
+			lightmapCoords.y += (pos.z - facecenters[marksurfaces[i]].z) * texinfo[face->iTextureInfo].vT.z / tl;
+
+			int luxelsx = (int)(facebounds[marksurfaces[i]].x * 2.0)/ BSP_LIGHTMAP_LUXELLEN + 1;
+			int luxelsy = (int)(facebounds[marksurfaces[i]].y * 2.0)/ BSP_LIGHTMAP_LUXELLEN + 1;
 
 			lightmapCoords.x /= BSP_LIGHTMAP_LUXELLEN;
 			lightmapCoords.y /= BSP_LIGHTMAP_LUXELLEN;
-			lightmapCoords.x /= luxelsx;
-			lightmapCoords.y /= luxelsy;
+			lightmapCoords.x /= luxelsx * 2.0;
+			lightmapCoords.y /= luxelsy * 2.0;
 			lightmapCoords.x += 0.5;
 			lightmapCoords.y += 0.5;
 
 			glMultiTexCoord2f(GL_TEXTURE0, s, t);
 			glMultiTexCoord2f(GL_TEXTURE1, lightmapCoords.x, lightmapCoords.y);
-			glColor4f(light, light, light, 1.0);
 			glVertex3f(pos.x, pos.y, pos.z);
 		}
 		glEnd();
