@@ -29,15 +29,14 @@ void BSPMap::Load(const char* filename)
 
 		loadmiptex((char*)miptex, texdata, &width, &height);
 
-		if(miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
-			gltextures[i] = AssetManager::getInst().getTextureIndex(miptex->name, "wad");
-		else
-			gltextures[i] = AssetManager::getInst().getTextureIndex(miptex->name, filename);
-
-		if (gltextures[i] < 0)
+		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
-			gltextures[i] = -gltextures[i] + 1;
-			glGenTextures(1, (GLuint*)&gltextures[i]);
+			gltextures[i] = AssetManager::getInst().getTexture(miptex->name, "wad");
+		}
+		else
+		{
+			gltextures[i] = AssetManager::getInst().setTexture(miptex->name, filename);
+
 			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -70,12 +69,8 @@ void BSPMap::Load(const char* filename)
 
 			char name[14];
 			sprintf(name, "lightmap%d", i);
-			lightmaptextures[i] = AssetManager::getInst().getTextureIndex(name, "map");
-
-			if (lightmaptextures[i] < 0)
-				lightmaptextures[i] = -lightmaptextures[i] - 1;
-
-			glGenTextures(1, (GLuint*)&lightmaptextures[i]);
+			lightmaptextures[i] = AssetManager::getInst().setTexture(name, "map");
+			
 			glBindTexture(GL_TEXTURE_2D, lightmaptextures[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -100,12 +95,8 @@ void BSPMap::Load(const char* filename)
 
 		char name[14];
 		sprintf(name, "lightmap%d", i);
-		lightmaptextures[i] = AssetManager::getInst().getTextureIndex(name, "map");
-
-		if (lightmaptextures[i] < 0)
-			lightmaptextures[i] = -lightmaptextures[i] - 1;
-
-		glGenTextures(1, (GLuint*)&lightmaptextures[i]);
+		lightmaptextures[i] = AssetManager::getInst().setTexture(name, "map");
+		
 		glBindTexture(GL_TEXTURE_2D, lightmaptextures[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -133,7 +124,7 @@ void BSPMap::RenderNode(short nodenum)
 		return;
 	}
 
- 	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
+	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
 	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
 
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
@@ -227,12 +218,8 @@ void BSPMap::RenderFace(uint16_t f)
 		int luxelsx = (int)(facebounds[f].x * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
 		int luxelsy = (int)(facebounds[f].y * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
 
-		lightmapCoords.x /= BSP_LIGHTMAP_LUXELLEN;
-		lightmapCoords.y /= BSP_LIGHTMAP_LUXELLEN;
-		lightmapCoords.x /= luxelsx;
-		lightmapCoords.y /= luxelsy;
-		lightmapCoords.x += 0.5;
-		lightmapCoords.y += 0.5;
+		lightmapCoords.x = (lightmapCoords.x / BSP_LIGHTMAP_LUXELLEN) / luxelsx + 0.5f;
+		lightmapCoords.y = (lightmapCoords.y / BSP_LIGHTMAP_LUXELLEN) / luxelsy + 0.5f;
 
 		glMultiTexCoord2f(GL_TEXTURE0, s, t);
 		glMultiTexCoord2f(GL_TEXTURE1, lightmapCoords.x, lightmapCoords.y);
@@ -257,18 +244,15 @@ vec2_t BSPMap::FaceBounds(uint16_t f, vec3_t* facecenter)
 	*facecenter = { 0.0, 0.0, 0.0 };
 	for (int i = face->iFirstEdge; i < face->iFirstEdge + face->nEdges; i++)
 	{
-		if (surfedges[i] > 0)
-		{
-			facecenter->x += vertices[edges[surfedges[i]].iVertex[0]].x;
-			facecenter->y += vertices[edges[surfedges[i]].iVertex[0]].y;
-			facecenter->z += vertices[edges[surfedges[i]].iVertex[0]].z;
-		}
+		vec3_t pos;
+		if (surfedges[i] >= 0)
+			pos = vertices[edges[surfedges[i]].iVertex[0]];
 		else
-		{
-			facecenter->x += vertices[edges[-surfedges[i]].iVertex[1]].x;
-			facecenter->y += vertices[edges[-surfedges[i]].iVertex[1]].y;
-			facecenter->z += vertices[edges[-surfedges[i]].iVertex[1]].z;
-		}
+			pos = vertices[edges[-surfedges[i]].iVertex[1]];
+
+		facecenter->x += pos.x;
+		facecenter->y += pos.y;
+		facecenter->z += pos.z;
 	}
 
 	facecenter->x /= face->nEdges;
@@ -282,7 +266,7 @@ vec2_t BSPMap::FaceBounds(uint16_t f, vec3_t* facecenter)
 	up.x /= upl; up.y /= upl; up.z /= upl;
 	right.x /= rightl; right.y /= rightl; right.z /= rightl;
 
-	float minup = 0.0, minright = 0.0;
+	float maxup = 0.0, maxright = 0.0;
 	for (int i = face->iFirstEdge; i < face->iFirstEdge + face->nEdges; i++)
 	{
 		vec3_t pos;
@@ -295,16 +279,16 @@ vec2_t BSPMap::FaceBounds(uint16_t f, vec3_t* facecenter)
 		pos.y -= facecenter->y;
 		pos.z -= facecenter->z;
 
-		float updot = pos.x * up.x + pos.y * up.y + pos.z * up.z;
-		float rightdot = pos.x * right.x + pos.y * right.y + pos.z * right.z;
+		float updot = fabs(pos.x * up.x + pos.y * up.y + pos.z * up.z);
+		float rightdot = fabs(pos.x * right.x + pos.y * right.y + pos.z * right.z);
 
-		if (updot > minup)
-			minup = updot;
-		if (rightdot > minright)
-			minright = rightdot;
+		if (updot > maxup)
+			maxup = updot;
+		if (rightdot > maxright)
+			maxright = rightdot;
 	}
 
-	return { minright, minup };
+	return { maxright, maxup };
 }
 
 vec2_t BSPMap::FaceCoordinates(uint16_t f, vec3_t p)

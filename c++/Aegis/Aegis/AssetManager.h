@@ -1,4 +1,7 @@
 #pragma once
+
+#include <GL/glew.h>
+
 class AssetManager
 {
 public:
@@ -9,7 +12,8 @@ public:
 	}
 
 	// Source would be the name of the mdl, wad, bsp, etc.
-	int getTextureIndex(const char* texture, const char* source);
+	GLuint getTexture(const char* texture, const char* source);
+	GLuint setTexture(const char* texture, const char* source);
 
 	void cleanup();
 private:
@@ -18,7 +22,8 @@ private:
 	AssetManager(AssetManager const&);
 	void operator=(AssetManager const&);
 
-	char** texturenames;
+	char** texturelookup;
+	GLuint* texturenames;
 	int numtextures = 0;
 };
 

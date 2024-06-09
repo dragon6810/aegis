@@ -16,9 +16,7 @@ void Wad::Load(const char* filename)
 	{
 		waddirentry_t* entry = (waddirentry_t*)((char*)whdr + whdr->diroffset) + i;
 
-		int texindex = AssetManager::getInst().getTextureIndex(entry->name, "wad");
-		if (texindex < 0)
-			texindex = -texindex - 1;
+		GLuint texindex = AssetManager::getInst().setTexture(entry->name, "wad");
 
 		int** texdata = (int**)malloc(sizeof(int*) * BSP_MIPLEVELS);
 		int width, height;
@@ -26,8 +24,7 @@ void Wad::Load(const char* filename)
 		miptex_t* miptex = (miptex_t*)((char*)whdr + entry->entryoffset);
 
 		loadmiptex((char*)miptex, texdata, &width, &height);
-
-		glGenTextures(1, (GLuint*)&texindex);
+		
 		glBindTexture(GL_TEXTURE_2D, texindex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

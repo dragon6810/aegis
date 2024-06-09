@@ -30,15 +30,14 @@ void SModel::Load(const char* modelname)
     mstudiotexture_t* ptex = (mstudiotexture_t*) ((char*)texheader + texheader->textureindex);
     for (int t = 0; t < texheader->numtextures; t++)
     {
-        textures[t] = AssetManager::getInst().getTextureIndex(ptex[t].name, header->name);
+        textures[t] = AssetManager::getInst().getTexture(ptex[t].name, header->name);
 
         char* texdata = nullptr;
         int width = 0, height = 0;
         loadmstudiotexture((char*)texheader, t, TEXTYPE_MSTUDIO, (int**)&(texdata), &width, &height);
-        if (textures[t] < 0)
+        if (textures[t] == UINT32_MAX)
         {
-            textures[t] = -textures[t] + 1;
-            glGenTextures(1, (GLuint*)&textures[t]);
+            textures[t] = AssetManager::getInst().setTexture(ptex[t].name, header->name);
             glBindTexture(GL_TEXTURE_2D, textures[t]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
