@@ -1,14 +1,4 @@
-﻿  Aegis.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'Aegis.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12):
-  This member will be ignored by a defaulted constructor or copy/move assignment operator
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Aegis.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(82,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  BSPMap.cpp
+﻿  BSPMap.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'BSPMap.cpp')
   
@@ -18,41 +8,10 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4
   This member will be ignored by a defaulted constructor or copy/move assignment operator
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(22,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(184,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(250,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(278,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(311,35): warning C4018: '<': signed/unsigned mismatch
-  Wad.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'Wad.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12):
-  This member will be ignored by a defaulted constructor or copy/move assignment operator
-  
-  loadtexture.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'loadtexture.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12):
-  This member will be ignored by a defaulted constructor or copy/move assignment operator
-  
-  mstudioload.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'mstudioload.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12):
-  This member will be ignored by a defaulted constructor or copy/move assignment operator
-  
-  rendermodel.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'rendermodel.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12):
-  This member will be ignored by a defaulted constructor or copy/move assignment operator
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(86,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(215,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(216,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
-glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(194,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(259,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(287,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(320,35): warning C4018: '<': signed/unsigned mismatch
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

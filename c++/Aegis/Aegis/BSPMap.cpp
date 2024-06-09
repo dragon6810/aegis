@@ -140,102 +140,110 @@ void BSPMap::RenderNode(short nodenum)
 	int firstchild = side < 0;
 
 	RenderNode(node->iChildren[firstchild]);
+
+	for (int i = node->firstFace; i < node->firstFace + node->nFaces; i++)
+		RenderFace(i);
+
 	RenderNode(node->iChildren[!firstchild]);
 }
 
 void BSPMap::RenderLeaf(short leafnum)
 {
-	bspplane_t* planes = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset);
 	bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + leafnum;
-	bspface_t* faces = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset);
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
+
+	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
+		RenderFace(marksurfaces[i]);
+}
+
+void BSPMap::RenderFace(uint16_t f)
+{
+	bspplane_t* planes = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset);
+	bspface_t* faces = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset);
 	vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
 	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset);
 	int* texoffsets = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
 
-	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
+	bspface_t* face = faces + f;
+
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, gltextures[texinfo[face->iTextureInfo].iMiptex]);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	glActiveTexture(GL_TEXTURE1);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, lightmaptextures[f]);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo[face->iTextureInfo].iMiptex]);
+	vec3_t normal = planes[face->iPlane].vNormal;
+	if (face->nPlaneSide != 0)
 	{
-		bspface_t* face = faces + marksurfaces[i];
-
-		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, gltextures[texinfo[face->iTextureInfo].iMiptex]);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		glActiveTexture(GL_TEXTURE1);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, lightmaptextures[marksurfaces[i]]);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo[face->iTextureInfo].iMiptex]);
-		vec3_t normal = planes[face->iPlane].vNormal;
-		if (face->nPlaneSide != 0)
-		{
-			normal.x = -normal.x;
-			normal.y = -normal.y;
-			normal.z = -normal.z;
-		}
-
-		glCullFace(GL_FRONT);
-
-		glBegin(GL_POLYGON);
-		for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
-		{
-			vec3_t pos;
-			if (surfedges[j] >= 0)
-				pos = vertices[edges[surfedges[j]].iVertex[0]];
-			else
-				pos = vertices[edges[-surfedges[j]].iVertex[1]];
-
-			float s = pos.x * texinfo[face->iTextureInfo].vS.x + pos.y * texinfo[face->iTextureInfo].vS.y + pos.z * texinfo[face->iTextureInfo].vS.z;
-			s += texinfo[face->iTextureInfo].fSShift;
-			s /= miptex->width;
-			float t = pos.x * texinfo[face->iTextureInfo].vT.x + pos.y * texinfo[face->iTextureInfo].vT.y + pos.z * texinfo[face->iTextureInfo].vT.z;
-			t += texinfo[face->iTextureInfo].fTShift;
-			t /= miptex->height;
-
-			float sl = texinfo[face->iTextureInfo].vS.x * texinfo[face->iTextureInfo].vS.x;
-			sl += texinfo[face->iTextureInfo].vS.y * texinfo[face->iTextureInfo].vS.y;
-			sl += texinfo[face->iTextureInfo].vS.z * texinfo[face->iTextureInfo].vS.z;
-			sl = sqrtf(sl);
-			float tl = texinfo[face->iTextureInfo].vT.x * texinfo[face->iTextureInfo].vT.x;
-		    tl += texinfo[face->iTextureInfo].vT.y * texinfo[face->iTextureInfo].vT.y;
-		    tl += texinfo[face->iTextureInfo].vT.z * texinfo[face->iTextureInfo].vT.z;
-		    tl = sqrtf(tl);
-
-			vec2_t lightmapCoords{};
-
-			lightmapCoords.x  = (pos.x - facecenters[marksurfaces[i]].x) * texinfo[face->iTextureInfo].vS.x / sl;
-			lightmapCoords.x += (pos.y - facecenters[marksurfaces[i]].y) * texinfo[face->iTextureInfo].vS.y / sl;
-			lightmapCoords.x += (pos.z - facecenters[marksurfaces[i]].z) * texinfo[face->iTextureInfo].vS.z / sl;
-
-			lightmapCoords.y  = (pos.x - facecenters[marksurfaces[i]].x) * texinfo[face->iTextureInfo].vT.x / tl;
-			lightmapCoords.y += (pos.y - facecenters[marksurfaces[i]].y) * texinfo[face->iTextureInfo].vT.y / tl;
-			lightmapCoords.y += (pos.z - facecenters[marksurfaces[i]].z) * texinfo[face->iTextureInfo].vT.z / tl;
-
-			int luxelsx = (int)(facebounds[marksurfaces[i]].x * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
-			int luxelsy = (int)(facebounds[marksurfaces[i]].y * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
-
-			lightmapCoords.x /= BSP_LIGHTMAP_LUXELLEN;
-			lightmapCoords.y /= BSP_LIGHTMAP_LUXELLEN;
-			lightmapCoords.x /= luxelsx;
-			lightmapCoords.y /= luxelsy;
-			lightmapCoords.x += 0.5;
-			lightmapCoords.y += 0.5;
-
-			glMultiTexCoord2f(GL_TEXTURE0, s, t);
-			glMultiTexCoord2f(GL_TEXTURE1, lightmapCoords.x, lightmapCoords.y);
-			glVertex3f(pos.x, pos.y, pos.z);
-		}
-		glEnd();
-
-		glActiveTexture(GL_TEXTURE0);
-		glDisable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE1);
-		glDisable(GL_TEXTURE_2D);
+		normal.x = -normal.x;
+		normal.y = -normal.y;
+		normal.z = -normal.z;
 	}
+
+	glCullFace(GL_FRONT);
+
+	glBegin(GL_POLYGON);
+	for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
+	{
+		vec3_t pos;
+		if (surfedges[j] >= 0)
+			pos = vertices[edges[surfedges[j]].iVertex[0]];
+		else
+			pos = vertices[edges[-surfedges[j]].iVertex[1]];
+
+		float s = pos.x * texinfo[face->iTextureInfo].vS.x + pos.y * texinfo[face->iTextureInfo].vS.y + pos.z * texinfo[face->iTextureInfo].vS.z;
+		s += texinfo[face->iTextureInfo].fSShift;
+		s /= miptex->width;
+		float t = pos.x * texinfo[face->iTextureInfo].vT.x + pos.y * texinfo[face->iTextureInfo].vT.y + pos.z * texinfo[face->iTextureInfo].vT.z;
+		t += texinfo[face->iTextureInfo].fTShift;
+		t /= miptex->height;
+
+		float sl = texinfo[face->iTextureInfo].vS.x * texinfo[face->iTextureInfo].vS.x;
+		sl += texinfo[face->iTextureInfo].vS.y * texinfo[face->iTextureInfo].vS.y;
+		sl += texinfo[face->iTextureInfo].vS.z * texinfo[face->iTextureInfo].vS.z;
+		sl = sqrtf(sl);
+		float tl = texinfo[face->iTextureInfo].vT.x * texinfo[face->iTextureInfo].vT.x;
+		tl += texinfo[face->iTextureInfo].vT.y * texinfo[face->iTextureInfo].vT.y;
+		tl += texinfo[face->iTextureInfo].vT.z * texinfo[face->iTextureInfo].vT.z;
+		tl = sqrtf(tl);
+
+		vec2_t lightmapCoords{};
+
+		lightmapCoords.x = (pos.x - facecenters[f].x) * texinfo[face->iTextureInfo].vS.x / sl;
+		lightmapCoords.x += (pos.y - facecenters[f].y) * texinfo[face->iTextureInfo].vS.y / sl;
+		lightmapCoords.x += (pos.z - facecenters[f].z) * texinfo[face->iTextureInfo].vS.z / sl;
+
+		lightmapCoords.y = (pos.x - facecenters[f].x) * texinfo[face->iTextureInfo].vT.x / tl;
+		lightmapCoords.y += (pos.y - facecenters[f].y) * texinfo[face->iTextureInfo].vT.y / tl;
+		lightmapCoords.y += (pos.z - facecenters[f].z) * texinfo[face->iTextureInfo].vT.z / tl;
+
+		int luxelsx = (int)(facebounds[f].x * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
+		int luxelsy = (int)(facebounds[f].y * 2.0) / BSP_LIGHTMAP_LUXELLEN + 1;
+
+		lightmapCoords.x /= BSP_LIGHTMAP_LUXELLEN;
+		lightmapCoords.y /= BSP_LIGHTMAP_LUXELLEN;
+		lightmapCoords.x /= luxelsx;
+		lightmapCoords.y /= luxelsy;
+		lightmapCoords.x += 0.5;
+		lightmapCoords.y += 0.5;
+
+		glMultiTexCoord2f(GL_TEXTURE0, s, t);
+		glMultiTexCoord2f(GL_TEXTURE1, lightmapCoords.x, lightmapCoords.y);
+		glVertex3f(pos.x, pos.y, pos.z);
+	}
+	glEnd();
+
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE1);
+	glDisable(GL_TEXTURE_2D);
 }
 
 vec2_t BSPMap::FaceBounds(uint16_t f, vec3_t* facecenter)

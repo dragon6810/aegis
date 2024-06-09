@@ -16,6 +16,7 @@ public:
 private:
 	void RenderNode(short nodenum);
 	void RenderLeaf(short leafnum);
+	void RenderFace(uint16_t f);
 
 	int* gltextures;
 	int* lightmaptextures;
