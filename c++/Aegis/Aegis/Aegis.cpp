@@ -47,8 +47,10 @@ int main()
     gluPerspective(65.0, 4.0 / 3.0, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(530.0, 530.0, 880.0,
-        0.0, 0.0, 35.0,
+    float d = 530;
+    vec3_t camp = { d, d, d };
+    gluLookAt(camp.x, camp.y, camp.z,
+        0.0, 0.0, 0.0,
         0.0, 0.0, 1.0);
 
     glViewport(0, 0, 800, 600);
@@ -69,8 +71,8 @@ int main()
     wad.Load("valve/halflife.wad");
 
     BSPMap map;
-    map.Load("valve/maps/c2a5.bsp");
-    map.SetCameraPosition({ 530.0, 530.0, 880.0 });
+    map.Load("valve/maps/c2a5c.bsp");
+    map.SetCameraPosition({ camp.x, camp.y, camp.z });
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -81,7 +83,7 @@ int main()
         long long delta = now - lastFrame;
         float fps = 1.0 / ((float)delta / 1000.0);
 
-        printf("%d FPS.\n", (int)fps);
+        //printf("%d FPS.\n", (int)fps);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
 

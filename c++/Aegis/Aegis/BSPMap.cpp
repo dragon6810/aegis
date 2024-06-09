@@ -113,12 +113,13 @@ void BSPMap::SetCameraPosition(vec3_t pos)
 
 void BSPMap::Draw()
 {
-	RenderNode(1);
+	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
+	RenderNode(worldmodel->iHeadnodes[0]);
 }
 
 void BSPMap::RenderNode(short nodenum)
 {
-	if (nodenum <= 0)
+	if (nodenum < 0)
 	{
 		RenderLeaf(~nodenum);
 		return;
@@ -128,7 +129,7 @@ void BSPMap::RenderNode(short nodenum)
 	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
 
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
-	int firstchild = side < 0;
+	int firstchild = side >= 0;
 
 	RenderNode(node->iChildren[firstchild]);
 
