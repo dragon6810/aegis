@@ -7,6 +7,7 @@
 #include "loadtexture.h"
 #include "binaryloader.h"
 #include "AssetManager.h"
+#include "BSPMap.h"
 
 int main()
 {
@@ -35,7 +36,8 @@ int main()
         return -1;
     }
 
-    //glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
     glDepthFunc(GL_LEQUAL);   // Specify the depth function
 
@@ -44,7 +46,7 @@ int main()
     gluPerspective(65.0, 4.0 / 3.0, 0.1, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(53.0, 53.0, 88.0,
+    gluLookAt(530.0, 530.0, 880.0,
         0.0, 0.0, 35.0,
         0.0, 0.0, 1.0);
 
@@ -62,11 +64,15 @@ int main()
     hgrunt.startseq(0);
     hgrunt.SetPosition(20.0, 0.0, 0.0);
 
+    BSPMap map;
+    map.Load("valve/maps/c2a5a.bsp");
+    map.SetCameraPosition({ 530.0, 530.0, 880.0 });
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
 
-        glDisable(GL_CULL_FACE);
+        map.Draw();
 
         barney.render();
         hgrunt.render();

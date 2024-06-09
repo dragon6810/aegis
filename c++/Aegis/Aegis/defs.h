@@ -361,7 +361,7 @@ typedef struct
 	short iChildren[2];         // If > 0, then indices into Nodes // otherwise bitwise inverse indices into Leafs
 	short nMins[3], nMaxs[3];   // Defines bounding box
 	uint16_t firstFace, nFaces; // Index and count into Faces
-} bpsnode_t;
+} bspnode_t;
 
 typedef struct
 {

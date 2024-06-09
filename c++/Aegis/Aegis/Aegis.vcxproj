@@ -142,6 +142,7 @@
     <ClCompile Include="Aegis.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="binaryloader.cpp" />
+    <ClCompile Include="BSPMap.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
     <ClCompile Include="mstudioload.cpp" />
@@ -152,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="binaryloader.h" />
+    <ClInclude Include="BSPMap.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
