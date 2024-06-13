@@ -20,6 +20,8 @@ private:
 
 	int* gltextures;
 	int* lightmaptextures;
+	vec2_t maxtex[BSP_MAX_MAP_FACES];
+	vec2_t mintex[BSP_MAX_MAP_FACES];
 	vec2_t* facebounds;
 	vec3_t* facecenters;
 

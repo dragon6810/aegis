@@ -1,8 +1,11 @@
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\Aegis.obj
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AssetManager.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\AssetManager.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\binaryloader.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\binaryloader.obj
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\BSPMap.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\loadtexture.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\loadtexture.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mat3x4.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\Mat3x4.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\mstudioload.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\mstudioload.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\Quaternion.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\rendermodel.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Vector3.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\Vector3.obj
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Wad.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Release\Wad.obj

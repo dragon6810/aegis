@@ -10,6 +10,8 @@
 #include "BSPMap.h"
 #include "Wad.h"
 
+BSPMap map;
+
 int main()
 {
     if (!glfwInit())
@@ -69,8 +71,7 @@ int main()
 
     Wad wad;
     wad.Load("valve/halflife.wad");
-
-    BSPMap map;
+    
     map.Load("valve/maps/c2a5c.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
 

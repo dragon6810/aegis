@@ -1,6 +1,7 @@
 #include "AssetManager.h"
 
-#include <stdio.h>   
+#include <iostream>
+#include <stdio.h>
 #include <stdlib.h> 
 #include <string>
 #include <limits>
@@ -61,6 +62,11 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 	{
 		texturelookup = (char**)realloc(texturelookup, numtextures * sizeof(char*));
 		texturenames = (GLuint*)realloc(texturenames, numtextures * sizeof(GLuint));
+		if (texturelookup == 0 || texturenames == 0)
+		{
+			printf("null realloc\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	texturelookup[numtextures - 1] = (char*)malloc(strlen(fullname) + 1);
@@ -68,6 +74,7 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 	free(fullname);
 
 	glGenTextures(1, &texturenames[numtextures - 1]);
+
 	return texturenames[numtextures - 1];
 }
 
@@ -75,9 +82,10 @@ void AssetManager::cleanup()
 {
 	for (int i = 0; i < numtextures; i++)
 	{
-		glDeleteTextures(1, (GLuint*) &i);
+		glDeleteTextures(1, (GLuint*) &texturenames[i]);
 		free(texturelookup[i]);
 	}
 
+	free(texturenames);
 	free(texturelookup);
 }
