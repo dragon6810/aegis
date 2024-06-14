@@ -100,7 +100,7 @@ void BSPMap::Load(const char* filename)
 				mintex[i].y = t;
 		}
 
-		if (face->nLightmapOffset <= 0)
+		if (face->nLightmapOffset < 0)
 		{
 			int texdata = 0xFFFFFFFF;
 
