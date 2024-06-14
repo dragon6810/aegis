@@ -38,8 +38,15 @@ void BSPMap::Load(const char* filename)
 			loadmiptex((char*)miptex, texdata, &width, &height);
 
 			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, BSP_MIPLEVELS - 1);
+
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width >> 0, height >> 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[0]);
 			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, width >> 1, height >> 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[1]);
 			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA, width >> 2, height >> 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[2]);
@@ -198,7 +205,7 @@ void BSPMap::RenderFace(uint16_t f)
 	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset) + face->iTextureInfo;
-	int* texoffsets = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
+	uint32_t* texoffsets = (uint32_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + sizeof(uint32_t));
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
@@ -220,7 +227,7 @@ void BSPMap::RenderFace(uint16_t f)
 	}
 
 	glCullFace(GL_FRONT);
-
+	
 	glBegin(GL_POLYGON);
 	for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
 	{
@@ -238,8 +245,8 @@ void BSPMap::RenderFace(uint16_t f)
 		// https://www.gamedev.net/forums/topic.asp?topic_id=538713
 		
 		vec2_t lightmapCoords{};
-		lightmapCoords.x = pos.x * texinfo->vS.x + pos.y * texinfo->vS.y + pos.z * texinfo->vS.z + texinfo->fSShift;
-		lightmapCoords.y = pos.x * texinfo->vT.x + pos.y * texinfo->vT.y + pos.z * texinfo->vT.z + texinfo->fTShift;
+		lightmapCoords.x = s * miptex->width;
+		lightmapCoords.y = t * miptex->height;
 
 		int luxelsx = (int) ceilf(maxtex[f].x / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[f].x / BSP_LIGHTMAP_LUXELLEN) + 1;
 		int luxelsy = (int) ceilf(maxtex[f].y / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[f].y / BSP_LIGHTMAP_LUXELLEN) + 1;

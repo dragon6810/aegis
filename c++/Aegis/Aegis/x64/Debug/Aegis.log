@@ -8,19 +8,19 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4
   This member will be ignored by a defaulted constructor or copy/move assignment operator
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(22,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(76,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(76,27): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(77,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(77,27): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(82,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(225,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(247,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(248,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(249,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(250,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(279,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(304,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(337,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(83,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(83,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(84,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(84,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(89,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(232,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(254,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(255,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(256,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(257,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(286,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(311,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(344,35): warning C4018: '<': signed/unsigned mismatch
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

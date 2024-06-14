@@ -62,11 +62,6 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 	{
 		texturelookup = (char**)realloc(texturelookup, numtextures * sizeof(char*));
 		texturenames = (GLuint*)realloc(texturenames, numtextures * sizeof(GLuint));
-		if (texturelookup == 0 || texturenames == 0)
-		{
-			printf("null realloc\n");
-			exit(EXIT_FAILURE);
-		}
 	}
 
 	texturelookup[numtextures - 1] = (char*)malloc(strlen(fullname) + 1);

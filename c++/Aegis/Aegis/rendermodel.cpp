@@ -39,8 +39,12 @@ void SModel::Load(const char* modelname)
         {
             textures[t] = AssetManager::getInst().setTexture(ptex[t].name, header->name);
             glBindTexture(GL_TEXTURE_2D, textures[t]);
+
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width >> 0, height >> 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata);
         }
         free(texdata);
