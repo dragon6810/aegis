@@ -60,16 +60,7 @@ void BSPMap::Load(const char* filename)
 	}
 
 	int numfaces = mhdr->lump[BSP_LUMP_FACES].nLength / sizeof(bspface_t);
-	facebounds = (vec2_t*) malloc(numfaces * sizeof(vec2_t));
-	facecenters = (vec3_t*) malloc(numfaces * sizeof(vec3_t));
-	for (int i = 0; i < numfaces; i++)
-	{
-		bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + i;
-		facebounds[i] = FaceBounds(i, &facecenters[i]);
-	}
-
 	lightmaptextures = (int*) malloc(numfaces * sizeof(int));
-
 	
 	for (int i = 0; i < numfaces; i++)
 	{
@@ -214,7 +205,7 @@ void BSPMap::RenderFace(uint16_t f)
 
 	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
-	//glBindTexture(GL_TEXTURE_2D, lightmaptextures[f]);
+	glBindTexture(GL_TEXTURE_2D, lightmaptextures[f]);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo->iMiptex]);
@@ -274,111 +265,8 @@ void BSPMap::RenderFace(uint16_t f)
 	glDisable(GL_TEXTURE_2D);
 }
 
-vec2_t BSPMap::FaceBounds(uint16_t f, vec3_t* facecenter)
-{
-	bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + f;
-	vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
-	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
-	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
-	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset);
-
-	*facecenter = { 0.0, 0.0, 0.0 };
-	for (int i = face->iFirstEdge; i < face->iFirstEdge + face->nEdges; i++)
-	{
-		vec3_t pos;
-		if (surfedges[i] >= 0)
-			pos = vertices[edges[surfedges[i]].iVertex[0]];
-		else
-			pos = vertices[edges[-surfedges[i]].iVertex[1]];
-
-		facecenter->x += pos.x;
-		facecenter->y += pos.y;
-		facecenter->z += pos.z;
-	}
-
-	facecenter->x /= face->nEdges;
-	facecenter->y /= face->nEdges;
-	facecenter->z /= face->nEdges;
-
-	vec3_t up = texinfo[face->iTextureInfo].vT;
-	vec3_t right = texinfo[face->iTextureInfo].vS;
-	float upl = sqrtf(up.x * up.x + up.y * up.y + up.z * up.z);
-	float rightl = sqrtf(right.x * right.x + right.y * right.y + right.z * right.z);
-	up.x /= upl; up.y /= upl; up.z /= upl;
-	right.x /= rightl; right.y /= rightl; right.z /= rightl;
-
-	float maxup = 0.0, maxright = 0.0;
-	for (int i = face->iFirstEdge; i < face->iFirstEdge + face->nEdges; i++)
-	{
-		vec3_t pos;
-		if (surfedges[i] > 0)
-			pos = vertices[edges[surfedges[i]].iVertex[0]];
-		else
-			pos = vertices[edges[-surfedges[i]].iVertex[1]];
-
-		pos.x -= facecenter->x;
-		pos.y -= facecenter->y;
-		pos.z -= facecenter->z;
-
-		float updot = fabs(pos.x * up.x + pos.y * up.y + pos.z * up.z);
-		float rightdot = fabs(pos.x * right.x + pos.y * right.y + pos.z * right.z);
-
-		if (updot > maxup)
-			maxup = updot;
-		if (rightdot > maxright)
-			maxright = rightdot;
-	}
-
-	return { maxright, maxup };
-}
-
-vec2_t BSPMap::FaceCoordinates(uint16_t f, vec3_t p)
-{
-	bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + f;
-	vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
-	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
-	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
-	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset);
-
-	vec3_t facecenter = { 0.0, 0.0, 0.0 };
-	for (int i = face->iFirstEdge; i < face->iFirstEdge + face->nEdges; i++)
-	{
-		if (surfedges[i] > 0)
-		{
-			facecenter.x += vertices[edges[surfedges[i]].iVertex[0]].x;
-			facecenter.y += vertices[edges[surfedges[i]].iVertex[0]].y;
-			facecenter.z += vertices[edges[surfedges[i]].iVertex[0]].z;
-		}
-		else
-		{
-			facecenter.x += vertices[edges[-surfedges[i]].iVertex[1]].x;
-			facecenter.y += vertices[edges[-surfedges[i]].iVertex[1]].y;
-			facecenter.z += vertices[edges[-surfedges[i]].iVertex[1]].z;
-		}
-	}
-
-	facecenter.x /= face->nEdges;
-	facecenter.y /= face->nEdges;
-	facecenter.z /= face->nEdges;
-
-	vec3_t up = texinfo[face->iTextureInfo].vT;
-	vec3_t right = texinfo[face->iTextureInfo].vS;
-	float upl = sqrtf(up.x * up.x + up.y * up.y + up.z * up.z);
-	float rightl = sqrtf(right.x * right.x + right.y * right.y + right.z * right.z);
-	up.x /= upl; up.y /= upl; up.z /= upl;
-	right.x /= rightl; right.y /= rightl; right.z /= rightl;
-
-	p.x -= facecenter.x;
-	p.y -= facecenter.y;
-	p.z -= facecenter.z;
-
-	return { up.x * p.x + up.y * p.y + up.z * p.z, right.x * p.x + right.y * p.y + right.z * p.z };
-}
-
 BSPMap::~BSPMap()
 {
 	free(gltextures);
-	free(facebounds);
-	free(facecenters);
 	free(lightmaptextures);
 }

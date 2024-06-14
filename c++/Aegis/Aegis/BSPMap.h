@@ -22,9 +22,4 @@ private:
 	int* lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
-	vec2_t* facebounds;
-	vec3_t* facecenters;
-
-	vec2_t FaceBounds(uint16_t f, vec3_t* facecenter);
-	vec2_t FaceCoordinates(uint16_t f, vec3_t p);
 };
