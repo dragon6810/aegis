@@ -24,6 +24,7 @@ int loadBytes(const char* filename, char** data)
     }
 
     fprintf(stderr, "Failed to load file %s.\n", filename);
+    exit(EXIT_FAILURE);
 
     return 1;
 }

@@ -71,23 +71,22 @@ void BSPMap::Load(const char* filename)
 		bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 		int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 		
-		maxtex[i] = { -9999.9, -9999.9 };
-		mintex[i] = {  9999.9,  9999.9 };
+		maxtex[i] = { -999999.9, -999999.9 };
+		mintex[i] = {  999999.9,  999999.9 };
 
 		//maxtex[i] = { 0.0, 0.0 };
 		//mintex[i] = { 0.0, 0.0 };
 
 		for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
 		{
-			
 			vec3_t pos;
 			if (surfedges[e] >= 0)
 				pos = vertices[edges[surfedges[e]].iVertex[0]];
 			else
 				pos = vertices[edges[-surfedges[e]].iVertex[1]];
 
-			float s = floor(pos.x * texinfo[face->iTextureInfo].vS.x + pos.y * texinfo[face->iTextureInfo].vS.y + pos.z * texinfo[face->iTextureInfo].vS.z + texinfo->fSShift);
-			float t = floor(pos.x * texinfo[face->iTextureInfo].vT.x + pos.y * texinfo[face->iTextureInfo].vT.y + pos.z * texinfo[face->iTextureInfo].vT.z + texinfo->fTShift);
+			float s = floor(pos.x * texinfo->vS.x + pos.y * texinfo->vS.y + pos.z * texinfo->vS.z + texinfo->fSShift);
+			float t = floor(pos.x * texinfo->vT.x + pos.y * texinfo->vT.y + pos.z * texinfo->vT.z + texinfo->fTShift);
 
 			if (s > maxtex[i].x)
 				maxtex[i].x = s;
@@ -114,7 +113,7 @@ void BSPMap::Load(const char* filename)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texdata);
 
-			continue;
+			continue; 
 		}
 
 		int luxelsx = (int) ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;

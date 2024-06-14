@@ -24,7 +24,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Debug", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Aegis", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -46,7 +46,7 @@ int main()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(65.0, 4.0 / 3.0, 1.0, 10000.0);
+    gluPerspective(65.0, 16.0 / 9.0, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;
@@ -55,7 +55,7 @@ int main()
         0.0, 0.0, 0.0,
         0.0, 0.0, 1.0);
 
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 1920, 1080);
 
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
 
@@ -72,7 +72,7 @@ int main()
     Wad wad;
     wad.Load("valve/halflife.wad");
     
-    map.Load("valve/maps/test.bsp");
+    map.Load("valve/maps/c2a5c.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
