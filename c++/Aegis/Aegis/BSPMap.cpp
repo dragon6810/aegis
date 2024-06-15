@@ -11,6 +11,8 @@
 #include "loadtexture.h"
 #include "AssetManager.h"
 
+#include "RotatingEntity.h"
+
 void BSPMap::Load(const char* filename)
 {
 	loadBytes(filename, (char**) &mhdr);
@@ -142,6 +144,92 @@ void BSPMap::Load(const char* filename)
 
 		free(texdata);
 	}
+
+	LoadEntities();
+}
+
+void BSPMap::LoadEntities()
+{
+	char* entitieslump = (char*)mhdr + mhdr->lump[BSP_LUMP_ENTITIES].nOffset;
+	int lumplen = mhdr->lump[BSP_LUMP_ENTITIES].nLength;
+
+	char* currentchar = entitieslump;
+
+	while ((currentchar - entitieslump) < lumplen - 1)
+	{
+		std::unordered_map<std::string, std::string> keyval;
+
+		if (currentchar[0] == '{')
+			currentchar += 2;
+
+		while (currentchar[0] != '}')
+		{
+			if (currentchar[0] == '\n')
+			{
+				currentchar++;
+				continue;
+			}
+
+			char* curline = ScanLine(&currentchar);
+
+			char* keystart; char* keyend;
+			char* valstart; char* valend;
+
+			keystart = strchr(curline, '"');
+			keyend = strchr(keystart + 1, '"');
+
+			valstart = strchr(keyend + 1, '"');
+			valend = strchr(valstart + 1, '"');
+
+			char* key = (char*)malloc(keyend - keystart);
+			char* val = (char*)malloc(valend - valstart);
+
+			memcpy(key, keystart + 1, keyend - keystart - 1);
+			memcpy(val, valstart + 1, valend - valstart - 1);
+
+			key[keyend - keystart - 1] = '\0';
+			val[valend - valstart - 1] = '\0';
+
+			keyval[std::string(key)] = std::string(val);
+
+			free(key);
+			free(val);
+
+			free(curline);
+		}
+
+		currentchar += 2;
+
+		if (keyval["classname"] == "func_rotating")
+		{
+			RotatingEntity entity(*this);
+			if (keyval.find("model") != keyval.end())
+				entity.SetModel(std::stoi(keyval["model"].substr(1)));
+
+			entities.push_back(std::make_unique<RotatingEntity>(entity));
+
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint({ 0.0, 0.0, 0.0 }, 0));
+		}
+	}
+}
+
+char* BSPMap::ScanLine(char** line)
+{
+	char* start = *line;
+	char* counter = start;
+
+	while (counter[0] != '\n')
+		counter++;
+
+	int linelen = counter - start;
+
+	char* output = (char*) malloc(linelen + 1);
+	memcpy(output, start, linelen);
+	output[linelen] = '\0';
+
+	*line += linelen + 1;
+
+	return output;
 }
 
 void BSPMap::SetCameraPosition(vec3_t pos)
@@ -153,6 +241,9 @@ void BSPMap::Draw()
 {
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	RenderNode(worldmodel->iHeadnodes[0]);
+
+	for (int i = 0; i < entities.size(); i++)
+		entities[i]->Render();
 }
 
 void BSPMap::RenderNode(short nodenum)
@@ -167,7 +258,7 @@ void BSPMap::RenderNode(short nodenum)
 	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
 
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
-	int firstchild = side >= 0;
+	int firstchild = side < 0;
 
 	RenderNode(node->iChildren[firstchild]);
 
@@ -182,8 +273,14 @@ void BSPMap::RenderLeaf(short leafnum)
 	bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + leafnum;
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
 
-	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
-		RenderFace(marksurfaces[i]);
+	std::vector<int> entityindices = leafentities[leafnum];
+	for(int i = 0; i < entityindices.size(); i++)
+	{
+		entities[entityindices[i]]->Render();
+	}
+
+	//for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
+	//	RenderFace(marksurfaces[i]);
 }
 
 void BSPMap::RenderFace(uint16_t f)
@@ -199,6 +296,8 @@ void BSPMap::RenderFace(uint16_t f)
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
 	glBindTexture(GL_TEXTURE_2D, gltextures[texinfo->iMiptex]);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
@@ -260,8 +359,43 @@ void BSPMap::RenderFace(uint16_t f)
 
 	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
+}
+
+void BSPMap::SetEntityToLeaf(int entity, int leaf)
+{
+	if (entity < entities.size()) 
+	{
+		if (entityleaves.find(entity) != entityleaves.end()) 
+		{
+			int currentLeafIndex = entityleaves[entity];
+			auto& currentLeafEntities = leafentities[currentLeafIndex];
+			currentLeafEntities.erase
+			(
+				std::remove(currentLeafEntities.begin(), currentLeafEntities.end(), entity),
+				currentLeafEntities.end()
+			);
+		}
+
+		leafentities[leaf].push_back(entity);
+		entityleaves[entity] = leaf;
+	}
+}
+
+int BSPMap::GetLeafFromPoint(vec3_t p, int nodenum)
+{
+	if (nodenum < 0)
+		return ~nodenum;
+
+	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
+	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
+
+	float side = plane->vNormal.x * p.x + plane->vNormal.y * p.y + plane->vNormal.z * p.z - plane->fDist;
+	int firstchild = side < 0;
+
+	return GetLeafFromPoint(p, node->iChildren[firstchild]);
 }
 
 BSPMap::~BSPMap()

@@ -141,26 +141,33 @@
   <ItemGroup>
     <ClCompile Include="Aegis.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="BaseEntity.cpp" />
     <ClCompile Include="binaryloader.cpp" />
     <ClCompile Include="BSPMap.cpp" />
+    <ClCompile Include="BSPModelEntity.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
     <ClCompile Include="mstudioload.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="rendermodel.cpp" />
+    <ClCompile Include="RotatingEntity.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="BaseEntity.h" />
     <ClInclude Include="binaryloader.h" />
     <ClInclude Include="BSPMap.h" />
+    <ClInclude Include="BSPModelEntity.h" />
+    <ClInclude Include="collision.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
     <ClInclude Include="mstudioload.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="rendermodel.h" />
+    <ClInclude Include="RotatingEntity.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
   </ItemGroup>
