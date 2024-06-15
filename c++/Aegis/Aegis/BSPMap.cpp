@@ -276,6 +276,9 @@ void BSPMap::LoadEntities()
 				entity.rotation = pos;
 			}
 
+			if (keyval.find("rendermode") != keyval.end())
+				entity.renderingmode = std::stoi(keyval["rendermode"]);
+
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
 

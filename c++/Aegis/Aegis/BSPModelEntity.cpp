@@ -16,6 +16,13 @@ void BSPModelEntity::Init()
 
 void BSPModelEntity::Render()
 {
+	if (renderingmode == BSP_MODEL_RENDERMODE_SOLID)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+	}
+
 	bspmodel_t* model = (bspmodel_t*) ((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_MODELS].nOffset) + whichmodel;
 
 	glPushMatrix();
@@ -28,6 +35,12 @@ void BSPModelEntity::Render()
 	map->RenderNode(model->iHeadnodes[0]);
 
 	glPopMatrix();
+
+	if (renderingmode == BSP_MODEL_RENDERMODE_SOLID)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glDisable(GL_ALPHA_TEST);
+	}
 }
 
 void BSPModelEntity::SetModel(int whichmodel)

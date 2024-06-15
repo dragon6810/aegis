@@ -6,7 +6,5 @@ class WallEntity : public BSPModelEntity
 {
 public:
     WallEntity(BSPMap& map);
-
-    virtual void Render() override;
 };
 
