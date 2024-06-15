@@ -7,8 +7,9 @@ public:
 
 	void SetModel(int whichmodel);
 
+	virtual void Init() override;
 	virtual void Render() override;
-private:
+protected:
 	int whichmodel = 0;
 };
 

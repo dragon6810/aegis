@@ -2,6 +2,10 @@
 
 #include "Mat3x4.h"
 
+#include "defs.h"
+
+#define RAD2DEG 57.2958
+
 struct Quaternion
 {
 	float q[4];
@@ -9,6 +13,7 @@ struct Quaternion
 	static Quaternion AngleAxis(float theta, float axis[3]);
 	static Quaternion FromAngle(float axis[3]);
 	static Quaternion Slerp(const Quaternion& q1, const Quaternion& q2, float t);
+	vec3_t ToEuler();
 
 	Mat3x4 toMat();
 

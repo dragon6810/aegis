@@ -19,8 +19,14 @@ class RotatingEntity :
 public:
     RotatingEntity(BSPMap& map);
 
+    virtual void Init() override;
     virtual void Think(float deltatime) override;
+    
+    void SetSpeed(float speed);
 protected:
     vec3_t rotationalvelocity = { 0.0, 0.0, 0.0 };
+    float speed = 0.0;
+    float friction = 0.0;
+    float speedpercent = 0.0;
 };
 

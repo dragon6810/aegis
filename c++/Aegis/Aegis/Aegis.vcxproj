@@ -153,6 +153,7 @@
     <ClCompile Include="RotatingEntity.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
+    <ClCompile Include="WallEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="RotatingEntity.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
+    <ClInclude Include="WallEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

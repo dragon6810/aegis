@@ -5,6 +5,11 @@ BaseEntity::BaseEntity(BSPMap& map)
 	this->map = &map;
 }
 
+void BaseEntity::Init()
+{
+
+}
+
 void BaseEntity::Think(float deltatime)
 {
 	return;

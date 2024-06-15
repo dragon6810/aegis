@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sstream>
 #include <string.h>
 #include <math.h>
 
@@ -12,6 +13,7 @@
 #include "AssetManager.h"
 
 #include "RotatingEntity.h"
+#include "WallEntity.h"
 
 void BSPMap::Load(const char* filename)
 {
@@ -203,12 +205,84 @@ void BSPMap::LoadEntities()
 		if (keyval["classname"] == "func_rotating")
 		{
 			RotatingEntity entity(*this);
+
 			if (keyval.find("model") != keyval.end())
 				entity.SetModel(std::stoi(keyval["model"].substr(1)));
 
-			entities.push_back(std::make_unique<RotatingEntity>(entity));
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
 
-			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint({ 0.0, 0.0, 0.0 }, 0));
+			vec3_t rot = { 0.0, 0.0, 0.0 };
+			if (keyval.find("angle") != keyval.end())
+			{
+				std::istringstream iss(keyval["angle"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				rot.x = x;
+				rot.y = y;
+				rot.z = z;
+				entity.rotation = pos;
+			}
+			
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			float speed = 0.0;
+			if (keyval.find("speed") != keyval.end())
+				entity.SetSpeed(std::stoi(keyval["speed"]));
+
+
+			entity.Init();
+			entities.push_back(std::make_unique<RotatingEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
+		else if (keyval["classname"] == "func_wall")
+		{
+			WallEntity entity(*this);
+
+			if (keyval.find("model") != keyval.end())
+				entity.SetModel(std::stoi(keyval["model"].substr(1)));
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			vec3_t rot = { 0.0, 0.0, 0.0 };
+			if (keyval.find("angle") != keyval.end())
+			{
+				std::istringstream iss(keyval["angle"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				rot.x = x;
+				rot.y = y;
+				rot.z = z;
+				entity.rotation = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+
+			entity.Init();
+			entities.push_back(std::make_unique<WallEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
 	}
 }
@@ -241,9 +315,12 @@ void BSPMap::Draw()
 {
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	RenderNode(worldmodel->iHeadnodes[0]);
+}
 
+void BSPMap::Think(float deltatime)
+{
 	for (int i = 0; i < entities.size(); i++)
-		entities[i]->Render();
+		entities[i]->Think(deltatime);
 }
 
 void BSPMap::RenderNode(short nodenum)
@@ -275,9 +352,7 @@ void BSPMap::RenderLeaf(short leafnum)
 
 	std::vector<int> entityindices = leafentities[leafnum];
 	for(int i = 0; i < entityindices.size(); i++)
-	{
 		entities[entityindices[i]]->Render();
-	}
 
 	//for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
 	//	RenderFace(marksurfaces[i]);
@@ -296,8 +371,6 @@ void BSPMap::RenderFace(uint16_t f)
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
 	glBindTexture(GL_TEXTURE_2D, gltextures[texinfo->iMiptex]);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
@@ -359,7 +432,6 @@ void BSPMap::RenderFace(uint16_t f)
 
 	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_ALPHA_TEST);
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
 }

@@ -88,6 +88,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
 
+        map.Think(1.0 / fps);
         map.Draw();
 
         barney.render();

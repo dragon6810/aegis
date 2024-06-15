@@ -10,6 +10,7 @@ class BaseEntity
 public:
 	BaseEntity(BSPMap& map);
 
+	virtual void Init();
 	virtual void Think(float deltatime);
 	virtual void Render();
 	virtual void On();
@@ -21,6 +22,7 @@ public:
 	vec3_t rotation = { 0.0, 0.0, 0.0 };
 
 	bool on;
+	int flags = 0;
 protected:
 	BSPMap* map;
 };

@@ -18,6 +18,7 @@ public:
 	char* ScanLine(char** line);
 	void SetCameraPosition(vec3_t pos);
 	void Draw();
+	void Think(float deltatime);
 
 	~BSPMap();
 

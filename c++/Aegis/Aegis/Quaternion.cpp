@@ -148,3 +148,28 @@ Quaternion Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, float t
 
     return result;
 }
+
+vec3_t Quaternion::ToEuler()
+{
+    float x, y, z;
+    // Assuming the quaternion is normalized
+    float ysqr = q[2] * q[2];
+
+    // X (roll) rotation
+    float t0 = +2.0f * (q[0] * q[1] + q[2] * q[3]);
+    float t1 = +1.0f - 2.0f * (q[1] * q[1] + ysqr);
+    x = atan2f(t0, t1);
+
+    // Y (pitch) rotation
+    float t2 = +2.0f * (q[0] * q[2] - q[3] * q[1]);
+    t2 = t2 > 1.0f ? 1.0f : t2;
+    t2 = t2 < -1.0f ? -1.0f : t2;
+    y = asinf(t2);
+
+    // Z (yaw) rotation
+    float t3 = +2.0f * (q[0] * q[3] + q[1] * q[2]);
+    float t4 = +1.0f - 2.0f * (ysqr + q[3] * q[3]);
+    z = atan2f(t3, t4);
+
+    return { x, y, z };
+}
