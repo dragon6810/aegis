@@ -156,6 +156,8 @@ void BSPMap::Load(const char* filename)
 
 void BSPMap::LoadEntities()
 {
+	Wad decals;
+	decals.Load("valve/decals.wad");
 	char* entitieslump = (char*)mhdr + mhdr->lump[BSP_LUMP_ENTITIES].nOffset;
 	int lumplen = mhdr->lump[BSP_LUMP_ENTITIES].nLength;
 
@@ -351,6 +353,8 @@ void BSPMap::LoadEntities()
 
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			entity.SetWad(decals);
 
 			if (keyval.find("texture") != keyval.end())
 				entity.SetTexture((char*) keyval["texture"].c_str());

@@ -1,6 +1,6 @@
 #include "DecalEntity.h"
 
-#include <GL/glew.h>
+#include "AssetManager.h"
 
 DecalEntity::DecalEntity(BSPMap& map) : BaseEntity(map)
 {
@@ -10,6 +10,29 @@ DecalEntity::DecalEntity(BSPMap& map) : BaseEntity(map)
 void DecalEntity::SetTexture(char* texname)
 {
 	memcpy(texture, texname, strlen(texname));
+
+	waddirentry_t* entry = (waddirentry_t*)((char*)decalswad->whdr + decalswad->whdr->diroffset);
+
+	for (int i = 0; i < decalswad->whdr->numdirs; i++, entry++)
+	{
+		miptex_t* texture = (miptex_t*)((char*)decalswad->whdr + entry->entryoffset);
+
+		if (strcmp(texname, entry->name) != 0)
+			continue;
+
+		size = texture->width >> 1;
+		if ((texture->height >> 1) > size)
+			size = texture->height >> 1;
+
+		texindex = AssetManager::getInst().getTexture(texname, "wad");
+
+		break;
+	}
+}
+
+void DecalEntity::SetWad(Wad& wad)
+{
+	this->decalswad = &wad;
 }
 
 void DecalEntity::Init()
@@ -132,7 +155,7 @@ void DecalEntity::AddFaces(int nodenum)
 void DecalEntity::Render()
 {
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.0f, -1.0f);
+	glPolygonOffset(0.0f, -1.5f);
 	for (int f = 0; f < faces.size(); f++)
 	{
 		glBegin(GL_POLYGON);

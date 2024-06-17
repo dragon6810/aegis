@@ -7,7 +7,8 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'DecalEntity.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(114,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(24,30): warning C4018: '>': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(137,36): warning C4018: '<': signed/unsigned mismatch
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
