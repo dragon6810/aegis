@@ -28,9 +28,15 @@ protected:
 	Wad* decalswad;
 
 	std::vector<std::vector<vec3_t>> faces;
+	std::vector<std::vector<vec2_t>> texcoords;
 	char texture[BSP_MAXTEXTURENAME];
 	int size = 16 >> 1;
+	int texwidth;
+	int texheight;
 	GLuint texindex;
+
+	float dx;
+	float dy;
 
 	void RecursiveFindFaces(int nodenum);
 	void AddFaces(int nodenum);

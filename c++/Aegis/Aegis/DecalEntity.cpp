@@ -2,6 +2,8 @@
 
 #include "AssetManager.h"
 
+#include <iostream>
+
 DecalEntity::DecalEntity(BSPMap& map) : BaseEntity(map)
 {
 
@@ -23,6 +25,9 @@ void DecalEntity::SetTexture(char* texname)
 		size = texture->width >> 1;
 		if ((texture->height >> 1) > size)
 			size = texture->height >> 1;
+
+		texwidth = texture->width;
+		texheight = texture->height;
 
 		texindex = AssetManager::getInst().getTexture(texname, "wad");
 
@@ -133,6 +138,8 @@ void DecalEntity::AddFaces(int nodenum)
 
 	for (int i = 0; i < node->nFaces; i++, face++)
 	{
+		bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_TEXINFO].nOffset) + face->iTextureInfo;
+
 		std::vector<vec3_t> poly;
 		for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
 		{
@@ -147,27 +154,82 @@ void DecalEntity::AddFaces(int nodenum)
 
 		poly = BoxFace({ position.x - size, position.y - size, position.z - size }, { position.x + size, position.y + size, position.z + size }, poly);
 
+		bspplane_t* plane = (bspplane_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_PLANES].nOffset) + face->iPlane;
+		vec3_t normal = plane->vNormal;
+		if (face->nPlaneSide != 0)
+		{
+			normal.x = -normal.x;
+			normal.y = -normal.y;
+			normal.z = -normal.z;
+		}
+
 		if (poly.size() > 0)
+		{
 			faces.push_back(poly);
+
+			vec3_t SAxis = texinfo->vS;
+			vec3_t TAxis = texinfo->vT;
+
+			float slen = sqrtf(SAxis.x * SAxis.x + SAxis.y * SAxis.y + SAxis.z * SAxis.z);
+			float tlen = sqrtf(TAxis.x * TAxis.x + TAxis.y * TAxis.y + TAxis.z * TAxis.z);
+
+			SAxis.x /= slen;
+			SAxis.y /= slen;
+			SAxis.z /= slen;
+
+			TAxis.x /= tlen;
+			TAxis.y /= tlen;
+			TAxis.z /= tlen;
+
+			SAxis.x *= (float) 1 / texwidth;
+			SAxis.y *= (float) 1 / texwidth;
+			SAxis.z *= (float) 1 / texwidth;
+
+			TAxis.x *= (float) 1 / texheight;
+			TAxis.y *= (float) 1 / texheight;
+			TAxis.z *= (float) 1 / texheight;
+
+			dx = position.x * SAxis.x + position.y * SAxis.y + position.z * SAxis.z;
+			dy = position.x * TAxis.x + position.y * TAxis.y + position.z * TAxis.z;
+			
+			std::vector<vec2_t> uvs;
+			for (int v = 0; v < poly.size(); v++)
+			{
+				float s = poly[v].x * SAxis.x + poly[v].y * SAxis.y + poly[v].z * SAxis.z - dx + 0.5;
+				float t = poly[v].x * TAxis.x + poly[v].y * TAxis.y + poly[v].z * TAxis.z - dy + 0.5;
+
+				uvs.push_back({ s, t });
+			}
+
+			texcoords.push_back(uvs);
+		}
 	}
 }
 
 void DecalEntity::Render()
 {
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.0f, -1.5f);
+	glPolygonOffset(-1.0f, -0.1f);
+
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texindex);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
 	for (int f = 0; f < faces.size(); f++)
 	{
 		glBegin(GL_POLYGON);
 		for (int v = 0; v < faces[f].size(); v++)
 		{
 			vec3_t vert = faces[f][v];
-			glColor3f(0, 1, 0);
+			glTexCoord2f(texcoords[f][v].x, texcoords[f][v].y);
 			glVertex3f(vert.x, vert.y, vert.z);
 		}
 		glEnd();
 	}
 
-	glDisable(GL_POLYGON_OFFSET_FILL);
 	glColor3f(1, 1, 1);
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_POLYGON_OFFSET_FILL);
 }

@@ -7,8 +7,10 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(452,12): warning C4
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'DecalEntity.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(24,30): warning C4018: '>': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(137,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(26,30): warning C4018: '>': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(144,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(198,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(199,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
