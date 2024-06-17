@@ -86,10 +86,15 @@ void loaddecalmiptex(char* data, int** out, int* width, int* height)
 	int palleteIndex = texture->offsets[BSP_MIPLEVELS - 1] + (*width >> (BSP_MIPLEVELS - 1)) * (*height >> (BSP_MIPLEVELS - 1));
 
 	miptexpalette_t* pallete = (miptexpalette_t*)((char*)texture + palleteIndex);
+	color24_t decalcol = pallete->colors[COLORSINPALETTE - 1];
 	int moderncolors[COLORSINPALETTE]{};
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
-		int col = 0x00FFFFFF;
+		int col = 0;
+		col |= ((int)decalcol.r) <<  0;
+		col |= ((int)decalcol.g) <<  8;
+		col |= ((int)decalcol.b) << 16;
+
 		col |= (255 - (int)pallete->colors[c].r) << 24;
 
 		moderncolors[c] = col;

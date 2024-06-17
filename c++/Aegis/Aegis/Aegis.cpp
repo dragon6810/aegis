@@ -50,7 +50,7 @@ int main()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;
-    vec3_t camp = { d, d, d };
+    vec3_t camp = { -d, -d, d };
     gluLookAt(camp.x, camp.y, camp.z,
         0.0, 0.0, 0.0,
         0.0, 0.0, 1.0);
