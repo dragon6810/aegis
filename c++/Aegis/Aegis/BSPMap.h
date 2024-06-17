@@ -25,8 +25,8 @@ public:
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
 	bspheader_t* mhdr;
 	
-	void RenderNode(short nodenum);
-	void RenderLeaf(short leafnum);
+	void RenderNode(short nodenum, bool renderentities);
+	void RenderLeaf(short leafnum, bool renderentities);
 	void RenderFace(uint16_t f);
 
 	int* gltextures;
@@ -40,4 +40,5 @@ public:
 
 	void SetEntityToLeaf(int entity, int leaf);
 	int GetLeafFromPoint(vec3_t p, int nodenum);
+	void BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int>& faces);
 };

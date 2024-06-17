@@ -46,7 +46,7 @@ int main()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(65.0, 16.0 / 9.0, 1.0, 10000.0);
+    gluPerspective(90.0, 16.0 / 9.0, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;

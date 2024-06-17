@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 #include <sstream>
 #include <string.h>
 #include <math.h>
@@ -13,7 +14,8 @@
 #include "AssetManager.h"
 
 #include "RotatingEntity.h"
-#include "WallEntity.h"
+#include "IllusionaryEntity.h"
+#include "DecalEntity.h"
 
 void BSPMap::Load(const char* filename)
 {
@@ -147,7 +149,9 @@ void BSPMap::Load(const char* filename)
 		free(texdata);
 	}
 
+	printf("Started Loading Entites\n");
 	LoadEntities();
+	printf("Done Loading Entites\n");
 }
 
 void BSPMap::LoadEntities()
@@ -287,6 +291,74 @@ void BSPMap::LoadEntities()
 			entities.push_back(std::make_unique<WallEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
+		else if (keyval["classname"] == "func_illusionary")
+		{
+			IllusionaryEntity entity(*this);
+
+			if (keyval.find("model") != keyval.end())
+				entity.SetModel(std::stoi(keyval["model"].substr(1)));
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			vec3_t rot = { 0.0, 0.0, 0.0 };
+			if (keyval.find("angle") != keyval.end())
+			{
+				std::istringstream iss(keyval["angle"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				rot.x = x;
+				rot.y = y;
+				rot.z = z;
+				entity.rotation = pos;
+			}
+
+			if (keyval.find("rendermode") != keyval.end())
+				entity.renderingmode = std::stoi(keyval["rendermode"]);
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+
+			entity.Init();
+			entities.push_back(std::make_unique<IllusionaryEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
+		else if (keyval["classname"] == "infodecal")
+		{
+			DecalEntity entity(*this);
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			if (keyval.find("texture") != keyval.end())
+				entity.SetTexture((char*) keyval["texture"].c_str());
+
+			entity.Init();
+			entities.push_back(std::make_unique<DecalEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
 	}
 }
 
@@ -317,7 +389,7 @@ void BSPMap::SetCameraPosition(vec3_t pos)
 void BSPMap::Draw()
 {
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
-	RenderNode(worldmodel->iHeadnodes[0]);
+	RenderNode(worldmodel->iHeadnodes[0], true);
 }
 
 void BSPMap::Think(float deltatime)
@@ -326,11 +398,11 @@ void BSPMap::Think(float deltatime)
 		entities[i]->Think(deltatime);
 }
 
-void BSPMap::RenderNode(short nodenum)
+void BSPMap::RenderNode(short nodenum, bool renderentities)
 {
 	if (nodenum < 0)
 	{
-		RenderLeaf(~nodenum);
+		RenderLeaf(~nodenum, renderentities);
 		return;
 	}
 
@@ -340,16 +412,19 @@ void BSPMap::RenderNode(short nodenum)
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
 	int firstchild = side < 0;
 
-	RenderNode(node->iChildren[firstchild]);
+	RenderNode(node->iChildren[firstchild], renderentities);
 
 	for (int i = node->firstFace; i < node->firstFace + node->nFaces; i++)
 		RenderFace(i);
 
-	RenderNode(node->iChildren[!firstchild]);
+	RenderNode(node->iChildren[!firstchild], renderentities);
 }
 
-void BSPMap::RenderLeaf(short leafnum)
+void BSPMap::RenderLeaf(short leafnum, bool renderentities)
 {
+	if (!renderentities)
+		return;
+
 	bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + leafnum;
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
 
@@ -471,6 +546,110 @@ int BSPMap::GetLeafFromPoint(vec3_t p, int nodenum)
 	int firstchild = side < 0;
 
 	return GetLeafFromPoint(p, node->iChildren[firstchild]);
+}
+
+void BSPMap::BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int>& faces)
+{
+	if (nodenum < 0)
+	{
+		nodenum = ~nodenum;
+		bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + nodenum;
+
+		for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
+		{
+			uint16_t* marksurface = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset) + i;
+			bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + *marksurface;
+			bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
+			vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
+
+			std::vector<vec3_t> poly;
+			for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
+			{
+				int* surfedge = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset) + e;
+
+				vec3_t pos{};
+				if (*surfedge >= 0)
+					pos = vertices[edges[*surfedge].iVertex[0]];
+				else
+					pos = vertices[edges[*surfedge].iVertex[1]];
+
+				poly.push_back(pos);
+			}
+
+			poly = BoxFace(bmin, bmax, poly);
+			if (poly.size() > 0)
+				faces.push_back(*marksurface);
+		}
+
+		return;
+	}
+
+	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
+	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
+
+	vec3_t v[8]{};
+	v[0] = { bmin.x, bmin.y, bmin.z };
+	v[1] = { bmin.x, bmin.y, bmax.z };
+	v[2] = { bmin.x, bmax.y, bmin.z };
+	v[3] = { bmin.x, bmax.y, bmax.z };
+	v[4] = { bmax.x, bmin.y, bmin.z };
+	v[5] = { bmax.x, bmin.y, bmax.z };
+	v[6] = { bmax.x, bmax.y, bmin.z };
+	v[7] = { bmax.x, bmax.y, bmax.z };
+
+	int side = 2; // 1 for front, 0 for both, -1 for back
+
+	for (int i = 0; i < 8; i++) 
+	{
+		vec3_t p = v[i];
+		float pside = plane->vNormal.x * p.x + plane->vNormal.y * p.y + plane->vNormal.z * p.z - plane->fDist;
+
+		if (side == 2)
+		{
+			if (pside > 0)
+				side = 1;
+			else if (pside < 0)
+				side = -1;
+			else
+			{
+				side = 0;
+				break;
+			}
+		}
+		else if (pside > 0) 
+		{
+			if (side == -1) 
+			{
+				side = 0; // Intersecting the plane
+				break;
+			}
+			side = 1; // Front side
+		}
+		else if (pside < 0) 
+		{
+			if (side == 1) 
+			{
+				side = 0; // Intersecting the plane
+				break;
+			}
+			side = -1; // Back side
+		}
+		else
+		{
+			side = 0; // On the plane
+			break;
+		}
+	}
+
+	if (side == 1)
+		BoxIntersect(bmin, bmax, node->iChildren[0], faces);
+	else if (side == -1)
+		BoxIntersect(bmin, bmax, node->iChildren[1], faces);
+	else
+	{
+		BoxIntersect(bmin, bmax, node->iChildren[0], faces);
+		BoxIntersect(bmin, bmax, node->iChildren[1], faces);
+	}
 }
 
 BSPMap::~BSPMap()

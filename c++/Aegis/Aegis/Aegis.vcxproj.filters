@@ -40,6 +40,9 @@
     <Filter Include="Header Files\Physics">
       <UniqueIdentifier>{7f020afa-35e6-499e-ae6a-8880f339dd5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{a5f9b89d-5688-42b0-9370-71365cf29899}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
@@ -86,6 +89,15 @@
     </ClCompile>
     <ClCompile Include="WallEntity.cpp">
       <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="IllusionaryEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="DecalEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="collision.cpp">
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +147,12 @@
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="WallEntity.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="IllusionaryEntity.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalEntity.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>

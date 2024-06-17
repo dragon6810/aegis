@@ -32,7 +32,7 @@ void BSPModelEntity::Render()
 	glRotatef(rotation.y * RAD2DEG, 0.0, 1.0, 0.0);
 	glRotatef(rotation.x * RAD2DEG, 1.0, 0.0, 0.0);
 
-	map->RenderNode(model->iHeadnodes[0]);
+	map->RenderNode(model->iHeadnodes[0], false);
 
 	glPopMatrix();
 
