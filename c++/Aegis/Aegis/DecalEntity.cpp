@@ -193,23 +193,31 @@ void DecalEntity::AddFaces(int nodenum)
 			dy = position.x * TAxis.x + position.y * TAxis.y + position.z * TAxis.z;
 			
 			std::vector<vec2_t> uvs;
+			std::vector<vec2_t> lightcoords;
 			for (int v = 0; v < poly.size(); v++)
 			{
 				float s = poly[v].x * SAxis.x + poly[v].y * SAxis.y + poly[v].z * SAxis.z - dx + 0.5;
 				float t = poly[v].x * TAxis.x + poly[v].y * TAxis.y + poly[v].z * TAxis.z - dy + 0.5;
 
 				uvs.push_back({ s, t });
+
+				lightcoords.push_back(map->GetLightmapCoords(i + node->firstFace, poly[v]));
 			}
 
 			texcoords.push_back(uvs);
+			lightmapcoords.push_back(lightcoords);
 		}
 	}
 }
 
+//OPTIMIZE: Attach a piece of the decal to every face its on so it can be rendered with its face instead of after everything else
 void DecalEntity::Render()
 {
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(-1.0f, -0.1f);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
@@ -218,18 +226,23 @@ void DecalEntity::Render()
 
 	for (int f = 0; f < faces.size(); f++)
 	{
+		glActiveTexture(GL_TEXTURE1);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, map->lightmaptextures[f]);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
 		glBegin(GL_POLYGON);
 		for (int v = 0; v < faces[f].size(); v++)
 		{
 			vec3_t vert = faces[f][v];
-			glTexCoord2f(texcoords[f][v].x, texcoords[f][v].y);
+			glMultiTexCoord2f(GL_TEXTURE0, texcoords[f][v].x, texcoords[f][v].y);
+			glMultiTexCoord2f(GL_TEXTURE1, lightmapcoords[f][v].x, lightmapcoords[f][v].y);
 			glVertex3f(vert.x, vert.y, vert.z);
 		}
 		glEnd();
 	}
 
-	glColor3f(1, 1, 1);
-
+	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_POLYGON_OFFSET_FILL);
 }

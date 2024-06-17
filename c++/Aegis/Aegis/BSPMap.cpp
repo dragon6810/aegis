@@ -156,8 +156,8 @@ void BSPMap::Load(const char* filename)
 
 void BSPMap::LoadEntities()
 {
-	Wad decals;
-	decals.Load("valve/decals.wad");
+	Wad decalwad;
+	decalwad.LoadDecals("valve/decals.wad");
 	char* entitieslump = (char*)mhdr + mhdr->lump[BSP_LUMP_ENTITIES].nOffset;
 	int lumplen = mhdr->lump[BSP_LUMP_ENTITIES].nLength;
 
@@ -354,14 +354,13 @@ void BSPMap::LoadEntities()
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
 
-			entity.SetWad(decals);
+			entity.SetWad(decalwad);
 
 			if (keyval.find("texture") != keyval.end())
 				entity.SetTexture((char*) keyval["texture"].c_str());
 
 			entity.Init();
-			entities.push_back(std::make_unique<DecalEntity>(entity));
-			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+			decals.push_back(std::make_unique<DecalEntity>(entity));
 		}
 	}
 }
@@ -394,6 +393,9 @@ void BSPMap::Draw()
 {
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	RenderNode(worldmodel->iHeadnodes[0], true);
+
+	for (int i = 0; i < decals.size(); i++)
+		decals[i]->Render();
 }
 
 void BSPMap::Think(float deltatime)
@@ -433,7 +435,7 @@ void BSPMap::RenderLeaf(short leafnum, bool renderentities)
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
 
 	std::vector<int> entityindices = leafentities[leafnum];
-	for(int i = 0; i < entityindices.size(); i++)
+	for (int i = 0; i < entityindices.size(); i++)
 		entities[entityindices[i]]->Render();
 
 	//for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
@@ -485,26 +487,8 @@ void BSPMap::RenderFace(uint16_t f)
 		s /= miptex->width;
 		float t = pos.x * texinfo->vT.x + pos.y * texinfo->vT.y + pos.z * texinfo->vT.z + texinfo->fTShift;
 		t /= miptex->height;
-
-		// https://www.gamedev.net/forums/topic.asp?topic_id=538713
 		
-		vec2_t lightmapCoords{};
-		lightmapCoords.x = s * miptex->width;
-		lightmapCoords.y = t * miptex->height;
-
-		int luxelsx = (int) ceilf(maxtex[f].x / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[f].x / BSP_LIGHTMAP_LUXELLEN) + 1;
-		int luxelsy = (int) ceilf(maxtex[f].y / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[f].y / BSP_LIGHTMAP_LUXELLEN) + 1;
-
-		float midfaceu = (mintex[f].x + maxtex[f].x) / 2.0;
-		float midfacev = (mintex[f].y + maxtex[f].y) / 2.0;
-		float midtexu = luxelsx / 2.0;
-		float midtexv = luxelsy / 2.0;
-
-		lightmapCoords.x = midtexu + (lightmapCoords.x - midfaceu) / BSP_LIGHTMAP_LUXELLEN;
-		lightmapCoords.y = midtexv + (lightmapCoords.y - midfacev) / BSP_LIGHTMAP_LUXELLEN;
-
-		lightmapCoords.x /= luxelsx;
-		lightmapCoords.y /= luxelsy;
+		vec2_t lightmapCoords = GetLightmapCoords(f, pos);
 
 		glMultiTexCoord2f(GL_TEXTURE0, s, t);
 		glMultiTexCoord2f(GL_TEXTURE1, lightmapCoords.x, lightmapCoords.y);
@@ -516,6 +500,41 @@ void BSPMap::RenderFace(uint16_t f)
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
+}
+
+// https://www.gamedev.net/forums/topic.asp?topic_id=538713
+vec2_t BSPMap::GetLightmapCoords(uint16_t f, vec3_t pos)
+{
+	bspplane_t* planes = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset);
+	bspface_t* faces = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset);
+	bspface_t* face = faces + f;
+	vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
+	bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
+	int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
+	bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset) + face->iTextureInfo;
+	uint32_t* texoffsets = (uint32_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + sizeof(uint32_t));
+
+	miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo->iMiptex]);
+
+	vec2_t lightmapCoords{};
+	lightmapCoords.x = pos.x * texinfo->vS.x + pos.y * texinfo->vS.y + pos.z * texinfo->vS.z + texinfo->fSShift;
+	lightmapCoords.y = pos.x * texinfo->vT.x + pos.y * texinfo->vT.y + pos.z * texinfo->vT.z + texinfo->fTShift;
+
+	int luxelsx = (int)ceilf(maxtex[f].x / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[f].x / BSP_LIGHTMAP_LUXELLEN) + 1;
+	int luxelsy = (int)ceilf(maxtex[f].y / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[f].y / BSP_LIGHTMAP_LUXELLEN) + 1;
+
+	float midfaceu = (mintex[f].x + maxtex[f].x) / 2.0;
+	float midfacev = (mintex[f].y + maxtex[f].y) / 2.0;
+	float midtexu = luxelsx / 2.0;
+	float midtexv = luxelsy / 2.0;
+
+	lightmapCoords.x = midtexu + (lightmapCoords.x - midfaceu) / BSP_LIGHTMAP_LUXELLEN;
+	lightmapCoords.y = midtexv + (lightmapCoords.y - midfacev) / BSP_LIGHTMAP_LUXELLEN;
+
+	lightmapCoords.x /= luxelsx;
+	lightmapCoords.y /= luxelsy;
+
+	return lightmapCoords;
 }
 
 void BSPMap::SetEntityToLeaf(int entity, int leaf)

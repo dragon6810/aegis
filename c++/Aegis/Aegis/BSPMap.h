@@ -28,11 +28,15 @@ public:
 	void RenderNode(short nodenum, bool renderentities);
 	void RenderLeaf(short leafnum, bool renderentities);
 	void RenderFace(uint16_t f);
+	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
 
 	int* gltextures;
 	int* lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
+
+	// OPTIMIZE: See node in DecalEntity.cpp above render
+	std::vector<std::unique_ptr<BaseEntity>> decals;
 
 	std::vector<std::unique_ptr<BaseEntity>> entities;
 	std::unordered_map<int, std::vector<int>> leafentities;

@@ -10,3 +10,4 @@ typedef enum
 
 void loadmstudiotexture(char* data, int which, texturetype_t type, int** out, int* width, int* height);
 void loadmiptex(char* data, int** out, int* width, int* height);
+void loaddecalmiptex(char* data, int** out, int* width, int* height);

@@ -29,6 +29,7 @@ protected:
 
 	std::vector<std::vector<vec3_t>> faces;
 	std::vector<std::vector<vec2_t>> texcoords;
+	std::vector<std::vector<vec2_t>> lightmapcoords;
 	char texture[BSP_MAXTEXTURENAME];
 	int size = 16 >> 1;
 	int texwidth;
