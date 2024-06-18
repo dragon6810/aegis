@@ -30,10 +30,25 @@ typedef enum
 	STUDIO_ZR = 5
 } mstudiomotionmodes_t;
 
-typedef struct
+struct vec3_t
 {
 	float x, y, z;
-} vec3_t;
+
+	vec3_t operator-(const vec3_t& a) const
+	{
+		return { x - a.x, y - a.y, z - a.z };
+	}
+
+	vec3_t operator+(const vec3_t& a) const
+	{
+		return { x + a.x, y + a.y, z + a.z };
+	}
+
+	vec3_t operator*(const float& f) const
+	{
+		return { x * f, y * f, z * f };
+	}
+};
 
 typedef struct
 {

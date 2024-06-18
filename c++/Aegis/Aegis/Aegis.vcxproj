@@ -150,10 +150,12 @@
     <ClCompile Include="IllusionaryEntity.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
+    <ClCompile Include="mathutils.cpp" />
     <ClCompile Include="mstudioload.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="rendermodel.cpp" />
     <ClCompile Include="RotatingEntity.cpp" />
+    <ClCompile Include="SpriteEntity.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
     <ClCompile Include="WallEntity.cpp" />
@@ -170,10 +172,12 @@
     <ClInclude Include="IllusionaryEntity.h" />
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
+    <ClInclude Include="mathutils.h" />
     <ClInclude Include="mstudioload.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="rendermodel.h" />
     <ClInclude Include="RotatingEntity.h" />
+    <ClInclude Include="SpriteEntity.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
     <ClInclude Include="WallEntity.h" />

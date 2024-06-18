@@ -242,6 +242,11 @@ void DecalEntity::Render()
 		glEnd();
 	}
 
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE1);
+	glDisable(GL_TEXTURE_2D);
+
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_POLYGON_OFFSET_FILL);

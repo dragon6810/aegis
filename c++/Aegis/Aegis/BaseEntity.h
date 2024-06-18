@@ -20,6 +20,9 @@ public:
 
 	vec3_t position = { 0.0, 0.0, 0.0 };
 	vec3_t rotation = { 0.0, 0.0, 0.0 };
+	vec3_t cameraforward = { 0.0, 0.0, 0.0 };
+	vec3_t cameraup = { 0.0, 0.0, 0.0 };
+	vec3_t camerapos = { 0.0, 0.0, 0.0 };
 
 	bool on;
 	int flags = 0;

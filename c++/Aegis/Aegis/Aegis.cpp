@@ -9,6 +9,7 @@
 #include "AssetManager.h"
 #include "BSPMap.h"
 #include "Wad.h"
+#include "mathutils.h"
 
 BSPMap map;
 
@@ -50,7 +51,7 @@ int main()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;
-    vec3_t camp = { -d, -d, d };
+    vec3_t camp = { d, d, d };
     gluLookAt(camp.x, camp.y, camp.z,
         0.0, 0.0, 0.0,
         0.0, 0.0, 1.0);
@@ -74,6 +75,8 @@ int main()
     
     map.Load("valve/maps/c2a5c.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
+    map.cameraforward = NormalizeVector3({ -camp.x, -camp.y, -camp.z });
+    map.cameraup = { 0, 0, 1 };
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 

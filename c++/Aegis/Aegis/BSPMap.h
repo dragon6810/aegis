@@ -23,6 +23,8 @@ public:
 	~BSPMap();
 
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
+	vec3_t cameraforward = { 0.0, 0.0, 0.0 };
+	vec3_t cameraup = { 0.0, 0.0, 0.0 };
 	bspheader_t* mhdr;
 	
 	void RenderNode(short nodenum, bool renderentities);
@@ -39,6 +41,7 @@ public:
 	std::vector<std::unique_ptr<BaseEntity>> decals;
 
 	std::vector<std::unique_ptr<BaseEntity>> entities;
+	std::vector<int> EntityRenderingQueue; // Back to front rendering for potentially transparent entities
 	std::unordered_map<int, std::vector<int>> leafentities;
 	std::unordered_map<int, int> entityleaves;
 

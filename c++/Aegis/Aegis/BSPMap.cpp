@@ -16,6 +16,7 @@
 #include "RotatingEntity.h"
 #include "IllusionaryEntity.h"
 #include "DecalEntity.h"
+#include "SpriteEntity.h"
 
 void BSPMap::Load(const char* filename)
 {
@@ -362,6 +363,32 @@ void BSPMap::LoadEntities()
 			entity.Init();
 			decals.push_back(std::make_unique<DecalEntity>(entity));
 		}
+		else if (keyval["classname"] == "env_sprite")
+		{
+			SpriteEntity entity(*this);
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			if (keyval.find("model") != keyval.end())
+				entity.LoadTexture((char*)keyval["model"].c_str());
+
+			entity.Init();
+			entities.push_back(std::make_unique<SpriteEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
 	}
 }
 
@@ -391,11 +418,21 @@ void BSPMap::SetCameraPosition(vec3_t pos)
 
 void BSPMap::Draw()
 {
+	EntityRenderingQueue.clear();
+
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	RenderNode(worldmodel->iHeadnodes[0], true);
 
 	for (int i = 0; i < decals.size(); i++)
 		decals[i]->Render();
+
+	for (int i = EntityRenderingQueue.size() - 1; i > 0; i--)
+	{
+		entities[EntityRenderingQueue[i]]->cameraforward = cameraforward;
+		entities[EntityRenderingQueue[i]]->cameraup = cameraup;
+		entities[EntityRenderingQueue[i]]->camerapos = camerapos;
+		entities[EntityRenderingQueue[i]]->Render();
+	}
 }
 
 void BSPMap::Think(float deltatime)
@@ -436,7 +473,7 @@ void BSPMap::RenderLeaf(short leafnum, bool renderentities)
 
 	std::vector<int> entityindices = leafentities[leafnum];
 	for (int i = 0; i < entityindices.size(); i++)
-		entities[entityindices[i]]->Render();
+		EntityRenderingQueue.push_back(entityindices[i]);
 
 	//for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
 	//	RenderFace(marksurfaces[i]);
