@@ -20,7 +20,7 @@ void BSPModelEntity::Render()
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
+		glAlphaFunc(GL_GEQUAL, 0.75f);
 	}
 
 	bspmodel_t* model = (bspmodel_t*) ((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_MODELS].nOffset) + whichmodel;

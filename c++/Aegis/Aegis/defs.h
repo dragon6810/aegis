@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+//#define TEXTURE_FILTER
+
 #define COLORSINPALETTE 256
 
 typedef unsigned char ubyte_t;
