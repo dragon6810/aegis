@@ -4,7 +4,7 @@
 
 #include "BaseEntity.h"
 
-#define SPRITE_FPS 10
+#define SPRITE_DEFAULT_FPS 10
 
 #define SPRITE_COLORS_IN_PALETTE 256
 
@@ -57,6 +57,7 @@ public:
 
 	void LoadTexture(char* texture);
 	void SetScale(float scale);
+	void SetFramerate(float framerate);
 	
 	virtual void Think(float deltatime) override;
 	virtual void Render() override;
@@ -67,7 +68,7 @@ private:
 	std::vector<sprframe_t*> frames;
 
 	float currentframe = 0.0;
-	float framerate = SPRITE_FPS;
+	float framerate = SPRITE_DEFAULT_FPS;
 	float scale = 1.0;
 };
 

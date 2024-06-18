@@ -114,6 +114,11 @@ void SpriteEntity::SetScale(float scale)
 	this->scale = scale;
 }
 
+void SpriteEntity::SetFramerate(float framerate)
+{
+	this->framerate = framerate;
+}
+
 void SpriteEntity::Think(float deltatime)
 {
 	currentframe += deltatime * framerate;

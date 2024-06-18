@@ -388,6 +388,9 @@ void BSPMap::LoadEntities()
 			if (keyval.find("scale") != keyval.end())
 				entity.SetScale(std::stoi(keyval["scale"]) >> 1);
 
+			if (keyval.find("framerate") != keyval.end())
+				entity.SetFramerate(std::stof(keyval["framerate"]));
+
 			entity.Init();
 			entities.push_back(std::make_unique<SpriteEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
