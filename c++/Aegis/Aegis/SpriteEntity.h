@@ -56,6 +56,7 @@ public:
 	~SpriteEntity();
 
 	void LoadTexture(char* texture);
+	void SetScale(float scale);
 	
 	virtual void Think(float deltatime) override;
 	virtual void Render() override;
@@ -67,5 +68,6 @@ private:
 
 	float currentframe = 0.0;
 	float framerate = SPRITE_FPS;
+	float scale = 1.0;
 };
 

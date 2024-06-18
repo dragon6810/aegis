@@ -109,6 +109,11 @@ void SpriteEntity::LoadTexture(char* texture)
 	}
 }
 
+void SpriteEntity::SetScale(float scale)
+{
+	this->scale = scale;
+}
+
 void SpriteEntity::Think(float deltatime)
 {
 	currentframe += deltatime * framerate;
@@ -142,8 +147,8 @@ void SpriteEntity::Render()
 	
 	vec3_t worldpos = position + spriteright * frame->framex + spriteup * frame->framey;
 
-	spriteup = spriteup * frame->frameheight;
-	spriteright = spriteright * frame->framewidth;
+	spriteup = spriteup * frame->frameheight * scale;
+	spriteright = spriteright * frame->framewidth * scale;
 
 	vec3_t v[4] =
 	{
@@ -165,8 +170,25 @@ void SpriteEntity::Render()
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texturenames[framenum]);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	switch (mhdr->textureformat)
+	{
+	case SPRITE_TEXTURE_NORMAL:
+		break;
+	case SPRITE_TEXTURE_ADDITIVE:
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		break;
+	case SPRITE_TEXTURE_INDEXALPHA:
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	case SPRITE_TEXTURE_ALPHATEST:
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GEQUAL, 0.75f);
+	default:
+		break;
+	}
+	
 
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
@@ -182,4 +204,5 @@ void SpriteEntity::Render()
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
 }

@@ -385,6 +385,9 @@ void BSPMap::LoadEntities()
 			if (keyval.find("model") != keyval.end())
 				entity.LoadTexture((char*)keyval["model"].c_str());
 
+			if (keyval.find("scale") != keyval.end())
+				entity.SetScale(std::stoi(keyval["scale"]) >> 1);
+
 			entity.Init();
 			entities.push_back(std::make_unique<SpriteEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
