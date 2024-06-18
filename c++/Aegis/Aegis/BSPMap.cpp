@@ -229,30 +229,31 @@ void BSPMap::LoadEntities()
 			}
 
 			vec3_t rot = { 0.0, 0.0, 0.0 };
-			if (keyval.find("angle") != keyval.end())
+			if (keyval.find("angles") != keyval.end())
 			{
-				std::istringstream iss(keyval["angle"]);
+				std::istringstream iss(keyval["angles"]);
 				int x; int y; int z;
 				iss >> x >> y >> z;
 				rot.x = x;
 				rot.y = y;
 				rot.z = z;
-				entity.rotation = pos;
+				entity.rotation = rot;
 			}
-			
+
+			if (keyval.find("rendermode") != keyval.end())
+				entity.renderingmode = std::stoi(keyval["rendermode"]);
+
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
 
-			float speed = 0.0;
 			if (keyval.find("speed") != keyval.end())
 				entity.SetSpeed(std::stoi(keyval["speed"]));
-
 
 			entity.Init();
 			entities.push_back(std::make_unique<RotatingEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
-		else if (keyval["classname"] == "func_wall")
+		if (keyval["classname"] == "func_wall")
 		{
 			WallEntity entity(*this);
 
@@ -272,15 +273,15 @@ void BSPMap::LoadEntities()
 			}
 
 			vec3_t rot = { 0.0, 0.0, 0.0 };
-			if (keyval.find("angle") != keyval.end())
+			if (keyval.find("angles") != keyval.end())
 			{
-				std::istringstream iss(keyval["angle"]);
+				std::istringstream iss(keyval["angles"]);
 				int x; int y; int z;
 				iss >> x >> y >> z;
 				rot.x = x;
 				rot.y = y;
 				rot.z = z;
-				entity.rotation = pos;
+				entity.rotation = rot;
 			}
 
 			if (keyval.find("rendermode") != keyval.end())
@@ -314,9 +315,9 @@ void BSPMap::LoadEntities()
 			}
 
 			vec3_t rot = { 0.0, 0.0, 0.0 };
-			if (keyval.find("angle") != keyval.end())
+			if (keyval.find("angles") != keyval.end())
 			{
-				std::istringstream iss(keyval["angle"]);
+				std::istringstream iss(keyval["angles"]);
 				int x; int y; int z;
 				iss >> x >> y >> z;
 				rot.x = x;
@@ -427,12 +428,13 @@ void BSPMap::Draw()
 	EntityRenderingQueue.clear();
 
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
+	cameraleaf = GetLeafFromPoint(camerapos, worldmodel->iHeadnodes[0]);
 	RenderNode(worldmodel->iHeadnodes[0], true);
 
 	for (int i = 0; i < decals.size(); i++)
 		decals[i]->Render();
 
-	for (int i = EntityRenderingQueue.size() - 1; i > 0; i--)
+	for (int i = EntityRenderingQueue.size() - 1; i >= 0; i--)
 	{
 		entities[EntityRenderingQueue[i]]->cameraforward = cameraforward;
 		entities[EntityRenderingQueue[i]]->cameraup = cameraup;
@@ -543,6 +545,21 @@ void BSPMap::RenderFace(uint16_t f)
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
+}
+
+bool BSPMap::IsLeafVisible(int leaf1, int leaf2)
+{
+	int numleaves = mhdr->lump[BSP_LUMP_LEAVES].nLength / sizeof(bspleaf_t);
+	int index = leaf1 * numleaves + leaf2;
+	int byte = index >> 3;
+	int bit = index & 7;
+
+	ubyte_t* vislump = (ubyte_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VISIBILITY].nOffset);
+	ubyte_t val = vislump[byte];
+	val >>= bit;
+	val &= 1;
+
+	return val;
 }
 
 // https://www.gamedev.net/forums/topic.asp?topic_id=538713

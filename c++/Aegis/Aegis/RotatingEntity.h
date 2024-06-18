@@ -13,8 +13,7 @@
 #define FUNC_ROTATING_FLAGS_MEDIUM_SOUND_RADIUS 256
 #define FUNC_ROTATING_FLAGS_LARGE_SOUND_RADIUS  512
 
-class RotatingEntity :
-    public BSPModelEntity
+class RotatingEntity : public BSPModelEntity
 {
 public:
     RotatingEntity(BSPMap& map);

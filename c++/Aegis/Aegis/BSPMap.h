@@ -26,10 +26,13 @@ public:
 	vec3_t cameraforward = { 0.0, 0.0, 0.0 };
 	vec3_t cameraup = { 0.0, 0.0, 0.0 };
 	bspheader_t* mhdr;
+
+	int cameraleaf;
 	
 	void RenderNode(short nodenum, bool renderentities);
 	void RenderLeaf(short leafnum, bool renderentities);
 	void RenderFace(uint16_t f);
+	bool IsLeafVisible(int leaf1, int leaf2);
 	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
 
 	int* gltextures;
