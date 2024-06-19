@@ -55,7 +55,11 @@ public:
 private:
 	std::vector<int> LoadBitmap(char* path, int whichside, int* width, int* height);
 
+	std::vector<int> Rotate90(const std::vector<int>& texture, int width, int height);
+	std::vector<int> Rotate180(const std::vector<int>& texture, int width, int height);
+	std::vector<int> Rotate270(const std::vector<int>& texture, int width, int height);
+
 	bitmapheader_t* mhdr[SKYBOX_NUMIMAGES];
-	GLuint texnames[SKYBOX_NUMIMAGES];
+	GLuint texname;
 };
 

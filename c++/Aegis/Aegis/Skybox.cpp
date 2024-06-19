@@ -12,43 +12,63 @@ void Skybox::LoadSky(char* sky) {
     {
         "rt", // RIGHT
         "lf", // LEFT
-        "ft", // FRONT
-        "bk", // BACK
+        "bk", // FRONT
+        "ft", // BACK
         "up", // UP
         "dn", // DOWN
     };
 
+    std::string fullpath = std::string("valve/gfx/env/") + std::string(sky) + std::string(".bmp");
+    GLuint texname = AssetManager::getInst().getTexture(fullpath.c_str(), "sky");
+    if (texname != UINT32_MAX)
+    {
+        this->texname = texname;
+        return;
+    }
+    texname = AssetManager::getInst().setTexture(fullpath.c_str(), "sky");
+
     for (int i = 0; i < SKYBOX_NUMIMAGES; i++)
     {
-        std::string fullpath = std::string("valve/gfx/env/") + std::string(sky) + std::string(prefixes[i]) + std::string(".bmp");
-
         int width;
         int height;
+        fullpath = std::string("valve/gfx/env/") + std::string(sky) + prefixes[i] + std::string(".bmp");
         std::vector<int> texdata = LoadBitmap((char*)fullpath.c_str(), i, &width, &height);
 
-        GLuint texname = AssetManager::getInst().getTexture(fullpath.c_str(), "sky");
-        if (texname != UINT32_MAX)
+        switch (i) // Rotate texture if needed
         {
-            texnames[i] = texname;
-            continue;
+        case 0:
+            texdata = Rotate90(texdata, width, height);
+            break;
+        case 1:
+            texdata = Rotate270(texdata, width, height);
+            break;
+        case 3:
+            texdata = Rotate180(texdata, width, height);
+            break;
+        case 4:
+            texdata = Rotate90(texdata, width, height);
+            break;
+        default:
+            break;
         }
-
-        texname = AssetManager::getInst().setTexture(fullpath.c_str(), "sky");
-        glBindTexture(GL_TEXTURE_2D, texname);
-
+        
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texname);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 #ifdef TEXTURE_FILTER
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #else
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 #endif // TEXTURE_FILTER
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata.data());
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        texnames[i] = texname;
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata.data());
     }
+    this->texname = texname;
 }
 
 Skybox::~Skybox() 
@@ -93,80 +113,109 @@ std::vector<int> Skybox::LoadBitmap(char* path, int whichside, int* width, int* 
     return texdata;
 }
 
+std::vector<int> Skybox::Rotate90(const std::vector<int>& texture, int width, int height)
+{
+    std::vector<int> rotated(height * width);
+    for (int y = 0; y < height; ++y) 
+    {
+        for (int x = 0; x < width; ++x) 
+        {
+            rotated[x * height + (height - y - 1)] = texture[y * width + x];
+        }
+    }
+    return rotated;
+}
+
+std::vector<int> Skybox::Rotate180(const std::vector<int>& texture, int width, int height)
+{
+    std::vector<int> rotated(width * height);
+    for (int y = 0; y < height; ++y) 
+    {
+        for (int x = 0; x < width; ++x) 
+        {
+            rotated[(height - y - 1) * width + (width - x - 1)] = texture[y * width + x];
+        }
+    }
+    return rotated;
+}
+
+std::vector<int> Skybox::Rotate270(const std::vector<int>& texture, int width, int height)
+{
+    std::vector<int> rotated(height * width);
+    for (int y = 0; y < height; ++y) 
+    {
+        for (int x = 0; x < width; ++x) 
+        {
+            rotated[(width - x - 1) * height + y] = texture[y * width + x];
+        }
+    }
+    return rotated;
+}
+
 void Skybox::Render() 
 {
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_CUBE_MAP);
 
     // Front face
-    glBindTexture(GL_TEXTURE_2D, texnames[2]);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texname);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(1.0, -1.0, -1.0); glVertex3f(100.0 + campos.x, -100.0 + campos.y, -100.0 + campos.z);
+    glTexCoord3f(-1.0, -1.0, -1.0); glVertex3f(-100.0 + campos.x, -100.0 + campos.y, -100.0 + campos.z);
+    glTexCoord3f(-1.0, -1.0, 1.0); glVertex3f(-100.0 + campos.x, -100.0 + campos.y, 100.0 + campos.z);
+    glTexCoord3f(1.0, -1.0, 1.0); glVertex3f(100.0 + campos.x, -100.0 + campos.y, 100.0 + campos.z);
     glEnd();
 
     // Back face
-    glBindTexture(GL_TEXTURE_2D, texnames[3]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(-1.0, 1.0, -1.0); glVertex3f(-100.0 + campos.x, 100.0 + campos.y, -100.0 + campos.z);
+    glTexCoord3f(1.0, 1.0, -1.0); glVertex3f(100.0 + campos.x, 100.0 + campos.y, -100.0 + campos.z);
+    glTexCoord3f(1.0, 1.0, 1.0); glVertex3f(100.0 + campos.x, 100.0 + campos.y, 100.0 + campos.z);
+    glTexCoord3f(-1.0, 1.0, 1.0); glVertex3f(-100.0 + campos.x, 100.0 + campos.y, 100.0 + campos.z);
     glEnd();
 
     // Top face
-    glBindTexture(GL_TEXTURE_2D, texnames[4]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y,  100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(1.0, 1.0, 1.0); glVertex3f(100.0 + campos.x, 100.0 + campos.y, 100.0 + campos.z);
+    glTexCoord3f(1.0, -1.0, 1.0); glVertex3f(100.0 + campos.x, -100.0 + campos.y,  100.0 + campos.z);
+    glTexCoord3f(-1.0, -1.0, 1.0); glVertex3f(-100.0 + campos.x, -100.0 + campos.y, 100.0 + campos.z);
+    glTexCoord3f(-1.0, 1.0, 1.0); glVertex3f(-100.0 + campos.x, 100.0 + campos.y, 100.0 + campos.z);
     glEnd();
 
     // Bottom face
-    glBindTexture(GL_TEXTURE_2D, texnames[5]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(1.0, 1.0, -1.0); glVertex3f(100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(-1.0, 1.0, -1.0); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(-1.0, -1.0, -1.0); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(1.0, -1.0, -1.0); glVertex3f(100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
     glEnd();
 
     // Left face
-    glBindTexture(GL_TEXTURE_2D, texnames[0]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(1.0, 1.0, -1.0); glVertex3f(100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(1.0, -1.0, -1.0); glVertex3f(100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(1.0, -1.0, 1.0); glVertex3f(100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(1.0, 1.0, 1.0); glVertex3f(100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
     glEnd();
 
     // Right face
-    glBindTexture(GL_TEXTURE_2D, texnames[1]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(-1.0, -1.0, -1.0); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(-1.0, 1.0, -1.0); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, -100.0f + campos.z);
+    glTexCoord3f(-1.0, 1.0, 1.0); glVertex3f(-100.0f + campos.x, 100.0f + campos.y, 100.0f + campos.z);
+    glTexCoord3f(-1.0, -1.0, 1.0); glVertex3f(-100.0f + campos.x, -100.0f + campos.y, 100.0f + campos.z);
     glEnd();
 
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_CUBE_MAP);
     glEnable(GL_CULL_FACE);
 }
