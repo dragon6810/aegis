@@ -9,6 +9,11 @@ DecalEntity::DecalEntity(BSPMap& map) : BaseEntity(map)
 
 }
 
+DecalEntity::~DecalEntity()
+{
+
+}
+
 void DecalEntity::SetTexture(char* texname)
 {
 	memcpy(texture, texname, strlen(texname));

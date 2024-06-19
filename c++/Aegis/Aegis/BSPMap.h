@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include "Skybox.h"
+
 #include "BaseEntity.h"
 
 class BaseEntity;
@@ -22,6 +24,7 @@ public:
 
 	~BSPMap();
 
+	Skybox sky;
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
 	vec3_t cameraforward = { 0.0, 0.0, 0.0 };
 	vec3_t cameraup = { 0.0, 0.0, 0.0 };

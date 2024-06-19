@@ -51,9 +51,10 @@ int main()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;
-    vec3_t camp = { d, d, d };
+    vec3_t camp = { -d, -d, d };
+    vec3_t camf = { 0, 0, 530 };
     gluLookAt(camp.x, camp.y, camp.z,
-        0.0, 0.0, 0.0,
+        camf.x, camf.y, camf.z,
         0.0, 0.0, 1.0);
 
     glViewport(0, 0, 1920, 1080);
@@ -75,8 +76,9 @@ int main()
     
     map.Load("valve/maps/c2a5c.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
-    map.cameraforward = NormalizeVector3({ -camp.x, -camp.y, -camp.z });
+    map.cameraforward = NormalizeVector3({ camf.x - camp.x, camf.y - camp.y, camf .z - camp.z });
     map.cameraup = { 0, 0, 1 };
+    map.sky.campos = camp;
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -89,7 +91,9 @@ int main()
 
         //printf("%d FPS.\n", (int)fps);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear depth buffer too
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        map.sky.Render();
 
         map.Think(1.0 / fps);
         map.Draw();

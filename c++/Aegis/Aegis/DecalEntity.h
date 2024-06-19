@@ -12,6 +12,7 @@ class DecalEntity : public BaseEntity
 {
 public:
 	DecalEntity(BSPMap& map);
+	~DecalEntity();
 	
 	void SetTexture(char* texname);
 	void SetWad(Wad& wad);

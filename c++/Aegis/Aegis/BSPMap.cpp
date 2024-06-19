@@ -18,8 +18,6 @@
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
 
-#include "Skybox.h"
-
 void BSPMap::Load(const char* filename)
 {
 	loadBytes(filename, (char**) &mhdr);
@@ -215,7 +213,6 @@ void BSPMap::LoadEntities()
 
 		if (keyval["classname"] == "worldspawn")
 		{
-			Skybox sky;
 			sky.LoadSky((char*) keyval["skyname"].c_str());
 		}
 		else if (keyval["classname"] == "func_rotating")

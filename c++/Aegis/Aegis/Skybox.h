@@ -4,6 +4,8 @@
 
 #include <GL/glew.h>
 
+#include "defs.h"
+
 #define SKYBOX_NUMIMAGES 6
 #define SKYBOX_PALETTESIZE 256
 
@@ -34,16 +36,20 @@ typedef struct
 
 typedef struct
 {
-	char b;
-	char g;
-	char r;
-	char reserved;
+	ubyte_t b;
+	ubyte_t g;
+	ubyte_t r;
+	ubyte_t reserved;
 }bitmapcolor_t;
 
 class Skybox
 {
 public:
 	void LoadSky(char* sky);
+
+	void Render();
+
+	vec3_t campos = { 0.0, 0.0, 0.0 };
 
 	~Skybox();
 private:
