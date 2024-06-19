@@ -71,6 +71,10 @@ void DecalEntity::Init()
 			map->facedecals[faceindices[i]].push_back(std::make_unique<DecalEntity>(newdecal));
 		}
 	}
+	else
+	{
+		map->facedecals[faceindices[0]].push_back(std::make_unique<DecalEntity>(*this));
+	}
 }
 
 void DecalEntity::RecursiveFindFaces(int nodenum)
