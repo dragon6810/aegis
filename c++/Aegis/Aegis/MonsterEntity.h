@@ -2,7 +2,7 @@
 
 #include "BaseEntity.h"
 
-#include "rendermodel.h"
+#include "SModel.h"
 
 class MonsterEntity : public BaseEntity
 {

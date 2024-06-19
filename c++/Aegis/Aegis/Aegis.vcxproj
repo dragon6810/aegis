@@ -155,7 +155,7 @@
     <ClCompile Include="MonsterEntity.cpp" />
     <ClCompile Include="mstudioload.cpp" />
     <ClCompile Include="Quaternion.cpp" />
-    <ClCompile Include="rendermodel.cpp" />
+    <ClCompile Include="SModel.cpp" />
     <ClCompile Include="RotatingEntity.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SpriteEntity.cpp" />
@@ -180,7 +180,7 @@
     <ClInclude Include="MonsterEntity.h" />
     <ClInclude Include="mstudioload.h" />
     <ClInclude Include="Quaternion.h" />
-    <ClInclude Include="rendermodel.h" />
+    <ClInclude Include="SModel.h" />
     <ClInclude Include="RotatingEntity.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SpriteEntity.h" />

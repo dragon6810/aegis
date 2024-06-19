@@ -13,5 +13,14 @@ vec3_t CrossProduct(vec3_t a, vec3_t b)
     float x = a.y * b.z - a.z * b.y;
     float y = a.z * b.x - a.x * b.z;
     float z = a.x * b.y - a.y * b.x;
+
+    if ((x * x + y * y + z * z) < 0.01)
+        x = 1;
+
     return { x, y, z };
+}
+
+float DotProduct(vec3_t a, vec3_t b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }

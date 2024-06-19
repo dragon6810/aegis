@@ -49,7 +49,11 @@ public:
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
 
+	vec3_t LightColor(vec3_t start, vec3_t end);
+
 	void SetEntityToLeaf(int entity, int leaf);
 	int GetLeafFromPoint(vec3_t p, int nodenum);
 	void BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int>& faces);
+private:
+	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 };

@@ -19,6 +19,9 @@
 #include "SpriteEntity.h"
 #include "MonsterBarney.h"
 
+#include "mathutils.h"
+#include "collision.h"
+
 void BSPMap::Load(const char* filename)
 {
 	loadBytes(filename, (char**) &mhdr);
@@ -425,7 +428,7 @@ void BSPMap::LoadEntities()
 			entity.Init();
 			entities.push_back(std::make_unique<MonsterBarney>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
-			}
+		}
 	}
 }
 
@@ -645,6 +648,81 @@ vec2_t BSPMap::GetLightmapCoords(uint16_t f, vec3_t pos)
 	lightmapCoords.y /= luxelsy;
 
 	return lightmapCoords;
+}
+
+vec3_t BSPMap::LightColor(vec3_t start, vec3_t end)
+{
+	vec3_t col = { 0.0, 0.0, 0.0 };
+	LightColorRecursive(start, end, 0, &col);
+	return col;
+}
+
+bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color)
+{
+	if (nodenum < 0)
+		return false;
+
+	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
+	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
+
+	float startval = DotProduct(start, plane->vNormal) - plane->fDist;
+	float endval = DotProduct(end, plane->vNormal) - plane->fDist;
+
+	vec3_t difference = end - start;
+	float mid = (plane->fDist - DotProduct(plane->vNormal, start)) / DotProduct(plane->vNormal, difference);
+	vec3_t midpoint = start + difference * mid;
+
+	if (endval * startval <= 0.0) // They are on different sides
+	{
+		for (int i = node->firstFace; i < node->firstFace + node->nFaces; i++)
+		{
+			bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + i;
+
+			std::vector<vec3_t> polygon;
+			bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
+			vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
+			for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
+			{
+				int surfedge = ((int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset))[j];
+
+				vec3_t pos;
+				if (surfedge >= 0)
+					pos = vertices[edges[ surfedge].iVertex[0]];
+				else
+					pos = vertices[edges[-surfedge].iVertex[1]];
+
+				polygon.push_back(pos);
+			}
+			
+			if (IsPointInPolygon(midpoint, polygon))
+			{
+				vec3_t* lightmap = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset);
+
+				int luxelsx = (int)ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;
+				int luxelsy = (int)ceilf(maxtex[i].y / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].y / BSP_LIGHTMAP_LUXELLEN) + 1;
+
+				vec2_t coords = GetLightmapCoords(i, midpoint);
+				coords.x *= luxelsx;
+				coords.y *= luxelsy;
+
+				int index = (int)coords.y * luxelsx + (int)coords.x;
+				*color = lightmap[face->nLightmapOffset + index];
+
+				return true;
+			}
+		}
+
+		int firstside = startval >= 0;
+
+		bool found = LightColorRecursive(start, midpoint, node->iChildren[ firstside], color);
+
+		if (!found)
+			LightColorRecursive(start, midpoint, node->iChildren[!firstside], color);
+		else
+			return true;
+	}
+
+	return LightColorRecursive(start, end, node->iChildren[startval > 0], color);
 }
 
 void BSPMap::SetEntityToLeaf(int entity, int leaf)

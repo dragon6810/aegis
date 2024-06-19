@@ -1,4 +1,4 @@
-#include "rendermodel.h"
+#include "SModel.h"
 #include "loadtexture.h"
 #include <glm.hpp>
 #include <iostream>
@@ -84,7 +84,12 @@ void SModel::startseq(int seqindex)
 
 void SModel::render()
 {
-    float camerapos[3]{ 53.0, 53.0, 88.0 };
+    vec3_t start = { pos[0], pos[1], pos[2] };
+    vec3_t end = { 0, 0, -65535 };
+    end = end + start;
+    vec3_t light = map->LightColor(start, end);
+
+    float camerapos[3]{ this->camerapos.x, this->camerapos.y, this->camerapos.z };
 
     if (seqstarttime == 0)
         frame = 0.0F;
@@ -208,7 +213,7 @@ void SModel::render()
                     vec3_t position = xformverts[ptricmds[0]];
                     vec3_t norm = xformnorms[ptricmds[1]];
                     
-                    glColor4f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z, 1.0F);
+                    //glColor3f(light.x, light.y, light.z);
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {
@@ -228,7 +233,7 @@ void SModel::render()
                         glTexCoord2f((float)ptricmds[2] / (float)ptextures[texindex].width, (float)ptricmds[3] / (float)ptextures[texindex].height);
                     }
                     
-                    glVertex3f(position.x + pos[0], position.y + pos[1], position.z + pos[2]);
+                    glVertex3f(position.x, position.y, position.z);
                 }
                 glEnd();
             }

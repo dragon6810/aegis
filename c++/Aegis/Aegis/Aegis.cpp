@@ -3,7 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include "mstudioload.h"
-#include "rendermodel.h"
+#include "SModel.h"
 #include "loadtexture.h"
 #include "binaryloader.h"
 #include "AssetManager.h"
@@ -50,7 +50,7 @@ int main()
     gluPerspective(65, 16.0 / 9.0, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    float d = 100;
+    float d = 300;
     vec3_t camp = { d, d, d };
     vec3_t camf = { 0, 0, 75 };
     gluLookAt(camp.x, camp.y, camp.z,

@@ -1,5 +1,7 @@
 #include "collision.h"
 
+#include "mathutils.h"
+
 std::vector<vec3_t> ClipPolygon(std::vector<vec3_t> poly, vec3_t n, float d)
 {
     std::vector<vec3_t> clippedPolygon;
@@ -40,6 +42,56 @@ vec3_t PlaneIntersection(vec3_t a, vec3_t b, vec3_t n, float d)
     float d1 = n.x * a.x + n.y * a.y + n.z * a.z + d;
     float t = -d1 / N;
     return { (1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y, (1 - t) * a.z + t * b.z };
+}
+
+bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon)
+{
+    vec3_t normal = NormalizeVector3(CrossProduct(NormalizeVector3(polygon[1] - polygon[0]), NormalizeVector3(polygon[2] - polygon[0])));
+    vec3_t right = CrossProduct(normal, { 0.0, 0.0, 1.0 });
+    vec3_t up = CrossProduct(normal, right);
+    right = CrossProduct(up, normal);
+
+    std::vector<vec2_t> transpoly;
+    for (int i = 0; i < polygon.size(); i++)
+    {
+        vec3_t pos = polygon[i] - point;
+        vec2_t transpos = { DotProduct(pos, right), DotProduct(pos, up) };
+        transpoly.push_back(transpos);
+    }
+
+    int numintersections = 0;
+    for (int i = 0; i < transpoly.size(); i++)
+    {
+        vec2_t p1 = transpoly[i];
+        vec2_t p2 = transpoly[(i + 1) % transpoly.size()];
+
+        if (p1.y * p2.y > 0)
+            continue;
+
+        float dx = p2.x - p1.x;
+        float dy = p2.y - p1.y;
+
+        if (dx == 0)
+        {
+            if (p1.x > 0)
+                numintersections++;
+
+            continue;
+        }
+
+        float m = dy / dx;
+        float b = p1.y + m * p1.x;
+
+        if (m == 0)
+            continue;
+
+        float xintercept = -b / m;
+
+        if (xintercept >= 0)
+            numintersections++;
+    }
+
+    return numintersections & 1;
 }
 
 std::vector<vec3_t> BoxFace(vec3_t bmin, vec3_t bmax, std::vector<vec3_t> face)

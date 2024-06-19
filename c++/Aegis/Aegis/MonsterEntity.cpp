@@ -9,6 +9,8 @@ MonsterEntity::MonsterEntity(BSPMap& map) : BaseEntity(map)
 
 void MonsterEntity::Render()
 {
+	model.camerapos = camerapos;
+
 	glPushMatrix();
 
 	glTranslatef(position.x, position.y, position.z);

@@ -4,6 +4,7 @@
 #include "Mat3x4.h"
 #include "defs.h"
 #include <gl/glew.h>
+#include "BSPMap.h"
 
 class SModel
 {
@@ -18,6 +19,8 @@ public:
 	mstudioheader_t* header;
 	mstudioheader_t* texheader;
 	mstudioseqheader_t* seqheader[32];
+
+	vec3_t camerapos{};
 
 	Mat3x4 boneTransforms[MSTUDIOMAXBONES]{};
 	vec3_t xformverts[MSTUDIOMAXMESHVERTS]{};
@@ -40,6 +43,8 @@ public:
 	int curseq;
 	float frame;
 	long long seqstarttime = 0;
+
+	BSPMap* map;
 
 	void Load(const char* modelname);
 	void SetPosition(float x, float y, float z);

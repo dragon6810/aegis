@@ -60,7 +60,7 @@
     <ClCompile Include="mstudioload.cpp">
       <Filter>Source Files\loadstuff</Filter>
     </ClCompile>
-    <ClCompile Include="rendermodel.cpp">
+    <ClCompile Include="SModel.cpp">
       <Filter>Source Files\rendering</Filter>
     </ClCompile>
     <ClCompile Include="loadtexture.cpp">
@@ -131,7 +131,7 @@
     <ClInclude Include="binaryloader.h">
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
-    <ClInclude Include="rendermodel.h">
+    <ClInclude Include="SModel.h">
       <Filter>Header Files\rendering</Filter>
     </ClInclude>
     <ClInclude Include="loadtexture.h">
