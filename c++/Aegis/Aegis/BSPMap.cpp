@@ -18,6 +18,8 @@
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
 
+#include "Skybox.h"
+
 void BSPMap::Load(const char* filename)
 {
 	loadBytes(filename, (char**) &mhdr);
@@ -30,6 +32,8 @@ void BSPMap::Load(const char* filename)
 	{
 		int texoffset = *((int*)(texhdr + i + 1));
 		miptex_t* miptex = (miptex_t*)((char*)texhdr + texoffset);
+
+		printf("Map uses texture \"%s\"\n", miptex->name);
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
@@ -209,7 +213,12 @@ void BSPMap::LoadEntities()
 
 		currentchar += 2;
 
-		if (keyval["classname"] == "func_rotating")
+		if (keyval["classname"] == "worldspawn")
+		{
+			Skybox sky;
+			sky.LoadSky((char*) keyval["skyname"].c_str());
+		}
+		else if (keyval["classname"] == "func_rotating")
 		{
 			RotatingEntity entity(*this);
 
@@ -509,6 +518,10 @@ void BSPMap::RenderFace(uint16_t f)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo->iMiptex]);
+	
+	if (strcmp("sky", miptex->name) == 0) // Sky is rendered beforehand, skip.
+		return;
+
 	vec3_t normal = planes[face->iPlane].vNormal;
 	if (face->nPlaneSide != 0)
 	{
