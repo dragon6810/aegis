@@ -151,6 +151,8 @@
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
     <ClCompile Include="mathutils.cpp" />
+    <ClCompile Include="MonsterBarney.cpp" />
+    <ClCompile Include="MonsterEntity.cpp" />
     <ClCompile Include="mstudioload.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="rendermodel.cpp" />
@@ -174,6 +176,8 @@
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
     <ClInclude Include="mathutils.h" />
+    <ClInclude Include="MonsterBarney.h" />
+    <ClInclude Include="MonsterEntity.h" />
     <ClInclude Include="mstudioload.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="rendermodel.h" />

@@ -1,26 +1,12 @@
-﻿  DecalEntity.cpp
+﻿  rendermodel.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(469,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'DecalEntity.cpp')
+  (compiling source file 'rendermodel.cpp')
   C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(469,12):
   This member will be ignored by a defaulted constructor or copy/move assignment operator
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'DecalEntity.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'DecalEntity.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'DecalEntity.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'DecalEntity.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(31,30): warning C4018: '>': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(120,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(176,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(177,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(94,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(222,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\rendermodel.cpp(223,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

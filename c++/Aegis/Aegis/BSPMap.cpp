@@ -17,6 +17,7 @@
 #include "IllusionaryEntity.h"
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
+#include "MonsterBarney.h"
 
 void BSPMap::Load(const char* filename)
 {
@@ -213,7 +214,8 @@ void BSPMap::LoadEntities()
 
 		if (keyval["classname"] == "worldspawn")
 		{
-			sky.LoadSky((char*) keyval["skyname"].c_str());
+			if(keyval.find("sky") != keyval.end())
+				sky.LoadSky((char*) keyval["skyname"].c_str());
 		}
 		else if (keyval["classname"] == "func_rotating")
 		{
@@ -401,6 +403,29 @@ void BSPMap::LoadEntities()
 			entities.push_back(std::make_unique<SpriteEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
+		else if (keyval["classname"] == "monster_barney")
+		{
+			MonsterBarney entity(*this);
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			entity.Init();
+			entities.push_back(std::make_unique<MonsterBarney>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+			}
 	}
 }
 

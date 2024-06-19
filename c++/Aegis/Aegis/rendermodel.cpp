@@ -25,7 +25,7 @@ void SModel::Load(const char* modelname)
         texheader = header;
     }
 
-    textures = (int*) malloc(sizeof(int) * texheader->numtextures);
+    textures = (GLuint*) malloc(sizeof(GLuint) * texheader->numtextures);
 
     mstudiotexture_t* ptex = (mstudiotexture_t*) ((char*)texheader + texheader->textureindex);
     for (int t = 0; t < texheader->numtextures; t++)
@@ -121,7 +121,7 @@ void SModel::render()
         float right[3] = { 1.0, 0.0, 0.0 };
 
         float bone[3] = { boneTransforms[b].val[0][3], boneTransforms[b].val[1][3], boneTransforms[b].val[2][3] };
-        Vector3 bonev = Vector3(bone).normalize();
+        Vector3 bonev = Vector3(bone).normalized();
 
         Mat3x4 rotonly = boneTransforms[b];
         rotonly.val[0][3] = 0.0;
@@ -130,15 +130,15 @@ void SModel::render()
 
         bonev = rotonly * bonev;
 
-        Vector3 boner = Vector3::cross(Vector3(up), bonev);
+        Vector3 boner = Vector3::cross(Vector3(up), bonev).normalized();
         boneright[b].x = boner.get(0);
-        boneright[b].y = boner.get(1);
-        boneright[b].z = boner.get(2);
+        boneright[b].y = boner.get(2);
+        boneright[b].z = boner.get(1);
 
         Vector3 boneu = Vector3::cross(bonev, boner);
         boneup[b].x = boneu.get(0);
-        boneup[b].y = boneu.get(1);
-        boneup[b].z = bonev.get(2);
+        boneup[b].y = boneu.get(2);
+        boneup[b].z = boneu.get(1);
     }
 
     for (int b = 0; b < header->numbodyparts; b++)
@@ -189,7 +189,6 @@ void SModel::render()
             short* ptricmds = (short*)((char*)header + pmesh->triindex);
 
             int texindex = pmesh->skinref;
-            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textures[texindex]);
             
             while (int i = *(ptricmds++))
@@ -218,10 +217,10 @@ void SModel::render()
                         Vector3 toeye = Vector3(camerapos) - Vector3(posv);
                         toeye.normalize();
                         Vector3 reflected = Vector3::reflect(toeye, Vector3(normv));
-                        float bup[3] = { boneup[pvertbone[ptricmds[0]]].x, boneup[pvertbone[ptricmds[0]]].y, boneup[pvertbone[ptricmds[0]]].z };
-                        float bright[3] = { boneright[pvertbone[ptricmds[0]]].x, boneright[pvertbone[ptricmds[0]]].y, boneright[pvertbone[ptricmds[0]]].z };
-                        float s = (Vector3::dot(reflected, Vector3(bup)) * ((float) ptextures[texindex].width / 2.0)) + ((float) ptextures[texindex].width / 2.0);
-                        float t = (Vector3::dot(reflected, Vector3(bright)) * ((float) ptextures[texindex].height / 2.0)) + ((float) ptextures[texindex].height / 2.0);
+                        float bup[3] = { boneup[pnormbone[ptricmds[1]]].x, boneup[pnormbone[ptricmds[1]]].y, boneup[pnormbone[ptricmds[1]]].z };
+                        float bright[3] = { boneright[pnormbone[ptricmds[1]]].x, boneright[pnormbone[ptricmds[1]]].y, boneright[pnormbone[ptricmds[1]]].z };
+                        float s = (Vector3::dot(reflected, Vector3(bright)) * ((float) ptextures[texindex].width / 2.0)) + ((float) ptextures[texindex].width / 2.0);
+                        float t = (Vector3::dot(reflected, Vector3(bup)) * ((float) ptextures[texindex].height / 2.0)) + ((float) ptextures[texindex].height / 2.0);
                         glTexCoord2f(s / (float)ptextures[texindex].width, t / (float)ptextures[texindex].height);
                     }
                     else
@@ -381,6 +380,11 @@ Mat3x4 SModel::transformfrombone(int boneindex)
 }
 
 SModel::~SModel()
+{
+
+}
+
+void SModel::Cleanup()
 {
     for (int s = 1; s < header->numseqgroups; s++)
         free(seqheader[s]);

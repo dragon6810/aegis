@@ -26,9 +26,11 @@ public:
 	vec3_t boneup[MSTUDIOMAXBONES]{};
 	vec3_t boneright[MSTUDIOMAXBONES]{};
 
-	int* textures;
+	GLuint* textures;
 
 	~SModel();
+
+	void Cleanup();
 
 	float pos[3] = { 0.0, 0.0, 0.0 };
 
