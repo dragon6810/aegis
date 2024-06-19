@@ -43,13 +43,11 @@ public:
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
 
-	// OPTIMIZE: See node in DecalEntity.cpp above render
-	std::vector<std::unique_ptr<BaseEntity>> decals;
-
 	std::vector<std::unique_ptr<BaseEntity>> entities;
 	std::vector<int> EntityRenderingQueue; // Back to front rendering for potentially transparent entities
 	std::unordered_map<int, std::vector<int>> leafentities;
 	std::unordered_map<int, int> entityleaves;
+	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
 
 	void SetEntityToLeaf(int entity, int leaf);
 	int GetLeafFromPoint(vec3_t p, int nodenum);

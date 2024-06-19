@@ -48,62 +48,29 @@ void DecalEntity::SetWad(Wad& wad)
 void DecalEntity::Init()
 {
 	RecursiveFindFaces(0);
-	/*
-	int numfaces = map->mhdr->lump[BSP_LUMP_FACES].nLength / sizeof(bspface_t);
-
-	vec3_t* vertices = (vec3_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_VERTICES].nOffset);
-	bspedge_t* edges = (bspedge_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_EDGES].nOffset);
-	int* surfedges = (int*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 	
-	
-	std::vector<int> possiblefaces;
-	map->BoxIntersect({ position.x - 8, position.y - 8, position.z - 8 }, { position.x + 8, position.y + 8, position.z + 8 }, 0, possiblefaces);
-	for (int f = 0; f < possiblefaces.size(); f++)
+	if (faces.size() > 1)
 	{
-		bspface_t* face = (bspface_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_FACES].nOffset) + possiblefaces[f];
-
-		std::vector<vec3_t> poly;
-		for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
+		for (int i = 0; i < faces.size(); i++)
 		{
-			vec3_t pos;
-			if (surfedges[e] >= 0)
-				pos = vertices[edges[surfedges[e]].iVertex[0]];
-			else
-				pos = vertices[edges[-surfedges[e]].iVertex[1]];
-
-			poly.push_back(pos);
+			DecalEntity newdecal(*map);
+			newdecal.decalswad = decalswad;
+			strcpy(newdecal.texture, texture);
+			newdecal.size = size;
+			newdecal.texwidth = texwidth;
+			newdecal.texheight = texheight;
+			newdecal.texindex = texindex;
+			newdecal.dx = dx;
+			newdecal.dy = dy;
+			newdecal.faces.push_back(faces[i]);
+			newdecal.texcoords.push_back(texcoords[i]);
+			newdecal.lightmapcoords.push_back(lightmapcoords[i]);
+			newdecal.faceindices.push_back(faceindices[i]);
+			newdecal.position = position;
+			newdecal.rotation = rotation;
+			map->facedecals[faceindices[i]].push_back(std::make_unique<DecalEntity>(newdecal));
 		}
-
-		poly = BoxFace({ position.x - 32, position.y - 32, position.z - 32 }, { position.x + 32, position.y + 32, position.z + 32 }, poly);
-
-		if (poly.size() > 0)
-			faces.push_back(poly);
 	}
-	*/
-	
-	/*
-	for (int f = 0; f < numfaces; f++)
-	{
-		bspface_t* face = (bspface_t*)((char*)map->mhdr + map->mhdr->lump[BSP_LUMP_FACES].nOffset) + f;
-
-		std::vector<vec3_t> poly;
-		for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
-		{
-			vec3_t pos;
-			if (surfedges[e] >= 0)
-				pos = vertices[edges[surfedges[e]].iVertex[0]];
-			else
-				pos = vertices[edges[-surfedges[e]].iVertex[1]];
-
-			poly.push_back(pos);
-		}
-
-		poly = BoxFace({ position.x - 8, position.y - 8, position.z - 8 }, { position.x + 8, position.y + 8, position.z + 8 }, poly);
-
-		if (poly.size() > 0)
-			faces.push_back(poly);
-	}
-	*/
 }
 
 void DecalEntity::RecursiveFindFaces(int nodenum)
@@ -171,6 +138,7 @@ void DecalEntity::AddFaces(int nodenum)
 		if (poly.size() > 0)
 		{
 			faces.push_back(poly);
+			faceindices.push_back(node->firstFace + i);
 
 			vec3_t SAxis = texinfo->vS;
 			vec3_t TAxis = texinfo->vT;

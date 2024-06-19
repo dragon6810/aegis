@@ -29,6 +29,7 @@ protected:
 	Wad* decalswad;
 
 	std::vector<std::vector<vec3_t>> faces;
+	std::vector<int> faceindices;
 	std::vector<std::vector<vec2_t>> texcoords;
 	std::vector<std::vector<vec2_t>> lightmapcoords;
 	char texture[BSP_MAXTEXTURENAME];

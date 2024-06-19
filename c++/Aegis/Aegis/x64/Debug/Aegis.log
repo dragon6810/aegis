@@ -1,46 +1,21 @@
-﻿  Skybox.cpp
+﻿  Aegis.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(469,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'Skybox.cpp')
+  (compiling source file 'Aegis.cpp')
   C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(469,12):
   This member will be ignored by a defaulted constructor or copy/move assignment operator
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(167,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(167,72): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(167,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(168,93): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(168,74): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(168,55): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(169,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(169,73): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(169,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(170,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(170,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(170,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(176,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(176,72): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(176,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(177,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(177,70): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(177,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(178,87): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(178,69): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(178,51): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(179,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(179,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(179,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(185,87): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(185,69): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(185,51): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(186,90): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(186,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(186,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(187,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(187,73): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(187,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(188,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(188,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(188,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Aegis.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Aegis.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(10,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(90,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(98,23): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

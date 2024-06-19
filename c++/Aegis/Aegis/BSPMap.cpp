@@ -368,7 +368,6 @@ void BSPMap::LoadEntities()
 				entity.SetTexture((char*) keyval["texture"].c_str());
 
 			entity.Init();
-			decals.push_back(std::make_unique<DecalEntity>(entity));
 		}
 		else if (keyval["classname"] == "env_sprite")
 		{
@@ -436,9 +435,6 @@ void BSPMap::Draw()
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	cameraleaf = GetLeafFromPoint(camerapos, worldmodel->iHeadnodes[0]);
 	RenderNode(worldmodel->iHeadnodes[0], true);
-
-	for (int i = 0; i < decals.size(); i++)
-		decals[i]->Render();
 
 	for (int i = EntityRenderingQueue.size() - 1; i >= 0; i--)
 	{
@@ -571,6 +567,9 @@ void BSPMap::RenderFace(uint16_t f)
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
+
+	for (int i = 0; i < facedecals[f].size(); i++)
+		facedecals[f][i]->Render();
 }
 
 bool BSPMap::IsLeafVisible(int leaf1, int leaf2)
