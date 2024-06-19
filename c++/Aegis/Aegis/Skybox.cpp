@@ -156,13 +156,13 @@ void Skybox::Render()
 {
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
+
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_CUBE_MAP);
-
-    // Front face
     glBindTexture(GL_TEXTURE_CUBE_MAP, texname);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
+    // Front face
     glBegin(GL_QUADS);
     glTexCoord3f(1.0, -1.0, -1.0); glVertex3f(100.0 + campos.x, -100.0 + campos.y, -100.0 + campos.z);
     glTexCoord3f(-1.0, -1.0, -1.0); glVertex3f(-100.0 + campos.x, -100.0 + campos.y, -100.0 + campos.z);
@@ -218,4 +218,25 @@ void Skybox::Render()
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_CUBE_MAP);
     glEnable(GL_CULL_FACE);
+}
+
+void Skybox::RenderFace(std::vector<vec3_t> points)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_CUBE_MAP);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texname);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < points.size(); i++)
+    {
+        vec3_t p = points[i];
+        vec3_t t = p - campos;
+
+        glTexCoord3f(t.x, t.y, t.z);
+        glVertex3f(p.x, p.y, p.z);
+    }
+    glEnd();
+
+    glDisable(GL_TEXTURE_CUBE_MAP);
 }

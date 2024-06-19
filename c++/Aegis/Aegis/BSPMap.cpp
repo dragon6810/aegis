@@ -517,7 +517,23 @@ void BSPMap::RenderFace(uint16_t f)
 	miptex_t* miptex = (miptex_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset + texoffsets[texinfo->iMiptex]);
 	
 	if (strcmp("sky", miptex->name) == 0) // Sky is rendered beforehand, skip.
+	{
+		std::vector<vec3_t> points;
+
+		for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
+		{
+			vec3_t pos;
+			if (surfedges[j] >= 0)
+				pos = vertices[edges[surfedges[j]].iVertex[0]];
+			else
+				pos = vertices[edges[-surfedges[j]].iVertex[1]];
+
+			points.push_back(pos);
+		}
+
+		sky.RenderFace(points);
 		return;
+	}
 
 	vec3_t normal = planes[face->iPlane].vNormal;
 	if (face->nPlaneSide != 0)

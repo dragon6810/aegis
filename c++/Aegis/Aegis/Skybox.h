@@ -48,6 +48,7 @@ public:
 	void LoadSky(char* sky);
 
 	void Render();
+	void RenderFace(std::vector<vec3_t> points);
 
 	vec3_t campos = { 0.0, 0.0, 0.0 };
 

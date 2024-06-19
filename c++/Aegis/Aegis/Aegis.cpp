@@ -93,7 +93,7 @@ int main()
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        map.sky.Render();
+        //map.sky.Render();
 
         map.Think(1.0 / fps);
         map.Draw();
