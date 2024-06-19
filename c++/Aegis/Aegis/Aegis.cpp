@@ -51,7 +51,7 @@ int main()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 530;
-    vec3_t camp = { -d, -d, d };
+    vec3_t camp = { d, d, d };
     vec3_t camf = { 0, 0, 530 };
     gluLookAt(camp.x, camp.y, camp.z,
         camf.x, camf.y, camf.z,
@@ -91,7 +91,7 @@ int main()
 
         //printf("%d FPS.\n", (int)fps);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         map.sky.Render();
 
