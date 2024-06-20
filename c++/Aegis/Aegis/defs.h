@@ -355,6 +355,22 @@ typedef struct
 
 #define BSP_MAX_MAP_HULLS 4
 
+#define BSP_LIGHTMODE_NONE -1
+#define BSP_LIGHTMODE_NORMAL 0
+#define BSP_LIGHTMODE_FLICKERA 1
+#define BSP_LIGHTMODE_PULSESTRONG 2
+#define BSP_LIGHTMODE_CANDLEA 3
+#define BSP_LIGHTMODE_STROBEFAST 4
+#define BSP_LIGHTMODE_PULSEGENTLE 5
+#define BSP_LIGHTMODE_FLICKERB 6
+#define BSP_LIGHTMODE_CANDLEB 7
+#define BSP_LIGHTMODE_CANDLEC 8
+#define BSP_LIGHTMODE_STROBESLOW 9
+#define BSP_LIGHTMODE_FLICKERC 10
+#define BSP_LIGHTMODE_PULSESLOW 11
+
+#define BSP_FACE_NLIGHTSTYLES 4
+
 typedef struct
 {
 	int nOffset; // File offset to data
@@ -399,13 +415,13 @@ typedef struct
 
 typedef struct
 {
-	uint16_t iPlane;          // Plane the face is parallel to
-	uint16_t nPlaneSide;      // Set if different normals orientation
-	uint32_t iFirstEdge;      // Index of the first surfedge
-	uint16_t nEdges;          // Number of consecutive surfedges
-	uint16_t iTextureInfo;    // Index of the texture info structure
-	ubyte_t  nStyles[4];      // Specify lighting styles
-	int      nLightmapOffset; // Offsets into the raw lightmap data; if less than zero, then a lightmap was not baked for the given face.
+	uint16_t iPlane;						 // Plane the face is parallel to
+	uint16_t nPlaneSide;					 // Set if different normals orientation
+	uint32_t iFirstEdge;					 // Index of the first surfedge
+	uint16_t nEdges;						 // Number of consecutive surfedges
+	uint16_t iTextureInfo;					 // Index of the texture info structure
+	ubyte_t  nStyles[BSP_FACE_NLIGHTSTYLES]; // Specify lighting styles
+	int      nLightmapOffset;				 // Offsets into the raw lightmap data; if less than zero, then a lightmap was not baked for the given face.
 } bspface_t;
 
 typedef struct

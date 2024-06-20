@@ -149,7 +149,7 @@
 "classname" "light"
 "_falloff" "0"
 "_fade" "1.0"
-"style" "2"
+"style" "0"
 "_light" "255 0 4 200"
 "origin" "192 200 -1216"
 }

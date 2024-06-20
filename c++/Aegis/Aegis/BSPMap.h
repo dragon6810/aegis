@@ -15,6 +15,12 @@ class BaseEntity;
 class BSPMap
 {
 public:
+	typedef struct
+	{
+		int style[BSP_FACE_NLIGHTSTYLES];
+		GLuint texture[BSP_FACE_NLIGHTSTYLES];
+	} lightmaptexture_t;
+
 	void Load(const char* filename);
 	void LoadEntities();
 	char* ScanLine(char** line);
@@ -38,8 +44,8 @@ public:
 	bool IsLeafVisible(int leaf1, int leaf2);
 	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
 
-	int* gltextures;
-	int* lightmaptextures;
+	std::vector<int> gltextures;
+	std::vector<lightmaptexture_t> lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
 

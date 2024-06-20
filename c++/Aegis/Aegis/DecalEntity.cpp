@@ -205,7 +205,7 @@ void DecalEntity::Render()
 	{
 		glActiveTexture(GL_TEXTURE1);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, map->lightmaptextures[f]);
+		glBindTexture(GL_TEXTURE_2D, map->lightmaptextures[f].texture[0]);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 		glBegin(GL_POLYGON);
