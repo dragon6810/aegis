@@ -147,7 +147,9 @@
     <ClCompile Include="BSPModelEntity.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="DecalEntity.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="IllusionaryEntity.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
     <ClCompile Include="mathutils.cpp" />
@@ -172,7 +174,9 @@
     <ClInclude Include="collision.h" />
     <ClInclude Include="DecalEntity.h" />
     <ClInclude Include="defs.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="IllusionaryEntity.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
     <ClInclude Include="mathutils.h" />

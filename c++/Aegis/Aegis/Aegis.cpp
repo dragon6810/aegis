@@ -10,6 +10,7 @@
 #include "BSPMap.h"
 #include "Wad.h"
 #include "mathutils.h"
+#include "Game.h"
 
 #include <cassert>
 
@@ -81,6 +82,8 @@ int main()
     map.sky.campos = camp;
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    Game::GetGame().Init();
 
     while (!glfwWindowShouldClose(window))
     {

@@ -9,6 +9,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "Game.h"
+
 #include "binaryloader.h"
 #include "loadtexture.h"
 #include "AssetManager.h"
@@ -18,6 +20,8 @@
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
 #include "MonsterBarney.h"
+
+#include "Light.h"
 
 #include "mathutils.h"
 #include "collision.h"
@@ -149,6 +153,20 @@ void BSPMap::Load(const char* filename)
 			for (int k = 0; k < luxelsx * luxelsy; k++)
 			{
 				color24_t col = lightmap[0];
+
+				if ((int)col.r << 1 > 255)
+					col.r = 255;
+				else
+					col.r <<= 1;
+				if ((int)col.g << 1 > 255)
+					col.g = 255;
+				else
+					col.g <<= 1;
+				if ((int)col.b << 1 > 255)
+					col.b = 255;
+				else
+					col.b <<= 1;
+
 				texdata[k] = 0;
 				texdata[k] |= (int)col.r <<  0;
 				texdata[k] |= (int)col.g <<  8;
@@ -583,6 +601,13 @@ void BSPMap::RenderFace(uint16_t f)
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, lightmaptextures[f].texture[i]);
 
+		const char* style = lightpresets[lightmaptextures[f].style[i]];
+		int stylelen = strlen(style);
+		int index = Game::GetGame().Time() * 6.0;
+		float brightness = (float)(style[index % stylelen] - 'a') / 26.0;
+
+		glColor3f(brightness, brightness, brightness);
+
 		if (i == 0)
 			glBlendFunc(GL_ONE, GL_ZERO);
 		else
@@ -605,6 +630,8 @@ void BSPMap::RenderFace(uint16_t f)
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 	}
+
+	glColor3f(1, 1, 1);
 
 	// Second Pass: Multiply the summed lightmaps with the base texture
 	glBlendFunc(GL_DST_COLOR, GL_ZERO);
@@ -753,8 +780,23 @@ bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* 
 				coords.x *= luxelsx;
 				coords.y *= luxelsy;
 
-				int index = (int)coords.y * luxelsx + (int)coords.x;
-				*color = { (float)lightmap[index].r, (float)lightmap[index].g, (float)lightmap[index].b };
+				*color = { 0, 0, 0 };
+				for (int j = 0; j < BSP_FACE_NLIGHTSTYLES; j++)
+				{
+					if (face->nStyles[j] == 255)
+						continue;
+
+					const char* style = lightpresets[face->nStyles[j]];
+					int stylelen = strlen(style);
+					int index = Game::GetGame().Time() * 6.0;
+					float brightness = (float)(style[index % stylelen] - 'a') / 13.0;
+
+					int texindex = (int)coords.y * luxelsx + (int)coords.x;
+					vec3_t add = { (float)lightmap[texindex].r * brightness, (float)lightmap[texindex].g * brightness, (float)lightmap[texindex].b * brightness };
+					*color = *color + add;
+
+					lightmap += luxelsx * luxelsy;
+				}
 
 				return true;
 			}

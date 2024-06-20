@@ -6,7 +6,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp;C:\Users\theto\
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\BSPModelEntity.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\collision.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\DecalEntity.obj
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\Game.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\IllusionaryEntity.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\IllusionaryEntity.obj
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Light.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\Light.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\loadtexture.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\loadtexture.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mat3x4.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\Mat3x4.obj
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\mathutils.cpp;C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\x64\Debug\mathutils.obj
