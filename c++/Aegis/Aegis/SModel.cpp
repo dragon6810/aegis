@@ -254,7 +254,9 @@ void SModel::render()
             xformnorms[n].z = vec.get(2);
 
             vec3_t norm = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
-            float color = DotProduct(lightdir, norm) * directlight + ambientlight;
+            float color = DotProduct(lightdir, norm) * directlight;
+            if (color < 0.0) color = 0.0;
+            color += ambientlight;
             lightvals[n].x = color * (float) lightcolor.x / 255.0;
             lightvals[n].y = color * (float) lightcolor.y / 255.0;
             lightvals[n].z = color * (float) lightcolor.z / 255.0;
