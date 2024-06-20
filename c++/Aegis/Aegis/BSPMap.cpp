@@ -20,6 +20,7 @@
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
 #include "MonsterBarney.h"
+#include "LaserEntity.h"
 
 #include "Light.h"
 
@@ -254,6 +255,11 @@ void BSPMap::LoadEntities()
 		{
 			RotatingEntity entity(*this);
 
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
 			if (keyval.find("model") != keyval.end())
 				entity.SetModel(std::stoi(keyval["model"].substr(1)));
 
@@ -298,6 +304,11 @@ void BSPMap::LoadEntities()
 		{
 			WallEntity entity(*this);
 
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
 			if (keyval.find("model") != keyval.end())
 				entity.SetModel(std::stoi(keyval["model"].substr(1)));
 
@@ -339,6 +350,11 @@ void BSPMap::LoadEntities()
 		else if (keyval["classname"] == "func_illusionary")
 		{
 			IllusionaryEntity entity(*this);
+
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
 
 			if (keyval.find("model") != keyval.end())
 				entity.SetModel(std::stoi(keyval["model"].substr(1)));
@@ -382,6 +398,11 @@ void BSPMap::LoadEntities()
 		{
 			DecalEntity entity(*this);
 
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
 			vec3_t pos = { 0.0, 0.0, 0.0 };
 			if (keyval.find("origin") != keyval.end())
 			{
@@ -407,6 +428,11 @@ void BSPMap::LoadEntities()
 		else if (keyval["classname"] == "env_sprite")
 		{
 			SpriteEntity entity(*this);
+
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
 
 			vec3_t pos = { 0.0, 0.0, 0.0 };
 			if (keyval.find("origin") != keyval.end())
@@ -440,6 +466,11 @@ void BSPMap::LoadEntities()
 		{
 			MonsterBarney entity(*this);
 
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
 			vec3_t pos = { 0.0, 0.0, 0.0 };
 			if (keyval.find("origin") != keyval.end())
 			{
@@ -457,6 +488,65 @@ void BSPMap::LoadEntities()
 
 			entity.Init();
 			entities.push_back(std::make_unique<MonsterBarney>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
+		else if (keyval["classname"] == "info_target")
+		{
+			BaseEntity entity(*this);
+
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			entity.Init();
+			entities.push_back(std::make_unique<BaseEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
+		}
+		else if (keyval["classname"] == "env_laser")
+		{
+			LaserEntity entity(*this);
+
+			entity.classname = keyval["classname"];
+
+			if (keyval.find("targetname") != keyval.end())
+				entity.targetname = keyval["targetname"];
+
+			if (keyval.find("LaserTarget") != keyval.end())
+				entity.target = keyval["LaserTarget"];
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			if (keyval.find("spawnflags") != keyval.end())
+				entity.flags = std::stoi(keyval["spawnflags"]);
+
+			entity.Init();
+			entities.push_back(std::make_unique<LaserEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
 	}

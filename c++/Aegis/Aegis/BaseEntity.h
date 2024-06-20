@@ -3,6 +3,8 @@
 #include "collision.h"
 #include "BSPMap.h"
 
+#include <string>
+
 class BSPMap;
 
 class BaseEntity
@@ -23,6 +25,9 @@ public:
 	vec3_t cameraforward = { 0.0, 0.0, 0.0 };
 	vec3_t cameraup = { 0.0, 0.0, 0.0 };
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
+
+	std::string targetname;
+	std::string classname;
 
 	bool on;
 	int flags = 0;

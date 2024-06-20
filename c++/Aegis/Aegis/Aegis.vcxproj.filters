@@ -132,6 +132,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
+    <ClCompile Include="LaserEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -157,9 +160,6 @@
     </ClInclude>
     <ClInclude Include="Mat3x4.h">
       <Filter>Header Files\math</Filter>
-    </ClInclude>
-    <ClInclude Include="AssetManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BSPMap.h">
       <Filter>Header Files</Filter>
@@ -208,6 +208,12 @@
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserEntity.h">
+      <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

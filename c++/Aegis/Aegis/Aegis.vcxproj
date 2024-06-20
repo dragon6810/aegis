@@ -149,6 +149,7 @@
     <ClCompile Include="DecalEntity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="IllusionaryEntity.cpp" />
+    <ClCompile Include="LaserEntity.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="loadtexture.cpp" />
     <ClCompile Include="Mat3x4.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="IllusionaryEntity.h" />
+    <ClInclude Include="LaserEntity.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="loadtexture.h" />
     <ClInclude Include="Mat3x4.h" />
