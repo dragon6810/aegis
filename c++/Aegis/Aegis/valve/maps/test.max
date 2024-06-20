@@ -255,7 +255,7 @@
 "framestart" "0"
 "TextureScroll" "35"
 "texture" "sprites/laserbeam.spr"
-"NoiseAmplitude" "0"
+"NoiseAmplitude" "100"
 "width" "20"
 "rendercolor" "255 0 4"
 "renderamt" "100"

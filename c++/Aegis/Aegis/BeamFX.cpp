@@ -29,12 +29,12 @@ void BeamFX::FracNoise(float* noise, int divs)
 void BeamFX::SineNoise(float* noise, int divs)
 {
 	float	freq = 0;
-	float	step = M_PI / (float) divs;
+	float	step = M_PI / (float) divs * Game::GetGame().R_Random(0.75, 2.5);
 	int	i;
 
 	for (i = 0; i < divs; i++)
 	{
-		noise[i] = sin(freq);
+		noise[i] = sin(freq) * Game::GetGame().R_Random(0.75, 1.0);
 		freq += step;
 	}
 }

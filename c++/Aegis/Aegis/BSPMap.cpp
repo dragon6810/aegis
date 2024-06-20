@@ -563,6 +563,9 @@ void BSPMap::LoadEntities()
 			if (keyval.find("width") != keyval.end())
 				entity.width = (float)std::stoi(keyval["width"]) * 0.1;
 
+			if (keyval.find("NoiseAmplitude") != keyval.end())
+				entity.scale = (float)std::stoi(keyval["NoiseAmplitude"]);
+
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
 
