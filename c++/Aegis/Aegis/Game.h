@@ -14,7 +14,8 @@ public:
 	void Render();
 
 	// Utils
-	float Time();
+	float Time(); // Time, in seconds since start of program
+	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 private:
 	Game() {}
 
@@ -22,5 +23,7 @@ private:
 	void operator=(Game const&);
 
 	long long start;
+
+	unsigned int r_seed = 1993;
 };
 

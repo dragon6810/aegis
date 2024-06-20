@@ -186,16 +186,6 @@
 "origin" "192 200 -1216"
 }
 {
-"classname" "monster_barney"
-"spawnflags" "128"
-"TriggerCondition" "0"
-"angles" "0 0 0"
-"rendercolor" "0 0 0"
-"rendermode" "0"
-"renderfx" "0"
-"origin" "186 180 21"
-}
-{
 "classname" "func_wall"
 "zhlt_lightflags" "0"
 "rendercolor" "0 0 0"
@@ -260,6 +250,7 @@
 }
 {
 "classname" "env_laser"
+"spawnflags" "1"
 "damage" "100"
 "framestart" "0"
 "TextureScroll" "35"

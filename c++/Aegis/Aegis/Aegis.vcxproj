@@ -142,6 +142,7 @@
     <ClCompile Include="Aegis.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BaseEntity.cpp" />
+    <ClCompile Include="BeamFX.cpp" />
     <ClCompile Include="binaryloader.cpp" />
     <ClCompile Include="BSPMap.cpp" />
     <ClCompile Include="BSPModelEntity.cpp" />
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="BaseEntity.h" />
+    <ClInclude Include="BeamFX.h" />
     <ClInclude Include="binaryloader.h" />
     <ClInclude Include="BSPMap.h" />
     <ClInclude Include="BSPModelEntity.h" />

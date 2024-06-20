@@ -135,6 +135,9 @@
     <ClCompile Include="LaserEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="BeamFX.cpp">
+      <Filter>Source Files\gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="LaserEntity.h">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="BeamFX.h">
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
