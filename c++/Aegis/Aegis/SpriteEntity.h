@@ -52,6 +52,7 @@ typedef struct
 class SpriteEntity : public BaseEntity
 {
 public:
+	SpriteEntity() {};
 	SpriteEntity(BSPMap& map);
 	~SpriteEntity();
 
@@ -61,12 +62,12 @@ public:
 	
 	virtual void Think(float deltatime) override;
 	virtual void Render() override;
-private:
+
 	sprheader_t* mhdr;
 
 	std::vector<GLuint> texturenames;
 	std::vector<sprframe_t*> frames;
-
+private:
 	float currentframe = 0.0;
 	float framerate = SPRITE_DEFAULT_FPS;
 	float scale = 1.0;

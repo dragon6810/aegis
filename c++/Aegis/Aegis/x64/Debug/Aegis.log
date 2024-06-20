@@ -13,10 +13,15 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(9,1): warning C41
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
   (compiling source file 'LaserEntity.cpp')
   
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.h(5,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'LaserEntity.cpp')
+  
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
   (compiling source file 'LaserEntity.cpp')
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(70,24): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(76,24): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

@@ -542,6 +542,27 @@ void BSPMap::LoadEntities()
 				entity.position = pos;
 			}
 
+			vec3_t col = { 0.0, 0.0, 0.0 };
+			if (keyval.find("rendercolor") != keyval.end())
+			{
+				std::istringstream iss(keyval["rendercolor"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				col.x = (float) x / 255.0;
+				col.y = (float) y / 255.0;
+				col.z = (float) z / 255.0;
+				entity.color = col;
+			}
+
+			if (keyval.find("renderamt") != keyval.end())
+				entity.brightness = (float)std::stoi(keyval["renderamt"]) / 255.0;
+
+			if (keyval.find("TextureScroll") != keyval.end())
+				entity.scrollspeed = (float)std::stoi(keyval["TextureScroll"]) / 10.0;
+
+			if (keyval.find("width") != keyval.end())
+				entity.width = (float)std::stoi(keyval["width"]) * 0.1;
+
 			if (keyval.find("spawnflags") != keyval.end())
 				entity.flags = std::stoi(keyval["spawnflags"]);
 

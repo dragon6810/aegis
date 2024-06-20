@@ -42,3 +42,8 @@ rayhitinfo_t BaseEntity::RayCollides(collisionray_t ray)
 {
 	return { false, {0.0, 0.0, 0.0} };
 }
+
+void BaseEntity::SetMap(BSPMap& map)
+{
+	this->map = &map;
+}

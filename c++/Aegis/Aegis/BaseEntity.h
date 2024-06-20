@@ -10,6 +10,7 @@ class BSPMap;
 class BaseEntity
 {
 public:
+	BaseEntity() {};
 	BaseEntity(BSPMap& map);
 
 	virtual void Init();
@@ -19,6 +20,8 @@ public:
 	virtual void Off();
 	void Toggle();
 	virtual rayhitinfo_t RayCollides(collisionray_t ray);
+
+	void SetMap(BSPMap& map);
 
 	vec3_t position = { 0.0, 0.0, 0.0 };
 	vec3_t rotation = { 0.0, 0.0, 0.0 };
