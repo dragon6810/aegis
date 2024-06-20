@@ -6,6 +6,9 @@
 #include <gl/glew.h>
 #include "BSPMap.h"
 
+#define SMODEL_LIGHT_AMBIENT 192
+#define SMODEL_LIGHT_DIRECT 63
+
 class SModel
 {
 public:
@@ -44,11 +47,15 @@ public:
 	float frame;
 	long long seqstarttime = 0;
 
+	vec3_t lightcolor{};
+	vec3_t lightdir{};
+
 	BSPMap* map;
 
 	void Load(const char* modelname);
 	void SetPosition(float x, float y, float z);
 	void startseq(int seqindex);
+	void SetupLighting();
 	void render();
 	Mat3x4 transformfrombone(int boneindex);
 };

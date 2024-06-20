@@ -7,6 +7,9 @@
 #include "binaryloader.h"
 #include <chrono>
 #include "AssetManager.h"
+#include <math.h>
+
+#include "mathutils.h"
 
 void SModel::Load(const char* modelname)
 {
@@ -82,12 +85,64 @@ void SModel::startseq(int seqindex)
     seqstarttime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-void SModel::render()
+void SModel::SetupLighting()
 {
     vec3_t start = { pos[0], pos[1], pos[2] };
-    vec3_t end = { 0, 0, -65535 };
+    lightdir = { 0, 0, -1 }; // Get light from flooat
+    vec3_t end = lightdir * 2048.0;
     end = end + start;
-    vec3_t light = map->LightColor(start, end);
+    lightcolor = map->LightColor(start, end);
+
+    // Approximate light direction with in which direction does it generally get brighter
+
+    float gradient[4]; // Average brightness around the model
+    vec3_t gradcolor;
+
+    start.x -= 16.0;
+    start.y -= 16.0;
+    end.x -= 16.0;
+    end.y -= 16.0;
+
+    gradcolor = map->LightColor(start, end);
+    gradient[0] = (gradcolor.x + gradcolor.y + gradcolor.z) / 768.0;
+
+    start.x += 32.0;
+    end.x += 32.0;
+
+    gradcolor = map->LightColor(start, end);
+    gradient[1] = (gradcolor.x + gradcolor.y + gradcolor.z) / 768.0;
+
+    start.y += 32.0;
+    end.y += 32.0;
+
+    gradcolor = map->LightColor(start, end);
+    gradient[2] = (gradcolor.x + gradcolor.y + gradcolor.z) / 768.0;
+
+    start.x -= 32.0;
+    end.x -= 32.0;
+
+    gradcolor = map->LightColor(start, end);
+    gradient[3] = (gradcolor.x + gradcolor.y + gradcolor.z) / 768.0;
+
+    lightdir.x = gradient[0] - gradient[1] - gradient[2] + gradient[3];
+    lightdir.y = gradient[1] + gradient[0] - gradient[2] - gradient[3];
+    lightdir = NormalizeVector3(lightdir);
+
+    if(lightdir.z < 0)
+        lightdir.z = -lightdir.z;
+
+    float maxchannel = lightcolor.x;
+    if (lightcolor.y > maxchannel) maxchannel = lightcolor.y;
+    if (lightcolor.z > maxchannel) maxchannel = lightcolor.z;
+    maxchannel /= 255.0;
+
+    lightdir = lightdir * maxchannel;
+}
+
+void SModel::render()
+{
+
+    SetupLighting();
 
     float camerapos[3]{ this->camerapos.x, this->camerapos.y, this->camerapos.z };
 
@@ -176,13 +231,13 @@ void SModel::render()
             xformnorms[n].y = vec.get(1);
             xformnorms[n].z = vec.get(2);
 
-            float norm[3] = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
-            float lightdir[3] = { 0.0, 0.0, 1.0 };
-            float ambient = 0.75;
-            //float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
-            //lightvals[n].x = light;
-            //lightvals[n].y = light;
-            //lightvals[n].z = light;
+            vec3_t norm = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
+            float ambient = (float) SMODEL_LIGHT_AMBIENT / 255.0;
+            float direct = (float) SMODEL_LIGHT_DIRECT / 255.0;
+            float color = DotProduct(lightdir, norm) * direct + ambient;
+            lightvals[n].x = color * (float) lightcolor.x / 255.0;
+            lightvals[n].y = color * (float) lightcolor.y / 255.0;
+            lightvals[n].z = color * (float) lightcolor.z / 255.0;
         }
 
         glCullFace(GL_FRONT);
@@ -212,8 +267,8 @@ void SModel::render()
                 {
                     vec3_t position = xformverts[ptricmds[0]];
                     vec3_t norm = xformnorms[ptricmds[1]];
-                    
-                    glColor3f((float) light.x / 255.0, (float)light.y / 255.0, (float)light.z / 255.0);
+
+                    glColor3f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z);
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {
