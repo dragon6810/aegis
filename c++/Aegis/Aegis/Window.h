@@ -1,0 +1,26 @@
+#pragma once
+
+#include <GLFW/glfw3.h>
+
+#include <string>
+
+#include "defs.h";
+
+class Window
+{
+public:
+	Window(std::string name, int width, int height, bool fullscreen);
+	~Window();
+	void Kill();
+
+	void SelectForRendering();
+	void MakeFullscreenViewport(float aspect);
+	
+	void GetWindowDimensions(int* x, int* y);
+
+	bool ShouldWindowClose();
+	void SwapBuffers();
+private:
+	GLFWwindow* window;
+};
+

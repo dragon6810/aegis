@@ -55,6 +55,24 @@
     <Filter Include="Header Files\Engine">
       <UniqueIdentifier>{a4f4e004-5981-439a-aaa6-8ebbf1844000}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{f66c133e-0052-488e-a5b1-ebc6d0780789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{6127554e-c8ab-490d-bddc-e0875a03961e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OpenGL">
+      <UniqueIdentifier>{7adb1bc8-0eda-42ac-a724-6a86d829aab9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OpenGL">
+      <UniqueIdentifier>{5713e23c-d73b-45b8-904f-e07b1142f35b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RendererWrapper">
+      <UniqueIdentifier>{385df564-3385-4e0a-a94d-438086fa728d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\RendererWrapper">
+      <UniqueIdentifier>{ee00b7ec-5104-4d3a-9603-d85c1f3c026f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
@@ -138,6 +156,15 @@
     <ClCompile Include="BeamFX.cpp">
       <Filter>Source Files\gfx</Filter>
     </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL.cpp">
+      <Filter>Source Files\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\RendererWrapper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -220,6 +247,15 @@
     </ClInclude>
     <ClInclude Include="BeamFX.h">
       <Filter>Header Files\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL.h">
+      <Filter>Header Files\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\RendererWrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

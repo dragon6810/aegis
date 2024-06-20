@@ -158,7 +158,9 @@
     <ClCompile Include="MonsterBarney.cpp" />
     <ClCompile Include="MonsterEntity.cpp" />
     <ClCompile Include="mstudioload.cpp" />
+    <ClCompile Include="OpenGL.cpp" />
     <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SModel.cpp" />
     <ClCompile Include="RotatingEntity.cpp" />
     <ClCompile Include="Skybox.cpp" />
@@ -166,6 +168,7 @@
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
     <ClCompile Include="WallEntity.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
@@ -187,7 +190,9 @@
     <ClInclude Include="MonsterBarney.h" />
     <ClInclude Include="MonsterEntity.h" />
     <ClInclude Include="mstudioload.h" />
+    <ClInclude Include="OpenGL.h" />
     <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="SModel.h" />
     <ClInclude Include="RotatingEntity.h" />
     <ClInclude Include="Skybox.h" />
@@ -195,6 +200,7 @@
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
     <ClInclude Include="WallEntity.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
