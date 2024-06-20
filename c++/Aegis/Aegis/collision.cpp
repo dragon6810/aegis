@@ -44,9 +44,8 @@ vec3_t PlaneIntersection(vec3_t a, vec3_t b, vec3_t n, float d)
     return { (1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y, (1 - t) * a.z + t * b.z };
 }
 
-bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon)
+bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon, vec3_t normal)
 {
-    vec3_t normal = NormalizeVector3(CrossProduct(NormalizeVector3(polygon[1] - polygon[0]), NormalizeVector3(polygon[2] - polygon[0])));
     vec3_t right = CrossProduct(normal, { 0.0, 0.0, 1.0 });
     vec3_t up = CrossProduct(normal, right);
     right = CrossProduct(up, normal);
@@ -80,7 +79,7 @@ bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon)
         }
 
         float m = dy / dx;
-        float b = p1.y + m * p1.x;
+        float b = p1.y - m * p1.x;
 
         if (m == 0)
             continue;

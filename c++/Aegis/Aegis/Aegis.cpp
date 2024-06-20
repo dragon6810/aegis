@@ -11,6 +11,8 @@
 #include "Wad.h"
 #include "mathutils.h"
 
+#include <cassert>
+
 BSPMap map;
 
 int main()
@@ -39,6 +41,14 @@ int main()
         std::cerr << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
+
+    std::vector<vec3_t> square = 
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f}
+    };
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_2D);

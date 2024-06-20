@@ -179,10 +179,10 @@ void SModel::render()
             float norm[3] = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
             float lightdir[3] = { 0.0, 0.0, 1.0 };
             float ambient = 0.75;
-            float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
-            lightvals[n].x = light;
-            lightvals[n].y = light;
-            lightvals[n].z = light;
+            //float light = Vector3::dot(Vector3(lightdir), Vector3(norm)) + ambient;
+            //lightvals[n].x = light;
+            //lightvals[n].y = light;
+            //lightvals[n].z = light;
         }
 
         glCullFace(GL_FRONT);
@@ -213,7 +213,7 @@ void SModel::render()
                     vec3_t position = xformverts[ptricmds[0]];
                     vec3_t norm = xformnorms[ptricmds[1]];
                     
-                    //glColor3f(light.x, light.y, light.z);
+                    glColor3f((float) light.x / 255.0, (float)light.y / 255.0, (float)light.z / 255.0);
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {

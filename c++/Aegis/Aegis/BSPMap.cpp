@@ -694,9 +694,9 @@ bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* 
 				polygon.push_back(pos);
 			}
 			
-			if (IsPointInPolygon(midpoint, polygon))
+			if (IsPointInPolygon(midpoint, polygon, plane->vNormal))
 			{
-				vec3_t* lightmap = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset);
+				color24_t* lightmap = (color24_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset + face->nLightmapOffset);
 
 				int luxelsx = (int)ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;
 				int luxelsy = (int)ceilf(maxtex[i].y / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].y / BSP_LIGHTMAP_LUXELLEN) + 1;
@@ -706,23 +706,23 @@ bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* 
 				coords.y *= luxelsy;
 
 				int index = (int)coords.y * luxelsx + (int)coords.x;
-				*color = lightmap[face->nLightmapOffset + index];
+				*color = { (float)lightmap[index].r, (float)lightmap[index].g, (float)lightmap[index].b };
 
 				return true;
 			}
 		}
 
-		int firstside = startval >= 0;
+		int firstside = startval < 0;
 
-		bool found = LightColorRecursive(start, midpoint, node->iChildren[ firstside], color);
+		bool found = LightColorRecursive(start, midpoint, node->iChildren[firstside], color);
 
 		if (!found)
-			LightColorRecursive(start, midpoint, node->iChildren[!firstside], color);
+			return LightColorRecursive(midpoint, end, node->iChildren[!firstside], color);
 		else
 			return true;
 	}
 
-	return LightColorRecursive(start, end, node->iChildren[startval > 0], color);
+	return LightColorRecursive(start, end, node->iChildren[startval <= 0], color);
 }
 
 void BSPMap::SetEntityToLeaf(int entity, int leaf)
