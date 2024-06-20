@@ -49,6 +49,8 @@ public:
 
 	vec3_t lightcolor{};
 	vec3_t lightdir{};
+	float directlight;
+	float ambientlight;
 
 	BSPMap* map;
 

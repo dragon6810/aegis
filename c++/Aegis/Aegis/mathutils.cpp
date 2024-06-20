@@ -8,6 +8,11 @@ vec3_t NormalizeVector3(vec3_t v)
 	return { v.x / len, v.y / len, v.z / len };
 }
 
+float Vector3Length(vec3_t v)
+{
+    return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
 vec3_t CrossProduct(vec3_t a, vec3_t b)
 {
     float x = a.y * b.z - a.z * b.y;

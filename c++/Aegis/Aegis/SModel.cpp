@@ -126,10 +126,8 @@ void SModel::SetupLighting()
 
     lightdir.x = gradient[0] - gradient[1] - gradient[2] + gradient[3];
     lightdir.y = gradient[1] + gradient[0] - gradient[2] - gradient[3];
+    lightdir.z = 0;
     lightdir = NormalizeVector3(lightdir);
-
-    if(lightdir.z < 0)
-        lightdir.z = -lightdir.z;
 
     float maxchannel = lightcolor.x;
     if (lightcolor.y > maxchannel) maxchannel = lightcolor.y;
@@ -137,6 +135,30 @@ void SModel::SetupLighting()
     maxchannel /= 255.0;
 
     lightdir = lightdir * maxchannel;
+
+    ambientlight = 0.6;
+    lightdir = lightdir * ambientlight;
+
+    directlight = Vector3Length(lightdir);
+    ambientlight = maxchannel - directlight;
+
+    if (maxchannel > 0.0)
+    {
+        lightcolor.x = lightcolor.x / maxchannel;
+        lightcolor.y = lightcolor.y / maxchannel;
+        lightcolor.z = lightcolor.z / maxchannel;
+    }
+    else
+        lightcolor.x = lightcolor.y = lightcolor.z = 1.0;
+
+    if (ambientlight > 0.5)
+        ambientlight = 0.5;
+
+    if (ambientlight + directlight > 1.0)
+        directlight = 1.0 - ambientlight;
+
+    lightdir.z = 1;
+    lightdir = NormalizeVector3(lightdir);
 }
 
 void SModel::render()
@@ -232,9 +254,7 @@ void SModel::render()
             xformnorms[n].z = vec.get(2);
 
             vec3_t norm = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
-            float ambient = (float) SMODEL_LIGHT_AMBIENT / 255.0;
-            float direct = (float) SMODEL_LIGHT_DIRECT / 255.0;
-            float color = DotProduct(lightdir, norm) * direct + ambient;
+            float color = DotProduct(lightdir, norm) * directlight + ambientlight;
             lightvals[n].x = color * (float) lightcolor.x / 255.0;
             lightvals[n].y = color * (float) lightcolor.y / 255.0;
             lightvals[n].z = color * (float) lightcolor.z / 255.0;

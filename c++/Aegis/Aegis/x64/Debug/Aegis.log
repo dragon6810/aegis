@@ -18,14 +18,14 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(107,61): warnin
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(113,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(119,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(125,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(154,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(235,27): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(236,26): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(238,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(239,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(240,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(282,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(283,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(139,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(158,27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(176,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(258,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(259,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(260,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(302,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(303,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
