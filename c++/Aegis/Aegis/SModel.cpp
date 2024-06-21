@@ -163,7 +163,6 @@ void SModel::SetupLighting()
 
 void SModel::render()
 {
-
     SetupLighting();
 
     float camerapos[3]{ this->camerapos.x, this->camerapos.y, this->camerapos.z };
@@ -320,6 +319,65 @@ void SModel::render()
     glColor3f(1, 1, 1);
 
     glDisable(GL_TEXTURE_2D);
+
+    RenderHitboxes();
+}
+
+void SModel::RenderHitboxes()
+{
+    for (int i = 0; i < header->numhitboxes; i++)
+    {
+        mstudiohitbox_t* hbox = (mstudiohitbox_t*)((char*)header + header->hitboxindex) + i;
+
+        float bbminf[3] = { hbox->bbmin.x, hbox->bbmin.y, hbox->bbmin.z };
+        float bbmaxf[3] = { hbox->bbmax.x, hbox->bbmax.y, hbox->bbmax.z };
+
+        Vector3 bbminv = boneTransforms[hbox->bone] * Vector3(bbminf);
+        Vector3 bbmaxv = boneTransforms[hbox->bone] * Vector3(bbmaxf);
+
+        float temp[3]{};
+        Vector3 corner0 = boneTransforms[hbox->bone] * Vector3(bbminf);
+        temp[0] = bbmaxf[0]; temp[1] = bbminf[1]; temp[2] = bbminf[2];
+        Vector3 corner1 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbmaxf[0]; temp[1] = bbmaxf[1]; temp[2] = bbminf[2];
+        Vector3 corner2 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbminf[0]; temp[1] = bbmaxf[1]; temp[2] = bbminf[2];
+        Vector3 corner3 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbminf[0]; temp[1] = bbminf[1]; temp[2] = bbmaxf[2];
+        Vector3 corner4 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbmaxf[0]; temp[1] = bbminf[1]; temp[2] = bbmaxf[2];
+        Vector3 corner5 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbmaxf[0]; temp[1] = bbmaxf[1]; temp[2] = bbmaxf[2];
+        Vector3 corner6 = boneTransforms[hbox->bone] * Vector3(temp);
+        temp[0] = bbminf[0]; temp[1] = bbmaxf[1]; temp[2] = bbmaxf[2];
+        Vector3 corner7 = boneTransforms[hbox->bone] * Vector3(temp);
+
+        glColor3f(1, 0, 0);
+
+        glBegin(GL_LINES);
+
+        // Draw bottom face
+        glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2)); glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2));
+        glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2)); glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2));
+        glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2)); glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2));
+        glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2)); glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2));
+
+        // Draw top face
+        glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2)); glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2));
+        glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2)); glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2));
+        glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2)); glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2));
+        glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2)); glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2));
+
+        // Draw connecting edges
+        glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2)); glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2));
+        glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2)); glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2));
+        glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2)); glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2));
+        glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2)); glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2));
+
+        glEnd();
+
+        glColor3f(1, 1, 1);
+    }
 }
 
 Mat3x4 SModel::transformfrombone(int boneindex)

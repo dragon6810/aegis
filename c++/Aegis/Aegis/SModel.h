@@ -59,5 +59,6 @@ public:
 	void startseq(int seqindex);
 	void SetupLighting();
 	void render();
+	void RenderHitboxes();
 	Mat3x4 transformfrombone(int boneindex);
 };
