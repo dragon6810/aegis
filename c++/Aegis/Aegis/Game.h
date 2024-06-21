@@ -34,13 +34,22 @@ public:
 	void Render();
 
 	float tickinterp = 0.0; // The interpolation factor for each dick
+	float fps;
 
-	// Heartbeat getters
+	// Heartbeat getters/setters
 	Renderer* GetRenderer();
+
+	bool IsPaused();
+	void Pause();
+	void Unpause();
+	void TogglePause();
 
 	// Utils
 	float Time(); // Time, in seconds since start of program
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
+
+	// Boring GLFW shit
+	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 private:
 	Game() {}
 
@@ -50,6 +59,8 @@ private:
 	long long start;
 
 	unsigned int r_seed = 1993;
+
+	bool paused = false;
 
 	Renderer renderer;
 	Window* window;

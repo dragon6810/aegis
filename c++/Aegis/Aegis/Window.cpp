@@ -1,26 +1,40 @@
 #include "Window.h"
 
-Window::Window(std::string name, int width, int height, bool fullscreen)
-{
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    if(fullscreen)
-    {
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+#include <iostream>
 
-        width = mode->width;
-        height = mode->height;
+Window::Window(std::string name, int width, int height, bool fullscreen) 
+{
+    if (!glfwInit()) 
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
-    if(fullscreen)
-        window = glfwCreateWindow(width, height, name.c_str(), monitor, nullptr);
-    else
-        window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (fullscreen) 
+    {
+        width = mode->width;
+        height = mode->height;
+
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+    }
+
+    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!window) 
     {
-        printf("Failed to create GLFW window. Probably means I fucked up somewhere, but I'll blame it on your OS instead.\n");
+        std::cerr << "Failed to create GLFW window. Probably means I messed up somewhere, but I'll blame it on your OS instead." << std::endl;
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+
+    glfwMakeContextCurrent(window);
 }
 
 Window::~Window()

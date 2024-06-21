@@ -9,7 +9,7 @@
 void Game::Main()
 {
 	renderer.Init();
-	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, true);
+	window = new Window("Aegis", 0, 0, true);
 	window->SelectForRendering();
     renderer.PostWindowInit();
 	int fullwidth;
@@ -19,8 +19,6 @@ void Game::Main()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	window->MakeFullscreenViewport((float) SCREEN_HIGH_WIDTH / (float) SCREEN_HIGH_HEIGHT);
-
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
@@ -28,7 +26,7 @@ void Game::Main()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(65, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
+    gluPerspective(30, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     float d = 300;
@@ -40,7 +38,7 @@ void Game::Main()
     
     wad.Load("valve/halflife.wad");
 
-    map.Load("valve/maps/test.bsp");
+    map.Load("valve/maps/c2a5c.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
     map.cameraforward = NormalizeVector3({ camf.x - camp.x, camf.y - camp.y, camf.z - camp.z });
     map.cameraup = { 0, 0, 1 };
@@ -52,21 +50,22 @@ void Game::Main()
     while (!window->ShouldWindowClose())
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
         long long delta = now - lastFrame;
-        float fps = 1.0 / ((float)delta / 1000.0);
+        fps = 1.0 / ((float)delta / 1000.0);
 
-        //printf("%d FPS.\n", (int)fps);
+        // Don't tick while paused
+        if(!paused)
+        {
+            tickinterp += (float) delta / 1000.0 * ENGINE_TICKRATE;
 
-        glClear(GL_DEPTH_BUFFER_BIT);
+            while (tickinterp >= 1.0)
+            {
+                Tick();
+                tickinterp -= 1.0;
+            }
+        }
 
-        //map.sky.Render();
-
-        map.Think(1.0 / fps);
-        map.Draw();
-
-        window->SwapBuffers();
-        glfwPollEvents();
+        Render();
 
         lastFrame = now;
     }
@@ -84,12 +83,40 @@ void Game::Tick()
 
 void Game::Render()
 {
+    window->MakeFullscreenViewport((float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT);
 
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    map.Think(1.0 / fps);
+    map.Draw();
+
+    window->SwapBuffers();
+    glfwPollEvents();
 }
 
 Renderer* Game::GetRenderer()
 {
 	return &renderer;
+}
+
+bool Game::IsPaused()
+{
+    return paused;
+}
+
+void Game::Pause()
+{
+    paused = true;
+}
+
+void Game::Unpause()
+{
+    paused = false;
+}
+
+void Game::TogglePause()
+{
+    paused = !paused;
 }
 
 float Game::Time()
@@ -105,4 +132,9 @@ float Game::R_Random(float min, float max)
 
 	float normalized = static_cast<float>(r_seed) / 0xFFFFFFFF;
 	return min + normalized * (max - min);
+}
+
+void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+
 }

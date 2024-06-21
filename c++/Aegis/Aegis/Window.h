@@ -9,6 +9,7 @@
 class Window
 {
 public:
+	// Call with width or height 0 to make fullscreen windowed monitor
 	Window(std::string name, int width, int height, bool fullscreen);
 	~Window();
 	void Kill();

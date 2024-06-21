@@ -263,7 +263,7 @@
 "renderfx" "0"
 "targetname" "testlaser"
 "LaserTarget" "laserb"
-"origin" "-57 80 36"
+"origin" "-59 80 36"
 }
 {
 "classname" "info_target"
