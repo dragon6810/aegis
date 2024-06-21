@@ -1,7 +1,7 @@
 #pragma once
 
 #define ENGINE_TICKRATE 50
-#define ENGINE_TICKDUR 0.02
+#define ENGINE_TICKDUR 1.0 / ENGINE_TICKRATE
 
 #define SCREEN_HIGH_WIDTH 1152
 #define SCREEN_HIGH_HEIGHT 864
@@ -18,6 +18,8 @@
 
 #include "Wad.h"
 #include "BSPMap.h"
+
+#define CONTROLS_PAUSE GLFW_KEY_ESCAPE
 
 class Game
 {
@@ -49,7 +51,7 @@ public:
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 
 	// Boring GLFW shit
-	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 private:
 	Game() {}
 

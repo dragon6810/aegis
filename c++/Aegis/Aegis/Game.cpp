@@ -47,6 +47,8 @@ void Game::Main()
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
+    window->SetKeyCallback(Game::KeyCallback);
+
     while (!window->ShouldWindowClose())
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -78,7 +80,7 @@ void Game::Main()
 
 void Game::Tick()
 {
-
+    map.Think(1.0 / fps);
 }
 
 void Game::Render()
@@ -86,8 +88,7 @@ void Game::Render()
     window->MakeFullscreenViewport((float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT);
 
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    map.Think(1.0 / fps);
+    
     map.Draw();
 
     window->SwapBuffers();
@@ -116,7 +117,10 @@ void Game::Unpause()
 
 void Game::TogglePause()
 {
-    paused = !paused;
+    if (paused)
+        Unpause();
+    else
+        Pause();
 }
 
 float Game::Time()
@@ -136,5 +140,6 @@ float Game::R_Random(float min, float max)
 
 void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-
+    if (key == CONTROLS_PAUSE && action == GLFW_PRESS)
+        Game::GetGame().TogglePause();
 }

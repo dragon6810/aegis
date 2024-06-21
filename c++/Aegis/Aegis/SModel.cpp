@@ -8,6 +8,7 @@
 #include <chrono>
 #include "AssetManager.h"
 #include <math.h>
+#include "Game.h"
 
 #include "mathutils.h"
 
@@ -166,16 +167,6 @@ void SModel::render()
     SetupLighting();
 
     float camerapos[3]{ this->camerapos.x, this->camerapos.y, this->camerapos.z };
-
-    if (seqstarttime == 0)
-        frame = 0.0F;
-    else
-    {
-        long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        float delta = (float)(now - seqstarttime) / 1000.0;
-        mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex);
-        frame = delta * seq->fps;
-    }
 
     glActiveTexture(GL_TEXTURE0);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -406,6 +397,7 @@ void SModel::RenderHitboxes()
     glDisable(GL_DEPTH_TEST);
 
     glPointSize(5.0f);
+    glColor3f(1, 1, 0);
     for (int i = 0; i < header->numbones; i++)
     {
         mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
@@ -414,13 +406,6 @@ void SModel::RenderHitboxes()
         Mat3x4 transform = boneTransforms[i];
         float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
         Vector3 pos(posf);
-
-        glBegin(GL_POINTS);
-        
-        glColor3f(0, 0, 1);
-        glVertex3f(pos.get(0), pos.get(1), pos.get(2));
-
-        glEnd();
 
         if (pbone->parent >= 0)
         {
@@ -432,8 +417,6 @@ void SModel::RenderHitboxes()
             posf[0] = transform.val[0][3]; posf[1] = transform.val[1][3]; posf[2] = transform.val[2][3];
             Vector3 parentv(posf);
 
-            glColor3f(1, 1, 0);
-
             glBegin(GL_LINES);
 
             glVertex3f(pos.get(0), pos.get(1), pos.get(2));
@@ -441,8 +424,23 @@ void SModel::RenderHitboxes()
 
             glEnd();
         }
+    }
 
-        glColor3f(1, 1, 1);
+    glColor3f(0, 0, 1);
+    for (int i = 0; i < header->numbones; i++)
+    {
+        mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
+        mstudiobone_t* pbone = pbones + i;
+
+        Mat3x4 transform = boneTransforms[i];
+        float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
+        Vector3 pos(posf);
+
+        glBegin(GL_POINTS);
+        
+        glVertex3f(pos.get(0), pos.get(1), pos.get(2));
+
+        glEnd();
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -450,11 +448,21 @@ void SModel::RenderHitboxes()
     glColor3f(1, 1, 1);
 }
 
+void SModel::Tick()
+{
+    mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex);
+    frame += ENGINE_TICKDUR * seq->fps;
+
+    lastlasttickframe = lasttickframe;
+    lasttickframe = frame;
+}
+
 Mat3x4 SModel::transformfrombone(int boneindex)
 {
     int sequence = curseq;
-    int f = (int)frame;
-    float s = frame - f;
+    float interframe = lastlasttickframe + (lasttickframe - lastlasttickframe) * Game::GetGame().tickinterp;
+    int f = (int)interframe;
+    float s = interframe - f;
 
     mstudiobone_t* pbone = (mstudiobone_t*)((char*)header + header->boneindex) + boneindex;
 

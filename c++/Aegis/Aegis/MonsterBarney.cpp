@@ -10,5 +10,5 @@ void MonsterBarney::Init()
 	model.map = map;
 	model.Load("valve/models/barney.mdl");
 	model.SetPosition(position.x, position.y, position.z);
-	model.startseq(0);
+	model.startseq(4);
 }

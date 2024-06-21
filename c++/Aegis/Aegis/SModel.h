@@ -44,7 +44,9 @@ public:
 	float adj[4];
 
 	int curseq;
-	float frame;
+	float frame = 0.0;
+	float lasttickframe = 0.0;
+	float lastlasttickframe = 0.0;
 	long long seqstarttime = 0;
 
 	vec3_t lightcolor{};
@@ -57,6 +59,7 @@ public:
 	void Load(const char* modelname);
 	void SetPosition(float x, float y, float z);
 	void startseq(int seqindex);
+	void Tick();
 	void SetupLighting();
 	void render();
 	void RenderHitboxes();

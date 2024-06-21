@@ -87,6 +87,11 @@ void Window::MakeFullscreenViewport(float aspect)
     glViewport(viewx, viewy, viewwidth, viewheight);
 }
 
+void Window::SetKeyCallback(GLFWkeyfun func)
+{
+    glfwSetKeyCallback(window, (GLFWkeyfun) func);
+}
+
 void Window::GetWindowDimensions(int* x, int* y)
 {
     glfwGetWindowSize(window, x, y);

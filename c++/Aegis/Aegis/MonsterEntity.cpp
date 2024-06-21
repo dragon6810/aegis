@@ -22,3 +22,8 @@ void MonsterEntity::Render()
 
 	glPopMatrix();
 }
+
+void MonsterEntity::Think(float deltatime)
+{
+	model.Tick();
+}
