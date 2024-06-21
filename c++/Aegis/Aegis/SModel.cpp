@@ -378,6 +378,76 @@ void SModel::RenderHitboxes()
 
         glColor3f(1, 1, 1);
     }
+
+    glColor3f(0, 1, 0);
+
+    glBegin(GL_LINES);
+
+    // Bottom face
+    glVertex3f(header->min.x, header->min.y, header->min.z); glVertex3f(header->max.x, header->min.y, header->min.z);
+    glVertex3f(header->max.x, header->min.y, header->min.z); glVertex3f(header->max.x, header->max.y, header->min.z);
+    glVertex3f(header->max.x, header->max.y, header->min.z); glVertex3f(header->min.x, header->max.y, header->min.z);
+    glVertex3f(header->min.x, header->max.y, header->min.z); glVertex3f(header->min.x, header->min.y, header->min.z);
+
+    // Top face
+    glVertex3f(header->min.x, header->min.y, header->max.z); glVertex3f(header->max.x, header->min.y, header->max.z);
+    glVertex3f(header->max.x, header->min.y, header->max.z); glVertex3f(header->max.x, header->max.y, header->max.z);
+    glVertex3f(header->max.x, header->max.y, header->max.z); glVertex3f(header->min.x, header->max.y, header->max.z);
+    glVertex3f(header->min.x, header->max.y, header->max.z); glVertex3f(header->min.x, header->min.y, header->max.z);
+
+    // Connecting edges
+    glVertex3f(header->min.x, header->min.y, header->min.z); glVertex3f(header->min.x, header->min.y, header->max.z);
+    glVertex3f(header->max.x, header->min.y, header->min.z); glVertex3f(header->max.x, header->min.y, header->max.z);
+    glVertex3f(header->max.x, header->max.y, header->min.z); glVertex3f(header->max.x, header->max.y, header->max.z);
+    glVertex3f(header->min.x, header->max.y, header->min.z); glVertex3f(header->min.x, header->max.y, header->max.z);
+
+    glEnd();
+
+    glDisable(GL_DEPTH_TEST);
+
+    glPointSize(5.0f);
+    for (int i = 0; i < header->numbones; i++)
+    {
+        mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
+        mstudiobone_t* pbone = pbones + i;
+
+        Mat3x4 transform = boneTransforms[i];
+        float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
+        Vector3 pos(posf);
+
+        glBegin(GL_POINTS);
+        
+        glColor3f(0, 0, 1);
+        glVertex3f(pos.get(0), pos.get(1), pos.get(2));
+
+        glEnd();
+
+        if (pbone->parent >= 0)
+        {
+            mstudiobone_t* parent = nullptr;
+            if (pbone->parent >= 0)
+                parent = pbones + pbone->parent;
+
+            transform = boneTransforms[pbone->parent];
+            posf[0] = transform.val[0][3]; posf[1] = transform.val[1][3]; posf[2] = transform.val[2][3];
+            Vector3 parentv(posf);
+
+            glColor3f(1, 1, 0);
+
+            glBegin(GL_LINES);
+
+            glVertex3f(pos.get(0), pos.get(1), pos.get(2));
+            glVertex3f(parentv.get(0), parentv.get(1), parentv.get(2));
+
+            glEnd();
+        }
+
+        glColor3f(1, 1, 1);
+    }
+
+    glEnable(GL_DEPTH_TEST);
+
+    glColor3f(1, 1, 1);
 }
 
 Mat3x4 SModel::transformfrombone(int boneindex)
