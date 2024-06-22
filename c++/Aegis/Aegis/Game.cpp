@@ -5,6 +5,7 @@
 #include "mathutils.h"
 
 #include "AssetManager.h"
+#include "Waveform.h"
 
 void Game::Main()
 {
@@ -42,6 +43,8 @@ void Game::Main()
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
+
+    waveform_t barney = Waveform::LoadSound("valve/sound/barney/ba_bring.wav");
 
     float lastcheck = -1.0;
 
