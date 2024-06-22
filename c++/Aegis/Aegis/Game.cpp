@@ -24,17 +24,9 @@ void Game::Main()
     glEnable(GL_DEPTH_TEST);  // Enable depth test
     glDepthFunc(GL_LEQUAL);   // Specify the depth function
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(30, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     float d = 300;
-    vec3_t camp = { d, d, d };
-    vec3_t camf = { 0, 0, 75 };
-    gluLookAt(camp.x, camp.y, camp.z,
-        camf.x, camf.y, camf.z,
-        0.0, 0.0, 1.0);
+    camp = { d, d, d };
+    camf = { 0, 0, 75 };
     
     wad.Load("valve/halflife.wad");
 
@@ -44,16 +36,25 @@ void Game::Main()
     map.cameraup = { 0, 0, 1 };
     map.sky.campos = camp;
 
+    font.Load("FONT0", "valve/fonts.wad");
+
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
 
+    float lastcheck = -1.0;
+
     while (!window->ShouldWindowClose())
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         long long delta = now - lastFrame;
-        fps = 1.0 / ((float)delta / 1000.0);
+
+        if (this->Time() - lastcheck >= 1.0)
+        {
+            lastcheck = this->Time();
+            fps = 1.0 / ((float)delta / 1000.0);
+        }
 
         // Don't tick while paused
         if(!paused)
@@ -87,9 +88,32 @@ void Game::Render()
 {
     window->MakeFullscreenViewport((float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT);
 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(30, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(camp.x, camp.y, camp.z,
+        camf.x, camf.y, camf.z,
+        0.0, 0.0, 1.0);
+
     glClear(GL_DEPTH_BUFFER_BIT);
     
     map.Draw();
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, SCREEN_MED_WIDTH, 0.0, SCREEN_MED_HEIGHT, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+
+    glColor4f(1, 1, 1, 0.5);
+    font.DrawString(std::to_string((int) fps) + std::string("FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
+    glColor4f(1, 1, 1, 1);
+
+    glEnable(GL_DEPTH_TEST);
 
     window->SwapBuffers();
     glfwPollEvents();

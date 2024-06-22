@@ -19,6 +19,10 @@
 #include "Wad.h"
 #include "BSPMap.h"
 
+#include "Font.h"
+
+#include "defs.h"
+
 #define CONTROLS_PAUSE GLFW_KEY_ESCAPE
 
 class Game
@@ -50,6 +54,9 @@ public:
 	float Time(); // Time, in seconds since start of program
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 
+	// UI
+	Font font;
+
 	// Boring GLFW shit
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 private:
@@ -66,6 +73,9 @@ private:
 
 	Renderer renderer;
 	Window* window;
+
+	vec3_t camp;
+	vec3_t camf;
 
 	Wad wad;
 	BSPMap map;
