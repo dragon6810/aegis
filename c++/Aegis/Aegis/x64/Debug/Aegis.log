@@ -1,1 +1,14 @@
-﻿  Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
+﻿  Waveform.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(20,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'size_t'
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(20,9):
+  consider using '%zd' in the format string
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(44,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(11,12): warning C4101: 'fact': unreferenced local variable
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

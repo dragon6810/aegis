@@ -45,6 +45,7 @@ void Game::Main()
     window->SetKeyCallback(Game::KeyCallback);
 
     waveform_t barney = Waveform::LoadSound("valve/sound/barney/ba_bring.wav");
+    Waveform::PlaySound(barney);
 
     float lastcheck = -1.0;
 

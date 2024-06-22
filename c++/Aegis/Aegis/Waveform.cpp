@@ -4,7 +4,7 @@
 
 waveform_t Waveform::LoadSound(std::string path)
 {
-	waveform_t waveform{0, 0, nullptr};
+	waveform_t waveform{};
 
 	wavheader_t header;
 	wavpcmfmt_t format;
@@ -14,8 +14,51 @@ waveform_t Waveform::LoadSound(std::string path)
 	FILE* fileptr;
 	fileptr = fopen(path.c_str(), "rb");
 	fread(&header, sizeof(wavheader_t), 1, fileptr);
+	fread(&format, sizeof(wavpcmfmt_t), 1, fileptr);
+	if (format.chunksize != 16)
+		fseek(fileptr, format.chunksize - 16, SEEK_CUR);
+	printf("Size: %d.\n", sizeof(wavpcmfmt_t));
 
+	waveform.samplerate = format.samplespersecond;
 
+	fread(&data, sizeof(waddata_t), 1, fileptr);
+
+	printf("Waveform file \"%s\" information:\n", path.c_str());
+	printf("\t %d channels\n", format.nchannels);
+	printf("\t %dhz\n", format.samplespersecond);
+	printf("\t Bit depth: %d\n", format.bitdepth);
+
+	std::vector<char> bytedata(data.chunksize);
+	std::vector<short> sounddata(data.chunksize);
+
+	if (format.bitdepth != 8)
+	{
+		printf("*WARNING* Aegis currently only supports waveform files with a bit depth of 8. File \"%s\" has a bit depth of %d!\n", path.c_str(), format.bitdepth);
+		goto cleanup;
+	}
+
+	waveform.nsamples = data.chunksize;
+	waveform.duration = (float)waveform.nsamples / (float)waveform.samplerate;
+	fread(bytedata.data(), sizeof(char), data.chunksize, fileptr);
+
+	for (int i = 0; i < waveform.nsamples; i++)
+		sounddata[i] = bytedata[i];
+	
+	if (!waveform.sound.loadFromSamples(sounddata.data(), waveform.nsamples, 1, waveform.samplerate))
+	{
+		printf("*WARNING* Failed to create Sound Buffer Object from sound \"%s\"!\n", path.c_str());
+		goto cleanup;
+	}
+
+	cleanup:
 	fclose(fileptr);
 	return waveform;
+}
+
+void Waveform::PlaySound(waveform_t sound)
+{
+	sf::Sound s;
+	s.setBuffer(sound.sound);
+	s.play();
+	sf::sleep(sf::seconds(sound.duration));
 }

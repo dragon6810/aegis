@@ -73,6 +73,12 @@
     <Filter Include="Header Files\RendererWrapper">
       <UniqueIdentifier>{ee00b7ec-5104-4d3a-9603-d85c1f3c026f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{1e176af8-1f5d-4b46-ae48-2e7a931bfc7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Audio">
+      <UniqueIdentifier>{450cab7c-b657-4822-a010-2766a6b87549}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aegis.cpp">
@@ -168,6 +174,9 @@
     <ClCompile Include="Font.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Waveform.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -262,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Waveform.h">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
