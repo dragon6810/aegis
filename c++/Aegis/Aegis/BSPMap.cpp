@@ -1069,5 +1069,6 @@ void BSPMap::BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int
 
 BSPMap::~BSPMap()
 {
-	
+	for (int i = 0; i < entities.size(); i++)
+		entities[i].release();
 }

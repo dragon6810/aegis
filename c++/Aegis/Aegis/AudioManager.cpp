@@ -5,11 +5,21 @@ AudioManager::AudioManager()
 	Initialize();
 }
 
+AudioManager::~AudioManager()
+{
+	for (int i = 0; i < AUDIO_NUMCHANNELS; i++)
+	{
+		channels[i].sound.sound.release();
+		if (channels[i].thread.joinable())
+			channels[i].thread.join();
+	}
+}
+
 void AudioManager::Initialize()
 {
 	for (int i = 0; i < AUDIO_NUMCHANNELS; i++)
 	{
-		//channels[i].playing = false;
+		channels[i].playing = false;
 	}
 }
 
@@ -54,6 +64,9 @@ int AudioManager::PlaySound(std::string sound, int importance)
 	if (channels[channel].thread.joinable())
 		channels[channel].thread.join();
 
+	if (channels[channel].sound.sound)
+		channels[channel].sound.sound.release();
+
 	channels[channel].sound = waveforms[sound];
 	channels[channel].importance = importance;
 	channels[channel].playing = true;
@@ -84,4 +97,5 @@ void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t posi
 	}
 
 	channels[channel].playing = false;
+	channels[channel].sound.sound.release();
 }

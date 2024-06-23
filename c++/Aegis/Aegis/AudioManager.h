@@ -24,6 +24,7 @@ class AudioManager
 {
 public:
 	AudioManager();
+	~AudioManager();
 
 	void Initialize();
 	void UnloadSounds();
