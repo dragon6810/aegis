@@ -177,6 +177,9 @@
     <ClCompile Include="Waveform.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -273,6 +276,9 @@
       <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Waveform.h">
+      <Filter>Header Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioManager.h">
       <Filter>Header Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>

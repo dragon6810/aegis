@@ -10,7 +10,7 @@
 void Game::Main()
 {
 	renderer.Init();
-	window = new Window("Aegis", 0, 0, true);
+	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, false);
 	window->SelectForRendering();
     renderer.PostWindowInit();
 	int fullwidth;
@@ -44,8 +44,7 @@ void Game::Main()
 
     window->SetKeyCallback(Game::KeyCallback);
 
-    waveform_t barney = Waveform::LoadSound("valve/sound/barney/ba_bring.wav");
-    Waveform::PlaySound(barney);
+    audiomanager.PlaySound("valve/sound/barney/ba_bring.wav", 1);
 
     float lastcheck = -1.0;
 

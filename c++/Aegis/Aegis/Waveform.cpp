@@ -28,8 +28,14 @@ waveform_t Waveform::LoadSound(std::string path)
 	printf("\t %dhz\n", format.samplespersecond);
 	printf("\t Bit depth: %d\n", format.bitdepth);
 
-	std::vector<char> bytedata(data.chunksize);
-	std::vector<short> sounddata(data.chunksize);
+	int realsize;
+	if (data.chunksize & 1)
+		realsize = data.chunksize - 1;
+	else
+		realsize = data.chunksize;
+
+	std::vector<unsigned char> bytedata(realsize);
+	std::vector<short> sounddata(realsize);
 
 	if (format.bitdepth != 8)
 	{
@@ -37,14 +43,16 @@ waveform_t Waveform::LoadSound(std::string path)
 		goto cleanup;
 	}
 
-	waveform.nsamples = data.chunksize;
+	waveform.nsamples = realsize;
 	waveform.duration = (float)waveform.nsamples / (float)waveform.samplerate;
-	fread(bytedata.data(), sizeof(char), data.chunksize, fileptr);
+	fread(bytedata.data(), sizeof(char), realsize, fileptr);
 
 	for (int i = 0; i < waveform.nsamples; i++)
-		sounddata[i] = bytedata[i];
+		sounddata[i] = bytedata[i] << 6;
+
+	waveform.sound = std::make_unique<sf::SoundBuffer>();
 	
-	if (!waveform.sound.loadFromSamples(sounddata.data(), waveform.nsamples, 1, waveform.samplerate))
+	if (!waveform.sound->loadFromSamples(sounddata.data(), waveform.nsamples, 1, waveform.samplerate))
 	{
 		printf("*WARNING* Failed to create Sound Buffer Object from sound \"%s\"!\n", path.c_str());
 		goto cleanup;
@@ -58,7 +66,7 @@ waveform_t Waveform::LoadSound(std::string path)
 void Waveform::PlaySound(waveform_t sound)
 {
 	sf::Sound s;
-	s.setBuffer(sound.sound);
+	s.setBuffer(*sound.sound);
 	s.play();
 	sf::sleep(sf::seconds(sound.duration));
 }

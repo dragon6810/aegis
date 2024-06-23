@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <memory>
 
 #include <SFML/Audio.hpp>
 
@@ -49,14 +50,30 @@ typedef struct
 	// Padding byte if n samples is odd
 } waddata_t;
 
-#pragma pack(push, 1)
-typedef struct
+struct waveform_t
 {
 	uint32_t nsamples;
 	uint32_t samplerate;
 	float duration;
-	sf::SoundBuffer sound;
-} waveform_t;
+	std::unique_ptr<sf::SoundBuffer> sound;
+
+	waveform_t() : nsamples(0), samplerate(0), duration(0.0f), sound(nullptr) {}
+
+	waveform_t(const waveform_t& other) : nsamples(other.nsamples), samplerate(other.samplerate), duration(other.duration) 
+	{
+		if (other.sound)
+			sound = std::make_unique<sf::SoundBuffer>(*other.sound);
+	}
+
+	waveform_t& operator=(const waveform_t& a)
+	{
+		nsamples = a.nsamples;
+		samplerate = a.samplerate;
+		duration = a.duration;
+		sound = std::make_unique<sf::SoundBuffer>(*a.sound);
+		return *this;
+	}
+};
 
 class Waveform
 {

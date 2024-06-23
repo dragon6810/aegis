@@ -16,6 +16,8 @@
 #include "Renderer.h"
 #include "Window.h"
 
+#include "AudioManager.h"
+
 #include "Wad.h"
 #include "BSPMap.h"
 
@@ -68,6 +70,8 @@ private:
 	long long start;
 
 	unsigned int r_seed = 1993;
+
+	AudioManager audiomanager;
 
 	bool paused = false;
 
