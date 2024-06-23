@@ -76,7 +76,7 @@ int AudioManager::PlaySound(std::string sound, int importance)
 	channels[channel].timeleft = waveforms[sound].duration;
 
 	vec3_t pos = { 0.0, 0.0, 0.0 };
-	channels[channel].thread = std::thread(&AudioManager::PlaySoundOnChannel, this, channel, waveforms[sound], pos, 1.0, 1.0);
+	channels[channel].thread = std::thread(&AudioManager::PlaySoundOnChannel, this, channel, waveforms[sound], pos, 1.0, 100.0);
 
 	return channel;
 }

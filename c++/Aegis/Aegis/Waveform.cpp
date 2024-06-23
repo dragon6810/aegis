@@ -36,6 +36,7 @@ waveform_t Waveform::LoadSound(std::string path)
 
 	std::vector<unsigned char> bytedata(realsize);
 	std::vector<short> sounddata(realsize);
+	int taper = 256;
 
 	if (format.bitdepth != 8)
 	{
@@ -46,9 +47,19 @@ waveform_t Waveform::LoadSound(std::string path)
 	waveform.nsamples = realsize;
 	waveform.duration = (float)waveform.nsamples / (float)waveform.samplerate;
 	fread(bytedata.data(), sizeof(char), realsize, fileptr);
-
+	
 	for (int i = 0; i < waveform.nsamples; i++)
+	{
 		sounddata[i] = bytedata[i] << 6;
+		if (i >= waveform.nsamples - taper)
+		{
+			sounddata[i] = (float)sounddata[i] * ((float)(waveform.nsamples - i) / (float)taper);
+		}
+		else if (i <= taper)
+		{
+			sounddata[i] = (float)sounddata[i] * ((float) i / (float)taper);
+		}
+	}
 
 	waveform.sound = std::make_unique<sf::SoundBuffer>();
 	
