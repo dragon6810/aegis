@@ -33,7 +33,9 @@ public:
 	vec3_t boneright[MSTUDIOMAXBONES]{};
 
 	int bonecontrollerindices[MSTUDIOMAXBONES];
-	float bonecontrollervalues[MSTUDIOMAXBONECONTROLLERS];
+	float lastlasbonecontrollervalues[MSTUDIOMAXBONECONTROLLERS]{};
+	float lastbonecontrollervalues[MSTUDIOMAXBONECONTROLLERS]{};
+	float bonecontrollervalues[MSTUDIOMAXBONECONTROLLERS]{};
 
 	GLuint* textures;
 
@@ -52,12 +54,16 @@ public:
 	float lastlasttickframe = 0.0;
 	long long seqstarttime = 0;
 
+	int voicechannel = -1;
+
 	vec3_t lightcolor{};
 	vec3_t lightdir{};
 	float directlight;
 	float ambientlight;
 
 	BSPMap* map;
+
+	void Say(std::string waveform);
 
 	void Load(const char* modelname);
 	void SetPosition(float x, float y, float z);

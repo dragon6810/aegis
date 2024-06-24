@@ -19,6 +19,7 @@ waveform_t Waveform::LoadSound(std::string path)
 		waveform.duration = 0.0;
 		waveform.nsamples = 0;
 		waveform.samplerate = 0;
+		waveform.max = 0;
 		waveform.sound = std::make_unique<sf::SoundBuffer>();
 		short zero = 0;
 		waveform.sound->loadFromSamples(&zero, 1, 1, 1);
@@ -60,6 +61,7 @@ waveform_t Waveform::LoadSound(std::string path)
 	waveform.duration = (float)waveform.nsamples / (float)waveform.samplerate;
 	fread(bytedata.data(), sizeof(char), realsize, fileptr);
 	
+	waveform.max = 0;
 	for (int i = 0; i < waveform.nsamples; i++)
 	{
 		sounddata[i] = bytedata[i] << 6;
@@ -71,6 +73,8 @@ waveform_t Waveform::LoadSound(std::string path)
 		{
 			sounddata[i] = (float)sounddata[i] * ((float) i / (float)taper);
 		}
+		if (sounddata[i] > waveform.max)
+			waveform.max = sounddata[i];
 	}
 
 	waveform.sound = std::make_unique<sf::SoundBuffer>();

@@ -12,11 +12,24 @@
 
 #include "mathutils.h"
 
+void SModel::Say(std::string waveform)
+{
+    std::string path = std::string("valve/sound/") + waveform;
+    voicechannel = Game::GetGame().GetAudioManager()->PlaySound(path, 10, { pos[0], pos[1], pos[2] });
+}
+
 void SModel::Load(const char* modelname)
 {
     memset(bonecontrollerindices, -1, sizeof(bonecontrollerindices));
 
     loadBytes(modelname, (char**) &header);
+
+    for (int i = 0; i < header->numbonecontrollers; i++)
+    {
+        mstudiobonecontroller_t* controller = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex) + i;
+        bonecontrollerindices[controller->bone] = i;
+        bonecontrollervalues[i] = controller->rest * DEG2RAD;
+    }
 
     char texturename[256];
     if (header->numtextures == 0)
@@ -448,6 +461,12 @@ void SModel::RenderHitboxes()
 
 void SModel::Tick()
 {
+    if (voicechannel >= 0)
+    {
+        if (!Game::GetGame().GetAudioManager()->GetChannel(voicechannel)->playing)
+            voicechannel = -1;
+    }
+
     mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex) + curseq;
     int before = (int)frame % (seq->numframes - 1);
     frame += ENGINE_TICKDUR * seq->fps;
@@ -467,13 +486,42 @@ void SModel::Tick()
             else if (event.event == STUDIO_EVENT_SOUND_VOICE)
             {
                 std::string path = std::string("valve/sound/") + std::string(event.options);
-                Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
+                voicechannel = Game::GetGame().GetAudioManager()->PlaySound(path, 10, { pos[0], pos[1], pos[2] });
             }
+        }
+    }
+
+    for (int i = 0; i < header->numbonecontrollers; i++)
+    {
+        mstudiobonecontroller_t* controller = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex) + i;
+        if (controller->index != 4)
+            continue;
+
+        if (voicechannel != -1)
+        {
+            audiochannel_t* voice = Game::GetGame().GetAudioManager()->GetChannel(voicechannel);
+            const short* sounddata = voice->sound.sound->getSamples();
+            int time = (int)((voice->sound.duration - voice->timeleft) * voice->sound.samplerate);
+            float val = sounddata[time] / (float) voice->sound.max * (controller->end - controller->start) + controller->start;
+
+            if (val > controller->end)
+                val = controller->end;
+            if (val < controller->start)
+                val = controller->start;
+
+            bonecontrollervalues[i] = -val * DEG2RAD;
+        }
+        else
+        {
+            bonecontrollervalues[i] = -controller->rest * DEG2RAD;
         }
     }
 
     lastlasttickframe = lasttickframe;
     lasttickframe = frame;
+
+    memcpy(lastlasbonecontrollervalues, lastbonecontrollervalues, sizeof(lastlasbonecontrollervalues));
+    memcpy(lastbonecontrollervalues, bonecontrollervalues, sizeof(bonecontrollervalues));
 }
 
 Mat3x4 SModel::transformfrombone(int boneindex)
@@ -607,26 +655,27 @@ Mat3x4 SModel::transformfrombone(int boneindex)
     if (bonecontrollerindices[boneindex] >= 0)
     {
         mstudiobonecontroller_t* bonecontroller = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex) + bonecontrollerindices[boneindex];
-        float val = bonecontrollervalues[bonecontrollerindices[boneindex]];
-        switch (bonecontroller->type)
+        float val = lastlasbonecontrollervalues[bonecontrollerindices[boneindex]] + 
+            (lastbonecontrollervalues[bonecontrollerindices[boneindex]] - lastlasbonecontrollervalues[bonecontrollerindices[boneindex]]) * s;
+        switch (bonecontroller->type & STUDIO_FLAGS_TYPES)
         {
-        case STUDIO_X:
-            pos[0] += bonecontrollervalues[boneindex];
+        case STUDIO_FLAGS_X:
+            pos[0] += val;
             break;
-        case STUDIO_Y:
-            pos[1] += bonecontrollervalues[boneindex];
+        case STUDIO_FLAGS_Y:
+            pos[1] += val;
             break;
-        case STUDIO_Z:
-            pos[2] += bonecontrollervalues[boneindex];
+        case STUDIO_FLAGS_Z:
+            pos[2] += val;
             break;
-        case STUDIO_XR:
-            rot = rot * Quaternion::FromAngle({ bonecontrollervalues[boneindex], 0, 0 });
+        case STUDIO_FLAGS_XR:
+            rot = rot * Quaternion::FromAngle({ val, 0, 0 });
             break;
-        case STUDIO_YR:
-            rot = rot * Quaternion::FromAngle({ 0, bonecontrollervalues[boneindex], 0 });
+        case STUDIO_FLAGS_YR:
+            rot = rot * Quaternion::FromAngle({ 0, val, 0 });
             break;
-        case STUDIO_ZR:
-            rot = rot * Quaternion::FromAngle({ 0, 0, bonecontrollervalues[boneindex] });
+        case STUDIO_FLAGS_ZR:
+            rot = rot * Quaternion::FromAngle({ 0, 0, val });
             break;
         default:
             break;

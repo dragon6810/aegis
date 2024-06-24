@@ -55,6 +55,7 @@ struct waveform_t
 	uint32_t nsamples;
 	uint32_t samplerate;
 	float duration;
+	short max;
 	std::unique_ptr<sf::SoundBuffer> sound;
 
 	waveform_t() : nsamples(0), samplerate(0), duration(0.0f), sound(nullptr) {}
@@ -70,6 +71,7 @@ struct waveform_t
 		nsamples = a.nsamples;
 		samplerate = a.samplerate;
 		duration = a.duration;
+		max = a.max;
 		sound = std::make_unique<sf::SoundBuffer>(*a.sound);
 		return *this;
 	}

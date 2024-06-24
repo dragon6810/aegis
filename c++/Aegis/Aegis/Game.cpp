@@ -50,8 +50,6 @@ void Game::Main()
 
     window->SetKeyCallback(Game::KeyCallback);
 
-    audiomanager.PlaySound("valve/sound/barney/ba_bring.wav", 1);
-
     float lastcheck = -1.0;
 
     while (!window->ShouldWindowClose())

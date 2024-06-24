@@ -31,6 +31,11 @@ void AudioManager::UnloadSounds()
 	waveforms.erase(waveforms.begin());
 }
 
+audiochannel_t* AudioManager::GetChannel(int index)
+{
+	return &channels[index];
+}
+
 int AudioManager::PlaySound(std::string sound, int importance)
 {
 	return PlaySound(sound, importance, { 0, 0, 0 });

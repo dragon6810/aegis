@@ -29,6 +29,8 @@ public:
 	void Initialize();
 	void UnloadSounds();
 
+	audiochannel_t* GetChannel(int index);
+
 	int PlaySound(std::string sound, int importance);
 	int PlaySound(std::string sound, int importance, vec3_t position);
 private:

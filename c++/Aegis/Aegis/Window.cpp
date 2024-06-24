@@ -15,13 +15,13 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
 
     if (fullscreen) 
     {
-        width = mode->width;
+        width = mode->width - 1;
         height = mode->height;
 
-        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+        //glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        //glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        //glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        //glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     }
@@ -32,6 +32,11 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
         std::cerr << "Failed to create GLFW window. Probably means I messed up somewhere, but I'll blame it on your OS instead." << std::endl;
         glfwTerminate();
         exit(EXIT_FAILURE);
+    }
+
+    if (fullscreen)
+    {
+        //glfwMaximizeWindow(window);
     }
 
     glfwMakeContextCurrent(window);
