@@ -427,6 +427,7 @@ void SModel::RenderHitboxes()
     }
 
     glColor3f(0, 0, 1);
+    glBegin(GL_POINTS);
     for (int i = 0; i < header->numbones; i++)
     {
         mstudiobone_t* pbones = (mstudiobone_t*)((char*)header + header->boneindex);
@@ -436,12 +437,9 @@ void SModel::RenderHitboxes()
         float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
         Vector3 pos(posf);
 
-        glBegin(GL_POINTS);
-        
         glVertex3f(pos.get(0), pos.get(1), pos.get(2));
-
-        glEnd();
     }
+    glEnd();
 
     glEnable(GL_DEPTH_TEST);
 

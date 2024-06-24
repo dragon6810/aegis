@@ -7,6 +7,8 @@
 #include "AssetManager.h"
 #include "Waveform.h"
 
+#include "Quaternion.h"
+
 void Game::Main()
 {
 	renderer.Init();
@@ -27,7 +29,11 @@ void Game::Main()
 
     float d = 300;
     camp = { d, d, d };
-    camf = { 0, 0, 75 };
+    camf = { 0, 0, 0 };
+
+    camera.position = camp;
+    camera.rotation = { 0, -60.0 * DEG2RAD, -45.0 * DEG2RAD };
+    camera.ReconstructMatrices();
     
     wad.Load("valve/halflife.wad");
 
@@ -96,8 +102,8 @@ void Game::Render()
     gluPerspective(30, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(camp.x, camp.y, camp.z,
-        camf.x, camf.y, camf.z,
+    gluLookAt(camera.position.x, camera.position.y, camera.position.z,
+        camera.position.x + camera.forward.x, camera.position.y + camera.forward.y, camera.position.z + camera.forward.z,
         0.0, 0.0, 1.0);
 
     glClear(GL_DEPTH_BUFFER_BIT);

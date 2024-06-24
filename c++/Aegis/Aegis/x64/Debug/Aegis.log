@@ -1,22 +1,28 @@
-﻿  Waveform.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(20,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'size_t'
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(20,9):
-  consider using '%zd' in the format string
+﻿  Game.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(51,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(54,9): warning C4018: '>=': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(56,39): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(56,39): warning C4244:         with
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(56,39): warning C4244:         [
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(56,39): warning C4244:             _Ty=sf::Int16
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(56,39): warning C4244:         ]
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(60,39): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(60,39): warning C4244:         with
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(60,39): warning C4244:         [
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(60,39): warning C4244:             _Ty=sf::Int16
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(60,39): warning C4244:         ]
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(11,12): warning C4101: 'fact': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(485,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
+  (compiling source file 'Game.cpp')
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(485,12):
+  This member will be ignored by a defaulted constructor or copy/move assignment operator
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AudioManager.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,34): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,51): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(65,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(71,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(93,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(162,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

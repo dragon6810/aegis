@@ -15,6 +15,15 @@ Vector3::Vector3(float val[3])
 	this->accessflags = 0;
 }
 
+Vector3::Vector3(vec3_t v)
+{
+	this->val[0] = v.x;
+	this->val[1] = v.y;
+	this->val[2] = v.z;
+	this->vlength = 0.0F;
+	this->accessflags = 0;
+}
+
 void Vector3::set(int which, float val)
 {
 	this->val[which] = val;

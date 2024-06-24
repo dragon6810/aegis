@@ -21,6 +21,8 @@
 #include "Wad.h"
 #include "BSPMap.h"
 
+#include "Camera.h"
+
 #include "Font.h"
 
 #include "defs.h"
@@ -43,6 +45,8 @@ public:
 
 	float tickinterp = 0.0; // The interpolation factor for each dick
 	float fps;
+
+	Camera camera;
 
 	// Heartbeat getters/setters
 	Renderer* GetRenderer();

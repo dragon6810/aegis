@@ -147,6 +147,7 @@
     <ClCompile Include="binaryloader.cpp" />
     <ClCompile Include="BSPMap.cpp" />
     <ClCompile Include="BSPModelEntity.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="DecalEntity.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="binaryloader.h" />
     <ClInclude Include="BSPMap.h" />
     <ClInclude Include="BSPModelEntity.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="DecalEntity.h" />
     <ClInclude Include="defs.h" />

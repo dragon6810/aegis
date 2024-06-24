@@ -30,6 +30,7 @@ public:
 	void UnloadSounds();
 
 	int PlaySound(std::string sound, int importance);
+	int PlaySound(std::string sound, int importance, vec3_t position);
 private:
 	audiochannel_t channels[AUDIO_NUMCHANNELS];
 	std::unordered_map<std::string, waveform_t> waveforms;

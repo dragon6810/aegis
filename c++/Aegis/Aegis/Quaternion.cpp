@@ -102,6 +102,12 @@ Quaternion Quaternion::FromAngle(float axis[3])
     return z * y * x;
 }
 
+Quaternion Quaternion::FromAngle(vec3_t angles)
+{
+    float axis[3] = { angles.x, angles.y, angles.z };
+    return FromAngle(axis);
+}
+
 Quaternion Quaternion::Slerp(const Quaternion& q1, const Quaternion& q2, float t)
 {
     float dot = q1.q[0] * q2.q[0] + q1.q[1] * q2.q[1] + q1.q[2] * q2.q[2] + q1.q[3] * q2.q[3];

@@ -1,5 +1,8 @@
 #include "AudioManager.h"
 
+#include "Quaternion.h"
+#include "Game.h"
+
 AudioManager::AudioManager()
 {
 	Initialize();
@@ -29,6 +32,11 @@ void AudioManager::UnloadSounds()
 }
 
 int AudioManager::PlaySound(std::string sound, int importance)
+{
+	return PlaySound(sound, importance, { 1, 1, 1 });
+}
+
+int AudioManager::PlaySound(std::string sound, int importance, vec3_t position)
 {
 	waveform_t wav;
 	if (waveforms.find(sound) == waveforms.end())
@@ -74,9 +82,8 @@ int AudioManager::PlaySound(std::string sound, int importance)
 	channels[channel].pitch = 1.0;
 	channels[channel].volume = 1.0;
 	channels[channel].timeleft = waveforms[sound].duration;
-
-	vec3_t pos = { 0.0, 0.0, 0.0 };
-	channels[channel].thread = std::thread(&AudioManager::PlaySoundOnChannel, this, channel, waveforms[sound], pos, 1.0, 100.0);
+	
+	channels[channel].thread = std::thread(&AudioManager::PlaySoundOnChannel, this, channel, waveforms[sound], position, 1.0, 100.0);
 
 	return channel;
 }
@@ -87,11 +94,17 @@ void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t posi
 	s.setBuffer(*sound.sound);
 	s.setPitch(pitch);
 	s.setVolume(volume);
-	s.setPosition(sf::Vector3f(position.x, position.y, position.z));
+	Mat3x4 test = Game::GetGame().camera.inv;
+	Vector3 posv = test * Vector3(position);
+	posv.normalize();
+	s.setPosition(sf::Vector3f(posv.get(0), posv.get(1), posv.get(2)));
 	s.play();
 
 	while (s.getStatus() == sf::Sound::Playing)
 	{
+		Vector3 posv = test * Vector3(position);
+		posv.normalize();
+		s.setPosition(sf::Vector3f(posv.get(0), posv.get(1), posv.get(2)));
 		channels[channel].timeleft -= 0.001F;
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}

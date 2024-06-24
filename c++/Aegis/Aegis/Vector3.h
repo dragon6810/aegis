@@ -1,9 +1,12 @@
 #pragma once
 
+#include "defs.h"
+
 class Vector3
 {
 public:
 	Vector3(float val[3]);
+	Vector3(vec3_t v);
 
 	void set(int which, float val);
 	float get(int which);
