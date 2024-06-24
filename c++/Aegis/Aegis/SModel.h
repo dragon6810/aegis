@@ -32,6 +32,9 @@ public:
 	vec3_t boneup[MSTUDIOMAXBONES]{};
 	vec3_t boneright[MSTUDIOMAXBONES]{};
 
+	int bonecontrollerindices[MSTUDIOMAXBONES];
+	float bonecontrollervalues[MSTUDIOMAXBONECONTROLLERS];
+
 	GLuint* textures;
 
 	~SModel();

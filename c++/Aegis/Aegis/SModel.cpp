@@ -14,6 +14,8 @@
 
 void SModel::Load(const char* modelname)
 {
+    memset(bonecontrollerindices, -1, sizeof(bonecontrollerindices));
+
     loadBytes(modelname, (char**) &header);
 
     char texturename[256];
@@ -462,6 +464,11 @@ void SModel::Tick()
                 std::string path = std::string("valve/sound/") + std::string(event.options);
                 Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
             }
+            else if (event.event == STUDIO_EVENT_SOUND_VOICE)
+            {
+                std::string path = std::string("valve/sound/") + std::string(event.options);
+                Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
+            }
         }
     }
 
@@ -492,8 +499,8 @@ Mat3x4 SModel::transformfrombone(int boneindex)
     float pos[3];
     Quaternion rot;
 
-    float* a1 = (float*) malloc(sizeof(float) * 3);
-    float* a2 = (float*) malloc(sizeof(float) * 3);
+    float a1[3];
+    float a2[3];
     for (int i = 0; i < 3; i++)
     {
         if (panim->offset[i + 3] == 0)
@@ -597,15 +604,41 @@ Mat3x4 SModel::transformfrombone(int boneindex)
             pos[2] = 0.0F;
     }
 
+    if (bonecontrollerindices[boneindex] >= 0)
+    {
+        mstudiobonecontroller_t* bonecontroller = (mstudiobonecontroller_t*)((char*)header + header->bonecontrollerindex) + bonecontrollerindices[boneindex];
+        float val = bonecontrollervalues[bonecontrollerindices[boneindex]];
+        switch (bonecontroller->type)
+        {
+        case STUDIO_X:
+            pos[0] += bonecontrollervalues[boneindex];
+            break;
+        case STUDIO_Y:
+            pos[1] += bonecontrollervalues[boneindex];
+            break;
+        case STUDIO_Z:
+            pos[2] += bonecontrollervalues[boneindex];
+            break;
+        case STUDIO_XR:
+            rot = rot * Quaternion::FromAngle({ bonecontrollervalues[boneindex], 0, 0 });
+            break;
+        case STUDIO_YR:
+            rot = rot * Quaternion::FromAngle({ 0, bonecontrollervalues[boneindex], 0 });
+            break;
+        case STUDIO_ZR:
+            rot = rot * Quaternion::FromAngle({ 0, 0, bonecontrollervalues[boneindex] });
+            break;
+        default:
+            break;
+        }
+    }
+
     Mat3x4 rotationMat = rot.toMat();
 
     rotationMat.val[0][3] = pos[0];
     rotationMat.val[1][3] = pos[1];
     rotationMat.val[2][3] = pos[2];
-
-    free(a1);
-    free(a2);
-
+    
     return rotationMat;
 }
 

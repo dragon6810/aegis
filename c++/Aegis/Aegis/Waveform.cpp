@@ -13,6 +13,18 @@ waveform_t Waveform::LoadSound(std::string path)
 
 	FILE* fileptr;
 	fileptr = fopen(path.c_str(), "rb");
+	if (fileptr == nullptr)
+	{
+		printf("*WARNING* File path %s does not exist!\n", path.c_str());
+		waveform.duration = 0.0;
+		waveform.nsamples = 0;
+		waveform.samplerate = 0;
+		waveform.sound = std::make_unique<sf::SoundBuffer>();
+		short zero = 0;
+		waveform.sound->loadFromSamples(&zero, 1, 1, 1);
+		return waveform;
+	}
+
 	fread(&header, sizeof(wavheader_t), 1, fileptr);
 	fread(&format, sizeof(wavpcmfmt_t), 1, fileptr);
 	if (format.chunksize != 16)

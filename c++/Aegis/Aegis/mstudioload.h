@@ -4,6 +4,7 @@
 
 #define MSTUDIOMAXBONES 128
 #define MSTUDIOMAXMESHVERTS 2048
+#define MSTUDIOMAXBONECONTROLLERS 8
 
 class mstudioload
 {

@@ -90,6 +90,7 @@ int AudioManager::PlaySound(std::string sound, int importance, vec3_t position)
 
 void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t position, float pitch, float volume)
 {
+	
 	sf::Sound s;
 	s.setBuffer(*sound.sound);
 	s.setPitch(pitch);
@@ -102,6 +103,16 @@ void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t posi
 
 	while (s.getStatus() == sf::Sound::Playing)
 	{
+		if (Game::GetGame().IsPaused())
+		{
+			s.pause();
+			while (Game::GetGame().IsPaused())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			s.play();
+		}
+
 		Vector3 posv = test * Vector3(position);
 		posv.normalize();
 		s.setPosition(sf::Vector3f(posv.get(0), posv.get(1), posv.get(2)));
