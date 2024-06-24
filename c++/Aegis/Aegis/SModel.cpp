@@ -310,8 +310,6 @@ void SModel::render()
     glColor3f(1, 1, 1);
 
     glDisable(GL_TEXTURE_2D);
-
-    RenderHitboxes();
 }
 
 void SModel::RenderHitboxes()
@@ -448,8 +446,24 @@ void SModel::RenderHitboxes()
 
 void SModel::Tick()
 {
-    mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex);
+    mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex) + curseq;
+    int before = (int)frame % (seq->numframes - 1);
     frame += ENGINE_TICKDUR * seq->fps;
+    int now = (int)frame % (seq->numframes - 1);
+
+    mstudioanimevent_t* events = (mstudioanimevent_t*)((char*)header + seq->eventindex);
+    for (int i = 0; i < seq->numevents; i++)
+    {
+        mstudioanimevent_t event = events[i];
+        if ((now >= event.frame) && before < (event.frame))
+        {
+            if (event.event == STUDIO_EVENT_SOUND)
+            {
+                std::string path = std::string("valve/sound/") + std::string(event.options);
+                Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
+            }
+        }
+    }
 
     lastlasttickframe = lasttickframe;
     lasttickframe = frame;
@@ -473,7 +487,7 @@ Mat3x4 SModel::transformfrombone(int boneindex)
     if (pseqdesc->seqgroup == 0)
         panim = (mstudioanimchunk_t*)((char*)header + pseqgroup->unused2 + pseqdesc->animindex) + boneindex;
     else
-        panim = (mstudioanimchunk_t*)(seqheader[pseqdesc->seqgroup] + pseqdesc->animindex) + boneindex;
+        panim = (mstudioanimchunk_t*)((char*)seqheader[pseqdesc->seqgroup] + pseqdesc->animindex) + boneindex;
 
     float pos[3];
     Quaternion rot;

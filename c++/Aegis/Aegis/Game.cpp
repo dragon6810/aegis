@@ -12,7 +12,7 @@
 void Game::Main()
 {
 	renderer.Init();
-	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, false);
+	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, true);
 	window->SelectForRendering();
     renderer.PostWindowInit();
 	int fullwidth;
@@ -131,6 +131,11 @@ void Game::Render()
 Renderer* Game::GetRenderer()
 {
 	return &renderer;
+}
+
+AudioManager* Game::GetAudioManager()
+{
+    return &audiomanager;
 }
 
 bool Game::IsPaused()

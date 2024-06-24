@@ -50,6 +50,7 @@ public:
 
 	// Heartbeat getters/setters
 	Renderer* GetRenderer();
+	AudioManager* GetAudioManager();
 
 	bool IsPaused();
 	void Pause();

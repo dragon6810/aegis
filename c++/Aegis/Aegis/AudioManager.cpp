@@ -33,7 +33,7 @@ void AudioManager::UnloadSounds()
 
 int AudioManager::PlaySound(std::string sound, int importance)
 {
-	return PlaySound(sound, importance, { 1, 1, 1 });
+	return PlaySound(sound, importance, { 0, 0, 0 });
 }
 
 int AudioManager::PlaySound(std::string sound, int importance, vec3_t position)

@@ -1,28 +1,34 @@
-﻿  Game.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Game.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(485,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
-  (compiling source file 'Game.cpp')
-  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(485,12):
+﻿  SModel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(497,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
+  (compiling source file 'SModel.cpp')
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(497,12):
   This member will be ignored by a defaulted constructor or copy/move assignment operator
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AudioManager.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'Game.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'Game.cpp')
-  
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Game.cpp')
+  (compiling source file 'SModel.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,34): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,51): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(65,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(71,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(93,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(162,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(108,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(114,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(120,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(126,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(140,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(159,27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(250,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(251,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(252,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(294,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(295,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(451,29): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
