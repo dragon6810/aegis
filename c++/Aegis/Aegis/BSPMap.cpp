@@ -43,7 +43,7 @@ void BSPMap::Load(const char* filename)
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
-			gltextures.push_back(AssetManager::getInst().getTexture(miptex->name, "wad"));
+			gltextures.push_back(Wad::LoadTexture("valve/halflife.wad", miptex->name));
 		}
 		else
 		{

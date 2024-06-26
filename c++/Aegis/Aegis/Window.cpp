@@ -26,7 +26,7 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     }
 
-    window = glfwCreateWindow(width, height, name.c_str(), monitor, nullptr);
+    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!window) 
     {
         std::cerr << "Failed to create GLFW window. Probably means I messed up somewhere, but I'll blame it on your OS instead." << std::endl;

@@ -12,7 +12,7 @@
 void Game::Main()
 {
 	renderer.Init();
-	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, true);
+	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, false);
 	window->SelectForRendering();
     renderer.PostWindowInit();
 	int fullwidth;
@@ -36,8 +36,6 @@ void Game::Main()
     camera.vfov = 65.0;
     camera.ortho = false;
     camera.ReconstructMatrices();
-    
-    wad.Load("valve/halflife.wad");
 
     map.Load("valve/maps/test.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });

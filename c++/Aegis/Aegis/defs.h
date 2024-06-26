@@ -492,7 +492,7 @@ typedef struct
 #define WAD_FONT           0x45
 
 #define WAD_MAX_TEXTURELEN 16
-#define MIPTEX_MAX_PAL
+#define MIPTEX_MAX_PAL 256
 
 typedef struct
 {
