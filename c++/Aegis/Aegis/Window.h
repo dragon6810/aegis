@@ -17,6 +17,7 @@ public:
 	void SelectForRendering();
 	void MakeFullscreenViewport(float aspect);
 	void SetKeyCallback(GLFWkeyfun func);
+	void SetCursorPosCallback(GLFWcursorposfun func);
 	
 	void GetWindowDimensions(int* x, int* y);
 

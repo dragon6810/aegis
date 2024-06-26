@@ -33,6 +33,9 @@ void Game::Main()
 
     camera.position = camp;
     camera.rotation = { 0, -60.0 * DEG2RAD, -45.0 * DEG2RAD };
+    camera.vfov = 65.0;
+    camera.ortho = false;
+    camera.aspect = (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT;
     camera.ReconstructMatrices();
     
     wad.Load("valve/halflife.wad");
@@ -43,12 +46,13 @@ void Game::Main()
     map.cameraup = { 0, 0, 1 };
     map.sky.campos = camp;
 
-    font.Load("FONT0", "valve/fonts.wad");
+    font.Load("FONT1", "valve/fonts.wad");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
+    window->SetCursorPosCallback(Game::CursorCallback);
 
     float lastcheck = -1.0;
 
@@ -77,6 +81,10 @@ void Game::Main()
 
         Render();
 
+        glfwSwapInterval(0);
+        window->SwapBuffers();
+        glfwPollEvents();
+
         lastFrame = now;
     }
 
@@ -93,11 +101,13 @@ void Game::Tick()
 
 void Game::Render()
 {
+    camera.ReconstructMatrices();
+
     window->MakeFullscreenViewport((float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(30, (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT, 1.0, 10000.0);
+    gluPerspective(camera.vfov, camera.aspect, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(camera.position.x, camera.position.y, camera.position.z,
@@ -117,13 +127,10 @@ void Game::Render()
     glDisable(GL_DEPTH_TEST);
 
     glColor4f(1, 1, 1, 0.5);
-    font.DrawString(std::to_string((int) fps) + std::string("FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
+    font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
     glEnable(GL_DEPTH_TEST);
-
-    window->SwapBuffers();
-    glfwPollEvents();
 }
 
 Renderer* Game::GetRenderer()
@@ -178,4 +185,13 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 {
     if (key == CONTROLS_PAUSE && action == GLFW_PRESS)
         Game::GetGame().TogglePause();
+}
+
+void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    int width;
+    int height;
+    Game::GetGame().window->GetWindowDimensions(&width, &height);
+    Game::GetGame().cursorpos = { (float)xpos / width, (float)ypos / height };
+    printf("Cursor Pos: %f, %f\n", xpos / width, ypos / height);
 }

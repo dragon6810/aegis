@@ -29,3 +29,8 @@ float DotProduct(vec3_t a, vec3_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
+float Lerp(float a, float b, float t)
+{
+    return a + (b - a) * t;
+}

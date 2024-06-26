@@ -1,5 +1,8 @@
 #include "Camera.h"
 
+#include <math.h>
+
+#include "mathutils.h"
 #include "Quaternion.h"
 
 void Camera::ReconstructMatrices()
@@ -22,4 +25,23 @@ void Camera::ReconstructMatrices()
 	matrix.val[2][3] = position.z;
 
 	inv = inv * invpos;
+
+	hfov = vfov * aspect;
+
+	maxxdir = sin(hfov / 2 * DEG2RAD);
+	maxydir = sin(vfov / 2 * DEG2RAD);
+}
+
+vec3_t Camera::DirFromScreen(vec2_t screencoord)
+{
+	float x = Lerp(-maxxdir, maxxdir, screencoord.x);
+	float y = Lerp(maxydir, -maxydir, screencoord.y);
+
+	vec3_t dir = { x, y, -1 };
+	Vector3 dirV = matrix * Vector3(dir);
+	dir = { dirV.get(0), dirV.get(1), dirV.get(2) };
+	dir = dir - position;
+	dir = NormalizeVector3(dir);
+
+	return dir;
 }

@@ -301,7 +301,7 @@ void SModel::render()
                     {
                         float posv[3] = { position.x, position.y, position.z };
                         float normv[3] = { norm.x, norm.y, norm.z };
-                        Vector3 toeye = Vector3(camerapos) - Vector3(posv);
+                        Vector3 toeye = Vector3(Game::GetGame().camera.position) - Vector3(posv);
                         toeye.normalize();
                         Vector3 reflected = Vector3::reflect(toeye, Vector3(normv));
                         float bup[3] = { boneup[pnormbone[ptricmds[1]]].x, boneup[pnormbone[ptricmds[1]]].y, boneup[pnormbone[ptricmds[1]]].z };

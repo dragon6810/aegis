@@ -17,6 +17,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(6,1): warning C4
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'Aegis.cpp')
   
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'Aegis.cpp')
+  
   AudioManager.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(519,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
   (compiling source file 'AudioManager.cpp')
@@ -31,6 +34,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4
   (compiling source file 'AudioManager.cpp')
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'AudioManager.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'AudioManager.cpp')
   
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\type_traits(1745,77): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
@@ -76,6 +82,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(9,1): warning C41
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BSPMap.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'BSPMap.cpp')
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(37,20): warning C4018: '<': signed/unsigned mismatch
@@ -167,6 +176,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C410
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'BeamFX.cpp')
   
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'BeamFX.cpp')
+  
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(32,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(67,24): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
@@ -189,13 +201,16 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C410
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'Game.cpp')
   
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'Game.cpp')
+  
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,34): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(35,51): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(63,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(69,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(91,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(165,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(67,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(73,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(99,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(172,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   LaserEntity.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(519,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
   (compiling source file 'LaserEntity.cpp')
@@ -219,6 +234,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.h(3,1): warnin
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'LaserEntity.cpp')
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(40,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
@@ -256,6 +274,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(1,1): warning C
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'SModel.cpp')
   
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.h(16,21): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'SModel.cpp')
+  
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(31,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(123,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(129,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
@@ -271,6 +292,15 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(310,33): warnin
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(472,29): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(512,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(516,57): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Window.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Window.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(519,12): warning C4200: nonstandard extension used: zero-sized array in struct/union
+  (compiling source file 'Window.cpp')
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\defs.h(519,12):
+  This member will be ignored by a defaulted constructor or copy/move assignment operator
+  
   Generating Code...
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
