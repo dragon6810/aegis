@@ -13,7 +13,7 @@ public:
 
 	float vfov = 65.0;
 	bool ortho = false;
-	float aspect = 4.0 / 3.0;
+	double aspect = 4.0 / 3.0;
 	float hfov = aspect * vfov;
 
 	float maxxdir;

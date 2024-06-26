@@ -28,10 +28,10 @@ void Camera::ReconstructMatrices()
 
 	inv = inv * invpos;
 	
-	hfov = vfov * aspect;
+	hfov = vfov * 1.33333;
 
-	maxxdir = sin(hfov / 2 * DEG2RAD);
-	maxydir = sin(vfov / 2 * DEG2RAD);
+	maxxdir = sin(hfov / 2.0f * DEG2RAD);
+	maxydir = sin(vfov / 2.0f * DEG2RAD);
 }
 
 vec3_t Camera::DirFromScreen(vec2_t screencoord)

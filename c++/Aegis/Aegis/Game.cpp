@@ -34,9 +34,10 @@ void Game::Main()
     camera.position = camp;
     camera.rotation = { 0, -60.0 * DEG2RAD, -45.0 * DEG2RAD };
     camera.vfov = 65.0;
+    camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();
-
+    
     map.Load("valve/maps/test.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
     map.cameraforward = NormalizeVector3({ camf.x - camp.x, camf.y - camp.y, camf.z - camp.z });
@@ -99,8 +100,7 @@ void Game::Tick()
 void Game::Render()
 {
     camera.ReconstructMatrices();
-
-
+    
     window->MakeFullscreenViewport(camera.aspect);
 
     glMatrixMode(GL_PROJECTION);
@@ -120,7 +120,8 @@ void Game::Render()
 
     glPointSize(15.0f);
     vec3_t p;
-    if (map.FineRaycast(camera.position, camera.position + (camera.DirFromScreen(cursorpos) * 10000.0), &p))
+    vec3_t dir = camera.DirFromScreen(cursorpos);
+    if (map.FineRaycast(camera.position, camera.position + (dir * 10000.0), &p))
     {
         glColor3f(0, 0, 1);
         glBegin(GL_POINTS);
