@@ -55,6 +55,8 @@ public:
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
 
+	bool FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection);
+
 	vec3_t LightColor(vec3_t start, vec3_t end);
 
 	void SetEntityToLeaf(int entity, int leaf);
@@ -62,4 +64,6 @@ public:
 	void BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int>& faces);
 private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
+
+	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, int iclipnode);
 };

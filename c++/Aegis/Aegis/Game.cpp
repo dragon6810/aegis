@@ -27,7 +27,7 @@ void Game::Main()
     glEnable(GL_DEPTH_TEST);  // Enable depth test
     glDepthFunc(GL_LEQUAL);   // Specify the depth function
 
-    float d = 300;
+    float d = 60;
     camp = { d, d, d };
     camf = { 0, 0, 0 };
 
@@ -35,7 +35,6 @@ void Game::Main()
     camera.rotation = { 0, -60.0 * DEG2RAD, -45.0 * DEG2RAD };
     camera.vfov = 65.0;
     camera.ortho = false;
-    camera.aspect = (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT;
     camera.ReconstructMatrices();
     
     wad.Load("valve/halflife.wad");
@@ -103,7 +102,8 @@ void Game::Render()
 {
     camera.ReconstructMatrices();
 
-    window->MakeFullscreenViewport((float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT);
+
+    window->MakeFullscreenViewport(camera.aspect);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -118,14 +118,25 @@ void Game::Render()
     
     map.Draw();
 
+    glDisable(GL_DEPTH_TEST);
+
+    glPointSize(15.0f);
+    vec3_t p;
+    if (map.FineRaycast(camera.position, camera.position + (camera.DirFromScreen(cursorpos) * 10000.0), &p))
+    {
+        glColor3f(0, 0, 1);
+        glBegin(GL_POINTS);
+        glVertex3f(p.x, p.y, p.z);
+        glEnd();
+        glColor3f(1, 1, 1);
+    }
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, SCREEN_MED_WIDTH, 0.0, SCREEN_MED_HEIGHT, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    glDisable(GL_DEPTH_TEST);
-
+    
     glColor4f(1, 1, 1, 0.5);
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
@@ -193,5 +204,4 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
     int height;
     Game::GetGame().window->GetWindowDimensions(&width, &height);
     Game::GetGame().cursorpos = { (float)xpos / width, (float)ypos / height };
-    printf("Cursor Pos: %f, %f\n", xpos / width, ypos / height);
 }

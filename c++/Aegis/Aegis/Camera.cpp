@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include <stdio.h>
+
 #include "mathutils.h"
 #include "Quaternion.h"
 
@@ -25,7 +27,7 @@ void Camera::ReconstructMatrices()
 	matrix.val[2][3] = position.z;
 
 	inv = inv * invpos;
-
+	
 	hfov = vfov * aspect;
 
 	maxxdir = sin(hfov / 2 * DEG2RAD);

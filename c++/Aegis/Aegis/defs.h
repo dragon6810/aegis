@@ -460,6 +460,12 @@ typedef struct
 
 typedef struct
 {
+	uint32_t iPlane;	// Plane the clipnode lies along
+	short iChildren[2]; // Negative numbers are contents
+} bspclipnode_t;
+
+typedef struct
+{
 	int nContents;                             // Contents enumeration
 	int nVisOffset;                            // Offset into the visibility lump
 	short nMins[3], nMaxs[3];                  // Defines bounding box
