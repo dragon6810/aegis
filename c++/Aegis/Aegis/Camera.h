@@ -6,15 +6,17 @@
 class Camera
 {
 public:
+	Camera() {}
+
 	// Roll, Pitch, Yaw
 	vec3_t rotation{};
 	vec3_t position{};
 	vec3_t forward{};
 
-	float vfov = 65.0;
-	bool ortho = false;
-	double aspect = 4.0 / 3.0;
-	float hfov = aspect * vfov;
+	float aspect;
+	float vfov;
+	bool ortho;
+	float hfov;
 
 	float maxxdir;
 	float maxydir;

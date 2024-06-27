@@ -120,15 +120,29 @@ void Game::Render()
 
     glPointSize(15.0f);
     vec3_t p;
-    vec3_t dir = camera.DirFromScreen(cursorpos);
-    if (map.FineRaycast(camera.position, camera.position + (dir * 10000.0), &p))
+    vec3_t dir = camera.DirFromScreen(cursorpos) * 32.0;
+
+    glColor3f(1, 0, 1);
+    glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(dir.x, dir.y, dir.z);
+    
+    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(0, 0, 1);
+    glVertex3f(0, 0, 0);
+    glEnd();
+
+    glVertex3f(camera.forward.x, camera.forward.y, camera.forward.z);
+    if (map.FineRaycast(camera.position, camera.position + (dir * 32.0), &p))
     {
-        glColor3f(0, 0, 1);
+       
         glBegin(GL_POINTS);
         glVertex3f(p.x, p.y, p.z);
         glEnd();
-        glColor3f(1, 1, 1);
+        
     }
+    glColor3f(1, 1, 1);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

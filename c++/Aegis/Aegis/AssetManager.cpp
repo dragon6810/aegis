@@ -9,24 +9,18 @@
 GLuint AssetManager::getTexture(const char* texture, const char* source)
 {
 	// source:texture
-	char* fullname = (char*) malloc(strlen(source) + 1 + strlen(texture) + 1);
-	strcpy(fullname, source);
-	strcat(fullname, ":");
-	strcat(fullname, texture);
+	std::string fullname = std::string(source) + std::string(":") + std::string(texture);
 
-	for (int i = 0; i < strlen(fullname); i++)
+	for (int i = 0; i < strlen(fullname.c_str()); i++)
 		fullname[i] = tolower(fullname[i]);
 
 	for (int i = 0; i < numtextures; i++)
 	{
-		if (!strcmp(texturelookup[i], fullname))
+		if (!strcmp(texturelookup[i], fullname.c_str()))
 		{
-			free(fullname);
 			return texturenames[i];
 		}
 	}
-
-	free(fullname);
 
 	return (GLuint) UINT32_MAX;
 }
@@ -34,19 +28,15 @@ GLuint AssetManager::getTexture(const char* texture, const char* source)
 GLuint AssetManager::setTexture(const char* texture, const char* source)
 {
 	// source:texture
-	char* fullname = (char*)malloc(strlen(source) + 1 + strlen(texture) + 1);
-	strcpy(fullname, source);
-	strcat(fullname, ":");
-	strcat(fullname, texture);
+	std::string fullname = std::string(source) + std::string(":") + std::string(texture);
 
-	for (int i = 0; i < strlen(fullname); i++)
+	for (int i = 0; i < strlen(fullname.c_str()); i++)
 		fullname[i] = tolower(fullname[i]);
 
 	for (int i = 0; i < numtextures; i++)
 	{
-		if (!strcmp(texturelookup[i], fullname))
+		if (!strcmp(texturelookup[i], fullname.c_str()))
 		{
-			free(fullname);
 			glDeleteTextures(1, &texturenames[i]);
 			glGenTextures(1, &texturenames[i]);
 			return texturenames[i];
@@ -64,9 +54,8 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 		texturenames = (GLuint*)realloc(texturenames, numtextures * sizeof(GLuint));
 	}
 
-	texturelookup[numtextures - 1] = (char*)malloc(strlen(fullname) + 1);
-	strcpy(texturelookup[numtextures - 1], fullname);
-	free(fullname);
+	texturelookup[numtextures - 1] = (char*)malloc(strlen(fullname.c_str()) + 1);
+	strcpy(texturelookup[numtextures - 1], fullname.c_str());
 
 	glGenTextures(1, &texturenames[numtextures - 1]);
 
