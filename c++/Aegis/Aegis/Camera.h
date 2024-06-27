@@ -11,10 +11,10 @@ public:
 	vec3_t position{};
 	vec3_t forward{};
 
-	float vfov = 65.0;
-	bool ortho = false;
-	double aspect = 4.0 / 3.0;
-	float hfov = aspect * vfov;
+	float vfov;
+	bool ortho;
+	float aspect;
+	float hfov;
 
 	float maxxdir;
 	float maxydir;
