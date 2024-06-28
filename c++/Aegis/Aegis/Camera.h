@@ -12,6 +12,8 @@ public:
 	vec3_t rotation{};
 	vec3_t position{};
 	vec3_t forward{};
+	vec3_t up{};
+	vec3_t right{};
 
 	float aspect;
 	float vfov;

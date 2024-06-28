@@ -22,6 +22,10 @@ void Camera::ReconstructMatrices()
 
 	Vector3 forwardv = matrix * Vector3({ 0, 0, -1 });
 	forward = { -forwardv.get(0), forwardv.get(1), forwardv.get(2) };
+	Vector3 upv = matrix * Vector3({ -1, 0, 0 });
+	up = { -upv.get(0), upv.get(1), upv.get(2) };
+	Vector3 rightv = matrix * Vector3({ 0, -1, 0 });
+	right = { -rightv.get(0), rightv.get(1), rightv.get(2) };
 
 	matrix.val[0][3] = position.x;
 	matrix.val[1][3] = position.y;
@@ -31,20 +35,18 @@ void Camera::ReconstructMatrices()
 	
 	hfov = vfov * aspect;
 
-	maxxdir = -tanf(hfov / 2.0 * DEG2RAD);
 	maxydir = tanf(vfov / 2.0 * DEG2RAD);
+	maxxdir = maxydir * aspect;
 }
 
 vec3_t Camera::DirFromScreen(vec2_t screencoord)
 {
 	float x = Lerp(-maxxdir, maxxdir, screencoord.x);
 	float y = Lerp(maxydir, -maxydir, screencoord.y);
+	float z = 1.0;
 
-	vec3_t dir = { x, y, -1 };
-	Vector3 dirV = matrix * Vector3(dir);
-	//dir = { dirV.get(0), dirV.get(1), dirV.get(2) };
-	//dir = dir - position;
-	//dir = NormalizeVector3(dir);
+	vec3_t dir = right * x + up * y + forward * z;
+	dir = NormalizeVector3(dir);
 
 	return dir;
 }
