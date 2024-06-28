@@ -9,8 +9,9 @@
 
 void Camera::ReconstructMatrices()
 {
-	Quaternion rot = Quaternion::FromAngle(rotation);
-	Quaternion invrot = Quaternion::FromAngle(rotation * -1.0);
+	vec3_t correctedrot = { rotation.x, rotation.y + 90 * DEG2RAD, rotation.z };
+;	Quaternion rot = Quaternion::FromAngle(correctedrot);
+	Quaternion invrot = Quaternion::FromAngle(correctedrot * -1.0);
 
 	matrix = rot.toMat();
 	inv = invrot.toMat();
@@ -41,9 +42,9 @@ vec3_t Camera::DirFromScreen(vec2_t screencoord)
 
 	vec3_t dir = { x, y, -1 };
 	Vector3 dirV = matrix * Vector3(dir);
-	dir = { dirV.get(0), dirV.get(1), dirV.get(2) };
-	dir = dir - position;
-	dir = NormalizeVector3(dir);
+	//dir = { dirV.get(0), dirV.get(1), dirV.get(2) };
+	//dir = dir - position;
+	//dir = NormalizeVector3(dir);
 
 	return dir;
 }

@@ -32,7 +32,9 @@ void Game::Main()
     camf = { 0, 0, 0 };
 
     camera.position = camp;
-    camera.rotation = { 0, -60.0 * DEG2RAD, -45.0 * DEG2RAD };
+    //camera.position = { 0.0, 0.0, 0.0 };
+    camera.rotation = { 0, -85.0 * DEG2RAD, 135.0 * DEG2RAD };
+   // camera.rotation = { 0.0, 0.0, 0.0 };
     camera.vfov = 65.0;
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
@@ -134,7 +136,7 @@ void Game::Render()
     glEnd();
 
     glVertex3f(camera.forward.x, camera.forward.y, camera.forward.z);
-    if (map.FineRaycast(camera.position, camera.position + (dir * 32.0), &p))
+    if (map.FineRaycast(camera.position, camera.position + (camera.forward * 2048.0), &p))
     {
        
         glBegin(GL_POINTS);
