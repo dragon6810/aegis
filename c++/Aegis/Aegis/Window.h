@@ -20,6 +20,7 @@ public:
 	void SetCursorPosCallback(GLFWcursorposfun func);
 	
 	void GetWindowDimensions(int* x, int* y);
+	float GetWindowAspect();
 
 	bool ShouldWindowClose();
 	void SwapBuffers();

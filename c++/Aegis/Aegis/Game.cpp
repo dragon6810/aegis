@@ -211,5 +211,39 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
     int width;
     int height;
     Game::GetGame().window->GetWindowDimensions(&width, &height);
-    Game::GetGame().cursorpos = { (float)xpos / width, (float)ypos / height };
+
+    float windowAspect = (float)width / (float)height;
+    float contentAspect = (float)SCREEN_HIGH_WIDTH / (float)SCREEN_HIGH_HEIGHT;
+
+    float contentWidth;
+    float contentHeight;
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
+
+    if (windowAspect > contentAspect) 
+    {
+        contentHeight = height;
+        contentWidth = height * contentAspect;
+        xOffset = (width - contentWidth) / 2.0f;
+    }
+    else 
+    {
+        contentWidth = width;
+        contentHeight = width / contentAspect;
+        yOffset = (height - contentHeight) / 2.0f;
+    }
+
+    vec2_t pos = { (float)(xpos - xOffset) / contentWidth, (float)(ypos - yOffset) / contentHeight };
+
+    if (pos.x > 1.0)
+        pos.x = 1.0;
+    if (pos.x < 0.0)
+        pos.x = 0.0;
+
+    if (pos.y > 1.0)
+        pos.y = 1.0;
+    if (pos.y < 0.0)
+        pos.y = 0.0;
+
+    Game::GetGame().cursorpos = pos;
 }

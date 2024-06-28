@@ -102,6 +102,14 @@ void Window::GetWindowDimensions(int* x, int* y)
     glfwGetWindowSize(window, x, y);
 }
 
+float Window::GetWindowAspect()
+{
+    int x;
+    int y;
+    glfwGetWindowSize(window, &x, &y);
+    return (float)x / (float)y;
+}
+
 bool Window::ShouldWindowClose()
 {
     return glfwWindowShouldClose(window);
