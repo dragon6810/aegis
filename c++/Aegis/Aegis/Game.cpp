@@ -121,6 +121,12 @@ void Game::Render()
     glDisable(GL_DEPTH_TEST);
 
     glPointSize(15.0f);
+
+    glBegin(GL_POINTS);
+    glColor3f(1, 0, 0);
+    glVertex3f(0, 0, 0);
+    glEnd();
+
     vec3_t p;
     vec3_t dir = camera.DirFromScreen(cursorpos) * 32.0;
 
