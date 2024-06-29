@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#define COLLIDE_EPSILON 0.1
+
 typedef struct
 {
 	vec3_t o; // Origin

@@ -1,6 +1,6 @@
 @BaseClass = Angles
 [
-    angles(string) : "Orientation (X Y Z)" : "0 0 0"
+    angles(string) : "Orientation (Roll Pitch Yaw)" : "0 0 0"
 ]
 
 @BaseClass = Targetname 

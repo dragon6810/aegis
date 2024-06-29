@@ -839,6 +839,25 @@ vec2_t BSPMap::GetLightmapCoords(uint16_t f, vec3_t pos)
 	return lightmapCoords;
 }
 
+int BSPMap::LeafContents(vec3_t point)
+{
+	return LeafContentsRecursive(point, 0);
+}
+
+int BSPMap::LeafContentsRecursive(vec3_t point, int iclipnode)
+{
+	if (iclipnode < 0)
+		return iclipnode;
+
+	bspclipnode_t* clipnode = (bspclipnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_CLIPNODES].nOffset) + iclipnode;
+	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + clipnode->iPlane;
+
+	float t = DotProduct(plane->vNormal, point) - plane->fDist;
+	if (t >= 0)
+		return LeafContentsRecursive(point, clipnode->iChildren[0]);
+	return LeafContentsRecursive(point, clipnode->iChildren[1]);
+}
+
 bool BSPMap::FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection)
 {
 	return FineRaycastRecursive(start, end, intersection, 0);
@@ -853,7 +872,6 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 	}
 	else if (iclipnode < 0)
 	{
-		*intersection = {};
 		return false;
 	}
 
@@ -871,7 +889,17 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 			return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
 	}
 
-	float t = t1 / (t1 - t2);
+	float t;
+	if (t1 < 0)
+		t = (t1 + COLLIDE_EPSILON) / (t1 - t2);
+	else
+		t = (t1 - COLLIDE_EPSILON) / (t1 - t2);
+
+	if (t < 0)
+		t = 0;
+	if (t > 1)
+		t = 1;
+	
 	vec3_t mid = Vector3Lerp(start, end, t);
 	int side = (t1 >= 0) ? 0 : 1;
 

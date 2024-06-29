@@ -55,6 +55,7 @@ public:
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
 
+	int LeafContents(vec3_t point);
 	bool FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection);
 
 	vec3_t LightColor(vec3_t start, vec3_t end);
@@ -65,5 +66,6 @@ public:
 private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 
+	int LeafContentsRecursive(vec3_t point, int iclipnode);
 	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, int iclipnode);
 };
