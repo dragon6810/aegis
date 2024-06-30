@@ -48,6 +48,8 @@ void Game::Main()
 
     font.Load("FONT1", "valve/fonts.wad");
 
+    Mpeg3::LoadCD("valve/media/Half-Life02.mp3");
+
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 

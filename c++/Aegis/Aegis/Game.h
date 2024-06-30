@@ -18,6 +18,8 @@
 
 #include "AudioManager.h"
 
+#include "Mpeg3.h"
+
 #include "Wad.h"
 #include "BSPMap.h"
 
