@@ -25,11 +25,17 @@ typedef struct
 	char pad[4];
 } trackdescriptor_t;
 
-typedef struct
+struct xing_t
 {
-	ubyte_t header[4];
-	std::vector<trackdescriptor_t> tracks; // Final track is always "Lead Out"
-} mcdi_t;
+	char id[4];
+	uint32_t flags;
+	uint32_t frames;
+	uint32_t bytes;
+	ubyte_t toc[100];
+	uint32_t quality;
+
+	std::string lametag;
+};
 
 typedef struct
 {
@@ -38,7 +44,10 @@ typedef struct
 	std::string title;
 	std::string comment;
 	std::string encodedby;
-	mcdi_t mcdi;
+	std::string trackindex;
+	std::string contenttype;
+	uint32_t length;         // Milliseconds
+	xing_t xing;
 	std::vector<sf::Sound> frames;
 } mpeg3_t;
 

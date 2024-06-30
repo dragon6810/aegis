@@ -36,7 +36,7 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 	if (extendhdr)
 		fseek(ptr, 6, SEEK_CUR); // Skip the extended header if there is one
 
-	printf("Mpeg 3 file \"%s\":\n", path.c_str());
+	printf("Mpeg 3 file \"%s\" information:\n", path.c_str());
 	
 	char frameid[4];
 	uint32_t framesize;
@@ -45,6 +45,11 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 	do
 	{
 		fread(frameid, 1, 4, ptr);
+		if (frameid[0] == 0)
+		{
+			fseek(ptr, -3, SEEK_CUR);
+			continue;
+		}
 		fread(&framesize, sizeof(uint32_t), 1, ptr);
 		framesize = SyncSafeToInt(framesize);
 		fread(&frameflags, sizeof(uint16_t), 1, ptr);
@@ -107,14 +112,80 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 		}
 		if ((frameid[0] == 'T') && (frameid[1] == 'R') && (frameid[2] == 'C') && (frameid[3] == 'K'))
 		{
-			std::string track;
 			fread(&textformat, sizeof(ubyte_t), 1, ptr);
-			track = std::string(framesize, 0);
-			fread(&track[0], 1, framesize - 1, ptr);
+			mpeg.trackindex = std::string(framesize, 0);
+			fread(&mpeg.trackindex[0], 1, framesize - 1, ptr);
 
-			printf("\tTrack: %s\n", track.c_str());
+			printf("\tTrack: %s\n", mpeg.trackindex.c_str());
 
 			continue;
+		}
+		if ((frameid[0] == 'T') && (frameid[1] == 'C') && (frameid[2] == 'O') && (frameid[3] == 'N'))
+		{
+			fread(&textformat, sizeof(ubyte_t), 1, ptr);
+			mpeg.contenttype = std::string(framesize, 0);
+			fread(&mpeg.contenttype[0], 1, framesize - 1, ptr);
+
+			printf("\tContent Type: %s\n", mpeg.contenttype.c_str());
+
+			continue;
+		}
+		if ((frameid[0] == 'T') && (frameid[1] == 'L') && (frameid[2] == 'E') && (frameid[3] == 'N'))
+		{
+			fread(&textformat, sizeof(ubyte_t), 1, ptr);
+			std::string text;
+			text = std::string(framesize, 0);
+			fread(&text[0], 1, framesize - 1, ptr);
+			mpeg.length = std::stoi(text);
+
+			uint32_t milliseconds = mpeg.length % 1000;
+			uint32_t seconds = mpeg.length / 1000;
+			uint32_t minutes = seconds / 60;
+			seconds = seconds % 60;
+			uint32_t hours = minutes / 60;
+			minutes = minutes % 60;
+
+			printf("\tLength: %dh:%dm:%ds:%dms\n", hours, minutes, seconds, milliseconds);
+
+			continue;
+		}
+		if ((frameid[0] == 'X') && (frameid[1] == 'i') && (frameid[2] == 'n') && (frameid[3] == 'g'))
+		{
+			fseek(ptr, -4 - sizeof(uint32_t) - sizeof(uint16_t), SEEK_CUR);
+
+			fread(mpeg.xing.id, sizeof(mpeg.xing.id), 1, ptr);
+			fread(&mpeg.xing.flags, sizeof(mpeg.xing.flags), 1, ptr);
+
+			if (mpeg.xing.flags & 0x01000000)
+			{
+				fread(&mpeg.xing.frames, sizeof(mpeg.xing.frames), 1, ptr);
+				mpeg.xing.frames = SwapEndian(mpeg.xing.frames);
+			}
+			if (mpeg.xing.flags & 0x02000000)
+			{
+				fread(&mpeg.xing.bytes, sizeof(mpeg.xing.bytes), 1, ptr);
+				mpeg.xing.bytes = SwapEndian(mpeg.xing.bytes);
+			}
+			if (mpeg.xing.flags & 0x04000000)
+			{
+				fread(mpeg.xing.toc, 1, sizeof(mpeg.xing.toc), ptr);
+			}
+			if (mpeg.xing.flags & 0x08000000)
+			{
+				fread(&mpeg.xing.quality, sizeof(mpeg.xing.quality), 1, ptr);
+				mpeg.xing.quality = SwapEndian(mpeg.xing.quality);
+				printf("\tQuality: %d/100\n", mpeg.xing.quality);
+			}
+
+			mpeg.xing.lametag = std::string(10, 0);
+			fread(&mpeg.xing.lametag[0], 1, 9, ptr);
+			printf("\tLame Tag: \"%s\"", mpeg.xing.lametag.c_str());
+
+			continue;
+		}
+		else
+		{
+			fseek(ptr, -4 - sizeof(uint32_t) - sizeof(uint16_t) + 1, SEEK_CUR);
 		}
 	} while (true);
 
