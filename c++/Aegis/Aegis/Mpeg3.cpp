@@ -179,7 +179,65 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 
 			mpeg.xing.lametag = std::string(10, 0);
 			fread(&mpeg.xing.lametag[0], 1, 9, ptr);
-			printf("\tLame Tag: \"%s\"", mpeg.xing.lametag.c_str());
+			printf("\tEncoder: \"%s\"\n", mpeg.xing.lametag.c_str());
+
+			if (mpeg.xing.lametag[0] != 'L' || mpeg.xing.lametag[1] != 'A' || mpeg.xing.lametag[2] != 'M' || mpeg.xing.lametag[3] != 'E')
+			{
+				printf("*WARNING* Mpeg 3 file \"%s\" uses unsopported encoder \"%s\"! Mpeg 3 files MUST use LAME!\n", path.c_str(), mpeg.xing.lametag.c_str());
+				goto cleanup;
+			}
+
+			sscanf(mpeg.xing.lametag.c_str() + 4, "%u.%u", &mpeg.xing.major, &mpeg.xing.minor);
+
+			ubyte_t infoandvbr;
+			fread(&infoandvbr, sizeof(ubyte_t), 1, ptr);
+			mpeg.xing.infotagrevision = infoandvbr >> 4;
+			mpeg.xing.vbrmethod = infoandvbr & 0x0F;
+
+			ubyte_t lowpassfixed;
+			fread(&lowpassfixed, sizeof(ubyte_t), 1, ptr);
+			mpeg.xing.lowpass = (float)lowpassfixed / 100.0;
+
+			fread(&mpeg.xing.peak, sizeof(mpeg.xing.peak), 1, ptr);
+			fread(&mpeg.xing.radiogain, sizeof(mpeg.xing.radiogain), 1, ptr);
+			fread(&mpeg.xing.audiophilegain, sizeof(mpeg.xing.audiophilegain), 1, ptr);
+			
+			ubyte_t encodingandath;
+			fread(&encodingandath, sizeof(ubyte_t), 1, ptr);
+			mpeg.xing.encodingflags = encodingandath >> 4;
+			mpeg.xing.athtype = encodingandath & 0x0F;
+
+			if (mpeg.xing.vbrmethod == 2)
+				fread(&mpeg.xing.specifiedbr, sizeof(mpeg.xing.specifiedbr), 1, ptr);
+			else
+				fread(&mpeg.xing.minimalbr, sizeof(mpeg.xing.minimalbr), 1, ptr);
+
+			char encoderdelays[3];
+			fread(encoderdelays, 1, sizeof(encoderdelays), ptr);
+			mpeg.xing.encoderdelay = (encoderdelays[1] >> 4) | (encoderdelays[0] << 4);
+			mpeg.xing.encoderpad = (encoderdelays[1] << 8) | encoderdelays[2];
+
+			ubyte_t misc;
+			fread(&misc, sizeof(misc), 1, ptr);
+			mpeg.xing.noiseshaping = misc & 0x03;
+			mpeg.xing.stereomode = misc & 0x1E >> 2;
+			mpeg.xing.unwise = misc & 0x20;
+			mpeg.xing.sourcesamplefreq = misc & 0xC0 >> 6;
+
+			fread(&mpeg.xing.gain, sizeof(mpeg.xing.gain), 1, ptr);
+
+			uint16_t presetandsurround;
+			fread(&presetandsurround, sizeof(presetandsurround), 1, ptr);
+			mpeg.xing.presetused = presetandsurround & 0x07FF;
+			mpeg.xing.surroundinfo = (presetandsurround & 0x3800) >> 11;
+
+			fread(&mpeg.xing.originlen, sizeof(mpeg.xing.originlen), 1, ptr);
+			mpeg.xing.originlen = SwapEndian(mpeg.xing.originlen);
+
+			fread(&mpeg.xing.crcstart, sizeof(mpeg.xing.crcstart), 1, ptr);
+			fread(&mpeg.xing.crcend, sizeof(mpeg.xing.crcend), 1, ptr);
+
+			fread(&mpeg.xing.infocrc, sizeof(mpeg.xing.infocrc), 1, ptr);
 
 			continue;
 		}

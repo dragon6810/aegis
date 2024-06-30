@@ -35,6 +35,31 @@ struct xing_t
 	uint32_t quality;
 
 	std::string lametag;
+	uint32_t major;
+	uint32_t minor;
+	ubyte_t infotagrevision;
+	ubyte_t vbrmethod;
+	float lowpass;
+	float peak;
+	short radiogain;
+	short audiophilegain;
+	ubyte_t encodingflags;
+	ubyte_t athtype;
+	ubyte_t specifiedbr;
+	ubyte_t minimalbr;
+	uint16_t encoderdelay;
+	uint16_t encoderpad;
+	ubyte_t noiseshaping;
+	ubyte_t stereomode;
+	bool unwise;
+	ubyte_t sourcesamplefreq;
+	byte_t gain;
+	uint16_t presetused;
+	ubyte_t surroundinfo;
+	uint32_t originlen;       // Length of the file in bytes given to LAME to be encoded
+	ubyte_t crcstart;		  // The first byte of the first media frame
+	ubyte_t crcend;			  // The last byte of the last media frame
+	uint16_t infocrc;
 };
 
 typedef struct
