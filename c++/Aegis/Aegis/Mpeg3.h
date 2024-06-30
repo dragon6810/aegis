@@ -21,6 +21,24 @@ typedef struct
 
 typedef struct
 {
+	uint32_t starttime; // Index to frame of mpeg3
+	char pad[4];
+} trackdescriptor_t;
+
+typedef struct
+{
+	ubyte_t header[4];
+	std::vector<trackdescriptor_t> tracks; // Final track is always "Lead Out"
+} mcdi_t;
+
+typedef struct
+{
+	std::string artist;
+	std::string album;
+	std::string title;
+	std::string comment;
+	std::string encodedby;
+	mcdi_t mcdi;
 	std::vector<sf::Sound> frames;
 } mpeg3_t;
 

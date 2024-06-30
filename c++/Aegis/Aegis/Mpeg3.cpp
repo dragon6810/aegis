@@ -12,10 +12,6 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 	uint32_t size;
 	mpeg3_t mpeg{};
 
-	std::string artist;
-	std::string album;
-	std::string title;
-
 	ptr = fopen(path.c_str(), "rb");
 	if (ptr == nullptr)
 	{
@@ -56,30 +52,67 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 		if ((frameid[0] == 'T') && (frameid[1] == 'P') && (frameid[2] == 'E') && (frameid[3] == '1'))
 		{
 			fread(&textformat, sizeof(ubyte_t), 1, ptr);
-			artist = std::string(framesize, 0);
-			fread(&artist[0], 1, framesize - 1, ptr);
+			mpeg.artist = std::string(framesize, 0);
+			fread(&mpeg.artist[0], 1, framesize - 1, ptr);
 
-			printf("\tArtist: %s\n", artist.c_str());
+			printf("\tArtist: %s\n", mpeg.artist.c_str());
 
 			continue;
 		}
 		if ((frameid[0] == 'T') && (frameid[1] == 'A') && (frameid[2] == 'L') && (frameid[3] == 'B'))
 		{
 			fread(&textformat, sizeof(ubyte_t), 1, ptr);
-			album = std::string(framesize, 0);
-			fread(&album[0], 1, framesize - 1, ptr);
+			mpeg.album = std::string(framesize, 0);
+			fread(&mpeg.album[0], 1, framesize - 1, ptr);
 
-			printf("\tAlbum: %s\n", album.c_str());
+			printf("\tAlbum: %s\n", mpeg.album.c_str());
 
 			continue;
 		}
 		if ((frameid[0] == 'T') && (frameid[1] == 'I') && (frameid[2] == 'T') && (frameid[3] == '2'))
 		{
 			fread(&textformat, sizeof(ubyte_t), 1, ptr);
-			title = std::string(framesize, 0);
-			fread(&title[0], 1, framesize - 1, ptr);
+			mpeg.title = std::string(framesize, 0);
+			fread(&mpeg.title[0], 1, framesize - 1, ptr);
 
-			printf("\tTitle: %s\n", title.c_str());
+			printf("\tTitle: %s\n", mpeg.title.c_str());
+
+			continue;
+		}
+		if ((frameid[0] == 'C') && (frameid[1] == 'O') && (frameid[2] == 'M') && (frameid[3] == 'M'))
+		{
+			fread(&textformat, sizeof(ubyte_t), 1, ptr);
+			mpeg.comment = std::string(framesize, 0);
+			fread(&mpeg.comment[0], 1, framesize - 1, ptr);
+
+			printf("\tComment: %s\n", mpeg.comment.c_str());
+
+			continue;
+		}
+		if ((frameid[0] == 'T') && (frameid[1] == 'E') && (frameid[2] == 'N') && (frameid[3] == 'C'))
+		{
+			fread(&textformat, sizeof(ubyte_t), 1, ptr);
+			mpeg.encodedby = std::string(framesize, 0);
+			fread(&mpeg.encodedby[0], 1, framesize - 1, ptr);
+
+			printf("\tEncoded By: %s\n", mpeg.encodedby.c_str());
+
+			continue;
+		}
+		if ((frameid[0] == 'M') && (frameid[1] == 'C') && (frameid[2] == 'D') && (frameid[3] == 'I'))
+		{
+			fseek(ptr, 804, SEEK_CUR);
+
+			continue;
+		}
+		if ((frameid[0] == 'T') && (frameid[1] == 'R') && (frameid[2] == 'C') && (frameid[3] == 'K'))
+		{
+			std::string track;
+			fread(&textformat, sizeof(ubyte_t), 1, ptr);
+			track = std::string(framesize, 0);
+			fread(&track[0], 1, framesize - 1, ptr);
+
+			printf("\tTrack: %s\n", track.c_str());
 
 			continue;
 		}
