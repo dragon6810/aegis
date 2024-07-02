@@ -48,7 +48,7 @@ void Game::Main()
 
     font.Load("FONT1", "valve/fonts.wad");
 
-    Mpeg3::LoadCD("valve/media/Half-Life02.mp3");
+    ttf.Load("helvetica.ttf");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -156,6 +156,8 @@ void Game::Render()
     glColor4f(1, 1, 1, 0.5);
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
+
+    ttf.DrawDebug();
 
     glEnable(GL_DEPTH_TEST);
 }

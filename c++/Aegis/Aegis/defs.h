@@ -84,10 +84,25 @@ struct vec3_t
 	}
 };
 
-typedef struct
+struct vec2_t
 {
 	float x, y;
-} vec2_t;
+
+	vec2_t operator-(const vec2_t& a) const
+	{
+		return { x - a.x, y - a.y };
+	}
+
+	vec2_t operator+(const vec2_t& a) const
+	{
+		return { x + a.x, y + a.y };
+	}
+
+	vec2_t operator*(const float& f) const
+	{
+		return { x * f, y * f };
+	}
+};
 
 typedef struct
 {

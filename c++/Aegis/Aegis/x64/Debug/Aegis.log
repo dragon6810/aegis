@@ -1,9 +1,14 @@
-﻿  Mpeg3.cpp
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(156,37): warning C4309: 'argument': truncation of constant value
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(201,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(248,56): warning C4309: 'argument': truncation of constant value
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(253,10): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(271,32): warning C4309: 'argument': truncation of constant value
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Mpeg3.cpp(280,32): warning C4309: 'argument': truncation of constant value
+﻿  TrueTypeFont.cpp
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TrueTypeFont.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TrueTypeFont.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(117,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(132,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(173,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(243,64): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(264,40): warning C4305: 'argument': truncation from 'double' to 'const float'
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

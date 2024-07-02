@@ -25,6 +25,7 @@
 
 #include "Camera.h"
 
+#include "TrueTypeFont.h"
 #include "Font.h"
 
 #include "defs.h"
@@ -87,6 +88,8 @@ private:
 
 	Renderer renderer;
 	Window* window;
+
+	TrueTypeFont ttf;
 
 	vec3_t camp;
 	vec3_t camf;

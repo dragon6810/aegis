@@ -169,6 +169,7 @@
     <ClCompile Include="RotatingEntity.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SpriteEntity.cpp" />
+    <ClCompile Include="TrueTypeFont.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
     <ClCompile Include="WallEntity.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="RotatingEntity.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SpriteEntity.h" />
+    <ClInclude Include="TrueTypeFont.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
     <ClInclude Include="WallEntity.h" />
