@@ -3,6 +3,8 @@
 
 mpeg3_t Mpeg3::LoadCD(std::string path)
 {
+	int i;
+
 	FILE* ptr;
 	id3v2_t id3;
 	bool unsync;
@@ -239,13 +241,321 @@ mpeg3_t Mpeg3::LoadCD(std::string path)
 
 			fread(&mpeg.xing.infocrc, sizeof(mpeg.xing.infocrc), 1, ptr);
 
-			continue;
+			break;
 		}
 		else
 		{
 			fseek(ptr, -4 - sizeof(uint32_t) - sizeof(uint16_t) + 1, SEEK_CUR);
 		}
 	} while (true);
+	
+	i = 0;
+	while(i < mpeg.xing.frames)
+	{
+		uint32_t hdr;
+		uint32_t samplerate; // hz
+		bool padding;
+
+		ubyte_t samplerateindex;
+		ubyte_t channelmode;
+		ubyte_t modeextension;
+		bool copyright;
+		bool original;
+
+		uint32_t numframes;
+		std::vector<float> framedata;
+		do
+		{
+			fread(&hdr, sizeof(hdr), 1, ptr);
+			hdr = SwapEndian(hdr);
+			fseek(ptr, -1 * sizeof(hdr) + 1, SEEK_CUR);
+		} while ((hdr & 0xFFE00000) != 0xFFE00000);
+		fseek(ptr, sizeof(hdr) - 1, SEEK_CUR);
+
+		ubyte_t version = (hdr & 0x00180000) >> 19;
+		ubyte_t layer = (hdr & 0x00060000) >> 17;
+
+		if (version == 1 || layer == 0)
+		{
+			fseek(ptr, -1 * sizeof(hdr) + 1, SEEK_CUR);
+			continue;
+		}
+
+		switch (version)
+		{
+		case 0:
+			version = 3;
+			break;
+		case 2:
+			version = 2;
+			break;
+		case 3:
+			version = 1;
+			break;
+		default:
+			break;
+		}
+		layer = 3 - layer + 1;
+
+		ubyte_t brindex = (hdr & 0x0000F000) >> 12;
+		int kbps;
+		switch (brindex)
+		{
+		case 0:
+			goto skip; // Can't be bothered with free bitrates
+			break;
+		case 1:
+			if (version == 1 || layer == 1)
+				kbps = 32;
+			else
+				kbps = 8;
+			break;
+		case 2:
+			if (version == 1 && layer == 1)
+				kbps = 64;
+			else if (version == 1 && layer == 2)
+				kbps = 48;
+			else if (version == 1 && layer == 3)
+				kbps = 40;
+			else if (version == 2 && layer == 1)
+				kbps = 40;
+			else
+				kbps = 16;
+			break;
+		case 3:
+			if (version == 1 && layer == 1)
+				kbps = 96;
+			else if (version == 1 && layer == 2)
+				kbps = 56;
+			else if (version == 1 && layer == 3)
+				kbps = 48;
+			else if (version == 2 && layer == 1)
+				kbps = 56;
+			else
+				kbps = 24;
+			break;
+		case 4:
+			if (version == 1 && layer == 1)
+				kbps = 128;
+			else if (version == 1 && layer == 2)
+				kbps = 64;
+			else if (version == 1 && layer == 3)
+				kbps = 56;
+			else if (version == 2 && layer == 1)
+				kbps = 64;
+			else
+				kbps = 32;
+			break;
+		case 5:
+			if (version == 1 && layer == 1)
+				kbps = 160;
+			else if (version == 1 && layer == 2)
+				kbps = 80;
+			else if (version == 1 && layer == 3)
+				kbps = 64;
+			else if (version == 2 && layer == 1)
+				kbps = 80;
+			else
+				kbps = 40;
+			break;
+		case 6:
+			if (version == 1 && layer == 1)
+				kbps = 192;
+			else if (version == 1 && layer == 2)
+				kbps = 96;
+			else if (version == 1 && layer == 3)
+				kbps = 80;
+			else if (version == 2 && layer == 1)
+				kbps = 96;
+			else
+				kbps = 48;
+			break;
+		case 7:
+			if (version == 1 && layer == 1)
+				kbps = 224;
+			else if (version == 1 && layer == 2)
+				kbps = 112;
+			else if (version == 1 && layer == 3)
+				kbps = 96;
+			else if (version == 2 && layer == 1)
+				kbps = 112;
+			else
+				kbps = 56;
+			break;
+		case 8:
+			if (version == 1 && layer == 1)
+				kbps = 256;
+			else if (version == 1 && layer == 2)
+				kbps = 128;
+			else if (version == 1 && layer == 3)
+				kbps = 112;
+			else if (version == 2 && layer == 1)
+				kbps = 128;
+			else
+				kbps = 64;
+			break;
+		case 9:
+			if (version == 1 && layer == 1)
+				kbps = 288;
+			else if (version == 1 && layer == 2)
+				kbps = 160;
+			else if (version == 1 && layer == 3)
+				kbps = 128;
+			else if (version == 2 && layer == 1)
+				kbps = 144;
+			else
+				kbps = 80;
+			break;
+		case 10:
+			if (version == 1 && layer == 1)
+				kbps = 320;
+			else if (version == 1 && layer == 2)
+				kbps = 192;
+			else if (version == 1 && layer == 3)
+				kbps = 160;
+			else if (version == 2 && layer == 1)
+				kbps = 160;
+			else
+				kbps = 96;
+			break;
+		case 11:
+			if (version == 1 && layer == 1)
+				kbps = 352;
+			else if (version == 1 && layer == 2)
+				kbps = 224;
+			else if (version == 1 && layer == 3)
+				kbps = 192;
+			else if (version == 2 && layer == 1)
+				kbps = 176;
+			else
+				kbps = 112;
+			break;
+		case 12:
+			if (version == 1 && layer == 1)
+				kbps = 384;
+			else if (version == 1 && layer == 2)
+				kbps = 256;
+			else if (version == 1 && layer == 3)
+				kbps = 224;
+			else if (version == 2 && layer == 1)
+				kbps = 192;
+			else
+				kbps = 128;
+			break;
+		case 13:
+			if (version == 1 && layer == 1)
+				kbps = 416;
+			else if (version == 1 && layer == 2)
+				kbps = 320;
+			else if (version == 1 && layer == 3)
+				kbps = 256;
+			else if (version == 2 && layer == 1)
+				kbps = 224;
+			else
+				kbps = 144;
+			break;
+		case 14:
+			if (version == 1 && layer == 1)
+				kbps = 448;
+			else if (version == 1 && layer == 2)
+				kbps = 384;
+			else if (version == 1 && layer == 3)
+				kbps = 320;
+			else if (version == 2 && layer == 1)
+				kbps = 256;
+			else
+				kbps = 160;
+			break;
+		case 15:
+			goto skip; // Bad bitrate
+			break;
+		default:
+			break;
+		}
+		
+		if (layer == 2)
+		{
+			if (kbps < 64 && (mpeg.xing.stereomode == 1 || mpeg.xing.stereomode == 2 || mpeg.xing.stereomode == 6))
+				goto skip;
+			if (kbps == 80 && (mpeg.xing.stereomode == 1 || mpeg.xing.stereomode == 2 || mpeg.xing.stereomode == 6))
+				goto skip;
+			if (kbps > 192 && mpeg.xing.stereomode == 0)
+				goto skip;
+		}
+
+		samplerateindex = (hdr & 0x00000C00) >> 10;
+		switch (samplerateindex)
+		{
+		case 0:
+			switch (version)
+			{
+			case 1:
+				samplerate = 44100;
+				break;
+			case 2:
+				samplerate = 22050;
+				break;
+			case 3:
+				samplerate = 11025;
+				break;
+			default:
+				break;
+			}
+			break;
+		case 1:
+			switch (version)
+			{
+			case 1:
+				samplerate = 48000;
+				break;
+			case 2:
+				samplerate = 24000;
+				break;
+			case 3:
+				samplerate = 12000;
+				break;
+			default:
+				break;
+			}
+			break;
+		case 2:
+			switch (version)
+			{
+			case 1:
+				samplerate = 32000;
+				break;
+			case 2:
+				samplerate = 16000;
+				break;
+			case 3:
+				samplerate = 8000;
+				break;
+			default:
+				break;
+			}
+			break;
+		case 3:
+			goto skip;
+			break;
+		default:
+			break;
+		}
+
+		padding = hdr & 0x00000200;
+
+		channelmode = (hdr & 0x000000C0) >> 6;
+		modeextension = (hdr & 0x00000030) >> 4;
+
+		copyright = hdr & 0x00000008;
+		original = hdr & 0x00000004;
+
+		numframes = 144 * kbps / samplerate;
+
+		i++;
+
+	skip:
+		continue;
+	}
 
 	cleanup:
 	fclose(ptr);
