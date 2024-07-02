@@ -10,6 +10,50 @@
 class TrueTypeFont
 {
 private:
+	typedef int fixed32_t;
+
+#pragma pack(push, 1)
+	struct hdr_t
+	{
+		fixed32_t version;
+		fixed32_t revision;
+		uint32_t checksumadj;
+		uint32_t magic;       // 0x5F0F3CF5
+		uint16_t flags;
+		uint16_t emsize;
+		int64_t createddate;
+		int64_t modifieddate;
+		int16_t xmin;
+		int16_t ymin;
+		int16_t xmax;
+		int16_t ymax;
+		uint16_t macstyle;
+		uint16_t smallestsize;
+		int16_t directionhint;
+		int16_t locaformat;
+		int16_t glyphformat;
+	};
+
+#pragma pack(push, 1)
+	struct maxp_t
+	{
+		fixed32_t version;
+		uint16_t numglyphs;
+		uint16_t maxpoints;
+		uint16_t maxcontours;
+		uint16_t maxcomponentpoints;
+		uint16_t maxcomponentcontours;
+		uint16_t maxzones;
+		uint16_t maxtwilightpoints;
+		uint16_t maxstorage;
+		uint16_t maxfunctiondefs;
+		uint16_t maxinstructiondefs;
+		uint16_t maxstackelements;
+		uint16_t maxinstructionsize;
+		uint16_t maxcomponentel;
+		uint16_t maxcomponentdepth;
+	};
+
 #pragma pack(push, 1)
 	struct glyphdesc_t
 	{
@@ -19,12 +63,26 @@ private:
 		int16_t xmax;
 		int16_t ymax;
 	};
+
+	struct line_t
+	{
+		uint32_t p0;
+		uint32_t p1;
+	};
+
+	struct bezier_t
+	{
+		uint32_t p0;
+		uint32_t p1;
+		uint32_t p2;
+	};
 public:
 	struct glyph_t
 	{
 		glyphdesc_t desc;
-		std::vector<int> contourendindices;
 		std::vector<vec2_t> points;
+		std::vector<line_t> lines;
+		std::vector<bezier_t> beziers;
 	};
 
 	bool Load(std::string name);
@@ -50,9 +108,12 @@ private:
 		uint32_t length;
 	};
 
+	hdr_t hdr;
+	maxp_t maxp;
 	std::vector<glyph_t> glyfs;
 
 	static void SwapEndian(void* data, size_t size);
+	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
 
 	void LoadGlyph(FILE* ptr);
 	void LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);

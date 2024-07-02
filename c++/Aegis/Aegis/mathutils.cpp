@@ -39,6 +39,21 @@ vec3_t Vector3Lerp(vec3_t a, vec3_t b, float t)
     return v;
 }
 
+vec2_t Vector2Lerp(vec2_t a, vec2_t b, float t)
+{
+    vec2_t v;
+    v.x = a.x + (b.x - a.x) * t;
+    v.y = a.y + (b.y - a.y) * t;
+    return v;
+}
+
+vec2_t Vector2Bezier(vec2_t p0, vec2_t p1, vec2_t p2, float t)
+{
+    vec2_t a = Vector2Lerp(p0, p1, t);
+    vec2_t b = Vector2Lerp(p1, p2, t);
+    return Vector2Lerp(a, b, t);
+}
+
 float Lerp(float a, float b, float t)
 {
     return a + (b - a) * t;

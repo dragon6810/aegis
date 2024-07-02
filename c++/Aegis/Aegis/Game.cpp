@@ -48,7 +48,7 @@ void Game::Main()
 
     font.Load("FONT1", "valve/fonts.wad");
 
-    ttf.Load("JetBrainsMono-Bold.ttf");
+    ttf.Load("helvetica.ttf");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

@@ -2,15 +2,22 @@
 
 #include <GL/glew.h>
 
+#include <string>
+#include <unordered_map>
+
+#include "mathutils.h"
+
 #include "Game.h"
 
 bool TrueTypeFont::Load(std::string name)
 {
 	int i;
-
 	FILE* ptr;
 	offsetsubtable_t offsettable;
 	std::vector<tabledir_t> tabledirs;
+	std::unordered_map<std::string, int> tagdirs;
+	std::vector<uint32_t> localengths;
+	std::vector<uint32_t> locaoffsets;
 
 	uint16_t glyfoffs;
 
@@ -35,11 +42,83 @@ bool TrueTypeFont::Load(std::string name)
 		SwapEndian(&tabledirs[i].offset, sizeof(tabledirs[i].offset));
 		SwapEndian(&tabledirs[i].length, sizeof(tabledirs[i].length));
 
-		if (tabledirs[i].tag[0] == 'g' && tabledirs[i].tag[1] == 'l' && tabledirs[i].tag[2] == 'y' && tabledirs[i].tag[3] == 'f')
-			glyfoffs = i;
+		std::string tag(4, 0);
+		tag[0] = tabledirs[i].tag[0];
+		tag[1] = tabledirs[i].tag[1];
+		tag[2] = tabledirs[i].tag[2];
+		tag[3] = tabledirs[i].tag[3];
+		tagdirs[tag] = i;
+	}
+	
+	int locaoffsetsize;
+	fseek(ptr, tabledirs[tagdirs["head"]].offset, SEEK_SET);
+	fread(&hdr, sizeof(hdr), 1, ptr);
+	SwapEndian(&hdr.version, sizeof(hdr.version));
+	SwapEndian(&hdr.revision, sizeof(hdr.revision));
+	SwapEndian(&hdr.checksumadj, sizeof(hdr.checksumadj));
+	SwapEndian(&hdr.magic, sizeof(hdr.magic));
+	SwapEndian(&hdr.flags, sizeof(hdr.flags));
+	SwapEndian(&hdr.emsize, sizeof(hdr.emsize));
+	SwapEndian(&hdr.createddate, sizeof(hdr.createddate));
+	SwapEndian(&hdr.modifieddate, sizeof(hdr.modifieddate));
+	SwapEndian(&hdr.xmin, sizeof(hdr.xmin));
+	SwapEndian(&hdr.ymin, sizeof(hdr.ymin));
+	SwapEndian(&hdr.xmax, sizeof(hdr.xmax));
+	SwapEndian(&hdr.ymax, sizeof(hdr.ymax));
+	SwapEndian(&hdr.macstyle, sizeof(hdr.macstyle));
+	SwapEndian(&hdr.smallestsize, sizeof(hdr.smallestsize));
+	SwapEndian(&hdr.directionhint, sizeof(hdr.directionhint));
+	SwapEndian(&hdr.locaformat, sizeof(hdr.locaformat));
+	SwapEndian(&hdr.glyphformat, sizeof(hdr.glyphformat));
+	locaoffsetsize = hdr.locaformat ? 4 : 2;
+
+	fseek(ptr, tabledirs[tagdirs["maxp"]].offset, SEEK_SET);
+	fread(&maxp, sizeof(maxp), 1, ptr);
+	SwapEndian(&maxp.version, sizeof(maxp.version));
+	SwapEndian(&maxp.numglyphs, sizeof(maxp.numglyphs));
+	SwapEndian(&maxp.maxpoints, sizeof(maxp.maxpoints));
+	SwapEndian(&maxp.maxcontours, sizeof(maxp.maxcontours));
+	SwapEndian(&maxp.maxcomponentpoints, sizeof(maxp.maxcomponentpoints));
+	SwapEndian(&maxp.maxcomponentcontours, sizeof(maxp.maxcomponentcontours));
+	SwapEndian(&maxp.maxzones, sizeof(maxp.maxzones));
+	SwapEndian(&maxp.maxtwilightpoints, sizeof(maxp.maxtwilightpoints));
+	SwapEndian(&maxp.maxstorage, sizeof(maxp.maxstorage));
+	SwapEndian(&maxp.maxfunctiondefs, sizeof(maxp.maxfunctiondefs));
+	SwapEndian(&maxp.maxinstructiondefs, sizeof(maxp.maxinstructiondefs));
+	SwapEndian(&maxp.maxstackelements, sizeof(maxp.maxstackelements));
+	SwapEndian(&maxp.maxinstructionsize, sizeof(maxp.maxinstructionsize));
+	SwapEndian(&maxp.maxcomponentel, sizeof(maxp.maxcomponentel));
+	SwapEndian(&maxp.maxcomponentdepth, sizeof(maxp.maxcomponentdepth));
+
+	localengths.resize(maxp.numglyphs + 1);
+	locaoffsets.resize(maxp.numglyphs + 1);
+
+	fseek(ptr, tabledirs[tagdirs["loca"]].offset, SEEK_SET);
+	for (i = 0; i < maxp.numglyphs + 1; i++)
+	{
+		uint32_t offset;
+		if (locaoffsetsize == 2)
+		{
+			uint16_t offs;
+			fread(&offs, sizeof(offs), 1, ptr);
+			SwapEndian(&offs, sizeof(offs));
+			offset = offs;
+		}
+		else
+		{
+			uint32_t offs;
+			fread(&offs, sizeof(offs), 1, ptr);
+			SwapEndian(&offs, sizeof(offs));
+			offset = offs;
+		}
+
+		locaoffsets[i] = offset;
+		//fread(&localengths[i], sizeof(localengths[i]), 1, ptr);
+		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
-	fseek(ptr, tabledirs[glyfoffs].offset, SEEK_SET);
+	int c = 39;
+	fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[c] << 1), SEEK_SET);
 	LoadGlyph(ptr);
 
 	fclose(ptr);
@@ -55,6 +134,31 @@ void TrueTypeFont::SwapEndian(void* data, size_t size)
 		bytes[i] = bytes[size - 1 - i];
 		bytes[size - 1 - i] = temp;
 	}
+}
+
+void TrueTypeFont::DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2)
+{
+	const int res = 32;
+
+	int i;
+
+	float tstep = 1.0 / (float) res;
+
+	glBegin(GL_LINES);
+
+	float t = 0.0;
+	for (i = 0; i < res; i++)
+	{
+		vec2_t a = Vector2Bezier(p0, p1, p2, t);
+		vec2_t b = Vector2Bezier(p0, p1, p2, t + tstep);
+
+		glVertex2f(a.x, a.y);
+		glVertex2f(b.x, b.y);
+
+		t += tstep;
+	}
+
+	glEnd();
 }
 
 void TrueTypeFont::LoadGlyph(FILE* ptr)
@@ -99,12 +203,10 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	std::vector<vec2_t> points;
 
 	contourends.resize(desc.ncontours);
-	glyf.contourendindices.resize(desc.ncontours);
 	for (i = 0; i < contourends.size(); i++)
 	{
 		fread(&contourends[i], sizeof(contourends[i]), 1, ptr);
 		SwapEndian(&contourends[i], sizeof(contourends[i]));
-		glyf.contourendindices[i] = contourends[i];
 	}
 
 	fread(&instructionlength, sizeof(instructionlength), 1, ptr);
@@ -193,9 +295,73 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 
 		points[i].y = ycoords[i];
 	}
+
+	glyf.points = points;
+
+	int cstart = 0;
+	for (i = 0; i < contourends.size(); i++)
+	{
+		int npoints = contourends[i] - cstart + 1;
+		for (j = cstart; j < cstart + npoints; j++)
+		{
+			int nextp = (j + 1) >= (cstart + npoints) ? cstart : j + 1;
+			ubyte_t curflags = flags[j];
+			ubyte_t nextflags = flags[nextp];
+
+			if (~curflags & 0x01) // Is the current point a control point? If so, skip
+				continue;
+
+			if (nextflags & 0x01)
+			{
+				line_t line;
+				line.p0 = j;
+				line.p1 = nextp;
+
+				glyf.lines.push_back(line);
+			}
+			else
+			{
+				int next2p = cstart + ((j - cstart + 2) % npoints);
+				ubyte_t next2flags = flags[next2p];
+
+				if (next2flags & 0x01)
+				{
+					bezier_t bezier;
+					bezier.p0 = j;
+					bezier.p1 = nextp;
+					bezier.p2 = next2p;
+					glyf.beziers.push_back(bezier);
+				}
+				else
+				{
+					while (~next2flags & 0x01)
+					{
+						vec2_t newp = Vector2Lerp(glyf.points[nextp], glyf.points[next2p], 0.5);
+
+						bezier_t bezier;
+						bezier.p0 = j;
+						bezier.p1 = nextp;
+						bezier.p2 = glyf.points.size();
+
+						glyf.beziers.push_back(bezier);
+
+						glyf.points.push_back(newp);
+
+						j = nextp;
+						curflags = flags[j];
+						nextp = next2p;
+						nextflags = flags[nextp];
+						next2p = cstart + ((next2p - cstart + 2) % npoints);
+						next2flags = flags[next2p];
+					}
+				}
+			}
+		}
+
+		cstart += npoints;
+	}
 	
 	glyf.desc = desc;
-	glyf.points = points;
 	glyfs.push_back(glyf);
 }
 
@@ -221,30 +387,36 @@ void TrueTypeFont::DrawDebug()
 
 	glBegin(GL_LINES);
 	cstart = 0;
-	for (i = 0; i < glyfs[g].contourendindices.size(); i++)
+	for (i = 0; i < glyfs[g].lines.size(); i++)
 	{
-		npoints = glyfs[g].contourendindices[i] - cstart + 1;
-		points.clear();
-		for (j = cstart; j < cstart + npoints; j++)
-		{
-			vec2_t p = glyfs[g].points[j] * (1.0 / 10.0);
-			p.x = p.x + SCREEN_MED_WIDTH / 2;
-			p.y = p.y + SCREEN_MED_HEIGHT / 2;
-			points.push_back(p);
-		}
+		vec2_t p0 = glyfs[g].points[glyfs[g].lines[i].p0] * (1.0 / 10.0);
+		vec2_t p1 = glyfs[g].points[glyfs[g].lines[i].p1] * (1.0 / 10.0);
 
-		for (j = 0; j < points.size(); j++)
-		{
-			vec2_t p1 = points[j];
-			vec2_t p2 = points[(j + 1) % points.size()];
+		p0.x += SCREEN_MED_WIDTH >> 1;
+		p0.y += SCREEN_MED_HEIGHT >> 1;
+		p1.x += SCREEN_MED_WIDTH >> 1;
+		p1.y += SCREEN_MED_HEIGHT >> 1;
 
-			glVertex2f(p1.x, p1.y);
-			glVertex2f(p2.x, p2.y);
-		}
-
-		cstart += npoints;
+		glVertex2f(p0.x, p0.y);
+		glVertex2f(p1.x, p1.y);
 	}
 	glEnd();
+
+	for (i = 0; i < glyfs[g].beziers.size(); i++)
+	{
+		vec2_t p0 = glyfs[g].points[glyfs[g].beziers[i].p0] * (1.0 / 10.0);
+		vec2_t p1 = glyfs[g].points[glyfs[g].beziers[i].p1] * (1.0 / 10.0);
+		vec2_t p2 = glyfs[g].points[glyfs[g].beziers[i].p2] * (1.0 / 10.0);
+
+		p0.x += SCREEN_MED_WIDTH >> 1;
+		p0.y += SCREEN_MED_HEIGHT >> 1;
+		p1.x += SCREEN_MED_WIDTH >> 1;
+		p1.y += SCREEN_MED_HEIGHT >> 1;
+		p2.x += SCREEN_MED_WIDTH >> 1;
+		p2.y += SCREEN_MED_HEIGHT >> 1;
+
+		DrawBezier(p0, p1, p2);
+	}
 
 	glPointSize(5.0);
 	glBegin(GL_POINTS);
