@@ -131,38 +131,33 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	xcoords.resize(numpoints);
 	for (i = 0; i < numpoints; i++)
 	{
-		if (xcoords[i] == 0)
+		if (flags[i] & 0x02)
 		{
-			if (flags[i] & 0x02)
+			if (i != 0)
+				xcoords[i] = xcoords[i - 1];
+
+			int val;
+			ubyte_t b;
+			fread(&b, 1, 1, ptr);
+			val = b;
+
+			if (flags[i] & 0x10)
+				val = -val;
+
+			xcoords[i] += val;
+		}
+		else
+		{
+			if (i != 0)
+				xcoords[i] = xcoords[i - 1];
+
+			if(!(flags[i] & 0x10))
 			{
-				ubyte_t val;
+				int16_t val;
 				fread(&val, sizeof(val), 1, ptr);
-				xcoords[i] = val;
+				SwapEndian(&val, sizeof(val));
 
-				if (flags[i] & 0x10)
-					xcoords[i] = -xcoords[i];
-
-				if (i != 0)
-					xcoords[i] = xcoords[i - 1] + xcoords[i];
-			}
-			else
-			{
-				if (flags[i] & 0x10)
-				{
-					if (i == 0)
-						xcoords[i] = 0;
-					else
-						xcoords[i] = xcoords[i - 1];
-				}
-				else
-				{
-					int16_t val;
-					fread(&val, sizeof(val), 1, ptr);
-					xcoords[i] = val;
-
-					if (i != 0)
-						xcoords[i] = xcoords[i - 1] + val;
-				}
+				xcoords[i] += val;
 			}
 		}
 
@@ -172,35 +167,33 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	ycoords.resize(numpoints);
 	for (i = 0; i < numpoints; i++)
 	{
-		if (ycoords[i] == 0)
+		if (flags[i] & 0x04)
 		{
-			if (flags[i] & 0x04)
+			if (i != 0)
+				ycoords[i] = ycoords[i - 1];
+
+			int val;
+			ubyte_t b;
+			fread(&b, 1, 1, ptr);
+			val = b;
+
+			if (flags[i] & 0x20)
+				val = -val;
+
+			ycoords[i] += val;
+		}
+		else
+		{
+			if (i != 0)
+				ycoords[i] = ycoords[i - 1];
+
+			if (!(flags[i] & 0x20))
 			{
-				ubyte_t val;
+				int16_t val;
 				fread(&val, sizeof(val), 1, ptr);
-				ycoords[i] = val;
+				SwapEndian(&val, sizeof(val));
 
-				if (flags[i] & 0x20)
-					ycoords[i] = -ycoords[i];
-			}
-			else
-			{
-				if (flags[i] & 0x20)
-				{
-					if (i == 0)
-						ycoords[i] = 0;
-					else
-						ycoords[i] = ycoords[i - 1];
-				}
-				else
-				{
-					int16_t val;
-					fread(&val, sizeof(val), 1, ptr);
-					ycoords[i] = val;
-
-					if (i != 0)
-						ycoords[i] = ycoords[i - 1] + val;
-				}
+				ycoords[i] += val;
 			}
 		}
 
@@ -240,7 +233,7 @@ void TrueTypeFont::DrawDebug()
 		points.clear();
 		for (j = cstart; j < cstart + npoints; j++)
 		{
-			vec2_t p = glyfs[g].points[j < npoints ? j : cstart] * (1.0 / 1000.0);
+			vec2_t p = glyfs[g].points[j] * (1.0 / 10.0);
 			p.x = p.x + SCREEN_MED_WIDTH / 2;
 			p.y = p.y + SCREEN_MED_HEIGHT / 2;
 			points.push_back(p);
@@ -254,6 +247,8 @@ void TrueTypeFont::DrawDebug()
 			glVertex2f(p1.x, p1.y);
 			glVertex2f(p2.x, p2.y);
 		}
+
+		cstart += npoints;
 	}
 	glEnd();
 
@@ -261,7 +256,7 @@ void TrueTypeFont::DrawDebug()
 	glBegin(GL_POINTS);
 	for (i = 0; i < glyfs[g].points.size(); i++)
 	{
-		vec2_t p = glyfs[g].points[i] * (1.0 / 1000.0);
+		vec2_t p = glyfs[g].points[i] * (1.0 / 10.0);
 		p.x = p.x + SCREEN_MED_WIDTH / 2;
 		p.y = p.y + SCREEN_MED_HEIGHT / 2;
 		glVertex2f(p.x, p.y);

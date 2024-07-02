@@ -8,7 +8,7 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4
   
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(117,16): warning C4018: '<': signed/unsigned mismatch
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(132,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(173,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(243,64): warning C4305: 'argument': truncation from 'double' to 'const float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(264,40): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(168,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(236,41): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(259,40): warning C4305: 'argument': truncation from 'double' to 'const float'
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

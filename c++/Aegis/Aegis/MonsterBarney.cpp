@@ -10,8 +10,7 @@ void MonsterBarney::Init()
 	model.map = map;
 	model.Load("valve/models/barney.mdl");
 	model.SetPosition(position.x, position.y, position.z);
-	model.startseq(0);
-	model.Say("barney/ba_bring.wav");
+	model.startseq(4);
 }
 
 void MonsterBarney::Think(float deltatime)
