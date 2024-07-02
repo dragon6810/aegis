@@ -131,26 +131,23 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	xcoords.resize(numpoints);
 	for (i = 0; i < numpoints; i++)
 	{
+		if (i != 0)
+			xcoords[i] = xcoords[i - 1];
+
 		if (flags[i] & 0x02)
 		{
-			if (i != 0)
-				xcoords[i] = xcoords[i - 1];
-
 			int val;
 			ubyte_t b;
 			fread(&b, 1, 1, ptr);
 			val = b;
 
-			if (flags[i] & 0x10)
+			if (~flags[i] & 0x10)
 				val = -val;
 
 			xcoords[i] += val;
 		}
 		else
 		{
-			if (i != 0)
-				xcoords[i] = xcoords[i - 1];
-
 			if(!(flags[i] & 0x10))
 			{
 				int16_t val;
@@ -167,26 +164,23 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	ycoords.resize(numpoints);
 	for (i = 0; i < numpoints; i++)
 	{
+		if (i != 0)
+			ycoords[i] = ycoords[i - 1];
+
 		if (flags[i] & 0x04)
 		{
-			if (i != 0)
-				ycoords[i] = ycoords[i - 1];
-
 			int val;
 			ubyte_t b;
 			fread(&b, 1, 1, ptr);
 			val = b;
 
-			if (flags[i] & 0x20)
+			if (~flags[i] & 0x20)
 				val = -val;
 
 			ycoords[i] += val;
 		}
 		else
 		{
-			if (i != 0)
-				ycoords[i] = ycoords[i - 1];
-
 			if (!(flags[i] & 0x20))
 			{
 				int16_t val;
@@ -259,7 +253,7 @@ void TrueTypeFont::DrawDebug()
 		vec2_t p = glyfs[g].points[i] * (1.0 / 10.0);
 		p.x = p.x + SCREEN_MED_WIDTH / 2;
 		p.y = p.y + SCREEN_MED_HEIGHT / 2;
-		glVertex2f(p.x, p.y);
+		//glVertex2f(p.x, p.y);
 	}
 	glEnd();
 	glColor3f(1, 1, 1);
