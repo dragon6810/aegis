@@ -117,7 +117,7 @@ bool TrueTypeFont::Load(std::string name)
 		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
-	int c = 39;
+	int c = 40;
 	fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[c] << 1), SEEK_SET);
 	LoadGlyph(ptr);
 
@@ -138,7 +138,7 @@ void TrueTypeFont::SwapEndian(void* data, size_t size)
 
 void TrueTypeFont::DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2)
 {
-	const int res = 32;
+	const int res = 16;
 
 	int i;
 
@@ -295,10 +295,32 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 
 		points[i].y = ycoords[i];
 	}
+	
+	int cstart = 0;
+	for (i = 0; i < contourends.size(); i++)
+	{
+		int npoints = contourends[i] - cstart + 1;
+		for (j = cstart; j < cstart + npoints; j++)
+		{
+			npoints = contourends[i] - cstart + 1;
+			int nextp = cstart + ((j - cstart + 1) % npoints);
+			ubyte_t curflags = flags[j];
+			ubyte_t nextflags = flags[nextp];
+
+			if ((~curflags & 0x01) && (~nextflags & 0x01)) // Two consecutive control points? Insert a point in between them.
+			{
+				vec2_t p = Vector2Lerp(points[j], points[nextp], 0.5);
+				points.insert(points.begin() + nextp, p);
+				flags.insert(flags.begin() + nextp, 0x01); // New point should be on-curve
+				contourends[i]++;
+				j++;
+			}
+		}
+	}
 
 	glyf.points = points;
 
-	int cstart = 0;
+	cstart = 0;
 	for (i = 0; i < contourends.size(); i++)
 	{
 		int npoints = contourends[i] - cstart + 1;
@@ -331,29 +353,6 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 					bezier.p1 = nextp;
 					bezier.p2 = next2p;
 					glyf.beziers.push_back(bezier);
-				}
-				else
-				{
-					while (~next2flags & 0x01)
-					{
-						vec2_t newp = Vector2Lerp(glyf.points[nextp], glyf.points[next2p], 0.5);
-
-						bezier_t bezier;
-						bezier.p0 = j;
-						bezier.p1 = nextp;
-						bezier.p2 = glyf.points.size();
-
-						glyf.beziers.push_back(bezier);
-
-						glyf.points.push_back(newp);
-
-						j = nextp;
-						curflags = flags[j];
-						nextp = next2p;
-						nextflags = flags[nextp];
-						next2p = cstart + ((next2p - cstart + 2) % npoints);
-						next2flags = flags[next2p];
-					}
 				}
 			}
 		}
