@@ -119,9 +119,11 @@ bool TrueTypeFont::Load(std::string name)
 		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
-	int c = IndexCMap(L'i');
-	fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[c] << 1), SEEK_SET);
-	LoadGlyph(ptr);
+	for (i = 0; i < maxp.numglyphs - 1; i++)
+	{
+		fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[i] << 1), SEEK_SET);
+		LoadGlyph(ptr);
+	}
 
 	fclose(ptr);
 	return true;
