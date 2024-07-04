@@ -82,6 +82,7 @@ public:
 	{
 		glyphdesc_t desc;
 		std::vector<vec2_t> points;
+		std::vector<ubyte_t> flags;
 		std::vector<line_t> lines;
 		std::vector<bezier_t> beziers;
 	};
@@ -159,5 +160,10 @@ private:
 	void LoadGlyph(FILE* ptr);
 	void LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);
 	void LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);
+
+	int DrawString(std::string txt, float x, float y, float scale);
+
+private:
+	int DrawGlyph(wchar_t c, float x, float y, float scale);
 };
 

@@ -115,8 +115,6 @@ bool TrueTypeFont::Load(std::string name)
 		}
 
 		locaoffsets[i] = offset;
-		//fread(&localengths[i], sizeof(localengths[i]), 1, ptr);
-		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
 	for (i = 0; i < maxp.numglyphs - 1; i++)
@@ -476,7 +474,6 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 		int npoints = contourends[i] - cstart + 1;
 		for (j = cstart; j < cstart + npoints; j++)
 		{
-			npoints = contourends[i] - cstart + 1;
 			int nextp = cstart + ((j - cstart + 1) % npoints);
 			ubyte_t curflags = flags[j];
 			ubyte_t nextflags = flags[nextp];
@@ -486,13 +483,17 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 				vec2_t p = Vector2Lerp(points[j], points[nextp], 0.5);
 				points.insert(points.begin() + nextp, p);
 				flags.insert(flags.begin() + nextp, 0x01); // New point should be on-curve
-				contourends[i]++;
+				for (int k = i; k < contourends.size(); k++)
+					contourends[k]++;
+				npoints++;
 				j++;
 			}
 		}
+		cstart += npoints;
 	}
 
 	glyf.points = points;
+	glyf.flags = flags;
 
 	cstart = 0;
 	for (i = 0; i < contourends.size(); i++)
@@ -500,7 +501,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 		int npoints = contourends[i] - cstart + 1;
 		for (j = cstart; j < cstart + npoints; j++)
 		{
-			int nextp = (j + 1) >= (cstart + npoints) ? cstart : j + 1;
+			int nextp = cstart + ((j - cstart + 1) % npoints);
 			ubyte_t curflags = flags[j];
 			ubyte_t nextflags = flags[nextp];
 
@@ -555,16 +556,18 @@ void TrueTypeFont::DrawDebug()
 
 	int g;
 
-	g = 0;
+	g = IndexCMap(L'j');
 
 	glColor3f(1, 0, 1);
+
+	float scale = 250.0 / hdr.emsize;
 
 	glBegin(GL_LINES);
 	cstart = 0;
 	for (i = 0; i < glyfs[g].lines.size(); i++)
 	{
-		vec2_t p0 = glyfs[g].points[glyfs[g].lines[i].p0] * (1.0 / 10.0);
-		vec2_t p1 = glyfs[g].points[glyfs[g].lines[i].p1] * (1.0 / 10.0);
+		vec2_t p0 = glyfs[g].points[glyfs[g].lines[i].p0] * scale;
+		vec2_t p1 = glyfs[g].points[glyfs[g].lines[i].p1] * scale;
 
 		p0.x += SCREEN_MED_WIDTH >> 1;
 		p0.y += SCREEN_MED_HEIGHT >> 1;
@@ -578,9 +581,9 @@ void TrueTypeFont::DrawDebug()
 
 	for (i = 0; i < glyfs[g].beziers.size(); i++)
 	{
-		vec2_t p0 = glyfs[g].points[glyfs[g].beziers[i].p0] * (1.0 / 10.0);
-		vec2_t p1 = glyfs[g].points[glyfs[g].beziers[i].p1] * (1.0 / 10.0);
-		vec2_t p2 = glyfs[g].points[glyfs[g].beziers[i].p2] * (1.0 / 10.0);
+		vec2_t p0 = glyfs[g].points[glyfs[g].beziers[i].p0] * scale;
+		vec2_t p1 = glyfs[g].points[glyfs[g].beziers[i].p1] * scale;
+		vec2_t p2 = glyfs[g].points[glyfs[g].beziers[i].p2] * scale;
 
 		p0.x += SCREEN_MED_WIDTH >> 1;
 		p0.y += SCREEN_MED_HEIGHT >> 1;
@@ -596,11 +599,29 @@ void TrueTypeFont::DrawDebug()
 	glBegin(GL_POINTS);
 	for (i = 0; i < glyfs[g].points.size(); i++)
 	{
-		vec2_t p = glyfs[g].points[i] * (1.0 / 10.0);
+		if (glyfs[g].flags[i] & 0x01)
+			glColor3f(1, 0, 0);
+		else
+			glColor3f(0, 0, 1);
+
+		vec2_t p = glyfs[g].points[i] * scale;
 		p.x = p.x + SCREEN_MED_WIDTH / 2;
 		p.y = p.y + SCREEN_MED_HEIGHT / 2;
 		//glVertex2f(p.x, p.y);
 	}
 	glEnd();
 	glColor3f(1, 1, 1);
+}
+
+int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
+{
+	for (int i = 0; i < txt.size(); i++)
+	{
+
+	}
+}
+
+int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
+{
+
 }
