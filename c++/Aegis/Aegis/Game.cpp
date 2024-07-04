@@ -159,7 +159,9 @@ void Game::Render()
 
     ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
 
-    std::vector<vec2_t> test = { {0, 0}, {320, 0}, {320, 240}, { 640, 280 }, { 320, 480 }, {0, 240} };
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    std::vector<vec2_t> test = { {100, 100}, {540, 100}, {320, 240}, {540, 380}, {100, 380}, {20, 240} };
     std::reverse(test.begin(), test.end());
     std::vector<std::array<int, 3>> tris = TrueTypeFont::EarClip(test);
     glBegin(GL_TRIANGLES);
@@ -170,6 +172,8 @@ void Game::Render()
         glVertex2f(test[tris[i][2]].x, test[tris[i][2]].y);
     }
     glEnd();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glEnable(GL_DEPTH_TEST);
 }

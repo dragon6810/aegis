@@ -114,3 +114,27 @@ std::vector<vec3_t> BoxFace(vec3_t bmin, vec3_t bmax, std::vector<vec3_t> face)
 
     return resultPolygon;
 }
+
+float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
+{
+    return abs((p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y)) / 2.0);
+}
+
+bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
+{
+    const float epsilon = 0.001;
+
+    float a;
+    float a1;
+    float a2;
+    float a3;
+
+    a = TriangleArea(p0, p1, p2);
+    a1 = TriangleArea(p, p0, p1);
+    a2 = TriangleArea(p, p0, p2);
+    a3 = TriangleArea(p, p1, p2);
+
+    // Check if the sum of the areas of the triangle point p forms with the vertices is (roughly) equal to the area of the triangle.
+    // TODO: Recede the vertices by epsilon / 2 to account for epsilon growing the triangle a little
+    return abs(a - a1 - a2 - a3) < epsilon;
+}

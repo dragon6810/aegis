@@ -26,3 +26,7 @@ vec3_t PlaneIntersection(vec3_t a, vec3_t b, vec3_t n, float d);
 bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon, vec3_t normal);
 
 std::vector<vec3_t> BoxFace(vec3_t bmin, vec3_t bmax, std::vector<vec3_t> face);
+
+float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2);
+
+bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p);
