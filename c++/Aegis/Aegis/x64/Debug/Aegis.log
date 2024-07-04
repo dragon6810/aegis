@@ -7,13 +7,15 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4
   (compiling source file 'TrueTypeFont.cpp')
   
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(21,11): warning C4101: 'glyfoffs': unreferenced local variable
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(294,38): warning C4244: '=': conversion from 'unsigned long' to 'uint16_t', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(316,18): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(323,33): warning C4018: '<=': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(391,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(406,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(439,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(563,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(551,6): warning C4101: 'j': unreferenced local variable
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(554,6): warning C4101: 'npoints': unreferenced local variable
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(313,38): warning C4244: '=': conversion from 'unsigned long' to 'uint16_t', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(335,18): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(342,33): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(434,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(449,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(482,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(593,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(599,11): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(671,45): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(605,6): warning C4101: 'j': unreferenced local variable
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(608,6): warning C4101: 'npoints': unreferenced local variable
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

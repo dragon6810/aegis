@@ -92,6 +92,22 @@ bool TrueTypeFont::Load(std::string name)
 	SwapEndian(&maxp.maxcomponentel, sizeof(maxp.maxcomponentel));
 	SwapEndian(&maxp.maxcomponentdepth, sizeof(maxp.maxcomponentdepth));
 
+	fseek(ptr, tabledirs[tagdirs["hhea"]].offset, SEEK_SET);
+	fread(&hhdr, sizeof(hhdr), 1, ptr);
+	SwapEndian(&hhdr.version, sizeof(hhdr.version));
+	SwapEndian(&hhdr.ascent, sizeof(hhdr.ascent));
+	SwapEndian(&hhdr.descent, sizeof(hhdr.descent));
+	SwapEndian(&hhdr.linegap, sizeof(hhdr.linegap));
+	SwapEndian(&hhdr.maxadvw, sizeof(hhdr.maxadvw));
+	SwapEndian(&hhdr.minleftbear, sizeof(hhdr.minleftbear));
+	SwapEndian(&hhdr.minrightbear, sizeof(hhdr.minrightbear));
+	SwapEndian(&hhdr.maxxextend, sizeof(hhdr.maxxextend));
+	SwapEndian(&hhdr.caretrise, sizeof(hhdr.caretrise));
+	SwapEndian(&hhdr.caretrun, sizeof(hhdr.caretrun));
+	SwapEndian(&hhdr.caretoffset, sizeof(hhdr.caretoffset));
+	SwapEndian(&hhdr.datafmt, sizeof(hhdr.datafmt));
+	SwapEndian(&hhdr.nhmetrics, sizeof(hhdr.nhmetrics));
+
 	localengths.resize(maxp.numglyphs + 1);
 	locaoffsets.resize(maxp.numglyphs + 1);
 
@@ -122,6 +138,9 @@ bool TrueTypeFont::Load(std::string name)
 		fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[i] << 1), SEEK_SET);
 		LoadGlyph(ptr);
 	}
+
+	fseek(ptr, tabledirs[tagdirs["hmtx"]].offset, SEEK_SET);
+	LoadHmtx(ptr);
 
 	fclose(ptr);
 	return true;
@@ -330,6 +349,30 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 		}
 
 		return;
+	}
+}
+
+void TrueTypeFont::LoadHmtx(FILE* ptr)
+{
+	int i;
+
+	int nmonoglyfs;
+
+	for (i = 0; i < hhdr.nhmetrics; i++)
+	{
+		fread(&glyfs[i].advw, sizeof(glyfs[i].advw), 1, ptr);
+		fread(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear), 1, ptr);
+
+		SwapEndian(&glyfs[i].advw, sizeof(glyfs[i].advw));
+		SwapEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
+	}
+
+	// Take care of the monospace characters at the end the font
+	nmonoglyfs = maxp.numglyphs - hhdr.nhmetrics;
+	for (i = hhdr.nhmetrics; i < maxp.numglyphs - 1; i++)
+	{
+		fread(&glyfs[i].leftbear, sizeof(glyfs[i].advw), 1, ptr);
+		SwapEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
 	}
 }
 
@@ -545,22 +588,35 @@ void TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 	printf("uh oh\n");
 }
 
-void TrueTypeFont::DrawDebug()
+int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
+{
+	int startx = x;
+	for (int i = 0; i < txt.size(); i++)
+	{
+		x += DrawGlyph(txt[i], x, y, scale);
+	}
+
+	return x - startx;
+}
+
+int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 {
 	int i;
 	int j;
-	
+
 	int cstart;
 	int npoints;
 	std::vector<vec2_t> points;
 
 	int g;
 
-	g = IndexCMap(L'j');
+	g = IndexCMap(c);
+
+	scale /= hdr.emsize;
+
+	x += glyfs[g].leftbear * scale;
 
 	glColor3f(1, 0, 1);
-
-	float scale = 250.0 / hdr.emsize;
 
 	glBegin(GL_LINES);
 	cstart = 0;
@@ -569,10 +625,10 @@ void TrueTypeFont::DrawDebug()
 		vec2_t p0 = glyfs[g].points[glyfs[g].lines[i].p0] * scale;
 		vec2_t p1 = glyfs[g].points[glyfs[g].lines[i].p1] * scale;
 
-		p0.x += SCREEN_MED_WIDTH >> 1;
-		p0.y += SCREEN_MED_HEIGHT >> 1;
-		p1.x += SCREEN_MED_WIDTH >> 1;
-		p1.y += SCREEN_MED_HEIGHT >> 1;
+		p0.x += x;
+		p0.y += y;
+		p1.x += x;
+		p1.y += y;
 
 		glVertex2f(p0.x, p0.y);
 		glVertex2f(p1.x, p1.y);
@@ -585,12 +641,12 @@ void TrueTypeFont::DrawDebug()
 		vec2_t p1 = glyfs[g].points[glyfs[g].beziers[i].p1] * scale;
 		vec2_t p2 = glyfs[g].points[glyfs[g].beziers[i].p2] * scale;
 
-		p0.x += SCREEN_MED_WIDTH >> 1;
-		p0.y += SCREEN_MED_HEIGHT >> 1;
-		p1.x += SCREEN_MED_WIDTH >> 1;
-		p1.y += SCREEN_MED_HEIGHT >> 1;
-		p2.x += SCREEN_MED_WIDTH >> 1;
-		p2.y += SCREEN_MED_HEIGHT >> 1;
+		p0.x += x;
+		p0.y += y;
+		p1.x += x;
+		p1.y += y;
+		p2.x += x;
+		p2.y += y;
 
 		DrawBezier(p0, p1, p2);
 	}
@@ -605,23 +661,12 @@ void TrueTypeFont::DrawDebug()
 			glColor3f(0, 0, 1);
 
 		vec2_t p = glyfs[g].points[i] * scale;
-		p.x = p.x + SCREEN_MED_WIDTH / 2;
-		p.y = p.y + SCREEN_MED_HEIGHT / 2;
+		p.x += x;
+		p.y += y;
 		//glVertex2f(p.x, p.y);
 	}
 	glEnd();
 	glColor3f(1, 1, 1);
-}
-
-int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
-{
-	for (int i = 0; i < txt.size(); i++)
-	{
-
-	}
-}
-
-int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
-{
-
+	
+	return (glyfs[g].leftbear + glyfs[g].advw) * scale;
 }

@@ -36,6 +36,25 @@ private:
 	};
 
 #pragma pack(push, 1)
+	struct hhdr_t
+	{
+		fixed32_t version;
+		int16_t ascent;
+		int16_t descent;
+		int16_t linegap;
+		uint16_t maxadvw;
+		int16_t minleftbear;
+		int16_t minrightbear;
+		int16_t maxxextend;
+		int16_t caretrise;
+		int16_t caretrun;
+		int16_t caretoffset;  // 0 for no slant
+		int16_t reserved[4];  // Always 0
+		int16_t datafmt;	  // ??
+		uint16_t nhmetrics;   // Number of horizontal metrics in the hmtx table
+	};
+
+#pragma pack(push, 1)
 	struct maxp_t
 	{
 		fixed32_t version;
@@ -81,6 +100,8 @@ public:
 	struct glyph_t
 	{
 		glyphdesc_t desc;
+		uint16_t advw;
+		int16_t leftbear;
 		std::vector<vec2_t> points;
 		std::vector<ubyte_t> flags;
 		std::vector<line_t> lines;
@@ -89,7 +110,7 @@ public:
 
 	bool Load(std::string name);
 
-	void DrawDebug();
+	int DrawString(std::string txt, float x, float y, float scale);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t
@@ -145,6 +166,7 @@ private:
 
 	hdr_t hdr;
 	maxp_t maxp;
+	hhdr_t hhdr;
 	std::unordered_map<wchar_t, int> cmap;
 	std::vector<glyph_t> glyfs;
 
@@ -157,13 +179,11 @@ private:
 	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
 
 	void LoadCMap(FILE* ptr);
+	// MUST be called after glyphs are generated AND after loading the horizontal header (hhdr)
+	void LoadHmtx(FILE* ptr);
 	void LoadGlyph(FILE* ptr);
 	void LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);
 	void LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);
 
-	int DrawString(std::string txt, float x, float y, float scale);
-
-private:
 	int DrawGlyph(wchar_t c, float x, float y, float scale);
 };
-
