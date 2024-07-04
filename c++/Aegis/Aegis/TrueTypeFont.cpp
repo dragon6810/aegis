@@ -585,7 +585,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 void TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 {
 	// TODO: Actually implement this
-	printf("uh oh\n");
+	glyfs.push_back(glyfs[0]);
 }
 
 int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
@@ -700,4 +700,63 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 	g = IndexCMap(c);
 	scale /= hdr.emsize;
 	return glyfs[g].advw * scale;
+}
+
+std::vector<std::array<int, 3>> TrueTypeFont::EarClip(std::vector<vec2_t> points) 
+{
+	// Make a doubly linked list of the points to accelerate vertex removal later
+	std::vector<int> next(points.size());
+	std::vector<int> last(points.size());
+
+	for (int i = 0; i < points.size(); i++) {
+		next[i] = (i + 1) % points.size();
+		last[i] = i - 1;
+		while (last[i] < 0)
+			last[i] += points.size();
+	}
+
+	int vertsleft = points.size();
+	std::vector<std::array<int, 3>> ears;
+
+	int i = 0;
+	int safetey = 0;
+	while (vertsleft > 3) 
+	{
+		if (safetey > 8192)
+			return {};
+
+		safetey++;
+
+		vec2_t v0 = points[last[i]];
+		vec2_t v1 = points[i];
+		vec2_t v2 = points[next[i]];
+
+		// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
+		float z = (v1.x - v0.x) * (v2.y - v0.y) - (v1.y - v0.y) * (v2.x - v0.x);
+
+		if (z >= 0) // Ears must be clockwise
+		{
+			i = next[i];
+			continue;
+		}
+
+		std::array<int, 3> arr = { last[i], i, next[i] };
+		ears.push_back(arr);
+
+		// Update doubly linked list to remove the ear vertex
+		next[last[i]] = next[i];
+		last[next[i]] = last[i];
+
+		vertsleft--;
+		i = next[i];
+	}
+
+	// Include the last triangle
+	if (vertsleft == 3) 
+	{
+		std::array<int, 3> arr = { last[i], i, next[i] };
+		ears.push_back(arr);
+	}
+
+	return ears;
 }

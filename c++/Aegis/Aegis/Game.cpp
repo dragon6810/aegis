@@ -48,7 +48,7 @@ void Game::Main()
 
     font.Load("FONT1", "valve/fonts.wad");
 
-    ttf.Load("helvetica.ttf");
+    ttf.Load("opensans.ttf");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -158,6 +158,18 @@ void Game::Render()
     glColor4f(1, 1, 1, 1);
 
     ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
+
+    std::vector<vec2_t> test = { {0, 0}, {320, 0}, {320, 240}, { 640, 280 }, { 320, 480 }, {0, 240} };
+    std::reverse(test.begin(), test.end());
+    std::vector<std::array<int, 3>> tris = TrueTypeFont::EarClip(test);
+    glBegin(GL_TRIANGLES);
+    for (int i = 0; i < tris.size(); i++)
+    {
+        glVertex2f(test[tris[i][0]].x, test[tris[i][0]].y);
+        glVertex2f(test[tris[i][1]].x, test[tris[i][1]].y);
+        glVertex2f(test[tris[i][2]].x, test[tris[i][2]].y);
+    }
+    glEnd();
 
     glEnable(GL_DEPTH_TEST);
 }

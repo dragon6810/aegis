@@ -17,10 +17,7 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(36,51): warning C
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(69,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(75,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(101,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(201,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(235,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(241,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(213,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(247,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(253,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

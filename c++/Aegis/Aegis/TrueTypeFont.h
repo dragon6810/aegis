@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 #include <unordered_map>
 
 #include "defs.h"
@@ -106,6 +107,9 @@ public:
 		std::vector<ubyte_t> flags;
 		std::vector<line_t> lines;
 		std::vector<bezier_t> beziers;
+
+		std::vector<std::array<int, 3>> triangles;
+		std::vector<std::vector<vec2_t>> bezierfans;
 	};
 
 	bool Load(std::string name);
@@ -113,6 +117,8 @@ public:
 	int DrawString(std::string txt, float x, float y, float scale);
 	int DrawCenteredString(std::string txt, float x, float y, float scale);
 	int StringWidth(std::string txt, float scale);
+
+	static std::vector<std::array<int, 3>> EarClip(std::vector<vec2_t> points);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t
