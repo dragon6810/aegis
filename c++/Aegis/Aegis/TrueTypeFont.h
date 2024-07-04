@@ -111,6 +111,8 @@ public:
 	bool Load(std::string name);
 
 	int DrawString(std::string txt, float x, float y, float scale);
+	int DrawCenteredString(std::string txt, float x, float y, float scale);
+	int StringWidth(std::string txt, float scale);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t
@@ -186,4 +188,5 @@ private:
 	void LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);
 
 	int DrawGlyph(wchar_t c, float x, float y, float scale);
+	int GlyphWidth(wchar_t c, float scale);
 };

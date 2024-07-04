@@ -599,6 +599,25 @@ int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
 	return x - startx;
 }
 
+int TrueTypeFont::DrawCenteredString(std::string txt, float x, float y, float scale)
+{
+	x -= StringWidth(txt, scale) >> 1;
+	return DrawString(txt, x, y, scale);
+}
+
+int TrueTypeFont::StringWidth(std::string txt, float scale)
+{
+	int i;
+
+	int w;
+
+	w = 0;
+	for (int i = 0; i < txt.size(); i++)
+		w += GlyphWidth(txt[i], scale);
+
+	return w;
+}
+
 int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 {
 	int i;
@@ -614,7 +633,10 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 
 	scale /= hdr.emsize;
 
-	x += glyfs[g].leftbear * scale;
+	if (c == ' ') // Is the character a space?
+	{
+		return (glyfs[g].leftbear + glyfs[g].advw) * scale;
+	}
 
 	glColor3f(1, 0, 1);
 
@@ -668,5 +690,14 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	glEnd();
 	glColor3f(1, 1, 1);
 	
-	return (glyfs[g].leftbear + glyfs[g].advw) * scale;
+	return (glyfs[g].advw) * scale;
+}
+
+int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
+{
+	int g;
+
+	g = IndexCMap(c);
+	scale /= hdr.emsize;
+	return glyfs[g].advw * scale;
 }

@@ -157,7 +157,7 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    ttf.DrawString("Hello, World!", 100, 100, 100.0);
+    ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
 
     glEnable(GL_DEPTH_TEST);
 }
