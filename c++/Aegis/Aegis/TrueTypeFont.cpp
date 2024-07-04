@@ -119,7 +119,7 @@ bool TrueTypeFont::Load(std::string name)
 		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
-	int c = IndexCMap(L'A');
+	int c = IndexCMap(L'i');
 	fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[c] << 1), SEEK_SET);
 	LoadGlyph(ptr);
 
@@ -201,7 +201,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 		if (subtables[i].platid != CPLAT_UTF) // I only care about UTF
 			continue;
 
-		if (subtables[i].platspec != UTF_2_0_BMP)
+		if ((subtables[i].platspec != UTF_2_0_BMP) && (subtables[i].platspec != UTF_2_0))
 			continue;
 
 		fseek(ptr, cmapoffs + subtables[i].offset, SEEK_SET);
@@ -270,7 +270,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			
 			for (int j = 0; j < segendcodes.size(); j++)
 			{
-				for (int k = segstartcodes[j]; k < segendcodes[j]; k++)
+				for (int k = segstartcodes[j]; k <= segendcodes[j]; k++)
 				{
 					uint32_t glyfi;
 					uint16_t glyf;
@@ -296,7 +296,33 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 		}
 		else if (version == 12)
 		{
+			struct cmapgroup_t
+			{
+				uint32_t startcode;
+				uint32_t endcode;
+				uint32_t startglyf;
+			};
 
+			int i;
+			int j;
+
+			uint32_t ngroups;
+			cmapgroup_t group;
+
+			fseek(ptr, 10, SEEK_CUR);
+			fread(&ngroups, sizeof(ngroups), 1, ptr);
+			SwapEndian(&ngroups, sizeof(ngroups));
+
+			for (i = 0; i < ngroups; i++)
+			{
+				fread(&group, sizeof(group), 1, ptr);
+				SwapEndian(&group.startcode, sizeof(group.startcode));
+				SwapEndian(&group.endcode, sizeof(group.endcode));
+				SwapEndian(&group.startglyf, sizeof(group.startglyf));
+
+				for (j = group.startcode; j <= group.endcode; j++)
+					cmap[j] = group.startglyf + (j - group.startcode);
+			}
 		}
 		else
 		{
