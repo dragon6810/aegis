@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "defs.h"
 
@@ -108,13 +109,53 @@ private:
 		uint32_t length;
 	};
 
+#pragma pack(push, 1)
+	struct cmap_t
+	{
+		uint16_t version;
+		uint16_t nsubtables;
+	};
+
+#pragma pack(push, 1)
+	struct cmapst_t
+	{
+		uint16_t platid;
+		uint16_t platspec;
+		uint32_t offset;
+	};
+
+	enum cmap_platforms
+	{
+		CPLAT_UTF = 0,
+		CPLAT_MAC = 1,
+		CPLAT_MS = 3,
+	};
+
+	enum utf_modes
+	{
+		UTF_1_0 = 0,
+		UTF_1_1 = 1,
+		UTF_93 = 2,			 // Deprecated
+		UTF_2_0_BMP = 3,
+		UTF_2_0 = 4,
+		UTF_VAR = 5,		 // ??
+		UTF_LAST_RESORT = 6, // ??
+	};
+
 	hdr_t hdr;
 	maxp_t maxp;
+	std::unordered_map<wchar_t, int> cmap;
 	std::vector<glyph_t> glyfs;
+
+	int cmapformat;
+	int platformspec;
+
+	uint32_t IndexCMap(wchar_t c);
 
 	static void SwapEndian(void* data, size_t size);
 	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
 
+	void LoadCMap(FILE* ptr);
 	void LoadGlyph(FILE* ptr);
 	void LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);
 	void LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);

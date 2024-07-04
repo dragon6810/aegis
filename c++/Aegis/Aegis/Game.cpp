@@ -42,7 +42,7 @@ void Game::Main()
     
     map.Load("valve/maps/test.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
-    map.cameraforward = NormalizeVector3({ camf.x - camp.x, camf.y - camp.y, camf.z - camp.z });
+    map.cameraforward = NormalizeVector3({ camf.x -camp.x, camf.y - camp.y, camf.z - camp.z });
     map.cameraup = { 0, 0, 1 };
     map.sky.campos = camp;
 

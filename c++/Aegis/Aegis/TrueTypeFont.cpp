@@ -1,9 +1,8 @@
-#include "TrueTypeFont.h"
+﻿#include "TrueTypeFont.h"
 
 #include <GL/glew.h>
 
 #include <string>
-#include <unordered_map>
 
 #include "mathutils.h"
 
@@ -49,6 +48,9 @@ bool TrueTypeFont::Load(std::string name)
 		tag[3] = tabledirs[i].tag[3];
 		tagdirs[tag] = i;
 	}
+
+	fseek(ptr, tabledirs[tagdirs["cmap"]].offset, SEEK_SET);
+	LoadCMap(ptr);
 	
 	int locaoffsetsize;
 	fseek(ptr, tabledirs[tagdirs["head"]].offset, SEEK_SET);
@@ -117,7 +119,7 @@ bool TrueTypeFont::Load(std::string name)
 		//SwapEndian(&localengths[i], sizeof(localengths[i]));
 	}
 
-	int c = 40;
+	int c = IndexCMap(L'A');
 	fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[c] << 1), SEEK_SET);
 	LoadGlyph(ptr);
 
@@ -159,6 +161,150 @@ void TrueTypeFont::DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2)
 	}
 
 	glEnd();
+}
+
+uint32_t TrueTypeFont::IndexCMap(wchar_t c)
+{
+	return cmap[c];
+}
+
+void TrueTypeFont::LoadCMap(FILE* ptr)
+{
+	int i;
+	uint32_t cmapoffs;
+
+	std::vector<uint16_t> segstartcodes;
+	std::vector<uint16_t> segendcodes;
+	std::vector<uint16_t> segdeltas;
+	std::vector<uint16_t> segrangeoffsets;
+
+	cmap_t hdr;
+	std::vector<cmapst_t> subtables;
+
+	cmapoffs = ftell(ptr);
+
+	fread(&hdr, sizeof(hdr), 1, ptr);
+	SwapEndian(&hdr.version, sizeof(hdr.version));
+	SwapEndian(&hdr.nsubtables, sizeof(hdr.nsubtables));
+
+	subtables.resize(hdr.nsubtables);
+	for (i = 0; i < hdr.nsubtables; i++)
+	{
+		fread(&subtables[i], sizeof(subtables[i]), 1, ptr);
+		SwapEndian(&subtables[i].platid, sizeof(subtables[i].platid));
+		SwapEndian(&subtables[i].platspec, sizeof(subtables[i].platspec));
+		SwapEndian(&subtables[i].offset, sizeof(subtables[i].offset));
+	}
+
+	for (i = 0; i < hdr.nsubtables; i++)
+	{
+		if (subtables[i].platid != CPLAT_UTF) // I only care about UTF
+			continue;
+
+		if (subtables[i].platspec != UTF_2_0_BMP)
+			continue;
+
+		fseek(ptr, cmapoffs + subtables[i].offset, SEEK_SET);
+		uint16_t version;
+		fread(&version, sizeof(version), 1, ptr);
+		SwapEndian(&version, sizeof(version));
+		cmapformat = version;
+		platformspec = subtables[i].platspec;
+
+		if (version == 4)
+		{
+			uint16_t len;
+			uint16_t glyfidlen = 0;
+			uint16_t segcount;
+
+			int rangepos;
+
+			fread(&len, sizeof(len), 1, ptr);
+			SwapEndian(&len, sizeof(len));
+
+			fseek(ptr, 2, SEEK_CUR); // Skip to the good stuff
+
+			fread(&segcount, sizeof(segcount), 1, ptr);
+			SwapEndian(&segcount, sizeof(segcount));
+			segcount >>= 1; // Divide by 2 to get actual seg count
+
+			fseek(ptr, 10, SEEK_CUR); // Skip to the really good stuff
+			segendcodes.resize(segcount);
+			for (int j = 0; j < segendcodes.size(); j++)
+			{
+				int16_t end;
+				fread(&end, sizeof(end), 1, ptr);
+				SwapEndian(&end, sizeof(end));
+				segendcodes[j] = end;
+			}
+
+			fseek(ptr, 2, SEEK_CUR); // 2-byte pad
+
+			segstartcodes.resize(segcount);
+			for (int j = 0; j < segstartcodes.size(); j++)
+			{
+				int16_t start;
+				fread(&start, sizeof(start), 1, ptr);
+				SwapEndian(&start, sizeof(start));
+				segstartcodes[j] = start;
+			}
+
+			segdeltas.resize(segcount);
+			for (int j = 0; j < segdeltas.size(); j++)
+			{
+				int16_t delta;
+				fread(&delta, sizeof(delta), 1, ptr);
+				SwapEndian(&delta, sizeof(delta));
+				segdeltas[j] = delta;
+			}
+
+			rangepos = ftell(ptr);
+			segrangeoffsets.resize(segcount);
+			for (int j = 0; j < segrangeoffsets.size(); j++)
+			{
+				int16_t offs;
+				fread(&offs, sizeof(offs), 1, ptr);
+				SwapEndian(&offs, sizeof(offs));
+				segrangeoffsets[j] = offs;
+			}
+			
+			for (int j = 0; j < segendcodes.size(); j++)
+			{
+				for (int k = segstartcodes[j]; k < segendcodes[j]; k++)
+				{
+					uint32_t glyfi;
+					uint16_t glyf;
+
+					if (segrangeoffsets[j] == 0)
+					{
+						glyf = segdeltas[j] + k;
+						cmap[k] = glyf;
+					}
+					else
+					{
+						glyfi = (segrangeoffsets[j] >> 1) + (k - segstartcodes[j]);
+						fseek(ptr, rangepos + j * 2 + glyfi * 2, SEEK_SET);
+						fread(&glyf, sizeof(glyf), 1, ptr);
+						SwapEndian(&glyf, sizeof(glyf));
+						cmap[k] = glyf;
+					}
+				}
+			}
+
+			glyfidlen = ftell(ptr) - cmapoffs + 4;
+			glyfidlen = len - glyfidlen;
+		}
+		else if (version == 12)
+		{
+
+		}
+		else
+		{
+			continue;
+		}
+
+		return;
+	}
 }
 
 void TrueTypeFont::LoadGlyph(FILE* ptr)
@@ -366,7 +512,8 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 
 void TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 {
-
+	// TODO: Actually implement this
+	printf("uh oh\n");
 }
 
 void TrueTypeFont::DrawDebug()
