@@ -702,35 +702,40 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 	return glyfs[g].advw * scale;
 }
 
-std::vector<std::array<int, 3>> TrueTypeFont::EarClip(std::vector<vec2_t> points) 
+TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std::vector<int> contourends)
 {
-	// Make a doubly linked list of the points to accelerate vertex removal later
-	std::vector<int> next(points.size());
-	std::vector<int> last(points.size());
+	trimesh_t mesh;
+	mesh.points = std::vector<vec2_t>(contours.begin(), contours.end());
 
-	for (int i = 0; i < points.size(); i++) 
+	// Make a doubly linked list of the points to accelerate vertex removal later
+	std::vector<int> next(mesh.points.size());
+	std::vector<int> last(mesh.points.size());
+
+	int cstart = 0;
+	for (int c = 0; c < contourends.size(); c++)
 	{
-		next[i] = (i + 1) % points.size();
-		last[i] = i - 1;
-		while (last[i] < 0)
-			last[i] += points.size();
+		int npoints = contourends[c] - cstart;
+		for (int i = cstart; i < contourends[c]; i++)
+		{
+			next[i] = cstart + ((i - cstart + 1) % npoints);
+			last[i] = i - 1;
+			while (last[i] < cstart)
+				last[i] += npoints;
+		}
+		cstart += npoints;
 	}
 	
-	int numpoints = points.size();
-	std::vector<std::array<int, 3>> tris;
+	int numpoints = contourends[0];
 
-	int valid = points.size() - 1;
+	int valid = contourends[0] - 1;
 
 	// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
 	// Don't make the same mistake I did.
 	for (int i = valid; numpoints > 2; i = next[i])
 	{
-		if (numpoints <= 0)
-			break;
-
-		vec2_t p0 = points[last[i]];
-		vec2_t p1 = points[i];
-		vec2_t p2 = points[next[i]];
+		vec2_t p0 = mesh.points[last[i]];
+		vec2_t p1 = mesh.points[i];
+		vec2_t p2 = mesh.points[next[i]];
 
 		// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
 		float z = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
@@ -739,12 +744,12 @@ std::vector<std::array<int, 3>> TrueTypeFont::EarClip(std::vector<vec2_t> points
 			continue;
 
 		bool isear = true;
-		for (int j = 0; j < points.size(); j++)
+		for (int j = 0; j < contourends[0]; j++)
 		{
 			if (j == last[i] || j == i || j == next[i])
 				continue;
 
-			if (PointInTriangle(p0, p1, p2, points[j])) // If any points are in the triangle, it's not an ear
+			if (PointInTriangle(p0, p1, p2, mesh.points[j])) // If any points are in the triangle, it's not an ear
 			{
 				isear = false;
 				break;
@@ -757,17 +762,11 @@ std::vector<std::array<int, 3>> TrueTypeFont::EarClip(std::vector<vec2_t> points
 		next[last[i]] = next[i];
 		last[next[i]] = last[i];
 		numpoints--;
-
-		std::array<int, 3> tri;
-		tri[0] = last[i];
-		tri[1] = i;
-		tri[2] = next[i];
-
-		if (i == valid)
-			valid = next[i];
-
-		tris.push_back(tri);
+		
+		mesh.indices.push_back(last[i]);
+		mesh.indices.push_back(i);
+		mesh.indices.push_back(next[i]);
 	}
 
-	return tris;
+	return mesh;
 }

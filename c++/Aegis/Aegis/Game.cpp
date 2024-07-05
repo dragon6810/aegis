@@ -161,15 +161,15 @@ void Game::Render()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    std::vector<vec2_t> test = { {100, 100}, {540, 100}, {320, 240}, {540, 380}, {100, 380}, {20, 240} };
-    std::reverse(test.begin(), test.end());
-    std::vector<std::array<int, 3>> tris = TrueTypeFont::EarClip(test);
+    std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, { 280, 320 }, {320, 280}, {280, 280} };
+    std::vector<int> contourends = { 6, 9 };
+    TrueTypeFont::trimesh_t mesh = TrueTypeFont::EarClip( test, contourends);
     glBegin(GL_TRIANGLES);
-    for (int i = 0; i < tris.size(); i++)
+    for (int i = 0; i < mesh.indices.size(); i+= 3)
     {
-        glVertex2f(test[tris[i][0]].x, test[tris[i][0]].y);
-        glVertex2f(test[tris[i][1]].x, test[tris[i][1]].y);
-        glVertex2f(test[tris[i][2]].x, test[tris[i][2]].y);
+        glVertex2f(mesh.points[mesh.indices[i + 0]].x, mesh.points[mesh.indices[i + 0]].y);
+        glVertex2f(mesh.points[mesh.indices[i + 1]].x, mesh.points[mesh.indices[i + 1]].y);
+        glVertex2f(mesh.points[mesh.indices[i + 2]].x, mesh.points[mesh.indices[i + 2]].y);
     }
     glEnd();
 

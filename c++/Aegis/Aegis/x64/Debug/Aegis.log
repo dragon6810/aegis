@@ -1,4 +1,26 @@
-﻿  TrueTypeFont.cpp
+﻿  Game.cpp
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\AudioManager.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(36,34): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(36,51): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(69,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(75,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(101,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(217,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(251,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(257,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  TrueTypeFont.cpp
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'TrueTypeFont.cpp')
@@ -21,11 +43,5 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(693,25): 
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(624,6): warning C4101: 'j': unreferenced local variable
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(627,6): warning C4101: 'npoints': unreferenced local variable
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(702,23): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(716,26): warning C4267: '+=': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(716,26): warning C4267:         with
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(716,26): warning C4267:         [
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(716,26): warning C4267:             _Ty=int
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(716,26): warning C4267:         ]
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(719,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(722,12): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

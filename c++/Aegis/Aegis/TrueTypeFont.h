@@ -98,6 +98,12 @@ private:
 		uint32_t p2;
 	};
 public:
+	struct trimesh_t
+	{
+		std::vector<vec2_t> points;
+		std::vector<int> indices;
+	};
+
 	struct glyph_t
 	{
 		glyphdesc_t desc;
@@ -118,7 +124,7 @@ public:
 	int DrawCenteredString(std::string txt, float x, float y, float scale);
 	int StringWidth(std::string txt, float scale);
 
-	static std::vector<std::array<int, 3>> EarClip(std::vector<vec2_t> points);
+	static trimesh_t EarClip(std::vector<vec2_t> contours, std::vector<int> contourends);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t
