@@ -148,7 +148,7 @@ float PolygonDirection(std::vector<vec2_t> points)
     return area * 0.5;
 }
 
-bool PointInPolygon(std::vector<vec2_t> points, vec2_t p)
+bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)
 {
     uint32_t ncollisions = 0;
 

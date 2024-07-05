@@ -704,19 +704,45 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 	return glyfs[g].advw * scale;
 }
 
-TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std::vector<int> contourends)
+TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::vector<int> contourends)
 {
 	std::vector<int> contourstarts(contourends.size());
 
 	trimesh_t mesh;
 
-	std::vector<vec2_t> points(contours.begin(), contours.end());
+	std::vector<std::vector<vec2_t>> contours;
+	std::vector<std::vector<vec2_t>> holes;
 
 	// Make a doubly linked list of the points to accelerate vertex removal later
 	std::vector<int> next(points.size());
 	std::vector<int> last(points.size());
 
 	int cstart = 0;
+	for (int c = 0; c < contourends.size(); c++)
+	{
+		std::vector<vec2_t> contour(points.begin() + cstart, points.begin() + contourends[c]);
+		float dir = PolygonDirection(contour);
+		if (dir > 0)
+			holes.push_back(contour);
+		else
+			contours.push_back(contour);
+
+		cstart = contourends[c];
+	}
+
+	// Cut into contours with holes
+	for (int c = 0; c < contours.size(); c++)
+	{
+		for (int h = 0; h < holes.size(); h++)
+		{
+			if (!PointInPolygon2D(contours[c], holes[h][0])) // Only use holes in the contour
+				continue;
+
+
+		}
+	}
+
+	cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
 	{
 		int npoints = contourends[c] - cstart;

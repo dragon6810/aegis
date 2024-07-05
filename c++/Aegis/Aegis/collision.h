@@ -34,7 +34,7 @@ bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p);
 // Returns the signed area of the polygon: > 0 = CC; < 0 = C
 float PolygonDirection(std::vector<vec2_t> points);
 
-bool PointInPolygon(std::vector<vec2_t> points, vec2_t p);
+bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p);
 
 // Does a Line Segment intercept the positive x axis?
 bool SegXIntercept(vec2_t p0, vec2_t p1);
