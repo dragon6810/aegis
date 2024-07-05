@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <tuple>
 
 //#define TEXTURE_FILTER
 

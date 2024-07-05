@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include "Print.h"
+
 #include "mathutils.h"
 
 #include "Game.h"
@@ -704,12 +706,15 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 
 TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std::vector<int> contourends)
 {
+	std::vector<int> contourstarts(contourends.size());
+
 	trimesh_t mesh;
-	mesh.points = std::vector<vec2_t>(contours.begin(), contours.end());
+
+	std::vector<vec2_t> points(contours.begin(), contours.end());
 
 	// Make a doubly linked list of the points to accelerate vertex removal later
-	std::vector<int> next(mesh.points.size());
-	std::vector<int> last(mesh.points.size());
+	std::vector<int> next(points.size());
+	std::vector<int> last(points.size());
 
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
@@ -726,16 +731,25 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std:
 	}
 	
 	int numpoints = contourends[0];
-
 	int valid = contourends[0] - 1;
+
+	int safety = 8192;
 
 	// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
 	// Don't make the same mistake I did.
 	for (int i = valid; numpoints > 2; i = next[i])
 	{
-		vec2_t p0 = mesh.points[last[i]];
-		vec2_t p1 = mesh.points[i];
-		vec2_t p2 = mesh.points[next[i]];
+		if (safety <= 0) // Most likely in an infinite loop.
+		{
+			Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
+			break;
+		}
+
+		safety--;
+
+		vec2_t p0 = points[last[i]];
+		vec2_t p1 = points[i];
+		vec2_t p2 = points[next[i]];
 
 		// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
 		float z = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
@@ -749,7 +763,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std:
 			if (j == last[i] || j == i || j == next[i])
 				continue;
 
-			if (PointInTriangle(p0, p1, p2, mesh.points[j])) // If any points are in the triangle, it's not an ear
+			if (PointInTriangle(p0, p1, p2, points[j])) // If any points are in the triangle, it's not an ear
 			{
 				isear = false;
 				break;
@@ -763,9 +777,37 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> contours, std:
 		last[next[i]] = last[i];
 		numpoints--;
 		
-		mesh.indices.push_back(last[i]);
-		mesh.indices.push_back(i);
-		mesh.indices.push_back(next[i]);
+		mesh.indices.push_back(mesh.points.size());
+		mesh.points.push_back(points[last[i]]);
+		mesh.indices.push_back(mesh.points.size());
+		mesh.points.push_back(points[i]);
+		mesh.indices.push_back(mesh.points.size());
+		mesh.points.push_back(points[next[i]]);
+	}
+	
+	// OPTIMIZE: Fix this steaming pile of O(n^3) shit
+	for (int i = 0; i < mesh.indices.size() - 1; i++) 
+	{
+		vec2_t v0 = mesh.points[mesh.indices[i]];
+		for (int j = i + 1; j < mesh.indices.size(); j++) 
+		{
+			vec2_t v1 = mesh.points[mesh.indices[j]];
+			if (v0.x != v1.x || v0.y != v1.y)
+				continue;
+			
+			int index_to_remove = mesh.indices[j];
+			mesh.indices[j] = mesh.indices[i];
+			
+			mesh.points.erase(mesh.points.begin() + index_to_remove);
+			
+			for (int k = 0; k < mesh.indices.size(); k++)
+			{
+				if (mesh.indices[k] > index_to_remove)
+					mesh.indices[k]--;
+			}
+
+			break;
+		}
 	}
 
 	return mesh;

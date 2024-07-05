@@ -138,3 +138,71 @@ bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
     // TODO: Recede the vertices by epsilon / 2 to account for epsilon growing the triangle a little
     return abs(a - a1 - a2 - a3) < epsilon;
 }
+
+float PolygonDirection(std::vector<vec2_t> points)
+{
+    float area = 0.0;
+    for (int i = 0; i < points.size() - 1; i++)
+        area += points[i].x * points[i + 1].y - points[i].y * points[i + 1].x;
+
+    return area * 0.5;
+}
+
+bool PointInPolygon(std::vector<vec2_t> points, vec2_t p)
+{
+    uint32_t ncollisions = 0;
+
+    for (int i = 0; i < points.size(); i++)
+    {
+        vec2_t p0 = points[i] - p;
+        vec2_t p1 = points[(i + 1) % points.size()] - p;
+
+        if (SegXIntercept(p0, p1))
+            ncollisions++;
+    }
+
+    return ncollisions & 1;
+}
+
+bool SegXIntercept(vec2_t p0, vec2_t p1)
+{
+    float temp;
+    return SegXIntercept(p0, p1, &temp);
+}
+
+bool SegXIntercept(vec2_t p0, vec2_t p1, float* x)
+{
+    if (p0.y * p1.y > 0) // Both points are on the same side of the x-axis
+        return false;
+
+    if (p0.x < 0 && p1.x < 0) // Both points are to the left of the y-axis
+        return false;
+
+    if (p0.x == p1.x) // Vertical line?
+    {
+        // We know it's to the right from earlier checks, so collide.
+        *x = p0.x;
+        return true;
+    }
+
+    if (p0.y == p1.y) // Horizontal line?
+    {
+        // We know it's along the x axis and to the right from earlier checks, so collide.
+        *x = 0;
+        return true;
+    }
+
+    float rise = p1.y - p0.y;
+    float run = p1.x - p0.x;
+    float slope = rise / run;
+    float b = -slope * p0.x + p0.y;
+    float xintercept = -b / slope;
+
+    if (xintercept >= 0) // If the x-intercept of the line segment is to the right or touching the point, collide. (We've already checked the range).
+    {
+        *x = xintercept;
+        return true;
+    }
+
+    return false;
+}

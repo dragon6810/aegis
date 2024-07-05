@@ -124,6 +124,7 @@ public:
 	int DrawCenteredString(std::string txt, float x, float y, float scale);
 	int StringWidth(std::string txt, float scale);
 
+	// Warning: This function is horribly slow. Under no circumstances should you call it in any place other than load time. If you need to, fix it.
 	static trimesh_t EarClip(std::vector<vec2_t> contours, std::vector<int> contourends);
 private:
 	#pragma pack(push, 1)

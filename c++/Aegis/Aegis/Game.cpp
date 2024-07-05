@@ -161,7 +161,7 @@ void Game::Render()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, { 280, 320 }, {320, 280}, {280, 280} };
+    std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, {280, 280}, {320, 280}, { 280, 320 } };
     std::vector<int> contourends = { 6, 9 };
     TrueTypeFont::trimesh_t mesh = TrueTypeFont::EarClip( test, contourends);
     glBegin(GL_TRIANGLES);
