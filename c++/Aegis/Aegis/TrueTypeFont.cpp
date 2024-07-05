@@ -706,16 +706,10 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 
 TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::vector<int> contourends)
 {
-	std::vector<int> contourstarts(contourends.size());
-
 	trimesh_t mesh;
 
 	std::vector<std::vector<vec2_t>> contours;
 	std::vector<std::vector<vec2_t>> holes;
-
-	// Make a doubly linked list of the points to accelerate vertex removal later
-	std::vector<int> next(points.size());
-	std::vector<int> last(points.size());
 
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
@@ -723,9 +717,14 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		std::vector<vec2_t> contour(points.begin() + cstart, points.begin() + contourends[c]);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
+		{
+			std::reverse(contour.begin(), contour.end());
 			holes.push_back(contour);
+		}
 		else
+		{
 			contours.push_back(contour);
+		}
 
 		cstart = contourends[c];
 	}
@@ -733,82 +732,155 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 	// Cut into contours with holes
 	for (int c = 0; c < contours.size(); c++)
 	{
+		std::vector<vec2_t> contour = contours[c];
 		for (int h = 0; h < holes.size(); h++)
 		{
-			if (!PointInPolygon2D(contours[c], holes[h][0])) // Only use holes in the contour
+			if (!PointInPolygon2D(contour, holes[h][0])) // Only use holes in the contour
 				continue;
 
-
-		}
-	}
-
-	cstart = 0;
-	for (int c = 0; c < contourends.size(); c++)
-	{
-		int npoints = contourends[c] - cstart;
-		for (int i = cstart; i < contourends[c]; i++)
-		{
-			next[i] = cstart + ((i - cstart + 1) % npoints);
-			last[i] = i - 1;
-			while (last[i] < cstart)
-				last[i] += npoints;
-		}
-		cstart += npoints;
-	}
-	
-	int numpoints = contourends[0];
-	int valid = contourends[0] - 1;
-
-	int safety = 8192;
-
-	// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
-	// Don't make the same mistake I did.
-	for (int i = valid; numpoints > 2; i = next[i])
-	{
-		if (safety <= 0) // Most likely in an infinite loop.
-		{
-			Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
-			break;
-		}
-
-		safety--;
-
-		vec2_t p0 = points[last[i]];
-		vec2_t p1 = points[i];
-		vec2_t p2 = points[next[i]];
-
-		// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
-		float z = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
-
-		if (z >= 0) // Ears must be clockwise
-			continue;
-
-		bool isear = true;
-		for (int j = 0; j < contourends[0]; j++)
-		{
-			if (j == last[i] || j == i || j == next[i])
-				continue;
-
-			if (PointInTriangle(p0, p1, p2, points[j])) // If any points are in the triangle, it's not an ear
+			vec2_t p = holes[h][0];
+			int pi = 0; // Point index, not π!
+			for (int i = 0; i < holes[h].size(); i++)
 			{
-				isear = false;
+				if (holes[h][i].x > p.x)
+				{
+					p = holes[h][i];
+					pi = i;
+				}
+			}
+
+			// Find a good point to "bridge" the contour and its hole.
+			// OPTIMIZE: Compute the triangle intersection once at the end instead of every time
+			int closestp = -1;
+			float closestdist = 99999999.0;
+			for (int i = 0; i < contour.size(); i++)
+			{
+				vec2_t e0 = contour[i] - p;
+				vec2_t e1 = contour[(i + 1) % contour.size()] - p;
+
+				float dst;
+				if (!SegXIntercept(e0, e1, &dst))
+					continue;
+
+				if (dst < closestdist)
+				{
+					vec2_t p0 = p;
+					p0.x += dst;
+					vec2_t p1 = e0;
+					if (e1.x > p1.x)
+						p1 = e1;
+
+					vec2_t p2 = p;
+
+					dst = (p1.x - p.x) * (p1.x - p.x) + (p1.y - p.y) * (p1.y - p.y);
+					int closestcand = contour[i].x > contour[(i + 1) % contour.size()].x ? i : (i + 1) % contour.size();
+					for (int j = 0; j < contour.size(); j++)
+					{
+						vec2_t cand = contour[j];
+						if (!PointInTriangle(p0, p1, p2, cand))
+							continue;
+
+						float d = (cand.x - p.x) * (cand.x - p.x) + (cand.y - p.y) * (cand.y - p.y);
+						if (d < dst)
+						{
+							closestcand = j;
+							dst = d;
+						}
+					}
+
+					if (closestcand == -1)
+						continue;
+
+					closestdist = dst;
+					closestp = closestcand;
+				}
+			}
+
+			if (closestp < 0)
+			{
+				// How did we get here?
+				Print::Aegis_Warning("Ear clipping function error.\n");
+				continue;
+			}
+
+			int insertindex = closestp;
+			for (int i = pi; i < pi + holes[h].size(); i++)
+			{
+				contour.insert(contour.begin() + insertindex + 1, holes[h][i % holes[h].size()]);
+				insertindex++;
+			}
+			contour.insert(contour.begin() + insertindex + 1, contour[closestp]);
+			contours[c] = contour;
+		}
+	}
+
+	for (int c = 0; c < contours.size(); c++)
+	{
+		// Make a doubly linked list of the points to accelerate vertex removal later
+		std::vector<int> next(contours[c].size());
+		std::vector<int> last(contours[c].size());
+		int numpoints = contours[c].size();
+		for (int i = 0; i < contours[c].size(); i++)
+		{
+			next[i] = (i + 1) % numpoints;
+			last[i] = i - 1;
+			while (last[i] < 0)
+				last[i] += numpoints;
+		}
+
+		int valid = contours[c].size() - 1;
+
+		int safety = 8192;
+
+		// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
+		// Don't make the same mistake I did.
+		for (int i = valid; numpoints > 2; i = next[i])
+		{
+			if (safety <= 0) // Most likely in an infinite loop.
+			{
+				Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
 				break;
 			}
+
+			safety--;
+
+			vec2_t p0 = contours[c][last[i]];
+			vec2_t p1 = contours[c][i];
+			vec2_t p2 = contours[c][next[i]];
+
+			// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
+			float z = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
+
+			if (z >= 0) // Ears must be clockwise
+				continue;
+
+			bool isear = true;
+			for (int j = 0; j < contours[c].size(); j++)
+			{
+				if (j == last[i] || j == i || j == next[i])
+					continue;
+
+				if (PointInTriangle(p0, p1, p2, contours[c][j])) // If any points are in the triangle, it's not an ear
+				{
+					isear = false;
+					break;
+				}
+			}
+
+			if (!isear)
+				continue;
+
+			next[last[i]] = next[i];
+			last[next[i]] = last[i];
+			numpoints--;
+
+			mesh.indices.push_back(mesh.points.size());
+			mesh.points.push_back(contours[c][last[i]]);
+			mesh.indices.push_back(mesh.points.size());
+			mesh.points.push_back(contours[c][i]);
+			mesh.indices.push_back(mesh.points.size());
+			mesh.points.push_back(contours[c][next[i]]);
 		}
-
-		if (!isear)
-			continue;
-
-		next[last[i]] = next[i];
-		last[next[i]] = last[i];
-		numpoints--;
-		
-		mesh.indices.push_back(mesh.points.size());
-		mesh.points.push_back(points[last[i]]);
-		mesh.indices.push_back(mesh.points.size());
-		mesh.points.push_back(points[i]);
-		mesh.indices.push_back(mesh.points.size());
-		mesh.points.push_back(points[next[i]]);
 	}
 	
 	// OPTIMIZE: Fix this steaming pile of O(n^3) shit
