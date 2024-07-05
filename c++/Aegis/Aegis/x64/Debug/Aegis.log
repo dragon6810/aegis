@@ -22,21 +22,21 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(626,6): w
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(629,6): warning C4101: 'npoints': unreferenced local variable
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(704,23): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(755,22): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(822,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(831,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(877,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(877,43): warning C4267:         with
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(877,43): warning C4267:         [
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(877,43): warning C4267:             _Ty=int
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(877,43): warning C4267:         ]
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(879,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(879,43): warning C4267:         with
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(879,43): warning C4267:         [
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(879,43): warning C4267:             _Ty=int
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(879,43): warning C4267:         ]
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(881,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(881,43): warning C4267:         with
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(881,43): warning C4267:         [
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(881,43): warning C4267:             _Ty=int
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(881,43): warning C4267:         ]
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(823,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(832,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(878,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(878,43): warning C4267:         with
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(878,43): warning C4267:         [
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(878,43): warning C4267:             _Ty=int
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(878,43): warning C4267:         ]
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(880,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(880,43): warning C4267:         with
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(880,43): warning C4267:         [
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(880,43): warning C4267:             _Ty=int
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(880,43): warning C4267:         ]
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(882,43): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(882,43): warning C4267:         with
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(882,43): warning C4267:         [
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(882,43): warning C4267:             _Ty=int
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(882,43): warning C4267:         ]
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

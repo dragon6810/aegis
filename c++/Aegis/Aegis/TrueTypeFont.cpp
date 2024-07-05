@@ -804,9 +804,10 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			}
 
 			int insertindex = closestp;
-			for (int i = pi; i < pi + holes[h].size(); i++)
+			for (int i = pi; i < pi + holes[h].size() + 1; i++)
 			{
-				contour.insert(contour.begin() + insertindex + 1, holes[h][i % holes[h].size()]);
+				vec2_t v = holes[h][i % holes[h].size()];
+				contour.insert(contour.begin() + insertindex + 1, v);
 				insertindex++;
 			}
 			contour.insert(contour.begin() + insertindex + 1, contour[closestp]);
