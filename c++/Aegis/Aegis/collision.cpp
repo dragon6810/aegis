@@ -122,6 +122,13 @@ float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
 
 bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
 {
+#if 1
+    float area = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
+    float s = 1 / (2 * area) * (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y);
+    float t = 1 / (2 * area) * (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y);
+    return s >= 0 && t >= 0 && (s + t) <= 1;
+#endif
+
     const float epsilon = 0.001;
 
     float a;
@@ -146,6 +153,17 @@ float PolygonDirection(std::vector<vec2_t> points)
         area += points[i].x * points[i + 1].y - points[i].y * points[i + 1].x;
 
     return area * 0.5;
+}
+
+bool VertexConvex(vec2_t last, vec2_t v, vec2_t next)
+{
+    vec2_t vector1 = { v.x - last.x, v.y - last.y };
+    vec2_t vector2 = { next.x - v.x, next.y - v.y };
+
+    // Nobody told me about 2d cross products since when
+    float crossProduct = vector1.x * vector2.y - vector1.y * vector2.x;
+    
+    return crossProduct < 0;
 }
 
 bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)

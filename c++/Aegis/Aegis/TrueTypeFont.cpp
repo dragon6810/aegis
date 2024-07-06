@@ -717,14 +717,9 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		std::vector<vec2_t> contour(points.begin() + cstart, points.begin() + contourends[c]);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
-		{
-			std::reverse(contour.begin(), contour.end());
-			holes.push_back(contour);
-		}
+			holes.push_back(contour); // Counter clockwise contours are holes
 		else
-		{
-			contours.push_back(contour);
-		}
+			contours.push_back(contour); // Clockwise contours are solid
 
 		cstart = contourends[c];
 	}
@@ -802,7 +797,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 				Print::Aegis_Warning("Ear clipping function error.\n");
 				continue;
 			}
-
+			
 			int insertindex = closestp;
 			for (int i = pi; i < pi + holes[h].size() + 1; i++)
 			{
@@ -811,12 +806,15 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 				insertindex++;
 			}
 			contour.insert(contour.begin() + insertindex + 1, contour[closestp]);
-			contours[c] = contour;
 		}
+		contours[c] = contour;
 	}
 
 	for (int c = 0; c < contours.size(); c++)
 	{
+		if (contours[c].size() < 1)
+			continue;
+
 		// Make a doubly linked list of the points to accelerate vertex removal later
 		std::vector<int> next(contours[c].size());
 		std::vector<int> last(contours[c].size());
@@ -831,59 +829,72 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 
 		int valid = contours[c].size() - 1;
 
-		int safety = 8192;
-
 		// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
 		// Don't make the same mistake I did.
-		for (int i = valid; numpoints > 2; i = next[i])
+		while (numpoints > 4)
 		{
-			if (safety <= 0) // Most likely in an infinite loop.
+			bool foundear = false;
+			
+			int loops = 0;
+			for (int i = valid, loops = 0; loops < 2; i = last[i])
 			{
-				Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
+				if (i == valid)
+					loops++;
+
+				vec2_t p0 = contours[c][last[i]];
+				vec2_t p1 = contours[c][i];
+				vec2_t p2 = contours[c][next[i]];
+
+				if (!VertexConvex(p0, p1, p2)) // Ears must be convex (clockwise in this case)
+					continue;
+
+				bool isear = true;
+				for (int j = 0; j < contours[c].size(); j++)
+				{
+					if (j == last[i] || j == i || j == next[i])
+						continue;
+					
+					/*
+					if (PointInTriangle(p0, p1, p2, contours[c][j])) // If any points are in the triangle, it's not an ear
+					{
+						isear = false;
+						break;
+					}
+					*/
+				}
+
+				if (!isear)
+					continue;
+
+				next[last[i]] = next[i];
+				last[next[i]] = last[i];
+				numpoints--;
+
+				if (i == valid)
+					valid = next[i];
+
+				mesh.indices.push_back(mesh.points.size());
+				mesh.points.push_back(contours[c][last[i]]);
+				mesh.indices.push_back(mesh.points.size());
+				mesh.points.push_back(contours[c][i]);
+				mesh.indices.push_back(mesh.points.size());
+				mesh.points.push_back(contours[c][next[i]]);
+
+				foundear = true;
 				break;
 			}
 
-			safety--;
-
-			vec2_t p0 = contours[c][last[i]];
-			vec2_t p1 = contours[c][i];
-			vec2_t p2 = contours[c][next[i]];
-
-			// Calculate winding with "Cross Product" (Cross product in 2d!? What the fuck is going on!?)
-			float z = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
-
-			if (z >= 0) // Ears must be clockwise
-				continue;
-
-			bool isear = true;
-			for (int j = 0; j < contours[c].size(); j++)
+			if (!foundear)
 			{
-				if (j == last[i] || j == i || j == next[i])
-					continue;
-
-				if (PointInTriangle(p0, p1, p2, contours[c][j])) // If any points are in the triangle, it's not an ear
-				{
-					isear = false;
-					break;
-				}
+				Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
+				return {};
 			}
-
-			if (!isear)
-				continue;
-
-			next[last[i]] = next[i];
-			last[next[i]] = last[i];
-			numpoints--;
-
-			mesh.indices.push_back(mesh.points.size());
-			mesh.points.push_back(contours[c][last[i]]);
-			mesh.indices.push_back(mesh.points.size());
-			mesh.points.push_back(contours[c][i]);
-			mesh.indices.push_back(mesh.points.size());
-			mesh.points.push_back(contours[c][next[i]]);
 		}
 	}
 	
+	if (mesh.indices.size() < 1)
+		return mesh;
+
 	// OPTIMIZE: Fix this steaming pile of O(n^3) shit
 	for (int i = 0; i < mesh.indices.size() - 1; i++) 
 	{
