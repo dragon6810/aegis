@@ -91,6 +91,8 @@ private:
 
 	TrueTypeFont ttf;
 
+	GLuint targatest;
+
 	vec3_t camp;
 	vec3_t camf;
 

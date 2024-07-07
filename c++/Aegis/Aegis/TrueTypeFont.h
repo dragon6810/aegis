@@ -189,8 +189,7 @@ private:
 	int platformspec;
 
 	uint32_t IndexCMap(wchar_t c);
-
-	static void SwapEndian(void* data, size_t size);
+	
 	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
 
 	void LoadCMap(FILE* ptr);

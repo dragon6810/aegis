@@ -4,6 +4,8 @@
 
 #include "mathutils.h"
 
+#include "Targa.h"
+
 #include "AssetManager.h"
 #include "Waveform.h"
 
@@ -55,6 +57,8 @@ void Game::Main()
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
+
+    targatest = Targa::LoadTargaImage("deadbird/tga/valve_logo.tga");
 
     float lastcheck = -1.0;
 
@@ -174,6 +178,18 @@ void Game::Render()
     glEnd();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, targatest);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0); glVertex2f(0, 480.0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(640.0, 480.0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(640.0, 0.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(0.0, 0.0);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 
     glEnable(GL_DEPTH_TEST);
 }

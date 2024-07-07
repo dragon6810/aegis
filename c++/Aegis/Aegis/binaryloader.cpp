@@ -28,3 +28,35 @@ int loadBytes(const char* filename, char** data)
 
     return 1;
 }
+
+void LittleEndian(void* data, size_t size)
+{
+    short endiantest = 0x0001;
+    char* endianessb = (char*)&endiantest;
+    if (endianessb[0] == 0) // If the machine is big endian, abort. Nothing needs to be done
+        return;
+
+    uint8_t* bytes = (uint8_t*)data;
+    for (size_t i = 0; i < size / 2; ++i)
+    {
+        uint8_t temp = bytes[i];
+        bytes[i] = bytes[size - 1 - i];
+        bytes[size - 1 - i] = temp;
+    }
+}
+
+void BigEndian(void* data, size_t size)
+{
+    short endiantest = 0x0001;
+    char* endianessb = (char*)&endiantest;
+    if (endianessb[0] == 0) // If the machine is big endian, abort. Nothing needs to be done
+        return;
+
+    uint8_t* bytes = (uint8_t*)data;
+    for (size_t i = 0; i < size / 2; ++i)
+    {
+        uint8_t temp = bytes[i];
+        bytes[i] = bytes[size - 1 - i];
+        bytes[size - 1 - i] = temp;
+    }
+}

@@ -43,9 +43,6 @@
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{a5f9b89d-5688-42b0-9370-71365cf29899}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gfx">
-      <UniqueIdentifier>{9fee41fb-583a-4c70-8db8-743ef0b129c8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gfx">
       <UniqueIdentifier>{ddc0743e-b277-4e03-ae55-57c446b19ef0}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="Header Files\Audio">
       <UniqueIdentifier>{450cab7c-b657-4822-a010-2766a6b87549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{9fee41fb-583a-4c70-8db8-743ef0b129c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -142,7 +142,7 @@
       <Filter>Source Files\math</Filter>
     </ClCompile>
     <ClCompile Include="Skybox.cpp">
-      <Filter>Source Files\gfx</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="MonsterEntity.cpp">
       <Filter>Source Files\Entities</Filter>
@@ -151,13 +151,13 @@
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>Source Files\gfx</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="LaserEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="BeamFX.cpp">
-      <Filter>Source Files\gfx</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files\OpenGL</Filter>
@@ -192,15 +192,15 @@
     <ClCompile Include="Print.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Targa.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
     <ClInclude Include="mstudioload.h">
-      <Filter>Header Files\loadstuff</Filter>
-    </ClInclude>
-    <ClInclude Include="binaryloader.h">
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
     <ClInclude Include="SModel.h">
@@ -304,6 +304,12 @@
     </ClInclude>
     <ClInclude Include="Print.h">
       <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="binaryloader.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Targa.h">
+      <Filter>Header Files\gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

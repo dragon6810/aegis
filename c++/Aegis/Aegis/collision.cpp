@@ -122,6 +122,7 @@ float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
 
 bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
 {
+    return false;
 #if 1
     float area = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
     float s = 1 / (2 * area) * (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y);
@@ -157,6 +158,7 @@ float PolygonDirection(std::vector<vec2_t> points)
 
 bool VertexConvex(vec2_t last, vec2_t v, vec2_t next)
 {
+    return true;
     float det = (v.x - last.x) * (next.y - last.y) - (v.y - last.y) * (next.x - last.x);
 
     return det < 0;

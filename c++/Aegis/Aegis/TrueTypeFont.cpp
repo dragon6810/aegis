@@ -8,6 +8,8 @@
 
 #include "mathutils.h"
 
+#include "binaryloader.h"
+
 #include "Game.h"
 
 bool TrueTypeFont::Load(std::string name)
@@ -29,19 +31,19 @@ bool TrueTypeFont::Load(std::string name)
 		return false;
 
 	fread(&offsettable, sizeof(offsettable), 1, ptr);
-	SwapEndian(&offsettable.scalartype, sizeof(offsettable.scalartype));
-	SwapEndian(&offsettable.numtables, sizeof(offsettable.numtables));
-	SwapEndian(&offsettable.searchrange, sizeof(offsettable.searchrange));
-	SwapEndian(&offsettable.entryselector, sizeof(offsettable.entryselector));
-	SwapEndian(&offsettable.rangeshift, sizeof(offsettable.rangeshift));
+	BigEndian(&offsettable.scalartype, sizeof(offsettable.scalartype));
+	BigEndian(&offsettable.numtables, sizeof(offsettable.numtables));
+	BigEndian(&offsettable.searchrange, sizeof(offsettable.searchrange));
+	BigEndian(&offsettable.entryselector, sizeof(offsettable.entryselector));
+	BigEndian(&offsettable.rangeshift, sizeof(offsettable.rangeshift));
 
 	tabledirs.resize(offsettable.numtables);
 	for (i = 0; i < offsettable.numtables; i++)
 	{
 		fread(&tabledirs[i], sizeof(tabledirs[0]), 1, ptr);
-		SwapEndian(&tabledirs[i].checksum, sizeof(tabledirs[i].checksum));
-		SwapEndian(&tabledirs[i].offset, sizeof(tabledirs[i].offset));
-		SwapEndian(&tabledirs[i].length, sizeof(tabledirs[i].length));
+		BigEndian(&tabledirs[i].checksum, sizeof(tabledirs[i].checksum));
+		BigEndian(&tabledirs[i].offset, sizeof(tabledirs[i].offset));
+		BigEndian(&tabledirs[i].length, sizeof(tabledirs[i].length));
 
 		std::string tag(4, 0);
 		tag[0] = tabledirs[i].tag[0];
@@ -57,58 +59,58 @@ bool TrueTypeFont::Load(std::string name)
 	int locaoffsetsize;
 	fseek(ptr, tabledirs[tagdirs["head"]].offset, SEEK_SET);
 	fread(&hdr, sizeof(hdr), 1, ptr);
-	SwapEndian(&hdr.version, sizeof(hdr.version));
-	SwapEndian(&hdr.revision, sizeof(hdr.revision));
-	SwapEndian(&hdr.checksumadj, sizeof(hdr.checksumadj));
-	SwapEndian(&hdr.magic, sizeof(hdr.magic));
-	SwapEndian(&hdr.flags, sizeof(hdr.flags));
-	SwapEndian(&hdr.emsize, sizeof(hdr.emsize));
-	SwapEndian(&hdr.createddate, sizeof(hdr.createddate));
-	SwapEndian(&hdr.modifieddate, sizeof(hdr.modifieddate));
-	SwapEndian(&hdr.xmin, sizeof(hdr.xmin));
-	SwapEndian(&hdr.ymin, sizeof(hdr.ymin));
-	SwapEndian(&hdr.xmax, sizeof(hdr.xmax));
-	SwapEndian(&hdr.ymax, sizeof(hdr.ymax));
-	SwapEndian(&hdr.macstyle, sizeof(hdr.macstyle));
-	SwapEndian(&hdr.smallestsize, sizeof(hdr.smallestsize));
-	SwapEndian(&hdr.directionhint, sizeof(hdr.directionhint));
-	SwapEndian(&hdr.locaformat, sizeof(hdr.locaformat));
-	SwapEndian(&hdr.glyphformat, sizeof(hdr.glyphformat));
+	BigEndian(&hdr.version, sizeof(hdr.version));
+	BigEndian(&hdr.revision, sizeof(hdr.revision));
+	BigEndian(&hdr.checksumadj, sizeof(hdr.checksumadj));
+	BigEndian(&hdr.magic, sizeof(hdr.magic));
+	BigEndian(&hdr.flags, sizeof(hdr.flags));
+	BigEndian(&hdr.emsize, sizeof(hdr.emsize));
+	BigEndian(&hdr.createddate, sizeof(hdr.createddate));
+	BigEndian(&hdr.modifieddate, sizeof(hdr.modifieddate));
+	BigEndian(&hdr.xmin, sizeof(hdr.xmin));
+	BigEndian(&hdr.ymin, sizeof(hdr.ymin));
+	BigEndian(&hdr.xmax, sizeof(hdr.xmax));
+	BigEndian(&hdr.ymax, sizeof(hdr.ymax));
+	BigEndian(&hdr.macstyle, sizeof(hdr.macstyle));
+	BigEndian(&hdr.smallestsize, sizeof(hdr.smallestsize));
+	BigEndian(&hdr.directionhint, sizeof(hdr.directionhint));
+	BigEndian(&hdr.locaformat, sizeof(hdr.locaformat));
+	BigEndian(&hdr.glyphformat, sizeof(hdr.glyphformat));
 	locaoffsetsize = hdr.locaformat ? 4 : 2;
 
 	fseek(ptr, tabledirs[tagdirs["maxp"]].offset, SEEK_SET);
 	fread(&maxp, sizeof(maxp), 1, ptr);
-	SwapEndian(&maxp.version, sizeof(maxp.version));
-	SwapEndian(&maxp.numglyphs, sizeof(maxp.numglyphs));
-	SwapEndian(&maxp.maxpoints, sizeof(maxp.maxpoints));
-	SwapEndian(&maxp.maxcontours, sizeof(maxp.maxcontours));
-	SwapEndian(&maxp.maxcomponentpoints, sizeof(maxp.maxcomponentpoints));
-	SwapEndian(&maxp.maxcomponentcontours, sizeof(maxp.maxcomponentcontours));
-	SwapEndian(&maxp.maxzones, sizeof(maxp.maxzones));
-	SwapEndian(&maxp.maxtwilightpoints, sizeof(maxp.maxtwilightpoints));
-	SwapEndian(&maxp.maxstorage, sizeof(maxp.maxstorage));
-	SwapEndian(&maxp.maxfunctiondefs, sizeof(maxp.maxfunctiondefs));
-	SwapEndian(&maxp.maxinstructiondefs, sizeof(maxp.maxinstructiondefs));
-	SwapEndian(&maxp.maxstackelements, sizeof(maxp.maxstackelements));
-	SwapEndian(&maxp.maxinstructionsize, sizeof(maxp.maxinstructionsize));
-	SwapEndian(&maxp.maxcomponentel, sizeof(maxp.maxcomponentel));
-	SwapEndian(&maxp.maxcomponentdepth, sizeof(maxp.maxcomponentdepth));
+	BigEndian(&maxp.version, sizeof(maxp.version));
+	BigEndian(&maxp.numglyphs, sizeof(maxp.numglyphs));
+	BigEndian(&maxp.maxpoints, sizeof(maxp.maxpoints));
+	BigEndian(&maxp.maxcontours, sizeof(maxp.maxcontours));
+	BigEndian(&maxp.maxcomponentpoints, sizeof(maxp.maxcomponentpoints));
+	BigEndian(&maxp.maxcomponentcontours, sizeof(maxp.maxcomponentcontours));
+	BigEndian(&maxp.maxzones, sizeof(maxp.maxzones));
+	BigEndian(&maxp.maxtwilightpoints, sizeof(maxp.maxtwilightpoints));
+	BigEndian(&maxp.maxstorage, sizeof(maxp.maxstorage));
+	BigEndian(&maxp.maxfunctiondefs, sizeof(maxp.maxfunctiondefs));
+	BigEndian(&maxp.maxinstructiondefs, sizeof(maxp.maxinstructiondefs));
+	BigEndian(&maxp.maxstackelements, sizeof(maxp.maxstackelements));
+	BigEndian(&maxp.maxinstructionsize, sizeof(maxp.maxinstructionsize));
+	BigEndian(&maxp.maxcomponentel, sizeof(maxp.maxcomponentel));
+	BigEndian(&maxp.maxcomponentdepth, sizeof(maxp.maxcomponentdepth));
 
 	fseek(ptr, tabledirs[tagdirs["hhea"]].offset, SEEK_SET);
 	fread(&hhdr, sizeof(hhdr), 1, ptr);
-	SwapEndian(&hhdr.version, sizeof(hhdr.version));
-	SwapEndian(&hhdr.ascent, sizeof(hhdr.ascent));
-	SwapEndian(&hhdr.descent, sizeof(hhdr.descent));
-	SwapEndian(&hhdr.linegap, sizeof(hhdr.linegap));
-	SwapEndian(&hhdr.maxadvw, sizeof(hhdr.maxadvw));
-	SwapEndian(&hhdr.minleftbear, sizeof(hhdr.minleftbear));
-	SwapEndian(&hhdr.minrightbear, sizeof(hhdr.minrightbear));
-	SwapEndian(&hhdr.maxxextend, sizeof(hhdr.maxxextend));
-	SwapEndian(&hhdr.caretrise, sizeof(hhdr.caretrise));
-	SwapEndian(&hhdr.caretrun, sizeof(hhdr.caretrun));
-	SwapEndian(&hhdr.caretoffset, sizeof(hhdr.caretoffset));
-	SwapEndian(&hhdr.datafmt, sizeof(hhdr.datafmt));
-	SwapEndian(&hhdr.nhmetrics, sizeof(hhdr.nhmetrics));
+	BigEndian(&hhdr.version, sizeof(hhdr.version));
+	BigEndian(&hhdr.ascent, sizeof(hhdr.ascent));
+	BigEndian(&hhdr.descent, sizeof(hhdr.descent));
+	BigEndian(&hhdr.linegap, sizeof(hhdr.linegap));
+	BigEndian(&hhdr.maxadvw, sizeof(hhdr.maxadvw));
+	BigEndian(&hhdr.minleftbear, sizeof(hhdr.minleftbear));
+	BigEndian(&hhdr.minrightbear, sizeof(hhdr.minrightbear));
+	BigEndian(&hhdr.maxxextend, sizeof(hhdr.maxxextend));
+	BigEndian(&hhdr.caretrise, sizeof(hhdr.caretrise));
+	BigEndian(&hhdr.caretrun, sizeof(hhdr.caretrun));
+	BigEndian(&hhdr.caretoffset, sizeof(hhdr.caretoffset));
+	BigEndian(&hhdr.datafmt, sizeof(hhdr.datafmt));
+	BigEndian(&hhdr.nhmetrics, sizeof(hhdr.nhmetrics));
 
 	localengths.resize(maxp.numglyphs + 1);
 	locaoffsets.resize(maxp.numglyphs + 1);
@@ -121,14 +123,14 @@ bool TrueTypeFont::Load(std::string name)
 		{
 			uint16_t offs;
 			fread(&offs, sizeof(offs), 1, ptr);
-			SwapEndian(&offs, sizeof(offs));
+			BigEndian(&offs, sizeof(offs));
 			offset = offs;
 		}
 		else
 		{
 			uint32_t offs;
 			fread(&offs, sizeof(offs), 1, ptr);
-			SwapEndian(&offs, sizeof(offs));
+			BigEndian(&offs, sizeof(offs));
 			offset = offs;
 		}
 
@@ -146,17 +148,6 @@ bool TrueTypeFont::Load(std::string name)
 
 	fclose(ptr);
 	return true;
-}
-
-void TrueTypeFont::SwapEndian(void* data, size_t size)
-{
-	uint8_t* bytes = (uint8_t*)data;
-	for (size_t i = 0; i < size / 2; ++i) 
-	{
-		uint8_t temp = bytes[i];
-		bytes[i] = bytes[size - 1 - i];
-		bytes[size - 1 - i] = temp;
-	}
 }
 
 void TrueTypeFont::DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2)
@@ -205,16 +196,16 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 	cmapoffs = ftell(ptr);
 
 	fread(&hdr, sizeof(hdr), 1, ptr);
-	SwapEndian(&hdr.version, sizeof(hdr.version));
-	SwapEndian(&hdr.nsubtables, sizeof(hdr.nsubtables));
+	BigEndian(&hdr.version, sizeof(hdr.version));
+	BigEndian(&hdr.nsubtables, sizeof(hdr.nsubtables));
 
 	subtables.resize(hdr.nsubtables);
 	for (i = 0; i < hdr.nsubtables; i++)
 	{
 		fread(&subtables[i], sizeof(subtables[i]), 1, ptr);
-		SwapEndian(&subtables[i].platid, sizeof(subtables[i].platid));
-		SwapEndian(&subtables[i].platspec, sizeof(subtables[i].platspec));
-		SwapEndian(&subtables[i].offset, sizeof(subtables[i].offset));
+		BigEndian(&subtables[i].platid, sizeof(subtables[i].platid));
+		BigEndian(&subtables[i].platspec, sizeof(subtables[i].platspec));
+		BigEndian(&subtables[i].offset, sizeof(subtables[i].offset));
 	}
 
 	for (i = 0; i < hdr.nsubtables; i++)
@@ -228,7 +219,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 		fseek(ptr, cmapoffs + subtables[i].offset, SEEK_SET);
 		uint16_t version;
 		fread(&version, sizeof(version), 1, ptr);
-		SwapEndian(&version, sizeof(version));
+		BigEndian(&version, sizeof(version));
 		cmapformat = version;
 		platformspec = subtables[i].platspec;
 
@@ -241,12 +232,12 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			int rangepos;
 
 			fread(&len, sizeof(len), 1, ptr);
-			SwapEndian(&len, sizeof(len));
+			BigEndian(&len, sizeof(len));
 
 			fseek(ptr, 2, SEEK_CUR); // Skip to the good stuff
 
 			fread(&segcount, sizeof(segcount), 1, ptr);
-			SwapEndian(&segcount, sizeof(segcount));
+			BigEndian(&segcount, sizeof(segcount));
 			segcount >>= 1; // Divide by 2 to get actual seg count
 
 			fseek(ptr, 10, SEEK_CUR); // Skip to the really good stuff
@@ -255,7 +246,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			{
 				int16_t end;
 				fread(&end, sizeof(end), 1, ptr);
-				SwapEndian(&end, sizeof(end));
+				BigEndian(&end, sizeof(end));
 				segendcodes[j] = end;
 			}
 
@@ -266,7 +257,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			{
 				int16_t start;
 				fread(&start, sizeof(start), 1, ptr);
-				SwapEndian(&start, sizeof(start));
+				BigEndian(&start, sizeof(start));
 				segstartcodes[j] = start;
 			}
 
@@ -275,7 +266,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			{
 				int16_t delta;
 				fread(&delta, sizeof(delta), 1, ptr);
-				SwapEndian(&delta, sizeof(delta));
+				BigEndian(&delta, sizeof(delta));
 				segdeltas[j] = delta;
 			}
 
@@ -285,7 +276,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			{
 				int16_t offs;
 				fread(&offs, sizeof(offs), 1, ptr);
-				SwapEndian(&offs, sizeof(offs));
+				BigEndian(&offs, sizeof(offs));
 				segrangeoffsets[j] = offs;
 			}
 			
@@ -306,7 +297,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 						glyfi = (segrangeoffsets[j] >> 1) + (k - segstartcodes[j]);
 						fseek(ptr, rangepos + j * 2 + glyfi * 2, SEEK_SET);
 						fread(&glyf, sizeof(glyf), 1, ptr);
-						SwapEndian(&glyf, sizeof(glyf));
+						BigEndian(&glyf, sizeof(glyf));
 						cmap[k] = glyf;
 					}
 				}
@@ -332,14 +323,14 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 
 			fseek(ptr, 10, SEEK_CUR);
 			fread(&ngroups, sizeof(ngroups), 1, ptr);
-			SwapEndian(&ngroups, sizeof(ngroups));
+			BigEndian(&ngroups, sizeof(ngroups));
 
 			for (i = 0; i < ngroups; i++)
 			{
 				fread(&group, sizeof(group), 1, ptr);
-				SwapEndian(&group.startcode, sizeof(group.startcode));
-				SwapEndian(&group.endcode, sizeof(group.endcode));
-				SwapEndian(&group.startglyf, sizeof(group.startglyf));
+				BigEndian(&group.startcode, sizeof(group.startcode));
+				BigEndian(&group.endcode, sizeof(group.endcode));
+				BigEndian(&group.startglyf, sizeof(group.startglyf));
 
 				for (j = group.startcode; j <= group.endcode; j++)
 					cmap[j] = group.startglyf + (j - group.startcode);
@@ -365,8 +356,8 @@ void TrueTypeFont::LoadHmtx(FILE* ptr)
 		fread(&glyfs[i].advw, sizeof(glyfs[i].advw), 1, ptr);
 		fread(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear), 1, ptr);
 
-		SwapEndian(&glyfs[i].advw, sizeof(glyfs[i].advw));
-		SwapEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
+		BigEndian(&glyfs[i].advw, sizeof(glyfs[i].advw));
+		BigEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
 	}
 
 	// Take care of the monospace characters at the end the font
@@ -374,7 +365,7 @@ void TrueTypeFont::LoadHmtx(FILE* ptr)
 	for (i = hhdr.nhmetrics; i < maxp.numglyphs - 1; i++)
 	{
 		fread(&glyfs[i].leftbear, sizeof(glyfs[i].advw), 1, ptr);
-		SwapEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
+		BigEndian(&glyfs[i].leftbear, sizeof(glyfs[i].leftbear));
 	}
 }
 
@@ -383,11 +374,11 @@ void TrueTypeFont::LoadGlyph(FILE* ptr)
 	glyphdesc_t glyfdesc;
 
 	fread(&glyfdesc, sizeof(glyfdesc), 1, ptr);
-	SwapEndian(&glyfdesc.ncontours, sizeof(glyfdesc.ncontours));
-	SwapEndian(&glyfdesc.xmin, sizeof(glyfdesc.xmin));
-	SwapEndian(&glyfdesc.ymin, sizeof(glyfdesc.ymin));
-	SwapEndian(&glyfdesc.xmax, sizeof(glyfdesc.xmax));
-	SwapEndian(&glyfdesc.ymax, sizeof(glyfdesc.ymax));
+	BigEndian(&glyfdesc.ncontours, sizeof(glyfdesc.ncontours));
+	BigEndian(&glyfdesc.xmin, sizeof(glyfdesc.xmin));
+	BigEndian(&glyfdesc.ymin, sizeof(glyfdesc.ymin));
+	BigEndian(&glyfdesc.xmax, sizeof(glyfdesc.xmax));
+	BigEndian(&glyfdesc.ymax, sizeof(glyfdesc.ymax));
 
 	if (glyfdesc.ncontours < 0)
 	{
@@ -423,11 +414,11 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	for (i = 0; i < contourends.size(); i++)
 	{
 		fread(&contourends[i], sizeof(contourends[i]), 1, ptr);
-		SwapEndian(&contourends[i], sizeof(contourends[i]));
+		BigEndian(&contourends[i], sizeof(contourends[i]));
 	}
 
 	fread(&instructionlength, sizeof(instructionlength), 1, ptr);
-	SwapEndian(&instructionlength, sizeof(instructionlength));
+	BigEndian(&instructionlength, sizeof(instructionlength));
 	instructions.resize(instructionlength);
 	fread(instructions.data(), 1, instructions.size(), ptr);
 
@@ -471,7 +462,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 			{
 				int16_t val;
 				fread(&val, sizeof(val), 1, ptr);
-				SwapEndian(&val, sizeof(val));
+				BigEndian(&val, sizeof(val));
 
 				xcoords[i] += val;
 			}
@@ -504,7 +495,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 			{
 				int16_t val;
 				fread(&val, sizeof(val), 1, ptr);
-				SwapEndian(&val, sizeof(val));
+				BigEndian(&val, sizeof(val));
 
 				ycoords[i] += val;
 			}
@@ -807,7 +798,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			}
 			contour.insert(contour.begin() + insertindex + 1, contour[closestp]);
 		}
-		//contours[c] = contour;
+		contours[c] = contour;
 	}
 
 	for (int c = 0; c < contours.size(); c++)
