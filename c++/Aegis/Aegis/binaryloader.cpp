@@ -33,7 +33,7 @@ void LittleEndian(void* data, size_t size)
 {
     short endiantest = 0x0001;
     char* endianessb = (char*)&endiantest;
-    if (endianessb[0] == 0) // If the machine is big endian, abort. Nothing needs to be done
+    if (endianessb[0] == 1) // If the machine is little endian, abort. Nothing needs to be done
         return;
 
     uint8_t* bytes = (uint8_t*)data;

@@ -48,6 +48,7 @@ void Game::Main()
     map.cameraup = { 0, 0, 1 };
     map.sky.campos = camp;
 
+    targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga");
     font.Load("FONT1", "valve/fonts.wad");
 
     ttf.Load("opensans.ttf");
@@ -57,8 +58,6 @@ void Game::Main()
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
-
-    targatest = Targa::LoadTargaImage("deadbird/tga/valve_logo.tga");
 
     float lastcheck = -1.0;
 
@@ -179,14 +178,16 @@ void Game::Render()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
+    glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, targatest);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0); glVertex2f(0, 480.0);
-    glTexCoord2f(1.0, 0.0); glVertex2f(640.0, 480.0);
-    glTexCoord2f(1.0, 1.0); glVertex2f(640.0, 0.0);
-    glTexCoord2f(0.0, 1.0); glVertex2f(0.0, 0.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(0, 480.0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(640.0, 480.0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(640.0, 0.0);
+    glTexCoord2f(0.0, 0.0); glVertex2f(0.0, 0.0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);

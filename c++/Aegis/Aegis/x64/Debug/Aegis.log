@@ -14,10 +14,10 @@ C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(38,34): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(38,51): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(73,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(79,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(105,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(233,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(267,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(273,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(72,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(78,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(104,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(234,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(268,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(274,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

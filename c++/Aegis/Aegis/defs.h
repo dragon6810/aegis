@@ -154,6 +154,14 @@ typedef struct
 
 typedef struct
 {
+	ubyte_t a;
+	ubyte_t r;
+	ubyte_t g;
+	ubyte_t b;
+} color32_t;
+
+typedef struct
+{
 	char name[64];
 	int flags;
 	int width;
