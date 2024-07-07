@@ -157,13 +157,9 @@ float PolygonDirection(std::vector<vec2_t> points)
 
 bool VertexConvex(vec2_t last, vec2_t v, vec2_t next)
 {
-    vec2_t vector1 = { v.x - last.x, v.y - last.y };
-    vec2_t vector2 = { next.x - v.x, next.y - v.y };
+    float det = (v.x - last.x) * (next.y - last.y) - (v.y - last.y) * (next.x - last.x);
 
-    // Nobody told me about 2d cross products since when
-    float crossProduct = vector1.x * vector2.y - vector1.y * vector2.x;
-    
-    return crossProduct < 0;
+    return det < 0;
 }
 
 bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)

@@ -807,7 +807,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			}
 			contour.insert(contour.begin() + insertindex + 1, contour[closestp]);
 		}
-		contours[c] = contour;
+		//contours[c] = contour;
 	}
 
 	for (int c = 0; c < contours.size(); c++)
@@ -831,12 +831,12 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 
 		// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
 		// Don't make the same mistake I did.
-		while (numpoints > 4)
+		while (numpoints > 2)
 		{
 			bool foundear = false;
 			
 			int loops = 0;
-			for (int i = valid, loops = 0; loops < 2; i = last[i])
+			for (int i = valid, loops = 0; loops < 2; i = next[i])
 			{
 				if (i == valid)
 					loops++;
@@ -853,14 +853,12 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 				{
 					if (j == last[i] || j == i || j == next[i])
 						continue;
-					
-					/*
+						
 					if (PointInTriangle(p0, p1, p2, contours[c][j])) // If any points are in the triangle, it's not an ear
 					{
 						isear = false;
 						break;
 					}
-					*/
 				}
 
 				if (!isear)
