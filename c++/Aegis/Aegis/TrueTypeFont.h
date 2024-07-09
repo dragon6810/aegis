@@ -125,7 +125,7 @@ public:
 	int StringWidth(std::string txt, float scale);
 
 	// Warning: This function is horribly slow. Under no circumstances should you call it in any place other than load time. If you need to, fix it.
-	static trimesh_t EarClip(std::vector<vec2_t> points, std::vector<int> contourends);
+	trimesh_t EarClip(std::vector<vec2_t> points, std::vector<int> contourends);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t
@@ -188,6 +188,12 @@ private:
 	int cmapformat;
 	int platformspec;
 
+	std::vector<vec2_t> contour;
+	std::vector<int> next;
+	std::vector<int> last;
+	std::vector<bool> convex;
+	int valid;
+
 	uint32_t IndexCMap(wchar_t c);
 	
 	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
@@ -201,4 +207,6 @@ private:
 
 	int DrawGlyph(wchar_t c, float x, float y, float scale);
 	int GlyphWidth(wchar_t c, float scale);
+
+	bool VertInTri(int v);
 };

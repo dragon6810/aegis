@@ -162,19 +162,20 @@ void Game::Render()
 
     ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  
 
     std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, {250, 280}, {300, 280}, { 260, 320 } };
     std::vector<int> contourends = { 6, 9 };
-    TrueTypeFont::trimesh_t mesh = TrueTypeFont::EarClip( test, contourends);
-    glBegin(GL_TRIANGLES);
-    for (int i = 0; i < mesh.indices.size(); i+= 3)
+    TrueTypeFont::trimesh_t mesh = ttf.EarClip( test, contourends);
+    
+    for (int i = 0; i < mesh.indices.size(); i += 3)
     {
+        glBegin(GL_TRIANGLES);
         glVertex2f(mesh.points[mesh.indices[i + 0]].x, mesh.points[mesh.indices[i + 0]].y);
         glVertex2f(mesh.points[mesh.indices[i + 1]].x, mesh.points[mesh.indices[i + 1]].y);
         glVertex2f(mesh.points[mesh.indices[i + 2]].x, mesh.points[mesh.indices[i + 2]].y);
+        glEnd();
     }
-    glEnd();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
@@ -183,6 +184,7 @@ void Game::Render()
     glBindTexture(GL_TEXTURE_2D, targatest);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+#if 0
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex2f(0, 480.0);
     glTexCoord2f(1.0, 1.0); glVertex2f(640.0, 480.0);
@@ -191,6 +193,7 @@ void Game::Render()
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
+#endif
 
     glEnable(GL_DEPTH_TEST);
 }

@@ -122,29 +122,23 @@ float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
 
 bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
 {
-    return false;
-#if 1
-    float area = 0.5f * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-    float s = 1 / (2 * area) * (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y);
-    float t = 1 / (2 * area) * (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y);
-    return s >= 0 && t >= 0 && (s + t) <= 1;
-#endif
-
     const float epsilon = 0.001;
 
-    float a;
-    float a1;
-    float a2;
-    float a3;
+    vec2_t v0 = { p2.x - p0.x, p2.y - p0.y };
+    vec2_t v1 = { p1.x - p0.x, p1.y - p0.y };
+    vec2_t v2 = { p.x - p0.x, p.y - p0.y };
 
-    a = TriangleArea(p0, p1, p2);
-    a1 = TriangleArea(p, p0, p1);
-    a2 = TriangleArea(p, p0, p2);
-    a3 = TriangleArea(p, p1, p2);
+    float dot00 = v0.x * v0.y + v0.y * v0.y;
+    float dot01 = v0.x * v1.x + v0.y * v1.y;
+    float dot02 = v0.x * v2.x + v0.y * v2.y;
+    float dot11 = v1.x * v1.y + v1.y * v1.y;
+    float dot12 = v1.x * v2.x + v1.y * v2.y;
 
-    // Check if the sum of the areas of the triangle point p forms with the vertices is (roughly) equal to the area of the triangle.
-    // TODO: Recede the vertices by epsilon / 2 to account for epsilon growing the triangle a little
-    return abs(a - a1 - a2 - a3) < epsilon;
+    float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+    float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+       
+    return (u >= -epsilon) && (v >= -epsilon) && (u + v <= 1 + epsilon);
 }
 
 float PolygonDirection(std::vector<vec2_t> points)
@@ -158,10 +152,12 @@ float PolygonDirection(std::vector<vec2_t> points)
 
 bool VertexConvex(vec2_t last, vec2_t v, vec2_t next)
 {
-    return true;
-    float det = (v.x - last.x) * (next.y - last.y) - (v.y - last.y) * (next.x - last.x);
+    vec2_t v0 = v - last;
+    vec2_t v1 = next - v;
 
-    return det < 0;
+    float mag = v0.x * v1.y - v0.y * v1.x;
+
+    return mag < 0;
 }
 
 bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)

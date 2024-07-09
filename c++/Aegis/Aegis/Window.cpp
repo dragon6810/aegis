@@ -17,7 +17,7 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
     {
         width = mode->width - 1;
         height = mode->height;
-
+        
         glfwWindowHint(GLFW_RED_BITS, mode->redBits);
         glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
         glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
@@ -33,8 +33,6 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    
-    glfwMakeContextCurrent(window);
 }
 
 Window::~Window()

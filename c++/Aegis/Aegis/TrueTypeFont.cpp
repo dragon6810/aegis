@@ -705,7 +705,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
 	{
-		std::vector<vec2_t> contour(points.begin() + cstart, points.begin() + contourends[c]);
+		std::vector<vec2_t> contour = std::vector<vec2_t>(points.begin() + cstart, points.begin() + contourends[c]);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
 			holes.push_back(contour); // Counter clockwise contours are holes
@@ -715,6 +715,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		cstart = contourends[c];
 	}
 
+#if 0
 	// Cut into contours with holes
 	for (int c = 0; c < contours.size(); c++)
 	{
@@ -800,89 +801,86 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		}
 		contours[c] = contour;
 	}
+#endif
 
 	for (int c = 0; c < contours.size(); c++)
 	{
 		if (contours[c].size() < 1)
 			continue;
 
+		contour = contours[c];
+
 		// Make a doubly linked list of the points to accelerate vertex removal later
-		std::vector<int> next(contours[c].size());
-		std::vector<int> last(contours[c].size());
-		int numpoints = contours[c].size();
-		for (int i = 0; i < contours[c].size(); i++)
+		next.resize(contour.size());
+		last.resize(contour.size());
+		convex.resize(contour.size());
+		int numpoints = contour.size();
+		for (int i = 0; i < contour.size(); i++)
 		{
 			next[i] = (i + 1) % numpoints;
-			last[i] = i - 1;
-			while (last[i] < 0)
-				last[i] += numpoints;
+			last[i] = (i - 1 + numpoints) % numpoints;
+
+			vec2_t v0 = contour[last[i]];
+			vec2_t v1 = contour[i];
+			vec2_t v2 = contour[next[i]];
+			convex[i] = VertexConvex(v0, v1, v2);
 		}
 
-		int valid = contours[c].size() - 1;
-
-		// WARNING TO FUTURE ME: Checking for numpoints > 2 is not a typo, anything lower than two will make an infinite loop. 
-		// Don't make the same mistake I did.
+		valid = last[0]; // Keep track of any valid vertex still in the polygon
 		while (numpoints > 2)
 		{
-			bool foundear = false;
-			
-			int loops = 0;
-			for (int i = valid, loops = 0; loops < 2; i = next[i])
+			bool found = false;
+
+			int nloops;
+			int loopcheck;
+			for (int i = valid, nloops = 0, loopcheck = valid; nloops < 2; i = next[i])
 			{
 				if (i == valid)
-					loops++;
+					nloops++;
 
-				vec2_t p0 = contours[c][last[i]];
-				vec2_t p1 = contours[c][i];
-				vec2_t p2 = contours[c][next[i]];
-
-				if (!VertexConvex(p0, p1, p2)) // Ears must be convex (clockwise in this case)
+				if (!convex[i])
 					continue;
 
-				bool isear = true;
-				for (int j = 0; j < contours[c].size(); j++)
-				{
-					if (j == last[i] || j == i || j == next[i])
-						continue;
-						
-					if (PointInTriangle(p0, p1, p2, contours[c][j])) // If any points are in the triangle, it's not an ear
-					{
-						isear = false;
-						break;
-					}
-				}
-
-				if (!isear)
+				if (VertInTri(i))
 					continue;
+
+
+				mesh.points.push_back(contour[last[i]]);
+				mesh.indices.push_back(mesh.points.size() - 1);
+				
+				mesh.points.push_back(contour[i]);
+				mesh.indices.push_back(mesh.points.size() - 1);
+
+				mesh.points.push_back(contour[next[i]]);
+				mesh.indices.push_back(mesh.points.size() - 1);
 
 				next[last[i]] = next[i];
 				last[next[i]] = last[i];
-				numpoints--;
+
+				if (!convex[last[i]])
+					convex[last[i]] = VertexConvex(contour[last[last[i]]], contour[last[i]], contour[next[last[i]]]);
+
+				if (!convex[next[i]])
+					convex[next[i]] = VertexConvex(contour[last[next[i]]], contour[next[i]], contour[next[next[i]]]);
 
 				if (i == valid)
-					valid = next[i];
+					valid = last[i];
+				
+				numpoints--;
 
-				mesh.indices.push_back(mesh.points.size());
-				mesh.points.push_back(contours[c][last[i]]);
-				mesh.indices.push_back(mesh.points.size());
-				mesh.points.push_back(contours[c][i]);
-				mesh.indices.push_back(mesh.points.size());
-				mesh.points.push_back(contours[c][next[i]]);
-
-				foundear = true;
-				break;
+				found = true;
 			}
 
-			if (!foundear)
+			if (!found)
 			{
-				Print::Aegis_Warning("Ear clipping error! This could be a bug in my code, or a bad/too big mesh given.\n");
-				return {};
+				Print::Aegis_Warning("Ear Clipping failed: bad mesh given or bug.\n");
+				return mesh;
 			}
 		}
 	}
 	
 	if (mesh.indices.size() < 1)
-		return mesh;
+		return {};
 
 	// OPTIMIZE: Fix this steaming pile of O(n^3) shit
 	for (int i = 0; i < mesh.indices.size() - 1; i++) 
@@ -909,5 +907,46 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		}
 	}
 
+	// Flip any clockwise triangles
+	for (int i = 0; i < mesh.indices.size(); i += 3)
+	{
+		vec2_t v0 = mesh.points[mesh.indices[i + 0]];
+		vec2_t v1 = mesh.points[mesh.indices[i + 1]];
+		vec2_t v2 = mesh.points[mesh.indices[i + 2]];
+
+		// Skip if its already CC
+		if (!VertexConvex(v0, v1, v2))
+			continue;
+
+		int temp = mesh.indices[i];
+		mesh.indices[i] = mesh.indices[i + 2];
+		mesh.indices[i + 2] = temp;
+	}
+
 	return mesh;
+}
+
+bool TrueTypeFont::VertInTri(int v)
+{
+	vec2_t v0 = contour[last[v]];
+	vec2_t v1 = contour[v];
+	vec2_t v2 = contour[next[v]];
+
+	int nloops;
+	for (int i = valid, nloops = 0; nloops < 2; i = next[i])
+	{
+		if (i == valid)
+			nloops++;
+
+		if (i == last[v] || i == v || i == next[v])
+			continue;
+
+		if (convex[i])
+			continue;
+
+		if (PointInTriangle(v0, v1, v2, contour[i]))
+			return true;
+	}
+
+	return false;
 }
