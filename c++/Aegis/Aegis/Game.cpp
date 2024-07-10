@@ -162,7 +162,7 @@ void Game::Render()
 
     ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  
 
     std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, {250, 280}, {300, 280}, { 260, 320 } };
     std::vector<int> contourends = { 6, 9 };

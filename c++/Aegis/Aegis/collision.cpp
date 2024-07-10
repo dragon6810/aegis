@@ -122,22 +122,22 @@ float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
 
 bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
 {
-    const float epsilon = 0.001;
+    const float epsilon = 0.0001;
 
     vec2_t v0 = { p2.x - p0.x, p2.y - p0.y };
     vec2_t v1 = { p1.x - p0.x, p1.y - p0.y };
     vec2_t v2 = { p.x - p0.x, p.y - p0.y };
 
-    float dot00 = v0.x * v0.y + v0.y * v0.y;
+    float dot00 = v0.x * v0.x + v0.y * v0.y;
     float dot01 = v0.x * v1.x + v0.y * v1.y;
     float dot02 = v0.x * v2.x + v0.y * v2.y;
-    float dot11 = v1.x * v1.y + v1.y * v1.y;
+    float dot11 = v1.x * v1.x + v1.y * v1.y;
     float dot12 = v1.x * v2.x + v1.y * v2.y;
 
     float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
     float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-       
+
     return (u >= -epsilon) && (v >= -epsilon) && (u + v <= 1 + epsilon);
 }
 
