@@ -395,6 +395,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 {
 	int i;
 	int j;
+	int k;
 
 	std::vector<uint16_t> contourends;
 	uint16_t instructionlength;
@@ -580,27 +581,68 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	for (i = 0; i < contourends.size(); i++)
 	{
 		int npoints = contourends[i] - cstart + 1;
-		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + contourends[i]);
-		int dir = PolygonDirection(cur);
+		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + contourends[i] + 1);
 		for (j = cstart; j < cstart + npoints; j++)
 		{
-			if (dir > 0.0) // Hole
-			{
-				// TODO: Handle Holes
-			}
-			else // Contour
+			vec2_t v0 = cur[(j - cstart - 1 + npoints) % npoints];
+			vec2_t v1 = cur[j - cstart];
+			vec2_t v2 = cur[(j - cstart + 1) % npoints];
+			bool dir = VertexConvex(v0, v1, v2);
+			if(dir) // Clockwise; Contour
 			{
 				if (~flags[j] & 1)
-					markpoints.push_back(i);
+					markpoints.push_back(j);
 			}
 		}
 
+		cstart = contourends[i];
+	}
+
+	std::sort(markpoints.begin(), markpoints.end());
+	std::reverse(markpoints.begin(), markpoints.end());
+	for (i = 0; i < markpoints.size(); i++)
+	{
+		meshpoints.erase(meshpoints.begin() + markpoints[i]);
+		for (j = 0; j < meshends.size(); j++)
+		{
+			if (meshends[j] >= markpoints[i])
+				meshends[j]--;
+		}
+	}
+
+	cstart = 0;
+	for (i = 0; i < contourends.size(); i++)
+	{
+		int npoints = contourends[i] - cstart + 1;
+		for (j = cstart; j < cstart + npoints; j++)
+		{
+			if (flags[j] & 0x01) // On-curve
+				continue;
+
+			std::vector<vec2_t> fan;
+
+			vec2_t p0 = glyf.points[cstart + ((j - cstart - 1 + npoints) % npoints)];
+			vec2_t p1 = glyf.points[j];
+			vec2_t p2 = glyf.points[cstart + ((j - cstart + 1) % npoints)];
+
+			bool dir = VertexConvex(p0, p1, p2);
+			if (dir)
+				fan.push_back(Vector2Lerp(p0, p2, 0.5));
+			else
+				fan.push_back(p1);
+			
+			const int segs = 16;
+			float t = 0.0;
+			float step = 1.0 / (float)segs;
+			for (k = 0; k < segs + 1; k++, t += step)
+				fan.push_back(Vector2Bezier(p0, p1, p2, t));
+
+			glyf.bezierfans.push_back(fan);
+		}
 		cstart += npoints;
 	}
 
-
-
-	glyf.triangles = EarClip(glyf.points, contourends);
+	glyf.triangles = EarClip(meshpoints, meshends);
 
 	glyfs.push_back(glyf);
 }
@@ -659,6 +701,8 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	if (c == ' ') // Is the character a space?
 		return (glyfs[g].leftbear + glyfs[g].advw) * scale;
 
+	glEnable(GL_MULTISAMPLE);
+
 	glBegin(GL_TRIANGLES);
 	cstart = 0;
 	for (i = 0; i < glyfs[g].triangles.indices.size(); i += 3)
@@ -679,7 +723,24 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 		glVertex2f(p2.x, p2.y);
 	}
 	glEnd();
+
+	for (i = 0; i < glyfs[g].bezierfans.size(); i++)
+	{
+		glBegin(GL_TRIANGLE_FAN);
+		for (j = 0; j < glyfs[g].bezierfans[i].size(); j++)
+		{
+			vec2_t p = glyfs[g].bezierfans[i][j] * scale;
+
+			p.x += x;
+			p.y += y;
+
+			glVertex2f(p.x, p.y);
+		}
+		glEnd();
+	}
 	
+	glDisable(GL_MULTISAMPLE);
+
 	return (glyfs[g].advw) * scale;
 }
 

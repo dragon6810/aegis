@@ -26,6 +26,8 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     }
 
+    glfwWindowHint(GLFW_SAMPLES, 8);
+
     window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
     if (!window) 
     {
