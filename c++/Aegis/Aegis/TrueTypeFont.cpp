@@ -715,7 +715,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		cstart = contourends[c];
 	}
 
-#if 0
+#if 1
 	// Cut into contours with holes
 	for (int c = 0; c < contours.size(); c++)
 	{
@@ -833,7 +833,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 
 			int nloops;
 			int loopcheck;
-			for (int i = valid, nloops = 0, loopcheck = valid; nloops < 2; i = next[i])
+			for (int i = valid, nloops = 0, loopcheck = valid; nloops < 2; i = last[i])
 			{
 				if (i == valid)
 					nloops++;
@@ -843,8 +843,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 
 				if (VertInTri(i))
 					continue;
-
-
+				
 				mesh.points.push_back(contour[last[i]]);
 				mesh.indices.push_back(mesh.points.size() - 1);
 				
@@ -915,7 +914,8 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		vec2_t v2 = mesh.points[mesh.indices[i + 2]];
 
 		// Skip if its already CC
-		if (!VertexConvex(v0, v1, v2))
+		// NOTE: For some reason we're skipping if its clockwise. It works for some reason.
+		if (VertexConvex(v0, v1, v2))
 			continue;
 
 		int temp = mesh.indices[i];
