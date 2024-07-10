@@ -112,6 +112,8 @@ bool TrueTypeFont::Load(std::string name)
 	BigEndian(&hhdr.datafmt, sizeof(hhdr.datafmt));
 	BigEndian(&hhdr.nhmetrics, sizeof(hhdr.nhmetrics));
 
+	fontheight = hhdr.ascent - hhdr.descent + hhdr.linegap;
+
 	localengths.resize(maxp.numglyphs + 1);
 	locaoffsets.resize(maxp.numglyphs + 1);
 
@@ -599,6 +601,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	}
 
 	std::sort(markpoints.begin(), markpoints.end());
+	markpoints.resize(std::distance(markpoints.begin(), std::unique(markpoints.begin(), markpoints.end())));
 	std::reverse(markpoints.begin(), markpoints.end());
 	for (i = 0; i < markpoints.size(); i++)
 	{
@@ -655,19 +658,102 @@ void TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 
 int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)
 {
-	int startx = x;
-	for (int i = 0; i < txt.size(); i++)
+	int i;
+	int j;
+
+	char c;
+
+	std::vector<std::string> split;
+	std::string cur;
+
+	int originx = x;
+
+	for (i = 0; i < txt.size(); i++)
 	{
-		x += DrawGlyph(txt[i], x, y, scale);
+		c = txt[i];
+		if (c == '\n')
+		{
+			if (!cur.empty())
+			{
+				split.push_back(cur);
+				cur.clear();
+			}
+		}
+		else
+			cur += c;
 	}
 
-	return x - startx;
+	if (!cur.empty())
+		split.push_back(cur);
+
+	int biggestx = 0;
+	for (i = 0; i < split.size(); i++, y -= fontheight)
+	{
+		cur = split[i];
+		
+		int w = DrawLine(cur, x, y, scale, false);
+
+		if (w > biggestx)
+			biggestx = w;
+	}
+
+	return biggestx;
 }
 
 int TrueTypeFont::DrawCenteredString(std::string txt, float x, float y, float scale)
 {
-	x -= StringWidth(txt, scale) >> 1;
-	return DrawString(txt, x, y, scale);
+	int i;
+	int j;
+
+	char c;
+
+	std::vector<std::string> split;
+	std::string cur;
+
+	int originx = x;
+
+	for (i = 0; i < txt.size(); i++)
+	{
+		c = txt[i];
+		if (c == '\n')
+		{
+			if (!cur.empty())
+			{
+				split.push_back(cur);
+				cur.clear();
+			}
+		}
+		else
+			cur += c;
+	}
+
+	if (!cur.empty())
+		split.push_back(cur);
+
+	int biggestx = 0;
+	for (i = 0; i < split.size(); i++, y -= (fontheight * (scale / hdr.emsize)))
+	{
+		cur = split[i];
+
+		int w = DrawLine(cur, x, y, scale, true);
+
+		if (w > biggestx)
+			biggestx = w;
+	}
+
+	return biggestx;
+}
+
+int TrueTypeFont::DrawLine(std::string txt, float x, float y, float scale, bool center)
+{
+	if(center)
+		x -= StringWidth(txt, scale) >> 1;
+
+	int startx = x;
+	for (int i = 0; i < txt.size(); i++)
+		x += DrawGlyph(txt[i], x, y, scale);
+
+	return x - startx;
 }
 
 int TrueTypeFont::StringWidth(std::string txt, float scale)

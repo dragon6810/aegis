@@ -118,6 +118,8 @@ public:
 		std::vector<std::vector<vec2_t>> bezierfans;
 	};
 
+	uint16_t fontheight;
+
 	bool Load(std::string name);
 
 	int DrawString(std::string txt, float x, float y, float scale);
@@ -196,6 +198,8 @@ private:
 
 	uint32_t IndexCMap(wchar_t c);
 	
+	int DrawLine(std::string txt, float x, float y, float scale, bool center);
+
 	static void DrawBezier(vec2_t p0, vec2_t p1, vec2_t p2);
 
 	void LoadCMap(FILE* ptr);

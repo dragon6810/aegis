@@ -13,6 +13,8 @@
 
 void Game::Main()
 {
+    start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
 	renderer.Init();
 	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, false);
 	window->SelectForRendering();
@@ -51,10 +53,12 @@ void Game::Main()
     targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga");
     font.Load("FONT1", "valve/fonts.wad");
 
-    ttf.Load("helvetica.ttf");
+    float before = Time();
+    ttf.Load("opensans.ttf");
+    float after = Time();
+    printf("Loading font took %5.3f seconds.\n", after - before);
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
@@ -160,10 +164,7 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    ttf.DrawCenteredString("The Quick Brown", 320, 240, 75.0);
-    ttf.DrawCenteredString("Fox Jumps Over", 320, 180, 75.0);
-    ttf.DrawCenteredString("The Lazy Dog,!.?", 320, 120, 75.0);
-    ttf.DrawCenteredString("1234567890@#$", 320, 40, 75.0);
+    ttf.DrawCenteredString("The Quick Brown\nFox Jumps Over\nThe Lazy Dog,!.?\n1234567890@#$", 320, 240, 75.0);
 
     glEnable(GL_DEPTH_TEST);
 }
