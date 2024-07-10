@@ -114,7 +114,7 @@ public:
 		std::vector<line_t> lines;
 		std::vector<bezier_t> beziers;
 
-		std::vector<std::array<int, 3>> triangles;
+		trimesh_t triangles;
 		std::vector<std::vector<vec2_t>> bezierfans;
 	};
 
@@ -125,7 +125,7 @@ public:
 	int StringWidth(std::string txt, float scale);
 
 	// Warning: This function is horribly slow. Under no circumstances should you call it in any place other than load time. If you need to, fix it.
-	trimesh_t EarClip(std::vector<vec2_t> points, std::vector<int> contourends);
+	trimesh_t EarClip(std::vector<vec2_t> points, std::vector<uint16_t> contourends);
 private:
 	#pragma pack(push, 1)
 	struct offsetsubtable_t

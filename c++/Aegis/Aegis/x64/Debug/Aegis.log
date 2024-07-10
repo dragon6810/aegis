@@ -17,9 +17,9 @@ C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(38,51): warning C
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(72,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(78,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(104,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(237,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(271,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(277,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(207,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(241,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(247,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

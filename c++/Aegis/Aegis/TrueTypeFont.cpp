@@ -572,6 +572,36 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	}
 	
 	glyf.desc = desc;
+
+	std::vector<vec2_t> meshpoints = glyf.points;
+	std::vector<uint16_t> meshends = contourends;
+	std::vector<int> markpoints;
+	cstart = 0;
+	for (i = 0; i < contourends.size(); i++)
+	{
+		int npoints = contourends[i] - cstart + 1;
+		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + contourends[i]);
+		int dir = PolygonDirection(cur);
+		for (j = cstart; j < cstart + npoints; j++)
+		{
+			if (dir > 0.0) // Hole
+			{
+				// TODO: Handle Holes
+			}
+			else // Contour
+			{
+				if (~flags[j] & 1)
+					markpoints.push_back(i);
+			}
+		}
+
+		cstart += npoints;
+	}
+
+
+
+	glyf.triangles = EarClip(glyf.points, contourends);
+
 	glyfs.push_back(glyf);
 }
 
@@ -627,34 +657,15 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	scale /= hdr.emsize;
 
 	if (c == ' ') // Is the character a space?
-	{
 		return (glyfs[g].leftbear + glyfs[g].advw) * scale;
-	}
 
-	glColor3f(1, 0, 1);
-
-	glBegin(GL_LINES);
+	glBegin(GL_TRIANGLES);
 	cstart = 0;
-	for (i = 0; i < glyfs[g].lines.size(); i++)
+	for (i = 0; i < glyfs[g].triangles.indices.size(); i += 3)
 	{
-		vec2_t p0 = glyfs[g].points[glyfs[g].lines[i].p0] * scale;
-		vec2_t p1 = glyfs[g].points[glyfs[g].lines[i].p1] * scale;
-
-		p0.x += x;
-		p0.y += y;
-		p1.x += x;
-		p1.y += y;
-
-		glVertex2f(p0.x, p0.y);
-		glVertex2f(p1.x, p1.y);
-	}
-	glEnd();
-
-	for (i = 0; i < glyfs[g].beziers.size(); i++)
-	{
-		vec2_t p0 = glyfs[g].points[glyfs[g].beziers[i].p0] * scale;
-		vec2_t p1 = glyfs[g].points[glyfs[g].beziers[i].p1] * scale;
-		vec2_t p2 = glyfs[g].points[glyfs[g].beziers[i].p2] * scale;
+		vec2_t p0 = glyfs[g].triangles.points[glyfs[g].triangles.indices[i + 0]] * scale;
+		vec2_t p1 = glyfs[g].triangles.points[glyfs[g].triangles.indices[i + 1]] * scale;
+		vec2_t p2 = glyfs[g].triangles.points[glyfs[g].triangles.indices[i + 2]] * scale;
 
 		p0.x += x;
 		p0.y += y;
@@ -663,25 +674,11 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 		p2.x += x;
 		p2.y += y;
 
-		DrawBezier(p0, p1, p2);
-	}
-
-	glPointSize(5.0);
-	glBegin(GL_POINTS);
-	for (i = 0; i < glyfs[g].points.size(); i++)
-	{
-		if (glyfs[g].flags[i] & 0x01)
-			glColor3f(1, 0, 0);
-		else
-			glColor3f(0, 0, 1);
-
-		vec2_t p = glyfs[g].points[i] * scale;
-		p.x += x;
-		p.y += y;
-		//glVertex2f(p.x, p.y);
+		glVertex2f(p0.x, p0.y);
+		glVertex2f(p1.x, p1.y);
+		glVertex2f(p2.x, p2.y);
 	}
 	glEnd();
-	glColor3f(1, 1, 1);
 	
 	return (glyfs[g].advw) * scale;
 }
@@ -695,7 +692,7 @@ int TrueTypeFont::GlyphWidth(wchar_t c, float scale)
 	return glyfs[g].advw * scale;
 }
 
-TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::vector<int> contourends)
+TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::vector<uint16_t> contourends)
 {
 	trimesh_t mesh;
 
@@ -705,17 +702,16 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
 	{
-		std::vector<vec2_t> contour = std::vector<vec2_t>(points.begin() + cstart, points.begin() + contourends[c]);
+		std::vector<vec2_t> contour = std::vector<vec2_t>(points.begin() + cstart, points.begin() + contourends[c] + 1);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
 			holes.push_back(contour); // Counter clockwise contours are holes
 		else
 			contours.push_back(contour); // Clockwise contours are solid
 
-		cstart = contourends[c];
+		cstart = contourends[c] + 1;
 	}
 
-#if 1
 	// Cut into contours with holes
 	for (int c = 0; c < contours.size(); c++)
 	{
@@ -801,7 +797,6 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 		}
 		contours[c] = contour;
 	}
-#endif
 
 	for (int c = 0; c < contours.size(); c++)
 	{

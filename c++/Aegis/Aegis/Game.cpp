@@ -51,7 +51,7 @@ void Game::Main()
     targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga");
     font.Load("FONT1", "valve/fonts.wad");
 
-    ttf.Load("opensans.ttf");
+    ttf.Load("helvetica.ttf");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -160,40 +160,10 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    ttf.DrawCenteredString("Hello, World!", 320, 240, 75.0);
-
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  
-
-    std::vector<vec2_t> test = { {20, 240}, {100, 380}, {540, 380}, {320, 240}, {540, 100}, {100, 100}, {250, 280}, {300, 280}, { 260, 320 } };
-    std::vector<int> contourends = { 6, 9 };
-    TrueTypeFont::trimesh_t mesh = ttf.EarClip( test, contourends);
-    
-    for (int i = 0; i < mesh.indices.size(); i += 3)
-    {
-        glBegin(GL_TRIANGLES);
-        glVertex2f(mesh.points[mesh.indices[i + 0]].x, mesh.points[mesh.indices[i + 0]].y);
-        glVertex2f(mesh.points[mesh.indices[i + 1]].x, mesh.points[mesh.indices[i + 1]].y);
-        glVertex2f(mesh.points[mesh.indices[i + 2]].x, mesh.points[mesh.indices[i + 2]].y);
-        glEnd();
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, targatest);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-#if 0
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex2f(0, 480.0);
-    glTexCoord2f(1.0, 1.0); glVertex2f(640.0, 480.0);
-    glTexCoord2f(1.0, 0.0); glVertex2f(640.0, 0.0);
-    glTexCoord2f(0.0, 0.0); glVertex2f(0.0, 0.0);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-#endif
+    ttf.DrawCenteredString("The Quick Brown", 320, 240, 75.0);
+    ttf.DrawCenteredString("Fox Jumps Over", 320, 180, 75.0);
+    ttf.DrawCenteredString("The Lazy Dog,!.?", 320, 120, 75.0);
+    ttf.DrawCenteredString("1234567890@#$", 320, 40, 75.0);
 
     glEnable(GL_DEPTH_TEST);
 }
