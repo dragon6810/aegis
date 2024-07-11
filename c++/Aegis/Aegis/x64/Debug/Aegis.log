@@ -1,49 +1,7 @@
-﻿  TrueTypeFont.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'TrueTypeFont.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'TrueTypeFont.cpp')
-  
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(25,11): warning C4101: 'glyfoffs': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(308,38): warning C4244: '=': conversion from 'unsigned long' to 'uint16_t', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(330,18): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(337,33): warning C4018: '<=': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(430,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(445,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(478,16): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(671,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(664,6): warning C4101: 'j': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(715,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(708,6): warning C4101: 'j': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(754,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(758,11): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(763,6): warning C4101: 'i': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(790,46): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(865,25): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(780,6): warning C4101: 'npoints': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(874,23): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(920,22): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(994,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1025,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1025,47): warning C4267:         with
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1025,47): warning C4267:         [
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1025,47): warning C4267:             _Ty=int
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1025,47): warning C4267:         ]
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1028,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1028,47): warning C4267:         with
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1028,47): warning C4267:         [
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1028,47): warning C4267:             _Ty=int
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1028,47): warning C4267:         ]
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1031,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1031,47): warning C4267:         with
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1031,47): warning C4267:         [
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1031,47): warning C4267:             _Ty=int
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1031,47): warning C4267:         ]
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1012,8): warning C4101: 'loopcheck': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1011,8): warning C4101: 'nloops': unreferenced local variable
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1112,6): warning C4101: 'nloops': unreferenced local variable
+﻿  collision.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(120,15): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(125,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(150,17): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

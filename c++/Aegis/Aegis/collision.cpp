@@ -170,7 +170,15 @@ bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)
         vec2_t p1 = points[(i + 1) % points.size()] - p;
 
         if (SegXIntercept(p0, p1))
+        {
+            // Don't count top edges to avoid double counting
+            if (p0.y > p1.y && p0.y == 0)
+                continue;
+            if (p1.y > p0.y && p1.y == 0)
+                continue;
+
             ncollisions++;
+        }
     }
 
     return ncollisions & 1;
