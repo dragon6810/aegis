@@ -113,6 +113,7 @@ public:
 		std::vector<ubyte_t> flags;
 		std::vector<line_t> lines;
 		std::vector<bezier_t> beziers;
+		std::vector<uint16_t> ends;	   // This is for debugging winding direction, remove later
 
 		trimesh_t triangles;
 		std::vector<std::vector<vec2_t>> bezierfans;

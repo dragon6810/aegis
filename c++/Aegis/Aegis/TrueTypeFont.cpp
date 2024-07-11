@@ -597,7 +597,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 			}
 		}
 
-		cstart = contourends[i];
+		cstart += npoints;
 	}
 
 	std::sort(markpoints.begin(), markpoints.end());
@@ -646,6 +646,8 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	}
 
 	glyf.triangles = EarClip(meshpoints, meshends);
+
+	glyf.ends = contourends;
 
 	glyfs.push_back(glyf);
 }
@@ -790,7 +792,6 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	glEnable(GL_MULTISAMPLE);
 
 	glBegin(GL_TRIANGLES);
-	cstart = 0;
 	for (i = 0; i < glyfs[g].triangles.indices.size(); i += 3)
 	{
 		vec2_t p0 = glyfs[g].triangles.points[glyfs[g].triangles.indices[i + 0]] * scale;
@@ -826,6 +827,40 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	}
 	
 	glDisable(GL_MULTISAMPLE);
+
+	cstart = 0;
+	glColor3f(1, 0, 1);
+	glBegin(GL_LINES);
+	for (c = 0; c < glyfs[g].ends.size(); c++)
+	{
+		int npoints = glyfs[g].ends[c] - cstart + 1;
+
+		std::vector<vec2_t> cur(glyfs[g].points.begin() + cstart, glyfs[g].points.begin() + cstart + npoints);
+		float dir = PolygonDirection(cur);
+
+		if (dir > 0.0)
+			glColor3f(1, 0, 0);
+		else
+			glColor3f(0, 0, 1);
+
+		for (i = cstart; i < glyfs[g].ends[c] + 1; i++)
+		{
+			vec2_t v0 = glyfs[g].points[i] * scale;
+			vec2_t v1 = glyfs[g].points[cstart + ((i - cstart + 1) % npoints)] * scale;
+
+			v0.x += x;
+			v0.y += y;
+			v1.x += x;
+			v1.y += y;
+
+			glVertex2f(v0.x, v0.y);
+			glVertex2f(v1.x, v1.y);
+		}
+		cstart += npoints;
+	}
+	glEnd();
+
+	glColor3f(1, 1, 1);
 
 	return (glyfs[g].advw) * scale;
 }
@@ -930,7 +965,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			{
 				// How did we get here?
 				Print::Aegis_Warning("Ear clipping function error.\n");
-				continue;
+				return {};
 			}
 			
 			int insertindex = closestp;
@@ -1015,58 +1050,58 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			if (!found)
 			{
 				Print::Aegis_Warning("Ear Clipping failed: bad mesh given or bug.\n");
-				return mesh;
+				return {};
 			}
 		}
 	}
 	
-	if (mesh.indices.size() < 1)
-		return {};
+		if (mesh.indices.size() < 1)
+			return {};
 
-	// OPTIMIZE: Fix this steaming pile of O(n^3) shit
-	for (int i = 0; i < mesh.indices.size() - 1; i++) 
-	{
-		vec2_t v0 = mesh.points[mesh.indices[i]];
-		for (int j = i + 1; j < mesh.indices.size(); j++) 
+		// OPTIMIZE: Fix this steaming pile of O(n^3) shit
+		for (int i = 0; i < mesh.indices.size() - 1; i++) 
 		{
-			vec2_t v1 = mesh.points[mesh.indices[j]];
-			if (v0.x != v1.x || v0.y != v1.y)
-				continue;
-			
-			int index_to_remove = mesh.indices[j];
-			mesh.indices[j] = mesh.indices[i];
-			
-			mesh.points.erase(mesh.points.begin() + index_to_remove);
-			
-			for (int k = 0; k < mesh.indices.size(); k++)
+			vec2_t v0 = mesh.points[mesh.indices[i]];
+			for (int j = i + 1; j < mesh.indices.size(); j++) 
 			{
-				if (mesh.indices[k] > index_to_remove)
-					mesh.indices[k]--;
+				vec2_t v1 = mesh.points[mesh.indices[j]];
+				if (v0.x != v1.x || v0.y != v1.y)
+					continue;
+			
+				int index_to_remove = mesh.indices[j];
+				mesh.indices[j] = mesh.indices[i];
+			
+				mesh.points.erase(mesh.points.begin() + index_to_remove);
+			
+				for (int k = 0; k < mesh.indices.size(); k++)
+				{
+					if (mesh.indices[k] > index_to_remove)
+						mesh.indices[k]--;
+				}
+
+				break;
 			}
-
-			break;
 		}
+
+		// Flip any clockwise triangles
+		for (int i = 0; i < mesh.indices.size(); i += 3)
+		{
+			vec2_t v0 = mesh.points[mesh.indices[i + 0]];
+			vec2_t v1 = mesh.points[mesh.indices[i + 1]];
+			vec2_t v2 = mesh.points[mesh.indices[i + 2]];
+
+			// Skip if its already CC
+			// NOTE: For some reason we're skipping if its clockwise. It works for some reason.
+			if (VertexConvex(v0, v1, v2))
+				continue;
+
+			int temp = mesh.indices[i];
+			mesh.indices[i] = mesh.indices[i + 2];
+			mesh.indices[i + 2] = temp;
+		}
+
+		return mesh;
 	}
-
-	// Flip any clockwise triangles
-	for (int i = 0; i < mesh.indices.size(); i += 3)
-	{
-		vec2_t v0 = mesh.points[mesh.indices[i + 0]];
-		vec2_t v1 = mesh.points[mesh.indices[i + 1]];
-		vec2_t v2 = mesh.points[mesh.indices[i + 2]];
-
-		// Skip if its already CC
-		// NOTE: For some reason we're skipping if its clockwise. It works for some reason.
-		if (VertexConvex(v0, v1, v2))
-			continue;
-
-		int temp = mesh.indices[i];
-		mesh.indices[i] = mesh.indices[i + 2];
-		mesh.indices[i + 2] = temp;
-	}
-
-	return mesh;
-}
 
 bool TrueTypeFont::VertInTri(int v)
 {
