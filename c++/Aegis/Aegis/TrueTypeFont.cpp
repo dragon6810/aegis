@@ -586,15 +586,20 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + contourends[i] + 1);
 		for (j = cstart; j < cstart + npoints; j++)
 		{
-			vec2_t v0 = cur[(j - cstart - 1 + npoints) % npoints];
+			int last = cstart + ((j - cstart - 1 + npoints) % npoints);
+			int next = cstart + ((j - cstart + 1) % npoints);
+			vec2_t v0 = cur[last - cstart];
 			vec2_t v1 = cur[j - cstart];
-			vec2_t v2 = cur[(j - cstart + 1) % npoints];
-			bool dir = VertexConvex(v0, v1, v2);
+			vec2_t v2 = cur[next - cstart];
+			bool dir = TriangleClockwise2D(v0, v1, v2);
 			if(dir) // Clockwise; Contour
 			{
 				if (~flags[j] & 1)
 					markpoints.push_back(j);
 			}
+			
+			//if (TriangleArea(v0, v1, v2) < 0.001)
+			//	markpoints.push_back(j);
 		}
 
 		cstart += npoints;
@@ -628,7 +633,7 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 			vec2_t p1 = glyf.points[j];
 			vec2_t p2 = glyf.points[cstart + ((j - cstart + 1) % npoints)];
 
-			bool dir = VertexConvex(p0, p1, p2);
+			bool dir = TriangleClockwise2D(p0, p1, p2);
 			if (dir)
 				fan.push_back(Vector2Lerp(p0, p2, 0.5));
 			else
@@ -788,9 +793,9 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 
 	if (c == ' ') // Is the character a space?
 		return (glyfs[g].leftbear + glyfs[g].advw) * scale;
-
+	
 	glEnable(GL_MULTISAMPLE);
-
+	
 	glBegin(GL_TRIANGLES);
 	for (i = 0; i < glyfs[g].triangles.indices.size(); i += 3)
 	{
@@ -884,6 +889,9 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
 	{
+		if ((c > 0) && (contourends[c - 1] >= contourends[c])) // Empty contour
+			continue;
+
 		std::vector<vec2_t> contour = std::vector<vec2_t>(points.begin() + cstart, points.begin() + contourends[c] + 1);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
@@ -1000,7 +1008,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 			vec2_t v0 = contour[last[i]];
 			vec2_t v1 = contour[i];
 			vec2_t v2 = contour[next[i]];
-			convex[i] = VertexConvex(v0, v1, v2);
+			convex[i] = TriangleClockwise2D(v0, v1, v2);
 		}
 
 		valid = last[0]; // Keep track of any valid vertex still in the polygon
@@ -1034,23 +1042,22 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 				last[next[i]] = last[i];
 
 				if (!convex[last[i]])
-					convex[last[i]] = VertexConvex(contour[last[last[i]]], contour[last[i]], contour[next[last[i]]]);
+					convex[last[i]] = TriangleClockwise2D(contour[last[last[i]]], contour[last[i]], contour[next[last[i]]]);
 
 				if (!convex[next[i]])
-					convex[next[i]] = VertexConvex(contour[last[next[i]]], contour[next[i]], contour[next[next[i]]]);
+					convex[next[i]] = TriangleClockwise2D(contour[last[next[i]]], contour[next[i]], contour[next[next[i]]]);
 
 				if (i == valid)
 					valid = last[i];
 				
 				numpoints--;
-
 				found = true;
 			}
 
 			if (!found)
 			{
 				Print::Aegis_Warning("Ear Clipping failed: bad mesh given or bug.\n");
-				return {};
+				return mesh;
 			}
 		}
 	}
@@ -1092,7 +1099,7 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 
 			// Skip if its already CC
 			// NOTE: For some reason we're skipping if its clockwise. It works for some reason.
-			if (VertexConvex(v0, v1, v2))
+			if (TriangleClockwise2D(v0, v1, v2))
 				continue;
 
 			int temp = mesh.indices[i];

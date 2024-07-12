@@ -35,7 +35,7 @@ bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p);
 float PolygonDirection(std::vector<vec2_t> points);
 
 // Assuming clockwise winding
-bool VertexConvex(vec2_t last, vec2_t v, vec2_t next);
+bool TriangleClockwise2D(vec2_t last, vec2_t v, vec2_t next);
 
 bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p);
 

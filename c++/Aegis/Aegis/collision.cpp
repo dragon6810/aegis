@@ -117,7 +117,7 @@ std::vector<vec3_t> BoxFace(vec3_t bmin, vec3_t bmax, std::vector<vec3_t> face)
 
 float TriangleArea(vec2_t p0, vec2_t p1, vec2_t p2)
 {
-    return abs((p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y)) / 2.0);
+    return fabs((p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y)) / 2.0);
 }
 
 bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
@@ -144,20 +144,24 @@ bool PointInTriangle(vec2_t p0, vec2_t p1, vec2_t p2, vec2_t p)
 float PolygonDirection(std::vector<vec2_t> points)
 {
     float area = 0.0;
-    for (int i = 0; i < points.size() - 1; i++)
-        area += points[i].x * points[i + 1].y - points[i].y * points[i + 1].x;
+    int n = points.size();
+    for (int i = 0; i < n; i++)
+    {
+        int j = (i + 1) % n; // Wrap around to the first point
+        area += points[i].x * points[j].y - points[i].y * points[j].x;
+    }
 
     return area * 0.5;
 }
 
-bool VertexConvex(vec2_t last, vec2_t v, vec2_t next)
+bool TriangleClockwise2D(vec2_t last, vec2_t v, vec2_t next)
 {
     vec2_t v0 = v - last;
     vec2_t v1 = next - v;
 
     float mag = v0.x * v1.y - v0.y * v1.x;
 
-    return mag < 0;
+    return mag < 0.0;
 }
 
 bool PointInPolygon2D(std::vector<vec2_t> points, vec2_t p)
