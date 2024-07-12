@@ -147,7 +147,7 @@ float PolygonDirection(std::vector<vec2_t> points)
     int n = points.size();
     for (int i = 0; i < n; i++)
     {
-        int j = (i + 1) % n; // Wrap around to the first point
+        int j = (i + 1) % n;
         area += points[i].x * points[j].y - points[i].y * points[j].x;
     }
 

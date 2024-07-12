@@ -114,9 +114,9 @@
     frequency(integer) : "Frequency (0-255)" : 64
 ]
 
-@BaseClass base(RenderFields) = bspmodel : "BSP Model"
+@SolidClass base(RenderFields) = bspmodel : "BSP Model"
 
-@BaseClass base(RenderFields) = fakebspmodel : "Fake BSP Model (No Collision)"
+@SolidClass base(RenderFields) = fakebspmodel : "Fake BSP Model (No Collision)"
 
 @PointClass decal() base(Targetname, Appearflags) = leveldecal : "Decal"
 [

@@ -507,10 +507,16 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 		points[i].y = ycoords[i];
 	}
 	
+	std::vector<vec2_t> meshpoints = points;
+	std::vector<uint16_t> meshends = contourends;
+	std::vector<ubyte_t> meshflags = flags;
+
 	int cstart = 0;
 	for (i = 0; i < contourends.size(); i++)
 	{
 		int npoints = contourends[i] - cstart + 1;
+		std::vector<vec2_t> cur(points.begin() + cstart, points.begin() + cstart + npoints);
+		float dir = PolygonDirection(cur);
 		for (j = cstart; j < cstart + npoints; j++)
 		{
 			int nextp = cstart + ((j - cstart + 1) % npoints);
@@ -526,6 +532,36 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 					contourends[k]++;
 				npoints++;
 				j++;
+			}
+		}
+		cstart += npoints;
+	}
+
+	cstart = 0;
+	for (i = 0; i < meshends.size(); i++)
+	{
+		int npoints = meshends[i] - cstart + 1;
+		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + cstart + npoints);
+		float dir = PolygonDirection(cur);
+
+		if (dir < 0.0)
+		{
+			for (j = cstart; j < cstart + npoints; j++)
+			{
+				int nextp = cstart + ((j - cstart + 1) % npoints);
+				ubyte_t curflags = meshflags[j];
+				ubyte_t nextflags = meshflags[nextp];
+
+				if ((~curflags & 0x01) && (~nextflags & 0x01)) // Two consecutive control points? Insert a point in between them.
+				{
+					vec2_t p = Vector2Lerp(meshpoints[j], meshpoints[nextp], 0.5);
+					meshpoints.insert(meshpoints.begin() + nextp, p);
+					meshflags.insert(meshflags.begin() + nextp, 0x01); // New point should be on-curve
+					for (int k = i; k < meshends.size(); k++)
+						meshends[k]++;
+					npoints++;
+					j++;
+				}
 			}
 		}
 		cstart += npoints;
@@ -575,31 +611,26 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 	}
 	
 	glyf.desc = desc;
-
-	std::vector<vec2_t> meshpoints = glyf.points;
-	std::vector<uint16_t> meshends = contourends;
+	
 	std::vector<int> markpoints;
 	cstart = 0;
-	for (i = 0; i < contourends.size(); i++)
+	for (i = 0; i < meshends.size(); i++)
 	{
-		int npoints = contourends[i] - cstart + 1;
-		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + contourends[i] + 1);
+		int npoints = meshends[i] - cstart + 1;
+		std::vector<vec2_t> cur(meshpoints.begin() + cstart, meshpoints.begin() + meshends[i] + 1);
 		for (j = cstart; j < cstart + npoints; j++)
 		{
 			int last = cstart + ((j - cstart - 1 + npoints) % npoints);
 			int next = cstart + ((j - cstart + 1) % npoints);
-			vec2_t v0 = cur[last - cstart];
-			vec2_t v1 = cur[j - cstart];
-			vec2_t v2 = cur[next - cstart];
+			vec2_t v0 = meshpoints[last];
+			vec2_t v1 = meshpoints[j];
+			vec2_t v2 = meshpoints[next];
 			bool dir = TriangleClockwise2D(v0, v1, v2);
 			if(dir) // Clockwise; Contour
 			{
-				if (~flags[j] & 1)
+				if (~meshflags[j] & 1)
 					markpoints.push_back(j);
 			}
-			
-			//if (TriangleArea(v0, v1, v2) < 0.001)
-			//	markpoints.push_back(j);
 		}
 
 		cstart += npoints;
@@ -833,40 +864,6 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	
 	glDisable(GL_MULTISAMPLE);
 
-	cstart = 0;
-	glColor3f(1, 0, 1);
-	glBegin(GL_LINES);
-	for (c = 0; c < glyfs[g].ends.size(); c++)
-	{
-		int npoints = glyfs[g].ends[c] - cstart + 1;
-
-		std::vector<vec2_t> cur(glyfs[g].points.begin() + cstart, glyfs[g].points.begin() + cstart + npoints);
-		float dir = PolygonDirection(cur);
-
-		if (dir > 0.0)
-			glColor3f(1, 0, 0);
-		else
-			glColor3f(0, 0, 1);
-
-		for (i = cstart; i < glyfs[g].ends[c] + 1; i++)
-		{
-			vec2_t v0 = glyfs[g].points[i] * scale;
-			vec2_t v1 = glyfs[g].points[cstart + ((i - cstart + 1) % npoints)] * scale;
-
-			v0.x += x;
-			v0.y += y;
-			v1.x += x;
-			v1.y += y;
-
-			glVertex2f(v0.x, v0.y);
-			glVertex2f(v1.x, v1.y);
-		}
-		cstart += npoints;
-	}
-	glEnd();
-
-	glColor3f(1, 1, 1);
-
 	return (glyfs[g].advw) * scale;
 }
 
@@ -889,9 +886,6 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 	int cstart = 0;
 	for (int c = 0; c < contourends.size(); c++)
 	{
-		if ((c > 0) && (contourends[c - 1] >= contourends[c])) // Empty contour
-			continue;
-
 		std::vector<vec2_t> contour = std::vector<vec2_t>(points.begin() + cstart, points.begin() + contourends[c] + 1);
 		float dir = PolygonDirection(contour);
 		if (dir > 0)
@@ -939,9 +933,9 @@ TrueTypeFont::trimesh_t TrueTypeFont::EarClip(std::vector<vec2_t> points, std::v
 				{
 					vec2_t p0 = p;
 					p0.x += dst;
-					vec2_t p1 = e0;
+					vec2_t p1 = e0 + p;
 					if (e1.x > p1.x)
-						p1 = e1;
+						p1 = e1 + p;
 
 					vec2_t p2 = p;
 

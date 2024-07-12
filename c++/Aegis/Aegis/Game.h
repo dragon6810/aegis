@@ -70,6 +70,8 @@ public:
 	// Boring GLFW shit
 	vec2_t cursorpos{};
 
+	std::string gamedir = "deadbird";
+
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void CursorCallback(GLFWwindow* window, double xpos, double ypos);
 private:
