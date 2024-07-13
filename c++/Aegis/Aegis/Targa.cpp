@@ -11,7 +11,7 @@
 
 #include "binaryloader.h"
 
-GLuint Targa::LoadTargaImage(std::string path)
+GLuint Targa::LoadTargaImage(std::string path, int* width, int* height)
 {
 	int i;
 	int j;
@@ -216,6 +216,12 @@ GLuint Targa::LoadTargaImage(std::string path)
 	default:
 		break;
 	}
+
+	if (width != nullptr)
+		*width = imgwidth;
+
+	if (height != nullptr)
+		*height = imgheight;
 
 	return texname;
 }

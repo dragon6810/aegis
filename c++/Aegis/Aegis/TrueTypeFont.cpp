@@ -24,8 +24,6 @@ bool TrueTypeFont::Load(std::string name)
 
 	uint16_t glyfoffs;
 
-	name = "deadbird/truetype/" + name;
-
 	ptr = fopen(name.c_str(), "rb");
 	if (ptr == nullptr)
 		return false;
@@ -139,7 +137,7 @@ bool TrueTypeFont::Load(std::string name)
 		locaoffsets[i] = offset;
 	}
 
-	for (i = 0; i < maxp.numglyphs - 1; i++)
+	for (i = 0; i < maxp.numglyphs; i++)
 	{
 		fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[i] << 1), SEEK_SET);
 		LoadGlyph(ptr);
@@ -242,11 +240,11 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			BigEndian(&segcount, sizeof(segcount));
 			segcount >>= 1; // Divide by 2 to get actual seg count
 
-			fseek(ptr, 10, SEEK_CUR); // Skip to the really good stuff
+			fseek(ptr, 6, SEEK_CUR); // Skip to the really good stuff
 			segendcodes.resize(segcount);
 			for (int j = 0; j < segendcodes.size(); j++)
 			{
-				int16_t end;
+				uint16_t end;
 				fread(&end, sizeof(end), 1, ptr);
 				BigEndian(&end, sizeof(end));
 				segendcodes[j] = end;
@@ -257,7 +255,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			segstartcodes.resize(segcount);
 			for (int j = 0; j < segstartcodes.size(); j++)
 			{
-				int16_t start;
+				uint16_t start;
 				fread(&start, sizeof(start), 1, ptr);
 				BigEndian(&start, sizeof(start));
 				segstartcodes[j] = start;
@@ -266,7 +264,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			segdeltas.resize(segcount);
 			for (int j = 0; j < segdeltas.size(); j++)
 			{
-				int16_t delta;
+				uint16_t delta;
 				fread(&delta, sizeof(delta), 1, ptr);
 				BigEndian(&delta, sizeof(delta));
 				segdeltas[j] = delta;
@@ -276,7 +274,7 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 			segrangeoffsets.resize(segcount);
 			for (int j = 0; j < segrangeoffsets.size(); j++)
 			{
-				int16_t offs;
+				uint16_t offs;
 				fread(&offs, sizeof(offs), 1, ptr);
 				BigEndian(&offs, sizeof(offs));
 				segrangeoffsets[j] = offs;
@@ -292,16 +290,15 @@ void TrueTypeFont::LoadCMap(FILE* ptr)
 					if (segrangeoffsets[j] == 0)
 					{
 						glyf = segdeltas[j] + k;
-						cmap[k] = glyf;
 					}
 					else
 					{
-						glyfi = (segrangeoffsets[j] >> 1) + (k - segstartcodes[j]);
-						fseek(ptr, rangepos + j * 2 + glyfi * 2, SEEK_SET);
+						glyfi = segrangeoffsets[j] + ((k - segstartcodes[j]) << 1);
+						fseek(ptr, rangepos + (j << 1) + glyfi, SEEK_SET);
 						fread(&glyf, sizeof(glyf), 1, ptr);
 						BigEndian(&glyf, sizeof(glyf));
-						cmap[k] = glyf;
 					}
+					cmap[k] = glyf;
 				}
 			}
 
@@ -352,6 +349,9 @@ void TrueTypeFont::LoadHmtx(FILE* ptr)
 	int i;
 
 	int nmonoglyfs;
+
+	if (hhdr.nhmetrics > glyfs.size())
+		hhdr.nhmetrics = glyfs.size();
 
 	for (i = 0; i < hhdr.nhmetrics; i++)
 	{
@@ -815,6 +815,9 @@ int TrueTypeFont::DrawGlyph(wchar_t c, float x, float y, float scale)
 	int cstart;
 	int npoints;
 	std::vector<vec2_t> points;
+
+	if (glyfs.size() == 0)
+		return 0;
 
 	int g;
 

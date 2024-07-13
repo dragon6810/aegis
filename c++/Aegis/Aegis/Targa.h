@@ -7,7 +7,7 @@
 class Targa
 {
 public:
-	static GLuint LoadTargaImage(std::string path);
+	static GLuint LoadTargaImage(std::string path, int* width, int* height);
 private:
 	enum TargaImageTypes
 	{

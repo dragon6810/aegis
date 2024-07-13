@@ -26,6 +26,8 @@ void Game::Main()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+    gui.Reload();
+
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
@@ -50,11 +52,11 @@ void Game::Main()
     map.cameraup = { 0, 0, 1 };
     map.sky.campos = camp;
 
-    targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga");
+    targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga", nullptr, nullptr);
     font.Load("FONT1", "valve/fonts.wad");
 
     float before = Time();
-    ttf.Load("opensans.ttf");
+    ttf.Load("deadbird/truetype/opensans.ttf");
     float after = Time();
     printf("Loading font took %5.3f seconds.\n", after - before);
 
@@ -165,6 +167,8 @@ void Game::Render()
     glColor4f(1, 1, 1, 1);
 
     ttf.DrawCenteredString("The Quick Brown\nFox Jumps Over\nThe Lazy Dog,!.?\n1234567890@#$", 320, 240, 75.0);
+
+    gui.RenderWindow(0, SCREEN_MED_HEIGHT, SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
 }

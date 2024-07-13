@@ -1,0 +1,14 @@
+// Colors:
+"Window Color": "93 130 115"
+"Panel Color": "71 101 89"
+"Window Close Color": "255 255 255"
+
+// True Type:
+"Icons": "truetype/gui.ttf"
+
+// Targa:
+"Window Border": "gui/windowborder.tga"
+"Panel Border": "gui/panelborder.tga"
+
+// Waveform:
+"Window Close Sound": "sound/gui/windowclose.wav"

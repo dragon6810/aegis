@@ -16,6 +16,8 @@
 #include "Renderer.h"
 #include "Window.h"
 
+#include "GUI.h"
+
 #include "AudioManager.h"
 
 #include "Mpeg3.h"
@@ -65,6 +67,7 @@ public:
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 
 	// UI
+	GUI gui;
 	Font font;
 
 	// Boring GLFW shit
