@@ -41,6 +41,16 @@ void GUI::Reload()
 		{
 			sscanf(line, "\"Window Close Color\": \"%d %d %d\"\n", (int*)&windowclosecol.r, (int*)&windowclosecol.g, (int*)&windowclosecol.b);
 		}
+		else if (!strcmp(key, "Regular"))
+		{
+			if (sscanf(line, "\"Regular\": \"%127[^\"]\"\n", val))
+				normal.Load(Game::GetGame().gamedir + "/" + val);
+		}
+		else if (!strcmp(key, "Bold"))
+		{
+			if (sscanf(line, "\"Bold\": \"%127[^\"]\"\n", val))
+				bold.Load(Game::GetGame().gamedir + "/" + val);
+		}
 		else if (!strcmp(key, "Icons"))
 		{
 			if(sscanf(line, "\"Icons\": \"%127[^\"]\"\n", val))
@@ -73,7 +83,7 @@ void GUI::Reload()
 	fclose(ptr);
 }
 
-void GUI::RenderWindow(int x, int y, int width, int height)
+void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, windowborder);
@@ -146,7 +156,8 @@ void GUI::RenderWindow(int x, int y, int width, int height)
 
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3i(windowclosecol.r, windowclosecol.g, windowclosecol.b);
-	icons.DrawString("x", x + width - windowborderw, y - (windowborderh << 1), windowborderh << 1);
-	glColor3i(255, 255, 255);
+	glColor3ub(windowclosecol.r, windowclosecol.g, windowclosecol.b);
+	icons.DrawString("x", x + width - (windowborderw << 1), y - (windowborderh << 1) + 3, (windowborderh << 1) - 6);
+	glColor3ub(255, 255, 255);
+	normal.DrawString(title, x + 3, y - (windowborderh << 1) + 5, (windowborderh << 1) - 6);
 }

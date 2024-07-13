@@ -14,12 +14,14 @@ class GUI
 public:
 	void Reload();
 
-	void RenderWindow(int x, int y, int width, int height);
+	void RenderWindow(int x, int y, int width, int height, std::string title);
 private:
 	color24_t windowcol;
 	color24_t panelcol;
 	color24_t windowclosecol;
 
+	TrueTypeFont normal;
+	TrueTypeFont bold;
 	TrueTypeFont icons;
 
 	GLuint windowborder;

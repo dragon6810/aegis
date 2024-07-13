@@ -1,25 +1,92 @@
-﻿  Game.cpp
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Game.cpp')
-  
+﻿  GUI.cpp
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'Game.cpp')
+  (compiling source file 'GUI.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'Game.cpp')
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'GUI.cpp')
   
 C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'Game.cpp')
+  (compiling source file 'GUI.cpp')
   
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(42,34): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(42,51): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(78,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(84,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(110,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(212,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(246,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(252,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(101,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(101,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(102,40): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(102,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(103,56): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(103,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(104,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(104,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(107,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(107,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(108,64): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(108,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(109,48): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(109,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(110,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(110,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(113,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(113,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(114,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(114,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(115,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(115,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(116,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(116,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(119,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(119,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(120,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(120,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(121,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(121,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(122,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(122,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(125,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(125,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(126,56): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(126,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(127,64): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(127,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(128,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(128,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(131,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(131,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(132,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(132,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(133,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(133,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(134,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(134,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(137,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(137,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(138,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(138,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(139,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(139,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(140,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(140,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(143,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(143,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(144,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(144,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(145,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(145,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(146,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(146,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(150,34): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(150,15): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(151,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(151,23): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(152,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(152,23): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(153,43): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(153,15): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(160,109): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(160,83): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(160,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(162,85): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(162,59): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(162,29): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

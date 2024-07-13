@@ -55,11 +55,6 @@ void Game::Main()
     targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga", nullptr, nullptr);
     font.Load("FONT1", "valve/fonts.wad");
 
-    float before = Time();
-    ttf.Load("deadbird/truetype/opensans.ttf");
-    float after = Time();
-    printf("Loading font took %5.3f seconds.\n", after - before);
-
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
@@ -166,9 +161,7 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    ttf.DrawCenteredString("The Quick Brown\nFox Jumps Over\nThe Lazy Dog,!.?\n1234567890@#$", 320, 240, 75.0);
-
-    gui.RenderWindow(0, SCREEN_MED_HEIGHT, SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT);
+    gui.RenderWindow(100, SCREEN_MED_HEIGHT - 128, 200, 150, "Aegis Developer Console");
 
     glEnable(GL_DEPTH_TEST);
 }

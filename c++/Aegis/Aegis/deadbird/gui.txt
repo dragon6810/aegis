@@ -4,6 +4,8 @@
 "Window Close Color": "255 255 255"
 
 // True Type:
+"Regular": "truetype/normal.ttf"
+"Bold": "truetype/bold.ttf"
 "Icons": "truetype/gui.ttf"
 
 // Targa:
