@@ -6,6 +6,7 @@
 // True Type:
 "Regular": "truetype/normal.ttf"
 "Bold": "truetype/bold.ttf"
+"Mono": "truetype/mono.ttf"
 "Icons": "truetype/gui.ttf"
 
 // Targa:
@@ -14,3 +15,8 @@
 
 // Waveform:
 "Window Close Sound": "sound/gui/windowclose.wav"
+
+// Text Sizes (Pixels per em):
+"Small Size": "12"
+"Medium Size": "16"
+"Large Size": "24"

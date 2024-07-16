@@ -37,7 +37,7 @@ void LittleEndian(void* data, size_t size)
         return;
 
     uint8_t* bytes = (uint8_t*)data;
-    for (size_t i = 0; i < size / 2; ++i)
+    for (size_t i = 0; i < (size >> 1); ++i)
     {
         uint8_t temp = bytes[i];
         bytes[i] = bytes[size - 1 - i];
@@ -53,7 +53,7 @@ void BigEndian(void* data, size_t size)
         return;
 
     uint8_t* bytes = (uint8_t*)data;
-    for (size_t i = 0; i < size / 2; ++i)
+    for (size_t i = 0; i < (size >> 1); ++i)
     {
         uint8_t temp = bytes[i];
         bytes[i] = bytes[size - 1 - i];

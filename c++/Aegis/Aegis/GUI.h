@@ -22,6 +22,7 @@ private:
 
 	TrueTypeFont normal;
 	TrueTypeFont bold;
+	TrueTypeFont mono;
 	TrueTypeFont icons;
 
 	GLuint windowborder;
@@ -32,5 +33,9 @@ private:
 	int windowborderh;
 
 	waveform_t windowclosesound;
+
+	int txtsmall;
+	int txtmed;
+	int txtlarge;
 };
 

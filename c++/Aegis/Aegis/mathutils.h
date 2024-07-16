@@ -14,3 +14,5 @@ vec2_t Vector2Lerp(vec2_t a, vec2_t b, float t);
 vec2_t Vector2Bezier(vec2_t p0, vec2_t p1, vec2_t p2, float t);
 
 float Lerp(float a, float b, float t);
+float maxf(float a, float b);
+float minf(float a, float b);

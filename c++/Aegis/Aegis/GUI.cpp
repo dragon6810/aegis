@@ -51,6 +51,11 @@ void GUI::Reload()
 			if (sscanf(line, "\"Bold\": \"%127[^\"]\"\n", val))
 				bold.Load(Game::GetGame().gamedir + "/" + val);
 		}
+		else if (!strcmp(key, "Mono"))
+		{
+			if (sscanf(line, "\"Mono\": \"%127[^\"]\"\n", val))
+				mono.Load(Game::GetGame().gamedir + "/" + val);
+		}
 		else if (!strcmp(key, "Icons"))
 		{
 			if(sscanf(line, "\"Icons\": \"%127[^\"]\"\n", val))
@@ -73,6 +78,18 @@ void GUI::Reload()
 		{
 			if (sscanf(line, "\"Window Close Sound\": \"%127[^\"]\"\n", val))
 				windowclosesound = Waveform::LoadSound(Game::GetGame().gamedir + "/" + val);
+		}
+		else if (!strcmp(key, "Small Size"))
+		{
+			sscanf(line, "\"Small Size\": \"%d\"\n", &txtsmall);
+		}
+		else if (!strcmp(key, "Medium Size"))
+		{
+			sscanf(line, "\"Medium Size\": \"%d\"\n", &txtmed);
+		}
+		else if (!strcmp(key, "Large Size"))
+		{
+			sscanf(line, "\"Large Size\": \"%d\"\n", &txtlarge);
 		}
 		else
 		{
@@ -159,5 +176,5 @@ void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
 	glColor3ub(windowclosecol.r, windowclosecol.g, windowclosecol.b);
 	icons.DrawString("x", x + width - (windowborderw << 1), y - (windowborderh << 1) + 3, (windowborderh << 1) - 6);
 	glColor3ub(255, 255, 255);
-	normal.DrawString(title, x + 3, y - (windowborderh << 1) + 5, (windowborderh << 1) - 6);
+	mono.DrawString(title, x + 3, y - (windowborderh << 1) + 5, txtsmall);
 }

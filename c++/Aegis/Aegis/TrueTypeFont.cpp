@@ -17,10 +17,6 @@ bool TrueTypeFont::Load(std::string name)
 	int i;
 	FILE* ptr;
 	offsetsubtable_t offsettable;
-	std::vector<tabledir_t> tabledirs;
-	std::unordered_map<std::string, int> tagdirs;
-	std::vector<uint32_t> localengths;
-	std::vector<uint32_t> locaoffsets;
 
 	uint16_t glyfoffs;
 
@@ -35,27 +31,28 @@ bool TrueTypeFont::Load(std::string name)
 	BigEndian(&offsettable.entryselector, sizeof(offsettable.entryselector));
 	BigEndian(&offsettable.rangeshift, sizeof(offsettable.rangeshift));
 
-	tabledirs.resize(offsettable.numtables);
+	tagdirs.clear();
 	for (i = 0; i < offsettable.numtables; i++)
 	{
-		fread(&tabledirs[i], sizeof(tabledirs[0]), 1, ptr);
-		BigEndian(&tabledirs[i].checksum, sizeof(tabledirs[i].checksum));
-		BigEndian(&tabledirs[i].offset, sizeof(tabledirs[i].offset));
-		BigEndian(&tabledirs[i].length, sizeof(tabledirs[i].length));
+		tabledir_t dir;
+		fread(&dir, sizeof(dir), 1, ptr);
+		BigEndian(&dir.checksum, sizeof(dir.checksum));
+		BigEndian(&dir.offset, sizeof(dir.offset));
+		BigEndian(&dir.length, sizeof(dir.length));
 
 		std::string tag(4, 0);
-		tag[0] = tabledirs[i].tag[0];
-		tag[1] = tabledirs[i].tag[1];
-		tag[2] = tabledirs[i].tag[2];
-		tag[3] = tabledirs[i].tag[3];
-		tagdirs[tag] = i;
+		tag[0] = dir.tag[0];
+		tag[1] = dir.tag[1];
+		tag[2] = dir.tag[2];
+		tag[3] = dir.tag[3];
+		tagdirs[tag] = dir;
 	}
 
-	fseek(ptr, tabledirs[tagdirs["cmap"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["cmap"].offset, SEEK_SET);
 	LoadCMap(ptr);
 	
 	int locaoffsetsize;
-	fseek(ptr, tabledirs[tagdirs["head"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["head"].offset, SEEK_SET);
 	fread(&hdr, sizeof(hdr), 1, ptr);
 	BigEndian(&hdr.version, sizeof(hdr.version));
 	BigEndian(&hdr.revision, sizeof(hdr.revision));
@@ -76,7 +73,7 @@ bool TrueTypeFont::Load(std::string name)
 	BigEndian(&hdr.glyphformat, sizeof(hdr.glyphformat));
 	locaoffsetsize = hdr.locaformat ? 4 : 2;
 
-	fseek(ptr, tabledirs[tagdirs["maxp"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["maxp"].offset, SEEK_SET);
 	fread(&maxp, sizeof(maxp), 1, ptr);
 	BigEndian(&maxp.version, sizeof(maxp.version));
 	BigEndian(&maxp.numglyphs, sizeof(maxp.numglyphs));
@@ -94,7 +91,7 @@ bool TrueTypeFont::Load(std::string name)
 	BigEndian(&maxp.maxcomponentel, sizeof(maxp.maxcomponentel));
 	BigEndian(&maxp.maxcomponentdepth, sizeof(maxp.maxcomponentdepth));
 
-	fseek(ptr, tabledirs[tagdirs["hhea"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["hhea"].offset, SEEK_SET);
 	fread(&hhdr, sizeof(hhdr), 1, ptr);
 	BigEndian(&hhdr.version, sizeof(hhdr.version));
 	BigEndian(&hhdr.ascent, sizeof(hhdr.ascent));
@@ -115,7 +112,7 @@ bool TrueTypeFont::Load(std::string name)
 	localengths.resize(maxp.numglyphs + 1);
 	locaoffsets.resize(maxp.numglyphs + 1);
 
-	fseek(ptr, tabledirs[tagdirs["loca"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["loca"].offset, SEEK_SET);
 	for (i = 0; i < maxp.numglyphs + 1; i++)
 	{
 		uint32_t offset;
@@ -139,11 +136,11 @@ bool TrueTypeFont::Load(std::string name)
 
 	for (i = 0; i < maxp.numglyphs; i++)
 	{
-		fseek(ptr, tabledirs[tagdirs["glyf"]].offset + (locaoffsets[i] << 1), SEEK_SET);
-		LoadGlyph(ptr);
+		fseek(ptr, tagdirs["glyf"].offset + (locaoffsets[i] << 1), SEEK_SET);
+		glyfs.push_back(LoadGlyph(ptr));
 	}
 
-	fseek(ptr, tabledirs[tagdirs["hmtx"]].offset, SEEK_SET);
+	fseek(ptr, tagdirs["hmtx"].offset, SEEK_SET);
 	LoadHmtx(ptr);
 
 	fclose(ptr);
@@ -371,7 +368,7 @@ void TrueTypeFont::LoadHmtx(FILE* ptr)
 	}
 }
 
-void TrueTypeFont::LoadGlyph(FILE* ptr)
+TrueTypeFont::glyph_t TrueTypeFont::LoadGlyph(FILE * ptr)
 {
 	glyphdesc_t glyfdesc;
 
@@ -383,17 +380,12 @@ void TrueTypeFont::LoadGlyph(FILE* ptr)
 	BigEndian(&glyfdesc.ymax, sizeof(glyfdesc.ymax));
 
 	if (glyfdesc.ncontours < 0)
-	{
-		glyfdesc.ncontours = -glyfdesc.ncontours;
-		LoadCompoundGlyph(ptr, glyfdesc);
-	}
+		return LoadCompoundGlyph(ptr, glyfdesc);
 	else
-	{
-		LoadSimpleGlyph(ptr, glyfdesc);
-	}
+		return LoadSimpleGlyph(ptr, glyfdesc);
 }
 
-void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
+TrueTypeFont::glyph_t TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 {
 	int i;
 	int j;
@@ -685,13 +677,141 @@ void TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 
 	glyf.ends = contourends;
 
-	glyfs.push_back(glyf);
+	return glyf;
 }
 
-void TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
+TrueTypeFont::glyph_t TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 {
-	// TODO: Actually implement this
-	glyfs.push_back(glyfs[0]);
+	int i;
+	int j;
+
+	glyph_t glyf;
+	int npoints;
+	
+	uint32_t before;
+	glyph_t curglyf;
+	vec2_t p;
+
+	uint16_t flags;
+	uint16_t glyfi;
+	byte_t temp8;
+	int16_t temp16;
+	uint16_t tempu16;
+	float a, b, c, d, e, f, m, n;
+
+	npoints = 0;
+	before = ftell(ptr);
+	flags = 0x0020;
+	while (flags & 0x0020)
+	{
+		fseek(ptr, before, SEEK_SET);
+
+		fread(&flags, sizeof(flags), 1, ptr);
+		BigEndian(&flags, sizeof(flags));
+		fread(&glyfi, sizeof(glyfi), 1, ptr);
+		BigEndian(&glyfi, sizeof(glyfi));
+
+		if (~flags & 0x0002)
+		{
+			Print::Aegis_Warning("Unsupported compound glyph argument types.\n");
+			break;
+		}
+
+		a = b = c = d = e = f = 0.0;
+
+		switch (flags & 0x0001)
+		{
+		case 0:
+			fread(&temp8, sizeof(temp8), 1, ptr);
+			e = temp8;
+			fread(&temp8, sizeof(temp8), 1, ptr);
+			f = temp8;
+			break;
+		case 1:
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			e = temp16;
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			f = temp16;
+			break;
+		default:
+			break;
+		}
+
+		if (flags & 0x0008)
+		{
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			a = d = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+		}
+		else if (flags & 0x0040)
+		{
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			a = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			d = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+		}
+		else if (flags & 0x0080)
+		{
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			a = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			b = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			c = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+
+			fread(&temp16, sizeof(temp16), 1, ptr);
+			BigEndian(&temp16, sizeof(temp16));
+			d = (float)temp16 / (float)(1 << 13); // Convert fixed 2.14 to float
+		}
+		else
+		{
+			a = 1.0;
+			d = 1.0;
+		}
+
+		m = maxf(fabsf(a), fabsf(b));
+		n = maxf(fabsf(c), fabsf(d));
+
+		if (fabsf(a) - fabsf(c) < (33.0f / 65536.0f))
+			m *= 2.0;
+
+		if (fabsf(b) - fabsf(d) < (33.0f / 65536.0f))
+			n *= 2.0;
+
+		before = ftell(ptr);
+
+		fseek(ptr, tagdirs["glyf"].offset + (locaoffsets[glyfi] << 1), SEEK_SET);
+		if (glyfi < glyfs.size())
+			curglyf = glyfs[glyfi];
+		else
+			curglyf = LoadGlyph(ptr);
+
+		for (j = 0; j < curglyf.points.size(); j++)
+		{
+			p.x = a * curglyf.points[j].x + c * curglyf.points[j].y + m * e;
+			p.y = b * curglyf.points[j].x + d * curglyf.points[j].y + n * f;
+
+			glyf.points.push_back(p);
+		}
+
+		for (j = 0; j < curglyf.ends.size(); j++)
+			glyf.ends.push_back(curglyf.ends[j] + npoints);
+
+		npoints += curglyf.points.size();
+	}
+
+	glyf.triangles = EarClip(glyf.points, glyf.ends);
+	return glyf;
 }
 
 int TrueTypeFont::DrawString(std::string txt, float x, float y, float scale)

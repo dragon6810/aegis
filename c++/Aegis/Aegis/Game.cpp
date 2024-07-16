@@ -161,7 +161,7 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    gui.RenderWindow(100, SCREEN_MED_HEIGHT - 128, 200, 150, "Aegis Developer Console");
+    gui.RenderWindow(100, SCREEN_MED_HEIGHT - 128, 300, 250, "Aegis Developer Console");
 
     glEnable(GL_DEPTH_TEST);
 }

@@ -181,6 +181,10 @@ private:
 		UTF_VAR = 5,		 // ??
 		UTF_LAST_RESORT = 6, // ??
 	};
+	
+	std::unordered_map<std::string, tabledir_t> tagdirs;
+	std::vector<uint32_t> localengths;
+	std::vector<uint32_t> locaoffsets;
 
 	hdr_t hdr;
 	maxp_t maxp;
@@ -206,9 +210,9 @@ private:
 	void LoadCMap(FILE* ptr);
 	// MUST be called after glyphs are generated AND after loading the horizontal header (hhdr)
 	void LoadHmtx(FILE* ptr);
-	void LoadGlyph(FILE* ptr);
-	void LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);
-	void LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);
+	glyph_t LoadGlyph(FILE* ptr);
+	glyph_t LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc);
+	glyph_t LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc);
 
 	int DrawGlyph(wchar_t c, float x, float y, float scale);
 	int GlyphWidth(wchar_t c, float scale);
