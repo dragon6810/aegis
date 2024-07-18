@@ -9,11 +9,17 @@
 #include "Waveform.h"
 #include "TrueTypeFont.h"
 
+#include "GuiWindow.h"
+
 class GUI
 {
 public:
 	void Reload();
 
+	void RegisterWindow(GuiWindow* window);
+	void DeregisterWindow(GuiWindow* window);
+
+	void DrawScreen();
 	void RenderWindow(int x, int y, int width, int height, std::string title);
 private:
 	color24_t windowcol;
@@ -37,5 +43,7 @@ private:
 	int txtsmall;
 	int txtmed;
 	int txtlarge;
+
+	std::vector<GuiWindow*> windows;
 };
 

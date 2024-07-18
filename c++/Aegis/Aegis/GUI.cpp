@@ -100,6 +100,28 @@ void GUI::Reload()
 	fclose(ptr);
 }
 
+void GUI::RegisterWindow(GuiWindow* window)
+{
+	if (std::find(windows.begin(), windows.end(), window) == windows.end())
+		windows.push_back(window);
+}
+
+void GUI::DeregisterWindow(GuiWindow* window)
+{
+	std::vector<GuiWindow*>::iterator it = std::find(windows.begin(), windows.end(), window);
+
+	if (it != windows.end())
+		windows.erase(it);
+}
+
+void GUI::DrawScreen()
+{
+	int i;
+
+	for (i = 0; i < windows.size(); i++)
+		RenderWindow(windows[i]->GetX(), windows[i]->GetY(), windows[i]->GetW(), windows[i]->GetH(), windows[i]->GetTitle());
+}
+
 void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
 {
 	glActiveTexture(GL_TEXTURE0);
@@ -176,5 +198,5 @@ void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
 	glColor3ub(windowclosecol.r, windowclosecol.g, windowclosecol.b);
 	icons.DrawString("x", x + width - (windowborderw << 1), y - (windowborderh << 1) + 3, (windowborderh << 1) - 6);
 	glColor3ub(255, 255, 255);
-	mono.DrawString(title, x + 3, y - (windowborderh << 1) + 5, txtsmall);
+	normal.DrawString(title, x + 3, y - (windowborderh << 1) + 5, txtsmall);
 }

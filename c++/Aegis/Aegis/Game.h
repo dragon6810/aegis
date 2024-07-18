@@ -33,6 +33,7 @@
 #include "defs.h"
 
 #define CONTROLS_PAUSE GLFW_KEY_ESCAPE
+#define CONTROLS_CONSOLE GLFW_KEY_GRAVE_ACCENT
 
 class Game
 {
@@ -69,6 +70,7 @@ public:
 	// UI
 	GUI gui;
 	Font font;
+	GuiWindow console;
 
 	// Boring GLFW shit
 	vec2_t cursorpos{};

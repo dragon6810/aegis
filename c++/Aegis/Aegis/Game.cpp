@@ -60,6 +60,8 @@ void Game::Main()
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
 
+    console.Create();
+
     float lastcheck = -1.0;
 
     while (!window->ShouldWindowClose())
@@ -161,7 +163,13 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    gui.RenderWindow(100, SCREEN_MED_HEIGHT - 128, 300, 250, "Aegis Developer Console");
+    console.SetX(100);
+    console.SetY(SCREEN_MED_HEIGHT - 128);
+    console.SetW(300);
+    console.SetH(250);
+    console.SetTitle("Aegis Developer Console");
+
+    gui.DrawScreen();
 
     glEnable(GL_DEPTH_TEST);
 }
