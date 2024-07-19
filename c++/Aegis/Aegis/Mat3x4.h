@@ -5,6 +5,8 @@
 class Mat3x4
 {
 public:
+	Mat3x4();
+
 	float val[3][4];
 
 	static Mat3x4 getIdentity();

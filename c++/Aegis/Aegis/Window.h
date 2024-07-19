@@ -18,6 +18,7 @@ public:
 	void MakeFullscreenViewport(float aspect);
 	void SetKeyCallback(GLFWkeyfun func);
 	void SetCursorPosCallback(GLFWcursorposfun func);
+	void SetMouseBtnCallback(GLFWmousebuttonfun func);
 	
 	void GetWindowDimensions(int* x, int* y);
 	float GetWindowAspect();

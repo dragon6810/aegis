@@ -19,6 +19,10 @@ public:
 	void RegisterWindow(GuiWindow* window);
 	void DeregisterWindow(GuiWindow* window);
 
+	void MouseDrag(int x, int y);
+	void MouseDown(int x, int y);
+	void MouseUp(int x, int y);
+
 	void DrawScreen();
 	void RenderWindow(int x, int y, int width, int height, std::string title);
 private:
@@ -44,6 +48,12 @@ private:
 	int txtmed;
 	int txtlarge;
 
+	bool dragging;
+	int draggingwin;
+	int startx;
+	int starty;
+	int mouseoffsx;
+	int mouseoffsy;
 	std::vector<GuiWindow*> windows;
 };
 

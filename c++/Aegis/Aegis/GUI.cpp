@@ -114,12 +114,61 @@ void GUI::DeregisterWindow(GuiWindow* window)
 		windows.erase(it);
 }
 
+void GUI::MouseDrag(int x, int y)
+{
+	GuiWindow* window;
+
+	if (!dragging)
+		return;
+
+	window = windows[draggingwin];
+
+	windows[draggingwin]->x = x - mouseoffsx;
+	windows[draggingwin]->y = y - mouseoffsy;
+}
+
+void GUI::MouseDown(int x, int y)
+{
+	int i;
+
+	GuiWindow* window;
+
+	for (i = 0; i < windows.size(); i++)
+	{
+		window = windows[i];
+
+		if (x < window->x)
+			continue;
+
+		if (x > window->x + window->w)
+			continue;
+
+		if (y > window->y)
+			continue;
+
+		if (y < window->y - (windowborderh << 1))
+			continue;
+
+		dragging = true;
+		draggingwin = i;
+		startx = window->x;
+		starty = window->y;
+		mouseoffsx = x - window->x;
+		mouseoffsy = y - window->y;
+	}
+}
+
+void GUI::MouseUp(int x, int y)
+{
+	dragging = false;
+}
+
 void GUI::DrawScreen()
 {
 	int i;
 
-	for (i = 0; i < windows.size(); i++)
-		RenderWindow(windows[i]->GetX(), windows[i]->GetY(), windows[i]->GetW(), windows[i]->GetH(), windows[i]->GetTitle());
+	for (i = windows.size() - 1; i >= 0; i--)
+		RenderWindow(windows[i]->x, windows[i]->y, windows[i]->w, windows[i]->h, windows[i]->title);
 }
 
 void GUI::RenderWindow(int x, int y, int width, int height, std::string title)

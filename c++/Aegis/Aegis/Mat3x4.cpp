@@ -4,12 +4,19 @@
 #include <stdexcept>
 #include <cstdlib>
 
+Mat3x4::Mat3x4()
+{
+    val[0][0] = 1; val[0][1] = 0; val[0][2] = 0; val[0][3] = 0;
+    val[1][0] = 0; val[1][1] = 1; val[1][2] = 0; val[1][3] = 0;
+    val[2][0] = 0; val[2][1] = 0; val[2][2] = 1; val[2][3] = 0;
+}
+
 Vector3 Mat3x4::operator*(Vector3 a)
 {
-    float v[3]{};
-	v[0] = a.get(0) * val[0][0] + a.get(1) * val[0][1] + a.get(2) * val[0][2] + val[0][3];
-    v[1] = a.get(0) * val[1][0] + a.get(1) * val[1][1] + a.get(2) * val[1][2] + val[1][3];
-    v[2] = a.get(0) * val[2][0] + a.get(1) * val[2][1] + a.get(2) * val[2][2] + val[2][3];
+    vec3_t v;
+	v.x = a.get(0) * val[0][0] + a.get(1) * val[0][1] + a.get(2) * val[0][2] + val[0][3];
+    v.y = a.get(0) * val[1][0] + a.get(1) * val[1][1] + a.get(2) * val[1][2] + val[1][3];
+    v.z = a.get(0) * val[2][0] + a.get(1) * val[2][1] + a.get(2) * val[2][2] + val[2][3];
 	return Vector3(v);
 }
 

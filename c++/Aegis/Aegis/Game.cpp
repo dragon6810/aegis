@@ -59,7 +59,13 @@ void Game::Main()
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
+    window->SetMouseBtnCallback(Game::MouseBtnCallback);
 
+    console.x = 100;
+    console.y = SCREEN_MED_HEIGHT - 128;
+    console.w = 300;
+    console.h = 250;
+    console.title = "Aegis Developer Console";
     console.Create();
 
     float lastcheck = -1.0;
@@ -163,12 +169,6 @@ void Game::Render()
     font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    console.SetX(100);
-    console.SetY(SCREEN_MED_HEIGHT - 128);
-    console.SetW(300);
-    console.SetH(250);
-    console.SetTitle("Aegis Developer Console");
-
     gui.DrawScreen();
 
     glEnable(GL_DEPTH_TEST);
@@ -268,4 +268,14 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
         pos.y = 0.0;
 
     Game::GetGame().cursorpos = pos;
+
+    Game::GetGame().gui.MouseDrag(pos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - pos.y * SCREEN_MED_HEIGHT);
+}
+
+void Game::MouseBtnCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        Game::GetGame().gui.MouseDown(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+        Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
 }

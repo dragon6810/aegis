@@ -54,6 +54,8 @@ public:
 
 	Camera camera;
 
+	std::string gamedir = "deadbird";
+
 	// Heartbeat getters/setters
 	Renderer* GetRenderer();
 	AudioManager* GetAudioManager();
@@ -67,18 +69,19 @@ public:
 	float Time(); // Time, in seconds since start of program
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 
+	vec2_t cursorpos{};
+
 	// UI
 	GUI gui;
 	Font font;
 	GuiWindow console;
 
 	// Boring GLFW shit
-	vec2_t cursorpos{};
-
-	std::string gamedir = "deadbird";
+	
 
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void CursorCallback(GLFWwindow* window, double xpos, double ypos);
+	static void MouseBtnCallback(GLFWwindow* window, int button, int action, int mods);
 private:
 	Game() {}
 

@@ -97,6 +97,11 @@ void Window::SetCursorPosCallback(GLFWcursorposfun func)
     glfwSetCursorPosCallback(window, func);
 }
 
+void Window::SetMouseBtnCallback(GLFWmousebuttonfun func)
+{
+    glfwSetMouseButtonCallback(window, func);
+}
+
 void Window::GetWindowDimensions(int* x, int* y)
 {
     glfwGetWindowSize(window, x, y);

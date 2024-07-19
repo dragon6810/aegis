@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <string>
 
 #include "Skybox.h"
 
@@ -54,6 +55,8 @@ public:
 	std::unordered_map<int, std::vector<int>> leafentities;
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
+
+	std::unordered_map<std::string, std::string> keyval;
 
 	int LeafContents(vec3_t point);
 	bool FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection);

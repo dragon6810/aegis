@@ -16,7 +16,7 @@ GLuint AssetManager::getTexture(const char* texture, const char* source)
 
 	for (int i = 0; i < numtextures; i++)
 	{
-		if (!strcmp(texturelookup[i], fullname.c_str()))
+		if (texturelookup[i] == fullname.c_str())
 		{
 			return texturenames[i];
 		}
@@ -35,7 +35,7 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 
 	for (int i = 0; i < numtextures; i++)
 	{
-		if (!strcmp(texturelookup[i], fullname.c_str()))
+		if (texturelookup[i] == fullname)
 		{
 			glDeleteTextures(1, &texturenames[i]);
 			glGenTextures(1, &texturenames[i]);
@@ -43,19 +43,12 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 		}
 	}
 
-	if (++numtextures == 1)
-	{
-		texturelookup = (char**)malloc(sizeof(char*));
-		texturenames = (GLuint*)malloc(sizeof(GLuint));
-	}
-	else
-	{
-		texturelookup = (char**)realloc(texturelookup, numtextures * sizeof(char*));
-		texturenames = (GLuint*)realloc(texturenames, numtextures * sizeof(GLuint));
-	}
+	numtextures++;
 
-	texturelookup[numtextures - 1] = (char*)malloc(strlen(fullname.c_str()) + 1);
-	strcpy(texturelookup[numtextures - 1], fullname.c_str());
+	texturelookup.push_back("");
+	texturenames.push_back(0);
+	
+	texturelookup[numtextures - 1] = fullname;
 
 	glGenTextures(1, &texturenames[numtextures - 1]);
 
@@ -65,11 +58,5 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 void AssetManager::cleanup()
 {
 	for (int i = 0; i < numtextures; i++)
-	{
 		glDeleteTextures(1, (GLuint*) &texturenames[i]);
-		free(texturelookup[i]);
-	}
-
-	free(texturenames);
-	free(texturelookup);
 }

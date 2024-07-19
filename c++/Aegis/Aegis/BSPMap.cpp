@@ -206,8 +206,6 @@ void BSPMap::LoadEntities()
 
 	while ((currentchar - entitieslump) < lumplen - 1)
 	{
-		std::unordered_map<std::string, std::string> keyval;
-
 		if (currentchar[0] == '{')
 			currentchar += 2;
 

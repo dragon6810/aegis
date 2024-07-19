@@ -25,8 +25,8 @@ private:
 	AssetManager(AssetManager const&);
 	void operator=(AssetManager const&);
 
-	char** texturelookup;
-	GLuint* texturenames;
+	std::vector<std::string> texturelookup;
+	std::vector<GLuint> texturenames;
 	int numtextures = 0;
 };
 

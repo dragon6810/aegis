@@ -107,7 +107,7 @@ GLuint Targa::LoadTargaImage(std::string path, int* width, int* height)
 	fread(&imgdesc, sizeof(imgdesc), 1, ptr);
 	//fseek(ptr, 4, SEEK_CUR);
 
-	pixelsize = (pixeldepth / 24) * 8; // Min(Bit depth / 3, 8)
+	pixelsize = pixeldepth >> 3;
 
 	if (cmap != 0)
 	{
