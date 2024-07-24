@@ -99,9 +99,6 @@
     <ClCompile Include="Quaternion.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="Vector3.cpp">
-      <Filter>Source Files\math</Filter>
-    </ClCompile>
     <ClCompile Include="Mat3x4.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
@@ -219,9 +216,6 @@
       <Filter>Header Files\loadstuff</Filter>
     </ClInclude>
     <ClInclude Include="Quaternion.h">
-      <Filter>Header Files\math</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
     <ClInclude Include="Mat3x4.h">

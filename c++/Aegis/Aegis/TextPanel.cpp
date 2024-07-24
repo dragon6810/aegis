@@ -1,11 +1,26 @@
 #include "TextPanel.h"
 
-std::shared_ptr<GuiWindow> TextPanel::GetWindow()
+GuiWindow* TextPanel::GetWindow()
 {
 	return this->window;
 }
 
-void TextPanel::SetWindow(std::shared_ptr<GuiWindow> window)
+void TextPanel::MouseDrag(int x, int y)
+{
+
+}
+
+void TextPanel::MouseDown(int x, int y)
+{
+
+}
+
+void TextPanel::MouseUp(int x, int y)
+{
+
+}
+
+void TextPanel::SetWindow(GuiWindow* window)
 {
 	this->window = window;
 }

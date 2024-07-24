@@ -9,6 +9,7 @@ GuiWindow::GuiWindow()
 	
 }
 
+
 GuiWindow::~GuiWindow()
 {
 	Deregister();
@@ -36,10 +37,10 @@ void GuiWindow::Show()
 
 void GuiWindow::Register()
 {
-	Game::GetGame().gui.RegisterWindow(this);
+//	Game::GetGame().gui.RegisterWindow(this);
 }
 
 void GuiWindow::Deregister()
 {
-	Game::GetGame().gui.DeregisterWindow(this);
+	//Game::GetGame().gui.DeregisterWindow(this);
 }

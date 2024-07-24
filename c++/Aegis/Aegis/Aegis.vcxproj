@@ -179,7 +179,6 @@
     <ClCompile Include="Targa.cpp" />
     <ClCompile Include="TextPanel.cpp" />
     <ClCompile Include="TrueTypeFont.cpp" />
-    <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Wad.cpp" />
     <ClCompile Include="WallEntity.cpp" />
     <ClCompile Include="Waveform.cpp" />
@@ -222,7 +221,6 @@
     <ClInclude Include="Targa.h" />
     <ClInclude Include="TextPanel.h" />
     <ClInclude Include="TrueTypeFont.h" />
-    <ClInclude Include="Vector3.h" />
     <ClInclude Include="Wad.h" />
     <ClInclude Include="WallEntity.h" />
     <ClInclude Include="Waveform.h" />

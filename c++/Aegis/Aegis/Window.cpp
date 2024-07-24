@@ -37,6 +37,11 @@ Window::Window(std::string name, int width, int height, bool fullscreen)
     }
 }
 
+Window::Window()
+{
+
+}
+
 Window::~Window()
 {
     if (window != nullptr)
@@ -100,6 +105,15 @@ void Window::SetCursorPosCallback(GLFWcursorposfun func)
 void Window::SetMouseBtnCallback(GLFWmousebuttonfun func)
 {
     glfwSetMouseButtonCallback(window, func);
+}
+
+void Window::SetCursor(int shape)
+{
+    GLFWcursor* cursor;
+
+    cursor = glfwCreateStandardCursor(shape);
+
+    glfwSetCursor(window, cursor);
 }
 
 void Window::GetWindowDimensions(int* x, int* y)

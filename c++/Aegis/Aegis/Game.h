@@ -69,15 +69,17 @@ public:
 	float Time(); // Time, in seconds since start of program
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
 
-	vec2_t cursorpos{};
+	vec2_t cursorpos;
 
 	// UI
-	GUI gui;
-	Font font;
-	GuiWindow console;
+	//GUI gui;
+	//Font font;
+	//GuiWindow console;
 
 	// Boring GLFW shit
-	
+	Window* window;
+
+	int cursorshape;
 
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void CursorCallback(GLFWwindow* window, double xpos, double ypos);
@@ -92,21 +94,16 @@ private:
 
 	unsigned int r_seed = 1993;
 
-	AudioManager audiomanager;
+	//AudioManager audiomanager;
 
 	bool paused = false;
 
-	Renderer renderer;
-	Window* window;
-
-	TrueTypeFont ttf;
-
-	GLuint targatest;
+	//Renderer renderer;
 
 	vec3_t camp;
 	vec3_t camf;
 
-	Wad wad;
-	BSPMap map;
+	//Wad wad;
+	//BSPMap map;
 };
 

@@ -11,6 +11,7 @@ class Window
 public:
 	// Call with width or height 0 to make fullscreen windowed monitor
 	Window(std::string name, int width, int height, bool fullscreen);
+	Window();
 	~Window();
 	void Kill();
 
@@ -19,6 +20,8 @@ public:
 	void SetKeyCallback(GLFWkeyfun func);
 	void SetCursorPosCallback(GLFWcursorposfun func);
 	void SetMouseBtnCallback(GLFWmousebuttonfun func);
+
+	void SetCursor(int shape);
 	
 	void GetWindowDimensions(int* x, int* y);
 	float GetWindowAspect();

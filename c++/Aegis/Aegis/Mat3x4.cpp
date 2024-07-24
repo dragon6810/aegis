@@ -6,18 +6,23 @@
 
 Mat3x4::Mat3x4()
 {
+    val.resize(3);
+    val[0].resize(4);
+    val[1].resize(4);
+    val[2].resize(4);
+
     val[0][0] = 1; val[0][1] = 0; val[0][2] = 0; val[0][3] = 0;
     val[1][0] = 0; val[1][1] = 1; val[1][2] = 0; val[1][3] = 0;
     val[2][0] = 0; val[2][1] = 0; val[2][2] = 1; val[2][3] = 0;
 }
 
-Vector3 Mat3x4::operator*(Vector3 a)
+vec3_t Mat3x4::operator*(vec3_t a)
 {
     vec3_t v;
-	v.x = a.get(0) * val[0][0] + a.get(1) * val[0][1] + a.get(2) * val[0][2] + val[0][3];
-    v.y = a.get(0) * val[1][0] + a.get(1) * val[1][1] + a.get(2) * val[1][2] + val[1][3];
-    v.z = a.get(0) * val[2][0] + a.get(1) * val[2][1] + a.get(2) * val[2][2] + val[2][3];
-	return Vector3(v);
+	v.x = a.x * val[0][0] + a.y * val[0][1] + a.z * val[0][2] + val[0][3];
+    v.y = a.x * val[1][0] + a.y * val[1][1] + a.z * val[1][2] + val[1][3];
+    v.z = a.x * val[2][0] + a.y * val[2][1] + a.z * val[2][2] + val[2][3];
+	return v;
 }
 
 Mat3x4 Mat3x4::operator*(Mat3x4 b)
@@ -40,6 +45,34 @@ Mat3x4 Mat3x4::operator*(Mat3x4 b)
     result.val[2][3] = val[2][0] * b.val[0][3] + val[2][1] * b.val[1][3] + val[2][2] * b.val[2][3] + val[2][3];
 
     return result;
+}
+
+Mat3x4 Mat3x4::operator=(Mat3x4 m)
+{
+    if (val.size() != 3)
+    {
+        val.resize(3);
+        val[0].resize(4);
+        val[1].resize(4);
+        val[2].resize(4);
+    }
+
+    val[0][0] = m.val[0][0];
+    val[0][1] = m.val[0][1];
+    val[0][2] = m.val[0][2];
+    val[0][3] = m.val[0][3];
+
+    val[1][0] = m.val[1][0];
+    val[1][1] = m.val[1][1];
+    val[1][2] = m.val[1][2];
+    val[1][3] = m.val[1][3];
+
+    val[2][0] = m.val[2][0];
+    val[2][1] = m.val[2][1];
+    val[2][2] = m.val[2][2];
+    val[2][3] = m.val[2][3];
+
+    return *this;
 }
 
 Mat3x4 Mat3x4::getIdentity()

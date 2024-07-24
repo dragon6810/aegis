@@ -7,11 +7,20 @@
 class TextPanel
 {
 public:
-	std::shared_ptr<GuiWindow> GetWindow();
+	GuiWindow* GetWindow();
 
-	void SetWindow(std::shared_ptr<GuiWindow> window);
+	void MouseDrag(int x, int y);
+	void MouseDown(int x, int y);
+	void MouseUp(int x, int y);
+
+	void SetWindow(GuiWindow* window);
+
+	int x, y;
+	int w, h;
+
+	void Draw();
 protected:
-	std::shared_ptr<GuiWindow> window;
+	GuiWindow* window;
 
 	int textpad = 3;
 };

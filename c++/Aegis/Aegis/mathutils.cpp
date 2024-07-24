@@ -30,6 +30,13 @@ float DotProduct(vec3_t a, vec3_t b)
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+vec3_t ReflectVector3(vec3_t d, vec3_t n)
+{
+    float dot = DotProduct(d, n);
+
+    return d - (n * 2 * dot);
+}
+
 vec3_t Vector3Lerp(vec3_t a, vec3_t b, float t)
 {
     vec3_t v;

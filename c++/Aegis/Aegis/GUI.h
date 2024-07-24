@@ -24,16 +24,17 @@ public:
 	void MouseUp(int x, int y);
 
 	void DrawScreen();
-	void RenderWindow(int x, int y, int width, int height, std::string title);
+	void RenderWindow(int w);
 private:
 	color24_t windowcol;
 	color24_t panelcol;
 	color24_t windowclosecol;
 
+	/*
 	TrueTypeFont normal;
 	TrueTypeFont bold;
 	TrueTypeFont mono;
-	TrueTypeFont icons;
+	TrueTypeFont icons;*/
 
 	GLuint windowborder;
 	GLuint panelborder;
@@ -48,12 +49,17 @@ private:
 	int txtmed;
 	int txtlarge;
 
+	bool downx;
 	bool dragging;
 	int draggingwin;
 	int startx;
 	int starty;
 	int mouseoffsx;
 	int mouseoffsy;
-	std::vector<GuiWindow*> windows;
+	int mousex;
+	int mousey;
+	//std::vector<GuiWindow*> windows;
+
+	bool OverX(int w, int x, int y);
 };
 

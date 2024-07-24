@@ -2,6 +2,7 @@
 
 #include "defs.h"
 #include "Mat3x4.h"
+#include "Quaternion.h"
 
 class Camera
 {
@@ -22,6 +23,9 @@ public:
 
 	float maxxdir;
 	float maxydir;
+
+	Quaternion rot;
+	Quaternion invrot;
 
 	Mat3x4 matrix;
 	Mat3x4 inv;

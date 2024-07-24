@@ -15,10 +15,10 @@ void Game::Main()
 {
     start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
-	renderer.Init();
-	window = new Window("Aegis", SCREEN_HIGH_WIDTH, SCREEN_HIGH_HEIGHT, false);
+	//renderer.Init();
+	window = new Window("Aegis", SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT, false);
 	window->SelectForRendering();
-    renderer.PostWindowInit();
+    //renderer.PostWindowInit();
 	int fullwidth;
 	int fullheight;
 	window->GetWindowDimensions(&fullwidth, &fullheight);
@@ -26,7 +26,7 @@ void Game::Main()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    gui.Reload();
+    //gui.Reload();
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_2D);
@@ -38,22 +38,20 @@ void Game::Main()
     camf = { 0, 0, 0 };
 
     camera.position = camp;
-    //camera.position = { 0.0, 0.0, 0.0 };
     camera.rotation = { 0, -45.0 * DEG2RAD, 135.0 * DEG2RAD };
-   // camera.rotation = { 0.0, 0.0, 0.0 };
     camera.vfov = 65.0;
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();
     
+    /*
     map.Load("valve/maps/test.bsp");
     map.SetCameraPosition({ camp.x, camp.y, camp.z });
     map.cameraforward = NormalizeVector3({ camf.x -camp.x, camf.y - camp.y, camf.z - camp.z });
     map.cameraup = { 0, 0, 1 };
-    map.sky.campos = camp;
+    map.sky.campos = camp;*/
 
-    targatest = Targa::LoadTargaImage("deadbird/tga/2desertbk.tga", nullptr, nullptr);
-    font.Load("FONT1", "valve/fonts.wad");
+    //font.Load("FONT1", "valve/fonts.wad");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -61,12 +59,14 @@ void Game::Main()
     window->SetCursorPosCallback(Game::CursorCallback);
     window->SetMouseBtnCallback(Game::MouseBtnCallback);
 
+    /*
     console.x = 100;
     console.y = SCREEN_MED_HEIGHT - 128;
     console.w = 300;
     console.h = 250;
     console.title = "Aegis Developer Console";
-    console.Create();
+    console.Show();
+    console.Create();*/
 
     float lastcheck = -1.0;
 
@@ -74,6 +74,10 @@ void Game::Main()
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         long long delta = now - lastFrame;
+
+        cursorshape = GLFW_ARROW_CURSOR;
+
+        //gui.MouseDrag(cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - cursorpos.y * SCREEN_MED_HEIGHT);
 
         if (this->Time() - lastcheck >= 1.0)
         {
@@ -95,10 +99,12 @@ void Game::Main()
 
         Render();
 
+        window->SetCursor(cursorshape);
+
         glfwSwapInterval(0);
         window->SwapBuffers();
         glfwPollEvents();
-
+        
         lastFrame = now;
     }
 
@@ -110,7 +116,7 @@ void Game::Main()
 
 void Game::Tick()
 {
-    map.Think(1.0 / fps);
+    //map.Think(1.0 / fps);
 }
 
 void Game::Render()
@@ -121,16 +127,16 @@ void Game::Render()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(camera.vfov, camera.aspect, 1.0, 10000.0);
+    //gluPerspective(camera.vfov, camera.aspect, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(camera.position.x, camera.position.y, camera.position.z,
-        camera.position.x + camera.forward.x, camera.position.y + camera.forward.y, camera.position.z + camera.forward.z,
-        0.0, 0.0, 1.0);
+          camera.position.x + camera.forward.x, camera.position.y + camera.forward.y, camera.position.z + camera.forward.z,
+          0.0, 0.0, 1.0);
 
     glClear(GL_DEPTH_BUFFER_BIT);
     
-    map.Draw();
+    //map.Draw();
 
     glDisable(GL_DEPTH_TEST);
 
@@ -141,24 +147,6 @@ void Game::Render()
     glVertex3f(0, 0, 0);
     glEnd();
 
-    vec3_t p;
-    vec3_t dir = camera.DirFromScreen(cursorpos) * 32.0;
-
-    glColor3f(1, 0, 1);
-    glBegin(GL_LINES);
-    glVertex3f(camera.position.x, camera.position.y, camera.position.z);
-    glVertex3f(camera.position.x + dir.x, camera.position.y + dir.y, camera.position.z + dir.z);
-    glEnd();
-
-    if (map.FineRaycast(camera.position, camera.position + (dir * 64.0), &p))
-    {
-        glBegin(GL_POINTS);
-        glColor3f(0, 0, 1);
-        glVertex3f(p.x, p.y, p.z);
-        glEnd();
-    }
-    glColor3f(1, 1, 1);
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, SCREEN_MED_WIDTH, 0.0, SCREEN_MED_HEIGHT, -1.0, 1.0);
@@ -166,22 +154,24 @@ void Game::Render()
     glLoadIdentity();
     
     glColor4f(1, 1, 1, 0.5);
-    font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
+  //  font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
     glColor4f(1, 1, 1, 1);
 
-    gui.DrawScreen();
+    //gui.DrawScreen();
 
     glEnable(GL_DEPTH_TEST);
 }
 
 Renderer* Game::GetRenderer()
 {
-	return &renderer;
+    return nullptr;
+	//return &renderer;
 }
 
 AudioManager* Game::GetAudioManager()
 {
-    return &audiomanager;
+    return nullptr;
+    //return &audiomanager;
 }
 
 bool Game::IsPaused()
@@ -268,14 +258,13 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
         pos.y = 0.0;
 
     Game::GetGame().cursorpos = pos;
-
-    Game::GetGame().gui.MouseDrag(pos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - pos.y * SCREEN_MED_HEIGHT);
 }
 
 void Game::MouseBtnCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    /*
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         Game::GetGame().gui.MouseDown(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-        Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
+        Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);*/
 }

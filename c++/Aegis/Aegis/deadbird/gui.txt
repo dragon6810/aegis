@@ -17,6 +17,6 @@
 "Window Close Sound": "sound/gui/windowclose.wav"
 
 // Text Sizes (Pixels per em):
-"Small Size": "12"
+"Small Size": "10"
 "Medium Size": "16"
 "Large Size": "24"

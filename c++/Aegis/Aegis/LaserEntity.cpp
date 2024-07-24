@@ -71,11 +71,11 @@ void LaserEntity::Render()
 	Quaternion fracrot = Quaternion::AngleAxis(Game::GetGame().R_Random(0.0, 2 * M_PI), diraxis);
 	Quaternion sinerot = Quaternion::AngleAxis(Game::GetGame().R_Random(0.0, 2 * M_PI), diraxis);
 
-	float upaxis[3] = { beamup.x, beamup.y, beamup.z };
-	Vector3 fracaxis = fracrot.toMat() * Vector3(upaxis);
-	Vector3 sineaxis = sinerot.toMat() * Vector3(upaxis);
+	vec3_t upaxis = { beamup.x, beamup.y, beamup.z };
+	vec3_t fracaxis = fracrot.toMat() * upaxis;
+	vec3_t sineaxis = sinerot.toMat() * upaxis;
 
-	vec3_t veca = { fracaxis.get(0), fracaxis.get(1), fracaxis.get(2) };
+	vec3_t veca = fracaxis;
 	vec3_t vecb = CrossProduct(veca, dir);
 
 	vec3_t diff = targetentity->position - position;

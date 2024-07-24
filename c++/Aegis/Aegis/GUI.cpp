@@ -5,6 +5,7 @@
 
 #include "Targa.h"
 
+/*
 void GUI::Reload()
 {
 	FILE* ptr;
@@ -116,7 +117,20 @@ void GUI::DeregisterWindow(GuiWindow* window)
 
 void GUI::MouseDrag(int x, int y)
 {
+	int i;
+
 	GuiWindow* window;
+
+	mousex = x;
+	mousey = y;
+
+	for (i = 0; i < windows.size(); i++)
+	{
+		if (!OverX(i, x, y) || !windows[i]->IsActive())
+			continue;
+
+		Game::GetGame().cursorshape = GLFW_HAND_CURSOR;
+	}
 
 	if (!dragging)
 		return;
@@ -137,6 +151,9 @@ void GUI::MouseDown(int x, int y)
 	{
 		window = windows[i];
 
+		if (!window->IsActive())
+			continue;
+
 		if (x < window->x)
 			continue;
 
@@ -149,6 +166,13 @@ void GUI::MouseDown(int x, int y)
 		if (y < window->y - (windowborderh << 1))
 			continue;
 
+		if (OverX(i, x, y))
+		{
+			downx = true;
+			draggingwin = i;
+			return;
+		}
+
 		dragging = true;
 		draggingwin = i;
 		startx = window->x;
@@ -160,7 +184,19 @@ void GUI::MouseDown(int x, int y)
 
 void GUI::MouseUp(int x, int y)
 {
+	GuiWindow* window;
+
 	dragging = false;
+
+	if (downx)
+	{
+		window = windows[draggingwin];
+
+		if (OverX(draggingwin, x, y))
+			window->Hide();
+
+		downx = false;
+	}
 }
 
 void GUI::DrawScreen()
@@ -168,11 +204,30 @@ void GUI::DrawScreen()
 	int i;
 
 	for (i = windows.size() - 1; i >= 0; i--)
-		RenderWindow(windows[i]->x, windows[i]->y, windows[i]->w, windows[i]->h, windows[i]->title);
+		RenderWindow(i);
 }
 
-void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
+void GUI::RenderWindow(int w)
 {
+	int xsize;
+
+	GuiWindow* window;
+
+	int x, y, width, height;
+	std::string title;
+
+	window = windows[w];
+	x = window->x;
+	y = window->y;
+	width = window->w;
+	height = window->h;
+	title = window->title;
+
+	xsize = (windowborderh << 1) - 6;
+
+	if (!window->IsActive())
+		return;
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, windowborder);
 	glEnable(GL_TEXTURE_2D);
@@ -244,8 +299,67 @@ void GUI::RenderWindow(int x, int y, int width, int height, std::string title)
 
 	glDisable(GL_TEXTURE_2D);
 
+	if (OverX(w, mousex, mousey))
+	{
+		xsize += 3;
+
+		if(downx && draggingwin == w)
+			glColor4ub(0, 0, 0, 64);
+		else
+			glColor4ub(0, 0, 0, 32);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+
+		glVertex2f(window->x + window->w - xsize - 5, window->y - xsize - 2);
+		glVertex2f(window->x + window->w - xsize - 5, window->y - 1);
+		glVertex2f(window->x + window->w - 4, window->y - 1);
+		glVertex2f(window->x + window->w - 4, window->y - xsize - 2);
+
+		glEnd();
+		glDisable(GL_BLEND);
+
+		xsize -= 3;
+	}
+
 	glColor3ub(windowclosecol.r, windowclosecol.g, windowclosecol.b);
 	icons.DrawString("x", x + width - (windowborderw << 1), y - (windowborderh << 1) + 3, (windowborderh << 1) - 6);
 	glColor3ub(255, 255, 255);
 	normal.DrawString(title, x + 3, y - (windowborderh << 1) + 5, txtsmall);
 }
+
+bool GUI::OverX(int w, int x, int y)
+{
+	int xsize;
+	GuiWindow* window;
+
+	xsize = (windowborderh << 1) - 3;
+	window = windows[w];
+	
+	if (x < window->x + window->w - xsize - 5)
+		return false;
+
+	if (x > window->x + window->w - 5)
+		return false;
+
+	if (y > window->y - 1)
+		return false;
+
+	if (y < window->y - xsize - 2)
+		return false;
+		
+	return true;
+}*/
+
+void GUI::Reload() {}
+
+void GUI::RegisterWindow(GuiWindow* window) {}
+void GUI::DeregisterWindow(GuiWindow* window) {}
+
+void GUI::MouseDrag(int x, int y) {}
+void GUI::MouseDown(int x, int y) {}
+void GUI::MouseUp(int x, int y) {}
+
+void GUI::DrawScreen() {}
+void GUI::RenderWindow(int w) {}

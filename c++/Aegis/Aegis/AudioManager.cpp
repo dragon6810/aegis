@@ -3,6 +3,8 @@
 #include "Quaternion.h"
 #include "Game.h"
 
+#include "mathutils.h"
+
 AudioManager::AudioManager()
 {
 	Initialize();
@@ -101,9 +103,8 @@ void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t posi
 	s.setPitch(pitch);
 	s.setVolume(volume);
 	Mat3x4 test = Game::GetGame().camera.inv;
-	Vector3 posv = test * Vector3(position);
-	posv.normalize();
-	s.setPosition(sf::Vector3f(posv.get(0), posv.get(1), posv.get(2)));
+	vec3_t posv = NormalizeVector3(test * position);
+	s.setPosition(sf::Vector3f(posv.x, posv.y, posv.z));
 	s.play();
 
 	while (s.getStatus() == sf::Sound::Playing)
@@ -118,9 +119,8 @@ void AudioManager::PlaySoundOnChannel(int channel, waveform_t sound, vec3_t posi
 			s.play();
 		}
 
-		Vector3 posv = test * Vector3(position);
-		posv.normalize();
-		s.setPosition(sf::Vector3f(posv.get(0), posv.get(1), posv.get(2)));
+		posv = NormalizeVector3(test * position);
+		s.setPosition(sf::Vector3f(posv.x, posv.y, posv.z));
 		channels[channel].timeleft -= 0.001F;
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}

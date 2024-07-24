@@ -204,11 +204,11 @@ void SModel::render()
 
     for (int b = 0; b < header->numbones; b++)
     {
-        float up[3] =    { 0.0, 0.0, 1.0 };
-        float right[3] = { 1.0, 0.0, 0.0 };
-
-        float bone[3] = { boneTransforms[b].val[0][3], boneTransforms[b].val[1][3], boneTransforms[b].val[2][3] };
-        Vector3 bonev = Vector3(bone).normalized();
+        vec3_t up    = { 0.0, 0.0, 1.0 };
+        vec3_t right = { 1.0, 0.0, 0.0 };
+        
+        vec3_t bonev = { boneTransforms[b].val[0][3], boneTransforms[b].val[1][3], boneTransforms[b].val[2][3] };
+        bonev = NormalizeVector3(bonev);
 
         Mat3x4 rotonly = boneTransforms[b];
         rotonly.val[0][3] = 0.0;
@@ -217,15 +217,15 @@ void SModel::render()
 
         bonev = rotonly * bonev;
 
-        Vector3 boner = Vector3::cross(Vector3(up), bonev).normalized();
-        boneright[b].x = boner.get(0);
-        boneright[b].y = boner.get(2);
-        boneright[b].z = boner.get(1);
+        vec3_t boner = CrossProduct(up, bonev);
+        boneright[b].x = boner.x;
+        boneright[b].y = boner.z;
+        boneright[b].z = boner.y;
 
-        Vector3 boneu = Vector3::cross(bonev, boner);
-        boneup[b].x = boneu.get(0);
-        boneup[b].y = boneu.get(2);
-        boneup[b].z = boneu.get(1);
+        vec3_t boneu = CrossProduct(bonev, boner);
+        boneup[b].x = boneu.x;
+        boneup[b].y = boneu.z;
+        boneup[b].z = boneu.y;
     }
 
     for (int b = 0; b < header->numbodyparts; b++)
@@ -239,24 +239,17 @@ void SModel::render()
         
         for (int v = 0; v < pmodel->numverts; v++)
         {
-            float coords[3] = { pstudioverts[v].x, pstudioverts[v].y, pstudioverts[v].z };
-            Vector3 vec = Vector3(coords);
-            vec = boneTransforms[pvertbone[v]] * vec;
-            xformverts[v].x = vec.get(0);
-            xformverts[v].y = vec.get(1);
-            xformverts[v].z = vec.get(2);
+            xformverts[v] = { pstudioverts[v].x, pstudioverts[v].y, pstudioverts[v].z };
+            xformverts[v] = boneTransforms[pvertbone[v]] * xformverts[v];
         }
         
         for (int n = 0; n < pmodel->numnorms; n++)
         {
-            float coords[3] = { pstudionorms[n].x, pstudionorms[n].y, pstudionorms[n].z };
-            Vector3 vec = Vector3(coords);
+            vec3_t vec = { pstudionorms[n].x, pstudionorms[n].y, pstudionorms[n].z };
             Mat3x4 rotonly = boneTransforms[pnormbone[n]];
             rotonly.val[0][3] = rotonly.val[1][3] = rotonly.val[2][3] = 0.0;
             vec = rotonly * vec;
-            xformnorms[n].x = vec.get(0);
-            xformnorms[n].y = vec.get(1);
-            xformnorms[n].z = vec.get(2);
+            xformnorms[n] = vec;
 
             vec3_t norm = { xformnorms[n].x, xformnorms[n].y, xformnorms[n].z };
             float color = DotProduct(lightdir, norm) * directlight;
@@ -299,15 +292,14 @@ void SModel::render()
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {
-                        float posv[3] = { position.x, position.y, position.z };
-                        float normv[3] = { norm.x, norm.y, norm.z };
-                        Vector3 toeye = Vector3(Game::GetGame().camera.position) - Vector3(posv);
-                        toeye.normalize();
-                        Vector3 reflected = Vector3::reflect(toeye, Vector3(normv));
-                        float bup[3] = { boneup[pnormbone[ptricmds[1]]].x, boneup[pnormbone[ptricmds[1]]].y, boneup[pnormbone[ptricmds[1]]].z };
-                        float bright[3] = { boneright[pnormbone[ptricmds[1]]].x, boneright[pnormbone[ptricmds[1]]].y, boneright[pnormbone[ptricmds[1]]].z };
-                        float s = (Vector3::dot(reflected, Vector3(bright)) * ((float) ptextures[texindex].width / 2.0)) + ((float) ptextures[texindex].width / 2.0);
-                        float t = (Vector3::dot(reflected, Vector3(bup)) * ((float) ptextures[texindex].height / 2.0)) + ((float) ptextures[texindex].height / 2.0);
+                        vec3_t toeye = { position.x, position.y, position.z };
+                        toeye = NormalizeVector3(Game::GetGame().camera.position - toeye);
+                        vec3_t reflected = { norm.x, norm.y, norm.z };
+                        reflected = ReflectVector3(toeye, reflected);
+                        vec3_t bup = boneup[pnormbone[ptricmds[1]]];
+                        vec3_t bright = boneright[pnormbone[ptricmds[1]]];
+                        float s = (DotProduct(reflected, bright) * ((float) ptextures[texindex].width / 2.0)) + ((float) ptextures[texindex].width / 2.0);
+                        float t = (DotProduct(reflected, bup) * ((float) ptextures[texindex].height / 2.0)) + ((float) ptextures[texindex].height / 2.0);
                         glTexCoord2f(s / (float)ptextures[texindex].width, t / (float)ptextures[texindex].height);
                     }
                     else
@@ -333,50 +325,50 @@ void SModel::RenderHitboxes()
     {
         mstudiohitbox_t* hbox = (mstudiohitbox_t*)((char*)header + header->hitboxindex) + i;
 
-        float bbminf[3] = { hbox->bbmin.x, hbox->bbmin.y, hbox->bbmin.z };
-        float bbmaxf[3] = { hbox->bbmax.x, hbox->bbmax.y, hbox->bbmax.z };
+        vec3_t bbmin = { hbox->bbmin.x, hbox->bbmin.y, hbox->bbmin.z };
+        vec3_t bbmax = { hbox->bbmax.x, hbox->bbmax.y, hbox->bbmax.z };
 
-        Vector3 bbminv = boneTransforms[hbox->bone] * Vector3(bbminf);
-        Vector3 bbmaxv = boneTransforms[hbox->bone] * Vector3(bbmaxf);
+        bbmin = boneTransforms[hbox->bone] * bbmin;
+        bbmax = boneTransforms[hbox->bone] * bbmax;
 
-        float temp[3]{};
-        Vector3 corner0 = boneTransforms[hbox->bone] * Vector3(bbminf);
-        temp[0] = bbmaxf[0]; temp[1] = bbminf[1]; temp[2] = bbminf[2];
-        Vector3 corner1 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbmaxf[0]; temp[1] = bbmaxf[1]; temp[2] = bbminf[2];
-        Vector3 corner2 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbminf[0]; temp[1] = bbmaxf[1]; temp[2] = bbminf[2];
-        Vector3 corner3 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbminf[0]; temp[1] = bbminf[1]; temp[2] = bbmaxf[2];
-        Vector3 corner4 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbmaxf[0]; temp[1] = bbminf[1]; temp[2] = bbmaxf[2];
-        Vector3 corner5 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbmaxf[0]; temp[1] = bbmaxf[1]; temp[2] = bbmaxf[2];
-        Vector3 corner6 = boneTransforms[hbox->bone] * Vector3(temp);
-        temp[0] = bbminf[0]; temp[1] = bbmaxf[1]; temp[2] = bbmaxf[2];
-        Vector3 corner7 = boneTransforms[hbox->bone] * Vector3(temp);
+        vec3_t temp;
+        vec3_t corner0 = boneTransforms[hbox->bone] * bbmin;
+        temp.x = bbmax.x; temp.y = bbmin.y; temp.z = bbmin.z;
+        vec3_t corner1 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmax.x; temp.y = bbmax.y; temp.z = bbmin.z;
+        vec3_t corner2 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmin.x; temp.y = bbmax.y; temp.z = bbmin.z;
+        vec3_t corner3 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmin.x; temp.y = bbmin.y; temp.z = bbmax.z;
+        vec3_t corner4 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmax.x; temp.y = bbmin.y; temp.z = bbmax.z;
+        vec3_t corner5 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmax.x; temp.y = bbmax.y; temp.z = bbmax.z;
+        vec3_t corner6 = boneTransforms[hbox->bone] * temp;
+        temp.x = bbmin.x; temp.y = bbmax.y; temp.z = bbmax.z;
+        vec3_t corner7 = boneTransforms[hbox->bone] * temp;
 
         glColor3f(1, 0, 0);
 
         glBegin(GL_LINES);
 
         // Draw bottom face
-        glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2)); glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2));
-        glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2)); glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2));
-        glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2)); glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2));
-        glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2)); glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2));
+        glVertex3f(corner0.x, corner0.y, corner0.z); glVertex3f(corner1.x, corner1.y, corner1.z);
+        glVertex3f(corner1.x, corner1.y, corner1.z); glVertex3f(corner2.x, corner2.y, corner2.z);
+        glVertex3f(corner2.x, corner2.y, corner2.z); glVertex3f(corner3.x, corner3.y, corner3.z);
+        glVertex3f(corner3.x, corner3.y, corner3.z); glVertex3f(corner0.x, corner0.y, corner0.z);
 
         // Draw top face
-        glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2)); glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2));
-        glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2)); glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2));
-        glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2)); glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2));
-        glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2)); glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2));
+        glVertex3f(corner4.x, corner4.y, corner4.z); glVertex3f(corner5.x, corner5.y, corner5.z);
+        glVertex3f(corner5.x, corner5.y, corner5.z); glVertex3f(corner6.x, corner6.y, corner6.z);
+        glVertex3f(corner6.x, corner6.y, corner6.z); glVertex3f(corner7.x, corner7.y, corner7.z);
+        glVertex3f(corner7.x, corner7.y, corner7.z); glVertex3f(corner4.x, corner4.y, corner4.z);
 
         // Draw connecting edges
-        glVertex3f(corner0.get(0), corner0.get(1), corner0.get(2)); glVertex3f(corner4.get(0), corner4.get(1), corner4.get(2));
-        glVertex3f(corner1.get(0), corner1.get(1), corner1.get(2)); glVertex3f(corner5.get(0), corner5.get(1), corner5.get(2));
-        glVertex3f(corner2.get(0), corner2.get(1), corner2.get(2)); glVertex3f(corner6.get(0), corner6.get(1), corner6.get(2));
-        glVertex3f(corner3.get(0), corner3.get(1), corner3.get(2)); glVertex3f(corner7.get(0), corner7.get(1), corner7.get(2));
+        glVertex3f(corner0.x, corner0.y, corner0.z); glVertex3f(corner4.x, corner4.y, corner4.z);
+        glVertex3f(corner1.x, corner1.y, corner1.z); glVertex3f(corner5.x, corner5.y, corner5.z);
+        glVertex3f(corner2.x, corner2.y, corner2.z); glVertex3f(corner6.x, corner6.y, corner6.z);
+        glVertex3f(corner3.x, corner3.y, corner3.z); glVertex3f(corner7.x, corner7.y, corner7.z);
 
         glEnd();
 
@@ -417,8 +409,8 @@ void SModel::RenderHitboxes()
         mstudiobone_t* pbone = pbones + i;
 
         Mat3x4 transform = boneTransforms[i];
-        float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
-        Vector3 pos(posf);
+        vec3_t posf = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
+        vec3_t pos = posf;
 
         if (pbone->parent >= 0)
         {
@@ -427,13 +419,13 @@ void SModel::RenderHitboxes()
                 parent = pbones + pbone->parent;
 
             transform = boneTransforms[pbone->parent];
-            posf[0] = transform.val[0][3]; posf[1] = transform.val[1][3]; posf[2] = transform.val[2][3];
-            Vector3 parentv(posf);
+            posf.x = transform.val[0][3]; posf.y = transform.val[1][3]; posf.z = transform.val[2][3];
+            vec3_t parentv = posf;
 
             glBegin(GL_LINES);
 
-            glVertex3f(pos.get(0), pos.get(1), pos.get(2));
-            glVertex3f(parentv.get(0), parentv.get(1), parentv.get(2));
+            glVertex3f(pos.x, pos.y, pos.z);
+            glVertex3f(parentv.x, parentv.y, parentv.z);
 
             glEnd();
         }
@@ -447,10 +439,9 @@ void SModel::RenderHitboxes()
         mstudiobone_t* pbone = pbones + i;
 
         Mat3x4 transform = boneTransforms[i];
-        float posf[3] = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
-        Vector3 pos(posf);
+        vec3_t pos = { transform.val[0][3], transform.val[1][3], transform.val[2][3] };
 
-        glVertex3f(pos.get(0), pos.get(1), pos.get(2));
+        glVertex3f(pos.x, pos.y, pos.z);
     }
     glEnd();
 
@@ -481,12 +472,12 @@ void SModel::Tick()
             if (event.event == STUDIO_EVENT_SOUND)
             {
                 std::string path = std::string("valve/sound/") + std::string(event.options);
-                Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
+                //Game::GetGame().GetAudioManager()->PlaySound(path, 5, { pos[0], pos[1], pos[2] });
             }
             else if (event.event == STUDIO_EVENT_SOUND_VOICE)
             {
                 std::string path = std::string("valve/sound/") + std::string(event.options);
-                voicechannel = Game::GetGame().GetAudioManager()->PlaySound(path, 10, { pos[0], pos[1], pos[2] });
+                //voicechannel = Game::GetGame().GetAudioManager()->PlaySound(path, 10, { pos[0], pos[1], pos[2] });
             }
         }
     }
