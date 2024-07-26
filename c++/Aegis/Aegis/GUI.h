@@ -29,12 +29,11 @@ private:
 	color24_t windowcol;
 	color24_t panelcol;
 	color24_t windowclosecol;
-
-	/*
+	
 	TrueTypeFont normal;
 	TrueTypeFont bold;
 	TrueTypeFont mono;
-	TrueTypeFont icons;*/
+	TrueTypeFont icons;
 
 	GLuint windowborder;
 	GLuint panelborder;
@@ -58,7 +57,7 @@ private:
 	int mouseoffsy;
 	int mousex;
 	int mousey;
-	//std::vector<GuiWindow*> windows;
+	std::vector<GuiWindow*> windows;
 
 	bool OverX(int w, int x, int y);
 };

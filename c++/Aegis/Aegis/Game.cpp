@@ -15,10 +15,10 @@ void Game::Main()
 {
     start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
-	//renderer.Init();
+	renderer.Init();
 	window = new Window("Aegis", SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT, false);
 	window->SelectForRendering();
-    //renderer.PostWindowInit();
+    renderer.PostWindowInit();
 	int fullwidth;
 	int fullheight;
 	window->GetWindowDimensions(&fullwidth, &fullheight);
@@ -26,47 +26,35 @@ void Game::Main()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    //gui.Reload();
+    gui.Reload();
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);  // Enable depth test
     glDepthFunc(GL_LEQUAL);   // Specify the depth function
 
-    float d = 60;
-    camp = { d, d, d };
-    camf = { 0, 0, 0 };
-
-    camera.position = camp;
+    camera.position = { 100, 100, 100 };
     camera.rotation = { 0, -45.0 * DEG2RAD, 135.0 * DEG2RAD };
     camera.vfov = 65.0;
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();
     
-    /*
     map.Load("valve/maps/test.bsp");
-    map.SetCameraPosition({ camp.x, camp.y, camp.z });
-    map.cameraforward = NormalizeVector3({ camf.x -camp.x, camf.y - camp.y, camf.z - camp.z });
-    map.cameraup = { 0, 0, 1 };
-    map.sky.campos = camp;*/
-
-    //font.Load("FONT1", "valve/fonts.wad");
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
     window->SetMouseBtnCallback(Game::MouseBtnCallback);
-
-    /*
+    
     console.x = 100;
     console.y = SCREEN_MED_HEIGHT - 128;
     console.w = 300;
     console.h = 250;
     console.title = "Aegis Developer Console";
     console.Show();
-    console.Create();*/
+    console.Create();
 
     float lastcheck = -1.0;
 
@@ -77,7 +65,7 @@ void Game::Main()
 
         cursorshape = GLFW_ARROW_CURSOR;
 
-        //gui.MouseDrag(cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - cursorpos.y * SCREEN_MED_HEIGHT);
+        gui.MouseDrag(cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - cursorpos.y * SCREEN_MED_HEIGHT);
 
         if (this->Time() - lastcheck >= 1.0)
         {
@@ -116,7 +104,7 @@ void Game::Main()
 
 void Game::Tick()
 {
-    //map.Think(1.0 / fps);
+    map.Think(1.0 / fps);
 }
 
 void Game::Render()
@@ -127,16 +115,16 @@ void Game::Render()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    //gluPerspective(camera.vfov, camera.aspect, 1.0, 10000.0);
+    gluPerspective(camera.vfov, camera.aspect, 1.0, 10000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(camera.position.x, camera.position.y, camera.position.z,
           camera.position.x + camera.forward.x, camera.position.y + camera.forward.y, camera.position.z + camera.forward.z,
-          0.0, 0.0, 1.0);
+          camera.up.x, camera.up.y, camera.up.z);
 
     glClear(GL_DEPTH_BUFFER_BIT);
-    
-    //map.Draw();
+
+    map.Draw();
 
     glDisable(GL_DEPTH_TEST);
 
@@ -152,26 +140,22 @@ void Game::Render()
     glOrtho(0.0, SCREEN_MED_WIDTH, 0.0, SCREEN_MED_HEIGHT, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    
-    glColor4f(1, 1, 1, 0.5);
-  //  font.DrawString(std::to_string((int) fps) + std::string(" FPS"), 0, SCREEN_MED_HEIGHT - font.GetHeight());
-    glColor4f(1, 1, 1, 1);
 
-    //gui.DrawScreen();
+    glColor3ub(255, 255, 255);
+
+    gui.DrawScreen();
 
     glEnable(GL_DEPTH_TEST);
 }
 
 Renderer* Game::GetRenderer()
 {
-    return nullptr;
-	//return &renderer;
+	return &renderer;
 }
 
 AudioManager* Game::GetAudioManager()
 {
-    return nullptr;
-    //return &audiomanager;
+    return &audiomanager;
 }
 
 bool Game::IsPaused()
@@ -262,9 +246,8 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
 
 void Game::MouseBtnCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    /*
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         Game::GetGame().gui.MouseDown(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-        Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);*/
+        Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
 }

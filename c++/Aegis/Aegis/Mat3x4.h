@@ -9,7 +9,7 @@ class Mat3x4
 public:
 	Mat3x4();
 
-	std::vector<std::vector<float>> val;
+	float val[4][4]; // FIX: Random memory stuff goes wrong when this array is 3x4, setting it to 4x4 for now
 
 	static Mat3x4 getIdentity();
 

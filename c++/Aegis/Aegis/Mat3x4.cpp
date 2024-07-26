@@ -6,11 +6,6 @@
 
 Mat3x4::Mat3x4()
 {
-    val.resize(3);
-    val[0].resize(4);
-    val[1].resize(4);
-    val[2].resize(4);
-
     val[0][0] = 1; val[0][1] = 0; val[0][2] = 0; val[0][3] = 0;
     val[1][0] = 0; val[1][1] = 1; val[1][2] = 0; val[1][3] = 0;
     val[2][0] = 0; val[2][1] = 0; val[2][2] = 1; val[2][3] = 0;
@@ -49,14 +44,6 @@ Mat3x4 Mat3x4::operator*(Mat3x4 b)
 
 Mat3x4 Mat3x4::operator=(Mat3x4 m)
 {
-    if (val.size() != 3)
-    {
-        val.resize(3);
-        val[0].resize(4);
-        val[1].resize(4);
-        val[2].resize(4);
-    }
-
     val[0][0] = m.val[0][0];
     val[0][1] = m.val[0][1];
     val[0][2] = m.val[0][2];

@@ -14,14 +14,7 @@ void Camera::ReconstructMatrices()
 	invrot = Quaternion::FromAngle(correctedrot * -1.0);
 
 	matrix = rot.toMat();
-
-	Mat3x4 mat;
-
-	inv.val[0][0] = mat.val[0][0]; inv.val[0][1] = mat.val[0][1]; inv.val[0][2] = mat.val[0][2]; inv.val[0][3] = mat.val[0][3];
-	inv.val[0][1] = mat.val[1][0]; inv.val[1][1] = mat.val[1][1]; inv.val[1][2] = mat.val[1][2]; inv.val[1][3] = mat.val[1][3];
-	inv.val[0][2] = mat.val[2][0]; inv.val[2][1] = mat.val[2][1]; inv.val[2][2] = mat.val[2][2]; inv.val[2][3] = mat.val[2][3];
-
-	/*inv = invrot.toMat();
+	inv = invrot.toMat();
 	
 	Mat3x4 invpos = Mat3x4::getIdentity();
 	invpos.val[0][3] = -position.x;
@@ -47,7 +40,7 @@ void Camera::ReconstructMatrices()
 	hfov = vfov * aspect;
 
 	maxydir = tanf(vfov / 2.0 * DEG2RAD);
-	maxxdir = maxydir * aspect;*/
+	maxxdir = maxydir * aspect;
 }
 
 vec3_t Camera::DirFromScreen(vec2_t screencoord)

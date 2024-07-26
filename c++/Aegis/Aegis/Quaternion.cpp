@@ -22,8 +22,6 @@ Quaternion Quaternion::AngleAxis(float theta, float axis[3])
 Mat3x4 Quaternion::toMat()
 {
     Mat3x4 mat;
-
-    /*
     
     mat.val[0][0] = 1.0F - 2.0F * (q[2] * q[2] + q[3] * q[3]);
     mat.val[0][1] = 2.0F * (q[1] * q[2] - q[3] * q[0]);
@@ -38,7 +36,7 @@ Mat3x4 Quaternion::toMat()
     mat.val[2][0] = 2.0F * (q[1] * q[3] - q[2] * q[0]);
     mat.val[2][1] = 2.0F * (q[2] * q[3] + q[1] * q[0]);
     mat.val[2][2] = 1.0F - 2.0F * (q[1] * q[1] + q[2] * q[2]);
-    mat.val[2][3] = 0.0F;*/
+    mat.val[2][3] = 0.0F;
 
     return mat;
 }

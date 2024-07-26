@@ -7,6 +7,8 @@
 #include "AssetManager.h"
 #include "mathutils.h"
 
+#include "Game.h"
+
 void Skybox::LoadSky(char* sky) {
     const char* prefixes[SKYBOX_NUMIMAGES] = 
     {
@@ -161,6 +163,8 @@ void Skybox::Render()
     glEnable(GL_TEXTURE_CUBE_MAP);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texname);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    campos = Game::GetGame().camera.position;
 
     // Front face
     glBegin(GL_QUADS);

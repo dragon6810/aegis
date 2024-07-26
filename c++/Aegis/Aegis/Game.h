@@ -72,9 +72,8 @@ public:
 	vec2_t cursorpos;
 
 	// UI
-	//GUI gui;
-	//Font font;
-	//GuiWindow console;
+	GUI gui;
+	GuiWindow console;
 
 	// Boring GLFW shit
 	Window* window;
@@ -94,16 +93,16 @@ private:
 
 	unsigned int r_seed = 1993;
 
-	//AudioManager audiomanager;
+	AudioManager audiomanager;
 
 	bool paused = false;
 
-	//Renderer renderer;
+	Renderer renderer;
 
 	vec3_t camp;
 	vec3_t camf;
 
-	//Wad wad;
-	//BSPMap map;
+	Wad wad;
+	BSPMap map;
 };
 

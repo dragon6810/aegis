@@ -603,14 +603,14 @@ void BSPMap::Draw()
 	EntityRenderingQueue.clear();
 
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
-	cameraleaf = GetLeafFromPoint(camerapos, worldmodel->iHeadnodes[0]);
+	cameraleaf = GetLeafFromPoint(Game::GetGame().camera.position, worldmodel->iHeadnodes[0]);
 	RenderNode(worldmodel->iHeadnodes[0], true);
 
 	for (int i = EntityRenderingQueue.size() - 1; i >= 0; i--)
 	{
-		entities[EntityRenderingQueue[i]]->cameraforward = cameraforward;
-		entities[EntityRenderingQueue[i]]->cameraup = cameraup;
-		entities[EntityRenderingQueue[i]]->camerapos = camerapos;
+		entities[EntityRenderingQueue[i]]->cameraforward = Game::GetGame().camera.forward;
+		entities[EntityRenderingQueue[i]]->cameraup = Game::GetGame().camera.up;
+		entities[EntityRenderingQueue[i]]->camerapos = Game::GetGame().camera.position;
 		entities[EntityRenderingQueue[i]]->Render();
 	}
 }
@@ -632,6 +632,7 @@ void BSPMap::RenderNode(short nodenum, bool renderentities)
 	bspnode_t* node = (bspnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_NODES].nOffset) + nodenum;
 	bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + node->iPlane;
 
+	vec3_t camerapos = Game::GetGame().camera.position;
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
 	int firstchild = side < 0;
 

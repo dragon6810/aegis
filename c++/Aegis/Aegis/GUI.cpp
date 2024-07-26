@@ -5,7 +5,6 @@
 
 #include "Targa.h"
 
-/*
 void GUI::Reload()
 {
 	FILE* ptr;
@@ -350,16 +349,4 @@ bool GUI::OverX(int w, int x, int y)
 		return false;
 		
 	return true;
-}*/
-
-void GUI::Reload() {}
-
-void GUI::RegisterWindow(GuiWindow* window) {}
-void GUI::DeregisterWindow(GuiWindow* window) {}
-
-void GUI::MouseDrag(int x, int y) {}
-void GUI::MouseDown(int x, int y) {}
-void GUI::MouseUp(int x, int y) {}
-
-void GUI::DrawScreen() {}
-void GUI::RenderWindow(int w) {}
+}
