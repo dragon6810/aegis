@@ -101,6 +101,8 @@ void BSPMap::Load(const char* filename)
 		int luxelsx = (int) ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;
 		int luxelsy = (int) ceilf(maxtex[i].y / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[i].y / BSP_LIGHTMAP_LUXELLEN) + 1;
 
+		color24_t* c = (color24_t*) ((char*) lightmap + face->nLightmapOffset);
+
 		for(int j = 0; j < BSP_FACE_NLIGHTSTYLES; j++)
 		{
 			if (face->nStyles[j] == 255)
@@ -112,7 +114,7 @@ void BSPMap::Load(const char* filename)
 			std::vector<int> texdata = std::vector<int>(luxelsx * luxelsy);
 			for (int k = 0; k < luxelsx * luxelsy; k++)
 			{
-				color24_t col = lightmap[face->nLightmapOffset + k + (luxelsx * luxelsy * j)];
+				color24_t col = *c;
 
 				if ((int)col.r << 1 > 255)
 					col.r = 255;
@@ -132,6 +134,8 @@ void BSPMap::Load(const char* filename)
 				texdata[k] |= (int)col.g <<  8;
 				texdata[k] |= (int)col.b << 16;
 				texdata[k] |= 0xFF000000;
+
+				c++;
 			}
 
 			lightmaptextures[i].style[j] = face->nStyles[j];

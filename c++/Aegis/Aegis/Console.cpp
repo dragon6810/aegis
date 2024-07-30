@@ -23,7 +23,7 @@ std::string Console::Execute(std::string cmd)
 
     for (i = 0; i < NCOMMANDS; i++)
     {
-        if (key == commandmap[i])
+        if (key == commandmap[i] || key == ("+" + commandmap[i]) || key == ("-" + commandmap[i]))
             break;
     }
 
@@ -41,6 +41,11 @@ std::string Console::Execute(std::string cmd)
 
 std::string Console::CommandMap(std::string val)
 {
+    std::string ext = ".bsp";
+
+    if (val.length() < ext.length() || (val.compare(val.size() - ext.size(), ext.size(), ext) != 0))
+        val.append(ext);
+
     Game::GetGame().map.Load((Game::GetGame().gamedir + "/maps/" + val).c_str());
     return "Loaded map \"" + Game::GetGame().gamedir + "/maps/" + val + "\".";
 }
