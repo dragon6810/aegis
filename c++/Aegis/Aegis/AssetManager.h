@@ -17,6 +17,7 @@ public:
 	// Source would be the name of the mdl, wad, bsp, etc.
 	GLuint getTexture(const char* texture, const char* source);
 	GLuint setTexture(const char* texture, const char* source);
+	bool removeTexture(const char* texture, const char* source);
 
 	void cleanup();
 private:

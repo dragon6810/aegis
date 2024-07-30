@@ -153,6 +153,8 @@
     <ClCompile Include="BSPModelEntity.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="DecalEntity.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -194,6 +196,8 @@
     <ClInclude Include="BSPModelEntity.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="Console.h" />
     <ClInclude Include="DecalEntity.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="Font.h" />

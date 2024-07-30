@@ -11,7 +11,7 @@
 
 #include "Quaternion.h"
 
-void Game::Main()
+void Game::Main(int argc, char** argv)
 {
     start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -39,22 +39,22 @@ void Game::Main()
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();
-    
-    map.Load("valve/maps/test.bsp");
+
+    for (int i = 1; i < argc; i += 2)
+    {
+        std::string key, val;
+
+        key = argv[i];
+        val = argv[i + 1];
+
+        console.Execute(key + " " + val);
+    }
 
     long long lastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     window->SetKeyCallback(Game::KeyCallback);
     window->SetCursorPosCallback(Game::CursorCallback);
     window->SetMouseBtnCallback(Game::MouseBtnCallback);
-    
-    console.x = 100;
-    console.y = SCREEN_MED_HEIGHT - 128;
-    console.w = 300;
-    console.h = 250;
-    console.title = "Aegis Developer Console";
-    console.Show();
-    console.Create();
 
     float lastcheck = -1.0;
 

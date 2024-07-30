@@ -29,52 +29,11 @@
 
 void BSPMap::Load(const char* filename)
 {
+	Game::GetGame().wad.Unload();
+
 	loadBytes(filename, (char**) &mhdr);
 	
 	printf("Loading Map %s (version %d).\n", filename, mhdr->nVersion);
-
-	bsptextureheader_t* texhdr = (bsptextureheader_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
-	for (int i = 0; i < texhdr->nMipTextures; i++)
-	{
-		int texoffset = *((int*)(texhdr + i + 1));
-		miptex_t* miptex = (miptex_t*)((char*)texhdr + texoffset);
-
-		printf("Map uses texture \"%s\"\n", miptex->name);
-
-		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
-		{
-			gltextures.push_back(Wad::LoadTexture("valve/halflife.wad", miptex->name));
-		}
-		else
-		{
-			gltextures.push_back(AssetManager::getInst().setTexture(miptex->name, filename));
-
-			int** texdata = (int**)malloc(sizeof(int*) * BSP_MIPLEVELS);
-			int width, height;
-
-			loadmiptex((char*)miptex, texdata, &width, &height);
-
-			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, BSP_MIPLEVELS - 1);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width >> 0, height >> 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[0]);
-			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, width >> 1, height >> 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[1]);
-			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA, width >> 2, height >> 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[2]);
-			glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA, width >> 3, height >> 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[3]);
-
-			for (int m = 0; m < BSP_MIPLEVELS; m++)
-				free(texdata[m]);
-
-			free(texdata);
-		}
-	}
 
 	int numfaces = mhdr->lump[BSP_LUMP_FACES].nLength / sizeof(bspface_t);
 	
@@ -153,7 +112,7 @@ void BSPMap::Load(const char* filename)
 			std::vector<int> texdata = std::vector<int>(luxelsx * luxelsy);
 			for (int k = 0; k < luxelsx * luxelsy; k++)
 			{
-				color24_t col = lightmap[0];
+				color24_t col = lightmap[face->nLightmapOffset + k + (luxelsx * luxelsy * j)];
 
 				if ((int)col.r << 1 > 255)
 					col.r = 255;
@@ -173,7 +132,6 @@ void BSPMap::Load(const char* filename)
 				texdata[k] |= (int)col.g <<  8;
 				texdata[k] |= (int)col.b << 16;
 				texdata[k] |= 0xFF000000;
-				lightmap++;
 			}
 
 			lightmaptextures[i].style[j] = face->nStyles[j];
@@ -193,6 +151,49 @@ void BSPMap::Load(const char* filename)
 	printf("Started Loading Entites\n");
 	LoadEntities();
 	printf("Done Loading Entites\n");
+
+	bsptextureheader_t* texhdr = (bsptextureheader_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXTURES].nOffset);
+	for (int i = 0; i < texhdr->nMipTextures; i++)
+	{
+		int texoffset = *((int*)(texhdr + i + 1));
+		miptex_t* miptex = (miptex_t*)((char*)texhdr + texoffset);
+
+		printf("Map uses texture \"%s\"\n", miptex->name);
+
+		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
+		{
+			gltextures.push_back(Game::GetGame().wad.LoadTexture("valve/halflife.wad", miptex->name));
+		}
+		else
+		{
+			gltextures.push_back(AssetManager::getInst().setTexture(miptex->name, filename));
+
+			int** texdata = (int**)malloc(sizeof(int*) * BSP_MIPLEVELS);
+			int width, height;
+
+			loadmiptex((char*)miptex, texdata, &width, &height);
+
+			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
+
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, BSP_MIPLEVELS - 1);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width >> 0, height >> 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[0]);
+			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, width >> 1, height >> 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[1]);
+			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA, width >> 2, height >> 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[2]);
+			glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA, width >> 3, height >> 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, texdata[3]);
+
+			for (int m = 0; m < BSP_MIPLEVELS; m++)
+				free(texdata[m]);
+
+			free(texdata);
+		}
+	}
 }
 
 void BSPMap::LoadEntities()
@@ -248,6 +249,29 @@ void BSPMap::LoadEntities()
 		{
 			if(keyval.find("sky") != keyval.end())
 				sky.LoadSky((char*) keyval["skyname"].c_str());
+			
+			if (keyval.find("wad") != keyval.end())
+			{
+				std::vector<std::string> paths;
+
+				char* wads = &(keyval["wad"])[0];
+				
+				char* end = wads + strlen(wads) + 1;
+				for (char* c = wads; c < end; c++)
+				{
+					if (c[0] == ';' || c[0] == '\0')
+					{
+						paths.push_back("");
+						paths[paths.size() - 1].resize(c - wads + 1);
+						memcpy(&(paths[paths.size() - 1])[0], wads, c - wads);
+
+						wads = c;
+					}
+				}
+
+				for (int i = 0; i < paths.size(); i++)
+					Game::GetGame().wad.Load(("C:/" + paths[i]).c_str());
+			}
 		}
 		else if (keyval["classname"] == "func_rotating")
 		{
@@ -600,6 +624,9 @@ void BSPMap::SetCameraPosition(vec3_t pos)
 
 void BSPMap::Draw()
 {
+	if (!mhdr)
+		return;
+
 	EntityRenderingQueue.clear();
 
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);

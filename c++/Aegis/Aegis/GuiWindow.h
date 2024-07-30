@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "TextPanel.h"
+
 class GuiWindow
 {
 public:
@@ -20,6 +22,8 @@ public:
 	int y;
 	int w;
 	int h;
+
+	//std::vector<TextPanel> textpanels;
 protected:
 	bool isactive;
 private:

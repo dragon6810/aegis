@@ -17,6 +17,7 @@
 #include "Window.h"
 
 #include "GUI.h"
+#include "Console.h"
 
 #include "AudioManager.h"
 
@@ -45,7 +46,7 @@ public:
 	}
 
 	// Heartbeat
-	void Main();
+	void Main(int argc, char** argv);
 	void Tick();
 	void Render();
 
@@ -73,12 +74,15 @@ public:
 
 	// UI
 	GUI gui;
-	GuiWindow console;
+	Console console;
 
 	// Boring GLFW shit
 	Window* window;
 
 	int cursorshape;
+
+	Wad wad;
+	BSPMap map;
 
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void CursorCallback(GLFWwindow* window, double xpos, double ypos);
@@ -101,8 +105,5 @@ private:
 
 	vec3_t camp;
 	vec3_t camf;
-
-	Wad wad;
-	BSPMap map;
 };
 

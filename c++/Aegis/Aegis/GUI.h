@@ -14,6 +14,9 @@
 class GUI
 {
 public:
+	int windowborderw;
+	int windowborderh;
+
 	void Reload();
 
 	void RegisterWindow(GuiWindow* window);
@@ -38,9 +41,6 @@ private:
 	GLuint windowborder;
 	GLuint panelborder;
 	GLuint windowcloseicon;
-
-	int windowborderw;
-	int windowborderh;
 
 	waveform_t windowclosesound;
 

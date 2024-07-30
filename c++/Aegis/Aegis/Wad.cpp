@@ -8,6 +8,16 @@
 #include "loadtexture.h"
 #include "AssetManager.h"
 
+void Wad::Unload()
+{
+	int i;
+
+	for (i = 0; i < textures.size(); i++)
+		AssetManager::getInst().removeTexture(textures[i].c_str(), "wad");
+
+	textures.clear();
+}
+
 void Wad::Load(const char* filename)
 {
 	loadBytes(filename, (char**)&whdr);
@@ -15,6 +25,8 @@ void Wad::Load(const char* filename)
 	for (int i = 0; i < whdr->numdirs; i++)
 	{
 		waddirentry_t* entry = (waddirentry_t*)((char*)whdr + whdr->diroffset) + i;
+		
+		textures.push_back("wad:" + std::string(entry->name));
 
 		GLuint texindex = AssetManager::getInst().setTexture(entry->name, "wad");
 
@@ -62,6 +74,8 @@ void Wad::LoadDecals(const char* filename)
 	{
 		waddirentry_t* entry = (waddirentry_t*)((char*)whdr + whdr->diroffset) + i;
 
+		textures.push_back("wad:" + std::string(entry->name));
+
 		GLuint texindex = AssetManager::getInst().setTexture(entry->name, "wad");
 
 		int** texdata = (int**)malloc(sizeof(int*) * BSP_MIPLEVELS);
@@ -103,6 +117,8 @@ GLuint Wad::LoadTexture(const char* filename, const char* texturename)
 	GLuint texname = AssetManager::getInst().getTexture(texturename, "wad");
 	if (texname != UINT32_MAX)
 		return texname;
+
+	textures.push_back("wad:" + std::string(texturename));
 
 	std::string lowerfilename(texturename);
 	for (int i = 0; i < lowerfilename.size(); i++)

@@ -16,7 +16,7 @@
 
 BSPMap map;
 
-int main()
+int main(int argc, char** argv)
 {
     if (!glfwInit())
     {
@@ -28,7 +28,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 
-    Game::GetGame().Main(); 
+    Game::GetGame().Main(argc, argv); 
 
     return 0;
 }

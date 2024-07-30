@@ -4,6 +4,7 @@
 
 #include "GuiWindow.h"
 
+#if 0
 class TextPanel
 {
 public:
@@ -19,9 +20,13 @@ public:
 	int w, h;
 
 	void Draw();
+
+	bool isselected;
 protected:
 	GuiWindow* window;
 
 	int textpad = 3;
-};
 
+	bool mousedown;
+};
+#endif

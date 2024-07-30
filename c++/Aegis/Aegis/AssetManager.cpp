@@ -55,6 +55,28 @@ GLuint AssetManager::setTexture(const char* texture, const char* source)
 	return texturenames[numtextures - 1];
 }
 
+bool AssetManager::removeTexture(const char* texture, const char* source)
+{
+	std::string fullname = std::string(source) + std::string(":") + std::string(texture);
+
+	for (int i = 0; i < strlen(fullname.c_str()); i++)
+		fullname[i] = tolower(fullname[i]);
+
+	for (int i = 0; i < numtextures; i++)
+	{
+		if (texturelookup[i] == fullname.c_str())
+		{
+			glDeleteTextures(1, &texturenames[i]);
+			texturelookup.erase(texturelookup.begin() + i);
+			texturenames.erase(texturenames.begin() + i);
+			numtextures--;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void AssetManager::cleanup()
 {
 	for (int i = 0; i < numtextures; i++)
