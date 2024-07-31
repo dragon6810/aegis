@@ -270,11 +270,12 @@ void BSPMap::LoadEntities()
 						memcpy(&(paths[paths.size() - 1])[0], wads, c - wads);
 
 						wads = c;
+						c++;
 					}
 				}
 
 				for (int i = 0; i < paths.size(); i++)
-					Game::GetGame().wad.Load(("C:/" + paths[i]).c_str());
+					Game::GetGame().wad.Load((Game::GetGame().gamedir + "/" + paths[i]).c_str());
 			}
 		}
 		else if (keyval["classname"] == "func_rotating")

@@ -96,7 +96,8 @@
 	]
 ]
 
-@PointClass studio("models/tank.mdl") base(Angles) = player_tank : "Player Tank"
+@PointClass studio("models/editor/camera.mdl") base(Targetname) base(Angles) size(-16 -16 -16, 16 16 16) = camera : "Player Camera" []
+@PointClass studio("models/tank.mdl") base(Angles) size(-16 -16 -16, 16 16 16) = player_tank : "Player Tank" []
 
 @PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = explosion : "Explosion" 
 [
@@ -114,9 +115,8 @@
     frequency(integer) : "Frequency (0-255)" : 64
 ]
 
-@SolidClass base(RenderFields) = bspmodel : "BSP Model"
-
-@SolidClass base(RenderFields) = fakebspmodel : "Fake BSP Model (No Collision)"
+@SolidClass base(RenderFields) = bspmodel : "BSP Model" []
+@SolidClass base(RenderFields) = fakebspmodel : "Fake BSP Model (No Collision)" []
 
 @PointClass decal() base(Targetname, Appearflags) = leveldecal : "Decal"
 [
@@ -127,4 +127,6 @@
     ]
 ]
 
-@PointClass base(Zombie) = zombie_grunt : "Zombie Grunt" 
+@PointClass base(Zombie) = zombie_grunt : "Zombie Grunt" []
+
+@PointClass base(Light) = light : "Light" []

@@ -59,3 +59,9 @@
 "volume" "8"
 "origin" "-12 0 64"
 }
+{
+"classname" "light"
+"style" "0"
+"_light" "255 255 255 255"
+"origin" "64 33 64"
+}
