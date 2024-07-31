@@ -43,16 +43,35 @@ void BSPMap::Load(const char* filename)
 
 		bspface_t* face = (bspface_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_FACES].nOffset) + i;
 		bsptexinfo_t* texinfo = (bsptexinfo_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_TEXINFO].nOffset) + face->iTextureInfo;
-		color24_t* lightmap = (color24_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset + face->nLightmapOffset);
+		color24_t* lightmap = (color24_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LIGHTING].nOffset);
 		vec3_t* vertices = (vec3_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_VERTICES].nOffset);
 		bspedge_t* edges = (bspedge_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_EDGES].nOffset);
 		int* surfedges = (int*)((char*)mhdr + mhdr->lump[BSP_LUMP_SURFEDGES].nOffset);
 		
+		if (face->nLightmapOffset < 0)
+		{
+			int texdata = 0xFFFFFFFF;
+
+			for (int j = 0; i < BSP_FACE_NLIGHTSTYLES; j++)
+			{
+				lightmaptextures[i].style[j] = BSP_LIGHTMODE_NONE;
+
+				char name[14];
+				sprintf(name, "lightmap%d_%d", i, j);
+				lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name, "map");
+
+				glBindTexture(GL_TEXTURE_2D, lightmaptextures[i].texture[j]);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texdata);
+			}
+
+			continue;
+		}
+
 		maxtex[i] = { -999999.9, -999999.9 };
 		mintex[i] = {  999999.9,  999999.9 };
-
-		//maxtex[i] = { 0.0, 0.0 };
-		//mintex[i] = { 0.0, 0.0 };
 
 		for (int e = face->iFirstEdge; e < face->iFirstEdge + face->nEdges; e++)
 		{
@@ -76,32 +95,10 @@ void BSPMap::Load(const char* filename)
 				mintex[i].y = t;
 		}
 
-		if (face->nLightmapOffset < 0)
-		{
-			int texdata = 0xFFFFFFFF;
-
-			for (int j = 0; i < BSP_FACE_NLIGHTSTYLES; j++)
-			{
-				lightmaptextures[i].style[j] = BSP_LIGHTMODE_NONE;
-
-				char name[14];
-				sprintf(name, "lightmap%d_%d", i, j);
-				lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name, "map");
-
-				glBindTexture(GL_TEXTURE_2D, lightmaptextures[i].texture[j]);
-				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texdata);
-			}
-
-			continue; 
-		}
-
-		int luxelsx = (int) ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;
-		int luxelsy = (int) ceilf(maxtex[i].y / BSP_LIGHTMAP_LUXELLEN) - (int) floor(mintex[i].y / BSP_LIGHTMAP_LUXELLEN) + 1;
-
 		color24_t* c = (color24_t*) ((char*) lightmap + face->nLightmapOffset);
+
+		int luxelsx = (int)ceilf(maxtex[i].x / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].x / BSP_LIGHTMAP_LUXELLEN) + 1;
+		int luxelsy = (int)ceilf(maxtex[i].y / BSP_LIGHTMAP_LUXELLEN) - (int)floor(mintex[i].y / BSP_LIGHTMAP_LUXELLEN) + 1;
 
 		for(int j = 0; j < BSP_FACE_NLIGHTSTYLES; j++)
 		{
@@ -141,7 +138,7 @@ void BSPMap::Load(const char* filename)
 			lightmaptextures[i].style[j] = face->nStyles[j];
 
 			char name[14];
-			sprintf(name, "lightmap%d_%d", i, j);
+			sprintf(name, "lightmap_%d_%d", i, j);
 			lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name, "map");
 		
 			glBindTexture(GL_TEXTURE_2D, lightmaptextures[i].texture[j]);
