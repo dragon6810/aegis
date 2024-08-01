@@ -96,7 +96,7 @@
 	]
 ]
 
-@PointClass studio("models/editor/camera.mdl") base(Targetname) base(Angles) size(-16 -16 -16, 16 16 16) = camera : "Player Camera" []
+@PointClass studio("models/editor/camera.mdl") base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = playercamera : "Player Camera" []
 @PointClass studio("models/tank.mdl") base(Angles) size(-16 -16 -16, 16 16 16) = player_tank : "Player Tank" []
 
 @PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = explosion : "Explosion" 
