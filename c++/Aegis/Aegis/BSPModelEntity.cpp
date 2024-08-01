@@ -32,7 +32,15 @@ void BSPModelEntity::Render()
 	glRotatef(rotation.y * RAD2DEG, 0.0, 1.0, 0.0);
 	glRotatef(rotation.x * RAD2DEG, 1.0, 0.0, 0.0);
 
-	map->RenderNode(model->iHeadnodes[0], false);
+	map->markleaves.clear();
+	map->_markleaves.clear();
+	map->markfaces.clear();
+	map->_markfaces.clear();
+
+	map->RenderLeavesRecursive(model->iHeadnodes[0]);
+	for (int i = 0; i < map->markleaves.size(); i++)
+		map->RenderLeaf(map->markleaves[i]);
+	map->RenderFaces();
 
 	glPopMatrix();
 

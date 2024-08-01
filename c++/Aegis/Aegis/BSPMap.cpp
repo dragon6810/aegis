@@ -19,7 +19,6 @@
 #include "IllusionaryEntity.h"
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
-#include "MonsterBarney.h"
 #include "LaserEntity.h"
 
 #include "Light.h"
@@ -486,34 +485,6 @@ void BSPMap::LoadEntities()
 			entities.push_back(std::make_unique<SpriteEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
-		else if (keyval["classname"] == "monster_barney")
-		{
-			MonsterBarney entity(*this);
-
-			entity.classname = keyval["classname"];
-
-			if (keyval.find("targetname") != keyval.end())
-				entity.targetname = keyval["targetname"];
-
-			vec3_t pos = { 0.0, 0.0, 0.0 };
-			if (keyval.find("origin") != keyval.end())
-			{
-				std::istringstream iss(keyval["origin"]);
-				int x; int y; int z;
-				iss >> x >> y >> z;
-				pos.x = x;
-				pos.y = y;
-				pos.z = z;
-				entity.position = pos;
-			}
-
-			if (keyval.find("spawnflags") != keyval.end())
-				entity.flags = std::stoi(keyval["spawnflags"]);
-
-			entity.Init();
-			entities.push_back(std::make_unique<MonsterBarney>(entity));
-			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
-		}
 		else if (keyval["classname"] == "info_target")
 		{
 			BaseEntity entity(*this);
@@ -629,19 +600,19 @@ void BSPMap::Draw()
 	if (!mhdr)
 		return;
 
-	EntityRenderingQueue.clear();
+	markleaves.clear();
+	markfaces.clear();
+	markentities.clear();
+	_markleaves.clear();
+	_markfaces.clear();
+	_markentities.clear();
 
 	bspmodel_t* worldmodel = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
 	cameraleaf = GetLeafFromPoint(Game::GetGame().camera.position, worldmodel->iHeadnodes[0]);
-	RenderNode(worldmodel->iHeadnodes[0], true);
-
-	for (int i = EntityRenderingQueue.size() - 1; i >= 0; i--)
-	{
-		entities[EntityRenderingQueue[i]]->cameraforward = Game::GetGame().camera.forward;
-		entities[EntityRenderingQueue[i]]->cameraup = Game::GetGame().camera.up;
-		entities[EntityRenderingQueue[i]]->camerapos = Game::GetGame().camera.position;
-		entities[EntityRenderingQueue[i]]->Render();
-	}
+	
+	RenderLeaves();
+	RenderFaces();
+	RenderEntities();
 }
 
 void BSPMap::Think(float deltatime)
@@ -650,11 +621,40 @@ void BSPMap::Think(float deltatime)
 		entities[i]->Think(deltatime);
 }
 
-void BSPMap::RenderNode(short nodenum, bool renderentities)
+void BSPMap::RenderLeaves()
+{
+	RenderLeavesRecursive(0);
+
+	for (int i = 0; i < markleaves.size(); i++)
+		RenderLeaf(markleaves[i]);
+}
+
+void BSPMap::RenderFaces()
+{
+	for (int i = 0; i < markfaces.size(); i++)
+		RenderFace(markfaces[i]);
+}
+
+void BSPMap::RenderEntities()
+{
+	for (int i = markentities.size() - 1; i >= 0; i--)
+	{
+		entities[markentities[i]]->cameraforward = Game::GetGame().camera.forward;
+		entities[markentities[i]]->cameraup = Game::GetGame().camera.up;
+		entities[markentities[i]]->camerapos = Game::GetGame().camera.position;
+		entities[markentities[i]]->Render();
+	}
+}
+
+void BSPMap::RenderLeavesRecursive(int nodenum)
 {
 	if (nodenum < 0)
 	{
-		RenderLeaf(~nodenum, renderentities);
+		if (_markleaves.find(~nodenum) == _markleaves.end())
+		{
+			markleaves.push_back(~nodenum);
+			_markleaves.insert(~nodenum);
+		}
 		return;
 	}
 
@@ -665,28 +665,34 @@ void BSPMap::RenderNode(short nodenum, bool renderentities)
 	float side = plane->vNormal.x * camerapos.x + plane->vNormal.y * camerapos.y + plane->vNormal.z * camerapos.z - plane->fDist;
 	int firstchild = side < 0;
 
-	RenderNode(node->iChildren[firstchild], renderentities);
+	RenderLeavesRecursive(node->iChildren[firstchild]);
 
-	for (int i = node->firstFace; i < node->firstFace + node->nFaces; i++)
-		RenderFace(i);
-
-	RenderNode(node->iChildren[!firstchild], renderentities);
+	RenderLeavesRecursive(node->iChildren[!firstchild]);
 }
 
-void BSPMap::RenderLeaf(short leafnum, bool renderentities)
+void BSPMap::RenderLeaf(short leafnum)
 {
-	if (!renderentities)
-		return;
-
 	bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + leafnum;
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
 
 	std::vector<int> entityindices = leafentities[leafnum];
 	for (int i = 0; i < entityindices.size(); i++)
-		EntityRenderingQueue.push_back(entityindices[i]);
+	{
+		if (_markentities.find(entityindices[i]) == _markentities.end())
+		{
+			markentities.push_back(entityindices[i]);
+			_markentities.insert(entityindices[i]);
+		}
+	}
 
-	//for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
-	//	RenderFace(marksurfaces[i]);
+	for (int i = leaf->iFirstMarkSurface; i < leaf->nMarkSurfaces + leaf->iFirstMarkSurface; i++)
+	{
+		if (_markfaces.find(marksurfaces[i]) == _markfaces.end())
+		{
+			markfaces.push_back(marksurfaces[i]);
+			_markfaces.insert(marksurfaces[i]);
+		}
+	}
 }
 
 void BSPMap::RenderFace(uint16_t f)

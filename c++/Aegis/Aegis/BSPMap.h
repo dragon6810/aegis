@@ -2,6 +2,7 @@
 
 #include "defs.h";
 
+#include <unordered_set>
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -39,8 +40,7 @@ public:
 
 	int cameraleaf;
 	
-	void RenderNode(short nodenum, bool renderentities);
-	void RenderLeaf(short leafnum, bool renderentities);
+	void RenderLeaf(short leafnum);
 	void RenderFace(uint16_t f);
 	bool IsLeafVisible(int leaf1, int leaf2);
 	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
@@ -51,7 +51,6 @@ public:
 	vec2_t mintex[BSP_MAX_MAP_FACES];
 
 	std::vector<std::unique_ptr<BaseEntity>> entities;
-	std::vector<int> EntityRenderingQueue; // Back to front rendering for potentially transparent entities
 	std::unordered_map<int, std::vector<int>> leafentities;
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
@@ -66,6 +65,19 @@ public:
 	void SetEntityToLeaf(int entity, int leaf);
 	int GetLeafFromPoint(vec3_t p, int nodenum);
 	void BoxIntersect(vec3_t bmin, vec3_t bmax, int nodenum, std::vector<int>& faces);
+
+	std::vector<int> markleaves;
+	std::vector<int> markfaces;
+	std::vector<int> markentities;
+
+	std::unordered_set<int> _markleaves;
+	std::unordered_set<int> _markfaces;
+	std::unordered_set<int> _markentities;
+
+	void RenderLeaves();
+	void RenderLeavesRecursive(int nodenum);
+	void RenderFaces();
+	void RenderEntities();
 private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 

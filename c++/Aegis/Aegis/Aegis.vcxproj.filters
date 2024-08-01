@@ -147,9 +147,6 @@
     <ClCompile Include="MonsterEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="MonsterBarney.cpp">
-      <Filter>Source Files\Entities</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -270,9 +267,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="MonsterEntity.h">
-      <Filter>Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="MonsterBarney.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
