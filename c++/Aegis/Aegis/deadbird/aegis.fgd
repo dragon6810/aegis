@@ -1,6 +1,6 @@
 @BaseClass = Angles
 [
-    angles(string) : "Orientation (Roll Pitch Yaw)" : "0 0 0"
+    angles(string) : "Orientation (Pitch Yaw Roll)" : "0 0 0"
 ]
 
 @BaseClass = Targetname 
@@ -96,8 +96,8 @@
 	]
 ]
 
-@PointClass studio("models/editor/camera.mdl") base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = playercamera : "Player Camera" []
-@PointClass studio("models/tank.mdl") base(Angles) size(-16 -16 -16, 16 16 16) = player_tank : "Player Tank" []
+@PointClass studio("models/camera/camera.mdl") base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = player_camera : "Player Camera" []
+@PointClass studio("models/tank/tank.mdl") base(Angles) size(-16 -16 -16, 16 16 16) = player_tank : "Player Tank" []
 
 @PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = explosion : "Explosion" 
 [

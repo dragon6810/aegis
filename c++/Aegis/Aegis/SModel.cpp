@@ -14,7 +14,7 @@
 
 void SModel::Say(std::string waveform)
 {
-    std::string path = std::string("valve/sound/") + waveform;
+    std::string path = std::string(Game::GetGame().gamedir + "/sound/") + waveform;
     voicechannel = Game::GetGame().GetAudioManager()->PlaySound(path, 10, { pos[0], pos[1], pos[2] });
 }
 

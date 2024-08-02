@@ -274,6 +274,32 @@ void BSPMap::LoadEntities()
 					Game::GetGame().wad.Load((Game::GetGame().gamedir + "/" + paths[i]).c_str());
 			}
 		}
+		else if (keyval["classname"] == "player_camera")
+		{
+			vec3_t angles = { 0.0, 0.0, 0.0 };
+			if (keyval.find("angles") != keyval.end())
+			{
+				std::istringstream iss(keyval["angles"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				angles.x = x * DEG2RAD;
+				angles.y = y * DEG2RAD;
+				angles.z = z * DEG2RAD;
+				Game::GetGame().camera.rotation = { angles.z, -angles.x, angles.y };
+			}
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				Game::GetGame().camera.position = pos;
+			}
+		}
 		else if (keyval["classname"] == "func_rotating")
 		{
 			RotatingEntity entity(*this);
