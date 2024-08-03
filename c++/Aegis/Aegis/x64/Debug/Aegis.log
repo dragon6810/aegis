@@ -1,87 +1,30 @@
-﻿  BSPMap.cpp
+﻿  SModel.cpp
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'BSPMap.cpp')
+  (compiling source file 'SModel.cpp')
   
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'BSPMap.cpp')
+  (compiling source file 'SModel.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'BSPMap.cpp')
+  (compiling source file 'SModel.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(72,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(72,29): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(73,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(73,29): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(75,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(156,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(285,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(286,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(287,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(297,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(298,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(299,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(321,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(322,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(323,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(333,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(334,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(335,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(346,30): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(350,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(370,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(371,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(372,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(382,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(383,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(384,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(397,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(417,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(418,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(419,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(429,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(430,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(431,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(444,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(461,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(462,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(463,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(492,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(493,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(494,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(505,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(512,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(529,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(530,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(531,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(540,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(560,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(561,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(562,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(572,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(573,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(574,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(579,63): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(582,68): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(585,54): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(595,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(608,14): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(666,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(741,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(779,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(780,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(781,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(791,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(819,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(888,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(889,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(890,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(891,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(954,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(956,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1002,37): warning C4018: '<': signed/unsigned mismatch
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1033,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1034,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1035,23): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.cpp(1110,37): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(31,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(123,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(129,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(135,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(141,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(158,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(177,27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(263,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(264,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(265,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(306,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(307,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(468,29): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(508,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(512,56): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

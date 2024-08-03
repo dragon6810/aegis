@@ -143,7 +143,10 @@ void SModel::SetupLighting()
     lightdir.x = gradient[0] - gradient[1] - gradient[2] + gradient[3];
     lightdir.y = gradient[1] + gradient[0] - gradient[2] - gradient[3];
     lightdir.z = 0;
-    lightdir = NormalizeVector3(lightdir);
+    if (lightdir.x != 0 || lightdir.y != 0)
+        lightdir = NormalizeVector3(lightdir);
+    else
+        lightdir.z = 1;
 
     float maxchannel = lightcolor.x;
     if (lightcolor.y > maxchannel) maxchannel = lightcolor.y;
@@ -173,7 +176,9 @@ void SModel::SetupLighting()
     if (ambientlight + directlight > 1.0)
         directlight = 1.0 - ambientlight;
 
-    lightdir.z = 1;
+    if(lightdir.x != 0 || lightdir.y != 0)
+        lightdir.z = 1;
+
     lightdir = NormalizeVector3(lightdir);
 }
 
@@ -504,7 +509,7 @@ void SModel::Tick()
         }
         else
         {
-            bonecontrollervalues[i] = -controller->rest * DEG2RAD;
+           bonecontrollervalues[i] = -controller->rest * DEG2RAD;
         }
     }
 
@@ -527,7 +532,10 @@ Mat3x4 SModel::transformfrombone(int boneindex)
     mstudioseqdescription_t* pseqdesc = (mstudioseqdescription_t*)((char*)header + header->seqindex) + sequence;
     mstudioseqgroup_t* pseqgroup = (mstudioseqgroup_t*)((char*)header + header->seqgroupindex) + pseqdesc->seqgroup;
 
-    f %= pseqdesc->numframes - 1;
+    if (pseqdesc->numframes <= 1)
+        f = 0;
+    else
+       f %= pseqdesc->numframes - 1;
 
     mstudioanimchunk_t* panim;
     if (pseqdesc->seqgroup == 0)

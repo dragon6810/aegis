@@ -20,6 +20,7 @@
 #include "DecalEntity.h"
 #include "SpriteEntity.h"
 #include "LaserEntity.h"
+#include "PlayerEntity.h"
 
 #include "Light.h"
 
@@ -51,13 +52,12 @@ void BSPMap::Load(const char* filename)
 		{
 			int texdata = 0xFFFFFFFF;
 
-			for (int j = 0; i < BSP_FACE_NLIGHTSTYLES; j++)
+			for (int j = 0; j < BSP_FACE_NLIGHTSTYLES; j++)
 			{
 				lightmaptextures[i].style[j] = BSP_LIGHTMODE_NONE;
 
-				char name[14];
-				sprintf(name, "lightmap%d_%d", i, j);
-				lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name, "map");
+				std::string name = "lightmap_" + std::to_string(i) + std::string("_") + std::to_string(j);
+				lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name.c_str(), "map");
 
 				glBindTexture(GL_TEXTURE_2D, lightmaptextures[i].texture[j]);
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -136,9 +136,8 @@ void BSPMap::Load(const char* filename)
 
 			lightmaptextures[i].style[j] = face->nStyles[j];
 
-			char name[14];
-			sprintf(name, "lightmap_%d_%d", i, j);
-			lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name, "map");
+			std::string name = "lightmap_" + std::to_string(i) + std::string("_") + std::to_string(j);
+			lightmaptextures[i].texture[j] = AssetManager::getInst().setTexture(name.c_str(), "map");
 		
 			glBindTexture(GL_TEXTURE_2D, lightmaptextures[i].texture[j]);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -162,7 +161,7 @@ void BSPMap::Load(const char* filename)
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
-			gltextures.push_back(Game::GetGame().wad.LoadTexture("valve/halflife.wad", miptex->name));
+			gltextures.push_back(Game::GetGame().wad.LoadTexture("", miptex->name));
 		}
 		else
 		{
@@ -283,7 +282,7 @@ void BSPMap::LoadEntities()
 				int x; int y; int z;
 				iss >> x >> y >> z;
 				angles.x = x * DEG2RAD;
-				angles.y = y * DEG2RAD;
+				angles.y = (y + 180) * DEG2RAD;
 				angles.z = z * DEG2RAD;
 				Game::GetGame().camera.rotation = { angles.z, -angles.x, angles.y };
 			}
@@ -299,6 +298,38 @@ void BSPMap::LoadEntities()
 				pos.z = z;
 				Game::GetGame().camera.position = pos;
 			}
+		}
+		else if (keyval["classname"] == "player_tank")
+		{
+			PlayerEntity entity(*this);
+
+			vec3_t angles = { 0.0, 0.0, 0.0 };
+			if (keyval.find("angles") != keyval.end())
+			{
+				std::istringstream iss(keyval["angles"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				angles.x = x * DEG2RAD;
+				angles.y = y * DEG2RAD;
+				angles.z = z * DEG2RAD;
+				entity.rotation = angles;
+			}
+
+			vec3_t pos = { 0.0, 0.0, 0.0 };
+			if (keyval.find("origin") != keyval.end())
+			{
+				std::istringstream iss(keyval["origin"]);
+				int x; int y; int z;
+				iss >> x >> y >> z;
+				pos.x = x;
+				pos.y = y;
+				pos.z = z;
+				entity.position = pos;
+			}
+
+			entity.Init();
+			entities.push_back(std::make_unique<PlayerEntity>(entity));
+			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
 		}
 		else if (keyval["classname"] == "func_rotating")
 		{
@@ -990,7 +1021,7 @@ bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* 
 	float mid = (plane->fDist - DotProduct(plane->vNormal, start)) / DotProduct(plane->vNormal, difference);
 	vec3_t midpoint = start + difference * mid;
 
-	if (endval * startval <= 0.0) // They are on different sides
+	if (endval * startval < 0.0 || ((startval == 0) ^ (endval == 0))) // They are on different sides
 	{
 		for (int i = node->firstFace; i < node->firstFace + node->nFaces; i++)
 		{
@@ -1051,6 +1082,15 @@ bool BSPMap::LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* 
 
 		if (!found)
 			return LightColorRecursive(midpoint, end, node->iChildren[!firstside], color);
+		else
+			return true;
+	}
+	else if (endval == 0 && startval == 0)
+	{
+		bool found = LightColorRecursive(start, end, node->iChildren[0], color);
+
+		if (!found)
+			return LightColorRecursive(start, end, node->iChildren[1], color);
 		else
 			return true;
 	}
