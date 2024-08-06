@@ -35,7 +35,7 @@ void Game::Main(int argc, char** argv)
 
     camera.position = { 100, 100, 100 };
     camera.rotation = { 0, -45.0 * DEG2RAD, 135.0 * DEG2RAD };
-    camera.vfov = 65.0;
+    camera.vfov = 75.0;
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();
@@ -125,15 +125,22 @@ void Game::Render()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     map.Draw();
-
-    glDisable(GL_DEPTH_TEST);
+    
+    glColor3f(0, 0, 1);
+    vec3_t p;
+    vec3_t start = camera.position;
+    vec3_t end = start + (camera.DirFromScreen(cursorpos) * 2048.0);
+    if (map.FineRaycast(start, end, &p))
+    {
+        glPointSize(10000.0 / Vector3Dist(start, p));
+        glBegin(GL_POINTS);
+        glVertex3f(p.x, p.y, p.z);
+        glEnd();
+    }
 
     glPointSize(15.0f);
 
-    glBegin(GL_POINTS);
-    glColor3f(1, 0, 0);
-    glVertex3f(0, 0, 0);
-    glEnd();
+    glDisable(GL_DEPTH_TEST);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

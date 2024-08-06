@@ -1,30 +1,30 @@
-﻿  SModel.cpp
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'SModel.cpp')
-  
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'SModel.cpp')
-  
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-  (compiling source file 'SModel.cpp')
-  
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+﻿  Game.cpp
 C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  (compiling source file 'SModel.cpp')
+  (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(31,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(123,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(129,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(135,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(141,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(158,20): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(177,27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(263,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(264,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(265,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(306,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(307,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(468,29): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(508,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\SModel.cpp(512,56): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Game.cpp')
+  
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(37,34): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(37,51): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(68,73): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(68,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(73,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(79,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(107,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(135,29): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(194,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(228,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(234,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(257,105): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(257,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(259,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(259,65): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe

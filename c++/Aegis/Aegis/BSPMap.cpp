@@ -951,7 +951,8 @@ int BSPMap::LeafContentsRecursive(vec3_t point, int iclipnode)
 
 bool BSPMap::FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection)
 {
-	return FineRaycastRecursive(start, end, intersection, 0);
+	bspmodel_t* hull = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
+	return FineRaycastRecursive(start, end, intersection, hull->iHeadnodes[0]);
 }
 
 bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, int iclipnode)
@@ -972,12 +973,17 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 	float t1 = DotProduct(plane->vNormal, start) - plane->fDist;
 	float t2 = DotProduct(plane->vNormal, end) - plane->fDist;
 
-	if (t1 * t2 >= 0)
+	if (t1 * t2 >= 0 && !((t1 == 0) && (t2 == 0)))
 	{
 		if (t1 >= 0)
 			return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[0]);
-		else
-			return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
+		return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
+	}
+	else if (t1 == 0 && t2 == 0)
+	{
+		if (FineRaycastRecursive(start, end, intersection, clipnode->iChildren[0]))
+			return true;
+		return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
 	}
 
 	float t;
@@ -996,7 +1002,7 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 
 	if (FineRaycastRecursive(start, mid, intersection, clipnode->iChildren[side]))
 		return true;
-	return FineRaycastRecursive(mid, end, intersection, clipnode->iChildren[side]);
+	return FineRaycastRecursive(mid, end, intersection, clipnode->iChildren[!side]);
 }
 
 vec3_t BSPMap::LightColor(vec3_t start, vec3_t end)

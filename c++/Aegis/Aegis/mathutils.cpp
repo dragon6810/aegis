@@ -13,6 +13,11 @@ float Vector3Length(vec3_t v)
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+float Vector3Dist(vec3_t a, vec3_t b)
+{
+    return Vector3Length(a - b);
+}
+
 vec3_t CrossProduct(vec3_t a, vec3_t b)
 {
     float x = a.y * b.z - a.z * b.y;
