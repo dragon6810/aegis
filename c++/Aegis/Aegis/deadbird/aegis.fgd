@@ -127,6 +127,6 @@
     ]
 ]
 
-@PointClass base(Zombie) = zombie_grunt : "Zombie Grunt" []
+@PointClass base(Zombie) studio("models/zgrunt/zgrunt.mdl") = zombie_grunt : "Zombie Grunt" []
 
 @PointClass base(Light) = light : "Light" []

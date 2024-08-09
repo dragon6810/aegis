@@ -35,7 +35,7 @@ void Game::Main(int argc, char** argv)
 
     camera.position = { 100, 100, 100 };
     camera.rotation = { 0, -45.0 * DEG2RAD, 135.0 * DEG2RAD };
-    camera.vfov = 75.0;
+    camera.vfov = 90.0;
     camera.aspect = 4.0f / 3.0f;
     camera.ortho = false;
     camera.ReconstructMatrices();

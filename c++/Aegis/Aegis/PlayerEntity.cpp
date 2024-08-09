@@ -74,7 +74,7 @@ void PlayerEntity::Think(float deltatime)
 		yawaccel = -1.5 * ENGINE_TICKDUR;
 
 	yawvel += yawaccel;
-	yawvel -= (yawvel * 4.5 * ENGINE_TICKDUR); // Friction
+	yawvel -= (yawvel * 0.9 * ENGINE_TICKDUR); // Friction
 
 	if (yawvel > 3.0 * ENGINE_TICKDUR)
 		yawvel = 3.0 * ENGINE_TICKDUR;

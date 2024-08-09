@@ -1,30 +1,747 @@
-﻿  Game.cpp
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+﻿  Aegis.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Aegis.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Aegis.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Aegis.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Aegis.cpp(6,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Aegis.cpp')
+  
+  AssetManager.cpp
+  AudioManager.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AudioManager.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'AudioManager.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AudioManager.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'AudioManager.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'AudioManager.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\type_traits(1745,77): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'AudioManager.cpp')
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\type_traits(1745,77):
+  the template instantiation context (the oldest one first) is
+  	C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\AudioManager.cpp(93,40):
+  	see reference to function template instantiation 'std::thread::thread<void(__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float),AudioManager*,int&,waveform_t&,vec3_t&,double,double,0>(_Fn &&,AudioManager *&&,int &,waveform_t &,vec3_t &,double &&,double &&)' being compiled
+          with
+          [
+              _Fn=void (__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float)
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\thread(93,9):
+  	see reference to function template instantiation 'void std::thread::_Start<_Ty,AudioManager*,int&,waveform_t&,vec3_t&,double,double>(_Fn &&,AudioManager *&&,int &,waveform_t &,vec3_t &,double &&,double &&)' being compiled
+          with
+          [
+              _Ty=void (__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float),
+              _Fn=void (__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float)
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\thread(76,40):
+  	see reference to function template instantiation 'unsigned int (__cdecl *std::thread::_Get_invoke<_Tuple,0,1,2,3,4,5,6>(std::integer_sequence<size_t,0,1,2,3,4,5,6>) noexcept)(void *)' being compiled
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\thread(67,17):
+  	see reference to function template instantiation 'unsigned int std::thread::_Invoke<_Tuple,0,1,2,3,4,5,6>(void *) noexcept' being compiled
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\thread(60,14):
+  	see reference to function template instantiation 'void std::invoke<void(__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float),AudioManager*,int,waveform_t,vec3_t,double,double>(_Callable &&,_Ty1 &&,int &&,waveform_t &&,vec3_t &&,double &&,double &&) noexcept(false)' being compiled
+          with
+          [
+              _Callable=void (__cdecl AudioManager::* )(int,waveform_t,vec3_t,float,float),
+              _Ty1=AudioManager *
+          ]
+  
+  BaseEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BaseEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BaseEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BaseEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  BeamFX.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BeamFX.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BeamFX.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BeamFX.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BeamFX.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(32,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(67,24): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BeamFX.cpp(73,24): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  binaryloader.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\binaryloader.cpp(13,20): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+  BSPMap.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BSPMap.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BSPMap.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BSPMap.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(72,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(72,29): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(73,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(73,29): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(75,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(155,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(284,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(285,26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(286,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(296,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(297,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(298,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(312,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(313,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(314,18): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(324,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(325,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(326,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(332,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(352,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(353,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(354,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(364,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(365,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(366,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(377,30): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(381,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(401,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(402,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(403,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(413,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(414,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(415,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(428,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(448,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(449,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(450,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(460,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(461,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(462,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(475,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(492,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(493,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(494,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(523,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(524,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(525,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(536,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(543,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(560,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(561,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(562,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(571,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(591,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(592,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(593,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(603,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(604,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(605,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(610,63): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(613,68): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(616,54): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(626,36): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(639,14): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(697,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(772,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(810,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(811,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(812,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(822,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(850,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(919,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(920,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(921,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(922,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(991,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(993,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1039,37): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1070,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1071,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1072,23): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.cpp(1156,37): warning C4018: '<': signed/unsigned mismatch
+  BSPModelEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'BSPModelEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BSPModelEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BSPModelEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'BSPModelEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.cpp(31,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.cpp(32,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.cpp(33,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  Camera.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.cpp(12,49): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.cpp(12,49): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Camera.cpp(42,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  collision.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(120,16): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(125,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(147,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\collision.cpp(154,17): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  Command.cpp
+  Console.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Console.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Console.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'Console.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Console.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Console.cpp(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  DecalEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'DecalEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'DecalEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'DecalEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'DecalEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(31,30): warning C4018: '>': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(120,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(176,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\DecalEntity.cpp(177,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Font.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(68,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(118,18): warning C4244: 'argument': conversion from 'uint32_t' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(118,13): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(120,32): warning C4244: 'argument': conversion from 'uint32_t' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(120,15): warning C4244: 'argument': conversion from 'uint32_t' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(122,30): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(122,15): warning C4244: 'argument': conversion from 'uint32_t' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(124,16): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Font.cpp(124,13): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+  Game.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
   (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
   (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   (compiling source file 'Game.cpp')
   
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(37,34): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(37,51): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(68,73): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(68,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(73,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(79,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(107,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(135,29): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(194,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(228,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(234,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(257,105): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(257,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(259,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\Aegis\Game.cpp(259,65): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Aegis.vcxproj -> C:\Users\theto\Documents\GitHub\aegis\c++\Aegis\x64\Debug\Aegis.exe
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(37,34): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(37,51): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(68,73): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(68,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(73,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(79,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(107,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(135,29): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(194,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(228,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(234,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(257,105): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(257,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(259,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.cpp(259,65): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  GUI.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'GUI.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'GUI.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'GUI.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(205,26): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(243,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(243,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(244,40): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(244,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(245,56): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(245,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(246,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(246,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(249,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(249,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(250,64): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(250,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(251,48): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(251,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(252,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(252,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(255,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(255,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(256,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(256,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(257,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(257,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(258,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(258,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(261,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(261,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(262,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(262,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(263,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(263,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(264,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(264,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(267,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(267,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(268,56): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(268,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(269,64): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(269,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(270,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(270,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(273,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(273,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(274,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(274,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(275,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(275,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(276,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(276,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(279,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(279,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(280,58): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(280,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(281,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(281,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(282,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(282,37): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(285,66): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(285,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(286,50): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(286,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(287,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(287,39): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(288,75): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(288,47): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(292,34): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(292,15): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(293,42): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(293,23): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(294,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(294,23): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(295,43): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(295,15): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(314,67): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(314,44): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(315,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(315,44): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(316,51): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(316,36): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(317,59): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(317,36): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(326,109): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(326,83): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(326,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(328,64): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(328,59): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.cpp(328,29): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  GuiWindow.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'GuiWindow.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'GuiWindow.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'GuiWindow.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'GuiWindow.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GuiWindow.cpp(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  IllusionaryEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\WallEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\IllusionaryEntity.h(2,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'IllusionaryEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\IllusionaryEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  LaserEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.h(5,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'LaserEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(40,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(53,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(58,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(60,29): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(71,77): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(72,77): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(85,26): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(86,29): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(93,51): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(93,95): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(94,55): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(94,102): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(96,51): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(96,95): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(97,55): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\LaserEntity.cpp(97,102): warning C4305: 'argument': truncation from 'double' to 'const float'
+  Light.cpp
+  Generating Code...
+  Compiling...
+  loadtexture.cpp
+  Mat3x4.cpp
+  mathutils.cpp
+  MonsterEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'MonsterEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'MonsterEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'MonsterEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\MonsterEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'MonsterEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\MonsterEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\MonsterEntity.cpp(17,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\MonsterEntity.cpp(18,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\MonsterEntity.cpp(19,23): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  Mpeg3.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(156,37): warning C4309: 'argument': truncation of constant value
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(201,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(248,56): warning C4309: 'argument': truncation of constant value
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(253,10): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(271,32): warning C4309: 'argument': truncation of constant value
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Mpeg3.cpp(280,32): warning C4309: 'argument': truncation of constant value
+  mstudioload.cpp
+  OpenGL.cpp
+  PlayerEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'PlayerEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'PlayerEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'PlayerEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'PlayerEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'PlayerEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(60,39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(63,24): warning C4305: '-=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(66,24): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(72,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(74,21): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(77,28): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(80,18): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(82,19): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(87,22): warning C4305: '-=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(90,22): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(93,26): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\PlayerEntity.cpp(96,26): warning C4305: '-=': truncation from 'double' to 'float'
+  Print.cpp
+  Quaternion.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(136,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(144,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(146,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(147,23): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Quaternion.cpp(149,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Renderer.cpp
+  SModel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.h(7,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'SModel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(31,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(123,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(129,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(135,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(141,61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(158,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(177,27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(263,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(264,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(265,59): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(306,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(307,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(468,29): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(508,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SModel.cpp(512,56): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  RotatingEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'RotatingEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'RotatingEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'RotatingEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'RotatingEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'RotatingEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.cpp(20,47): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.cpp(22,44): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.cpp(23,44): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\RotatingEntity.cpp(24,44): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+  Skybox.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Skybox.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Skybox.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(171,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(171,72): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(171,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(172,93): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(172,74): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(172,55): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(173,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(173,73): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(173,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(174,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(174,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(174,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(180,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(180,72): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(180,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(181,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(181,70): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(181,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(182,87): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(182,69): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(182,51): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(183,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(183,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(183,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(189,87): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(189,69): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(189,51): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(190,90): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(190,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(190,52): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(191,91): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(191,73): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(191,54): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(192,89): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(192,71): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Skybox.cpp(192,53): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  SpriteEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'SpriteEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SpriteEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SpriteEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.h(5,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'SpriteEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(59,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(81,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(153,50): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(153,77): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(155,29): warning C4244: 'argument': conversion from 'uint32_t' to 'const float', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\SpriteEntity.cpp(156,35): warning C4244: 'argument': conversion from 'uint32_t' to 'const float', possible loss of data
+  Targa.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Targa.cpp(79,16): warning C4309: 'argument': truncation of constant value
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Targa.cpp(83,35): warning C4309: 'argument': truncation of constant value
+  TextPanel.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TextPanel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\GUI.h(9,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'TextPanel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Game.h(19,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'TextPanel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TextPanel.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TextPanel.cpp(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  TrueTypeFont.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TrueTypeFont.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'TrueTypeFont.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(21,11): warning C4101: 'glyfoffs': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(302,38): warning C4244: '=': conversion from 'unsigned long' to 'uint16_t', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(324,18): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(331,33): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(351,30): warning C4267: '=': conversion from 'size_t' to 'uint16_t', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(422,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(437,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(470,16): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(810,33): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(699,11): warning C4101: 'tempu16': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(685,6): warning C4101: 'i': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(827,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(820,6): warning C4101: 'j': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(871,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(864,6): warning C4101: 'j': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(910,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(914,11): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(919,6): warning C4101: 'i': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(949,46): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(990,25): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(935,6): warning C4101: 'cstart': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(936,6): warning C4101: 'npoints': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(999,23): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1045,22): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1119,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1150,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1150,47): warning C4267:         with
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1150,47): warning C4267:         [
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1150,47): warning C4267:             _Ty=int
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1150,47): warning C4267:         ]
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1153,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1153,47): warning C4267:         with
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1153,47): warning C4267:         [
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1153,47): warning C4267:             _Ty=int
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1153,47): warning C4267:         ]
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1156,47): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1156,47): warning C4267:         with
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1156,47): warning C4267:         [
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1156,47): warning C4267:             _Ty=int
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1156,47): warning C4267:         ]
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1137,8): warning C4101: 'loopcheck': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1136,8): warning C4101: 'nloops': unreferenced local variable
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\TrueTypeFont.cpp(1236,6): warning C4101: 'nloops': unreferenced local variable
+  Wad.cpp
+  WallEntity.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'WallEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPMap.h(11,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'WallEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BaseEntity.h(4,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'WallEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\BSPModelEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'WallEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\WallEntity.h(3,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  (compiling source file 'WallEntity.cpp')
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\WallEntity.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+  Generating Code...
+  Compiling...
+  Waveform.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(1,1): warning C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(33,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'size_t'
+  C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(33,9):
+  consider using '%zd' in the format string
+  
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(65,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(68,9): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(70,39): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(70,39): warning C4244:         with
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(70,39): warning C4244:         [
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(70,39): warning C4244:             _Ty=sf::Int16
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(70,39): warning C4244:         ]
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(74,39): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(74,39): warning C4244:         with
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(74,39): warning C4244:         [
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(74,39): warning C4244:             _Ty=sf::Int16
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(74,39): warning C4244:         ]
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Waveform.cpp(11,12): warning C4101: 'fact': unreferenced local variable
+  Window.cpp
+C:\Users\theto\Documents\Github\aegis\c++\Aegis\Aegis\Window.h(7,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'Window.cpp')
+  
+  Generating Code...
+  LINK : C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe not found or not built by the last incremental link; performing full link
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Aegis.vcxproj -> C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\Aegis.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
