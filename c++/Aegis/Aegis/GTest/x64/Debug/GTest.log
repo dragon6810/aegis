@@ -1,5 +1,0 @@
-﻿  pch.cpp
-  test.cpp
-test.obj : error LNK2019: unresolved external symbol "public: static class Mat3x4 __cdecl Mat3x4::getIdentity(void)" (?getIdentity@Mat3x4@@SA?AV1@XZ) referenced in function "private: virtual void __cdecl TestCaseName_TestName_Test::TestBody(void)" (?TestBody@TestCaseName_TestName_Test@@EEAAXXZ)
-test.obj : error LNK2019: unresolved external symbol "public: class Mat3x4 __cdecl Mat3x4::operator*(class Mat3x4)" (??DMat3x4@@QEAA?AV0@V0@@Z) referenced in function "private: virtual void __cdecl TestCaseName_TestName_Test::TestBody(void)" (?TestBody@TestCaseName_TestName_Test@@EEAAXXZ)
-C:\Users\theto\Documents\Github\aegis\c++\Aegis\x64\Debug\GTest.exe : fatal error LNK1120: 2 unresolved externals

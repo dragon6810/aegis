@@ -48,7 +48,7 @@ public:
 	int bgroup = 0;
 	float adj[4];
 
-	int curseq;
+	int curseq = 0;
 	float frame = 0.0;
 	float lasttickframe = 0.0;
 	float lastlasttickframe = 0.0;

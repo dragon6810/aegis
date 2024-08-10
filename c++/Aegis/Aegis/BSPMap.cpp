@@ -197,8 +197,8 @@ void BSPMap::Load(const char* filename)
 
 void BSPMap::LoadEntities()
 {
-	Wad decalwad;
-	decalwad.LoadDecals("valve/decals.wad");
+	//Wad decalwad;
+	//decalwad.LoadDecals("valve/decals.wad");
 	char* entitieslump = (char*)mhdr + mhdr->lump[BSP_LUMP_ENTITIES].nOffset;
 	int lumplen = mhdr->lump[BSP_LUMP_ENTITIES].nLength;
 
@@ -476,6 +476,7 @@ void BSPMap::LoadEntities()
 		}
 		else if (keyval["classname"] == "infodecal")
 		{
+			/*
 			DecalEntity entity(*this);
 
 			entity.classname = keyval["classname"];
@@ -503,7 +504,7 @@ void BSPMap::LoadEntities()
 			if (keyval.find("texture") != keyval.end())
 				entity.SetTexture((char*) keyval["texture"].c_str());
 
-			entity.Init();
+			entity.Init();*/
 		}
 		else if (keyval["classname"] == "env_sprite")
 		{
