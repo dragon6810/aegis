@@ -384,6 +384,7 @@ typedef struct
 
 #define BSP_MAX_KEY     32
 #define BSP_MAX_VALUE   1024
+#define BSP_MAX_PAIRS   64
 
 #define BSP_PLANE_X 0     // Plane is perpendicular to given axis
 #define BSP_PLANE_Y 1

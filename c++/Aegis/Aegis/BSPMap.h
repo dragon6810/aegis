@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defs.h";
+#include "defs.h"
 
 #include <unordered_set>
 #include <vector>
@@ -25,7 +25,7 @@ public:
 
 	void Load(const char* filename);
 	void LoadEntities();
-	char* ScanLine(char** line);
+	void ScanLine(char** line, char* out);
 	void SetCameraPosition(vec3_t pos);
 	void Draw();
 	void Think(float deltatime);
@@ -49,9 +49,9 @@ public:
 	std::vector<lightmaptexture_t> lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
-
-	std::vector<std::unique_ptr<BaseEntity>> entities;
-	std::unordered_map<int, std::vector<int>> leafentities;
+    
+	std::vector<std::unique_ptr<BaseEntity> > entities;
+	std::unordered_map<int, std::vector<int> > leafentities;
 	std::unordered_map<int, int> entityleaves;
 	std::unordered_map<int, std::vector<std::unique_ptr<BaseEntity>>> facedecals;
 

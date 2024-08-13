@@ -4,18 +4,19 @@
 
 #include <vector>
 #include <string>
+#include <stdio.h>
 
 #include "defs.h"
 
 class Wad
 {
 public:
+    void CloseAll();
 	void Unload();
-	void Load(const char* filename);
+	void Open(const char* filename);
 	void LoadDecals(const char* filename);
-	GLuint LoadTexture(const char* filename, const char* texturename);
-
-	wadheader_t* whdr;
+	GLuint LoadTexture(const char* texturename);
 
 	std::vector<std::string> textures;
+    std::vector<FILE*> files;
 };

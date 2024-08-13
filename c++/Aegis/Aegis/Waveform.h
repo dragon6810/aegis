@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include <SFML/Audio.hpp>
+#include "SFML/Audio.hpp"
 
 #define WAVE_FORMAT_PCM		   0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003

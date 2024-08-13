@@ -161,7 +161,7 @@ void BSPMap::Load(const char* filename)
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
-			gltextures.push_back(Game::GetGame().wad.LoadTexture("", miptex->name));
+			gltextures.push_back(Game::GetGame().wad.LoadTexture(miptex->name));
 		}
 		else
 		{
@@ -203,135 +203,166 @@ void BSPMap::LoadEntities()
 	int lumplen = mhdr->lump[BSP_LUMP_ENTITIES].nLength;
 
 	char* currentchar = entitieslump;
+    
+    char keys[BSP_MAX_PAIRS][BSP_MAX_KEY+1];
+    char vals[BSP_MAX_PAIRS][BSP_MAX_VALUE+1];
+    int npairs = 0;
 
 	while ((currentchar - entitieslump) < lumplen - 1)
-	{
-		if (currentchar[0] == '{')
-			currentchar += 2;
-
-		while (currentchar[0] != '}')
-		{
-			if (currentchar[0] == '\n')
-			{
-				currentchar++;
-				continue;
-			}
-
-			char* curline = ScanLine(&currentchar);
-
-			char* keystart; char* keyend;
-			char* valstart; char* valend;
-
-			keystart = strchr(curline, '"');
-			keyend = strchr(keystart + 1, '"');
-
-			valstart = strchr(keyend + 1, '"');
-			valend = strchr(valstart + 1, '"');
-
-			char key[BSP_MAX_KEY];
-			char val[BSP_MAX_VALUE];
-
-			memcpy(key, keystart + 1, keyend - keystart - 1);
-			memcpy(val, valstart + 1, valend - valstart - 1);
-
-			key[keyend - keystart - 1] = '\0';
-			val[valend - valstart - 1] = '\0';
-
-			keyval[std::string(key)] = std::string(val);
-
-			free(curline);
-		}
-
-		currentchar += 2;
-
-		if (keyval["classname"] == "worldspawn")
-		{
-			if(keyval.find("sky") != keyval.end())
-				sky.LoadSky((char*) keyval["skyname"].c_str());
-			
-			if (keyval.find("wad") != keyval.end())
-			{
-				std::vector<std::string> paths;
-
-				char* wads = &(keyval["wad"])[0];
-				
-				char* end = wads + strlen(wads) + 1;
-				for (char* c = wads; c < end; c++)
-				{
-					if (c[0] == ';' || c[0] == '\0')
-					{
-						paths.push_back("");
-						paths[paths.size() - 1].resize(c - wads + 1);
-						memcpy(&(paths[paths.size() - 1])[0], wads, c - wads);
-
-						wads = c;
-						c++;
-					}
-				}
-
-				for (int i = 0; i < paths.size(); i++)
-					Game::GetGame().wad.Load((Game::GetGame().gamedir + "/" + paths[i]).c_str());
-			}
-		}
-		else if (keyval["classname"] == "player_camera")
-		{
-			vec3_t angles = { 0.0, 0.0, 0.0 };
-			if (keyval.find("angles") != keyval.end())
-			{
-				std::istringstream iss(keyval["angles"]);
-				int x; int y; int z;
-				iss >> x >> y >> z;
-				angles.x = x * DEG2RAD;
-				angles.y = (y + 180) * DEG2RAD;
-				angles.z = z * DEG2RAD;
-				Game::GetGame().camera.rotation = { angles.z, -angles.x, angles.y };
-			}
-
-			vec3_t pos = { 0.0, 0.0, 0.0 };
-			if (keyval.find("origin") != keyval.end())
-			{
-				std::istringstream iss(keyval["origin"]);
-				int x; int y; int z;
-				iss >> x >> y >> z;
-				pos.x = x;
-				pos.y = y;
-				pos.z = z;
-				Game::GetGame().camera.position = pos;
-			}
-		}
-		else if (keyval["classname"] == "player_tank")
-		{
-			PlayerEntity entity(*this);
-
-			vec3_t angles = { 0.0, 0.0, 0.0 };
-			if (keyval.find("angles") != keyval.end())
-			{
-				std::istringstream iss(keyval["angles"]);
-				int x; int y; int z;
-				iss >> x >> y >> z;
-				angles.x = x * DEG2RAD;
-				angles.y = y * DEG2RAD;
-				angles.z = z * DEG2RAD;
-				entity.rotation = angles;
-			}
-
-			vec3_t pos = { 0.0, 0.0, 0.0 };
-			if (keyval.find("origin") != keyval.end())
-			{
-				std::istringstream iss(keyval["origin"]);
-				int x; int y; int z;
-				iss >> x >> y >> z;
-				pos.x = x;
-				pos.y = y;
-				pos.z = z;
-				entity.position = pos;
-			}
-
-			entity.Init();
-			entities.push_back(std::make_unique<PlayerEntity>(entity));
-			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
-		}
-		else if (keyval["classname"] == "func_rotating")
+    {
+        npairs = 0;
+        
+        if (currentchar[0] == '{')
+            currentchar += 2;
+        
+        while (currentchar[0] != '}')
+        {
+            if (currentchar[0] == '\n')
+            {
+                currentchar++;
+                continue;
+            }
+            
+            char curline[1 + BSP_MAX_KEY + 3 + BSP_MAX_VALUE + 1 + 1];
+            ScanLine(&currentchar, curline);
+            
+            char* keystart; char* keyend;
+            char* valstart; char* valend;
+            
+            keystart = strchr(curline, '"');
+            keyend = strchr(keystart + 1, '"');
+            
+            valstart = strchr(keyend + 1, '"');
+            valend = strchr(valstart + 1, '"');
+            
+            char* key = keys[npairs];
+            char* val = vals[npairs];
+            
+            memcpy(key, keystart + 1, keyend - keystart - 1);
+            memcpy(val, valstart + 1, valend - valstart - 1);
+            
+            key[keyend - keystart - 1] = '\0';
+            val[valend - valstart - 1] = '\0';
+            
+            if(!strcmp(key, "classname"))
+            {
+                char* classname = vals[npairs];
+                
+                if(!strcmp(classname, "worldspawn"))
+                {
+                    for(int i=0; i<npairs; i++)
+                    {
+                        key = keys[i];
+                        val = vals[i];
+                        
+                        if(!strcmp(key, "sky"))
+                        {
+                            sky.LoadSky(val);
+                        }
+                        else if(!strcmp(key, "wad"))
+                        {
+                            std::vector<std::string> paths;
+                            
+                            char* wads = val;
+                            
+                            char* end = wads + strlen(wads) + 1;
+                            for (char* c = wads; c < end; c++)
+                            {
+                                if (c[0] == ';' || c[0] == '\0')
+                                {
+                                    paths.push_back("");
+                                    paths[paths.size() - 1].resize(c - wads + 1);
+                                    memcpy(&(paths[paths.size() - 1])[0], wads, c - wads);
+                                    
+                                    wads = c;
+                                    c++;
+                                }
+                            }
+                            
+                            for (int j = 0; j < paths.size(); j++)
+                                Game::GetGame().wad.Open((Game::GetGame().gamedir + "/" + paths[j]).c_str());
+                        }
+                    }
+                }
+                else if(!strcmp(classname, "player_camera"))
+                {
+                    for(int i=0; i<npairs; i++)
+                    {
+                        key = keys[i];
+                        val = vals[i];
+                        
+                        if(!strcmp(key, "angles"))
+                        {
+                            vec3_t angles;
+                            int x, y, z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            angles.x = x * DEG2RAD;
+                            angles.y = y * DEG2RAD;
+                            angles.z = z * DEG2RAD;
+                            Game::GetGame().camera.rotation = { angles.z, -angles.x, angles.y };
+                        }
+                        else if(!strcmp(key, "origin"))
+                        {
+                            vec3_t pos;
+                            int x; int y; int z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            pos.x = x;
+                            pos.y = y;
+                            pos.z = z;
+                            Game::GetGame().camera.position = pos;
+                        }
+                    }
+                }
+                else if (!strcmp(classname, "player_tank"))
+                {
+                    PlayerEntity entity(*this);
+                    
+                    for(int i=0; i<npairs; i++)
+                    {
+                        key = keys[i];
+                        val = vals[i];
+                        
+                        if (!strcmp(key, "angles"))
+                        {
+                            vec3_t angles;
+                            int x, y, z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            angles.x = x * DEG2RAD;
+                            angles.y = y * DEG2RAD;
+                            angles.z = z * DEG2RAD;
+                            entity.rotation = angles;
+                        }
+                        else if (!strcmp(key, "origin"))
+                        {
+                            vec3_t pos;
+                            int x; int y; int z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            pos.x = x;
+                            pos.y = y;
+                            pos.z = z;
+                            entity.position = pos;
+                        }
+                    }
+                    
+                    entity.Init();
+                    entities.push_back(std::make_unique<PlayerEntity>(entity));
+                    SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
+                }
+                
+                break;
+            }
+            
+            npairs++;
+        }
+        currentchar += 2;
+    }
+    
+#if 0
+        if (keyval["classname"] == "func_rotating")
 		{
 			RotatingEntity entity(*this);
 
@@ -625,11 +656,11 @@ void BSPMap::LoadEntities()
 			entity.Init();
 			entities.push_back(std::make_unique<LaserEntity>(entity));
 			SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(pos, 0));
-		}
-	}
+        }
+#endif
 }
 
-char* BSPMap::ScanLine(char** line)
+void BSPMap::ScanLine(char** line, char* out)
 {
 	char* start = *line;
 	char* counter = start;
@@ -639,13 +670,10 @@ char* BSPMap::ScanLine(char** line)
 
 	int linelen = counter - start;
 
-	char* output = (char*) malloc(linelen + 1);
-	memcpy(output, start, linelen);
-	output[linelen] = '\0';
+	memcpy(out, start, linelen);
+    out[linelen] = '\0';
 
 	*line += linelen + 1;
-
-	return output;
 }
 
 void BSPMap::SetCameraPosition(vec3_t pos)
@@ -695,6 +723,7 @@ void BSPMap::RenderFaces()
 
 void BSPMap::RenderEntities()
 {
+    /*
 	for (int i = markentities.size() - 1; i >= 0; i--)
 	{
 		entities[markentities[i]]->cameraforward = Game::GetGame().camera.forward;
@@ -702,6 +731,14 @@ void BSPMap::RenderEntities()
 		entities[markentities[i]]->camerapos = Game::GetGame().camera.position;
 		entities[markentities[i]]->Render();
 	}
+     */
+    for (int i = entities.size() - 1; i >= 0; i--)
+    {
+        entities[i]->cameraforward = Game::GetGame().camera.forward;
+        entities[i]->cameraup = Game::GetGame().camera.up;
+        entities[i]->camerapos = Game::GetGame().camera.position;
+        entities[i]->Render();
+    }
 }
 
 void BSPMap::RenderLeavesRecursive(int nodenum)

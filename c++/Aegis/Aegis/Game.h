@@ -12,7 +12,7 @@
 #define SCREEN_LOW_WIDTH 320
 #define SCREEN_LOW_HEIGHT 240
 
-#include <GL/glew.h>
+#include "GL/glew.h"
 #include "Renderer.h"
 #include "Window.h"
 

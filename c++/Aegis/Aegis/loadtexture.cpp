@@ -25,7 +25,7 @@ mdltex:
 	printf("Loading texture \"%s\".\n", ptex->name);
 	palette_t* pallete = (palette_t*)(data + ptex->index + ptex->width * ptex->height);
 	*out = (int*) malloc(ptex->width * ptex->height * sizeof(int));
-	int moderncolors[COLORSINPALETTE]{};
+	int moderncolors[COLORSINPALETTE];
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
 		int col = 0;
@@ -53,7 +53,7 @@ void loadmiptex(char* data, int** out, int* width, int* height)
 	int palleteIndex = texture->offsets[BSP_MIPLEVELS - 1] + (*width >> (BSP_MIPLEVELS - 1)) * (*height >> (BSP_MIPLEVELS - 1));
 
 	miptexpalette_t* pallete = (miptexpalette_t*)((char*)texture + palleteIndex);
-	int moderncolors[COLORSINPALETTE]{};
+	int moderncolors[COLORSINPALETTE];
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
 		int col = 0;
@@ -87,7 +87,7 @@ void loaddecalmiptex(char* data, int** out, int* width, int* height)
 
 	miptexpalette_t* pallete = (miptexpalette_t*)((char*)texture + palleteIndex);
 	color24_t decalcol = pallete->colors[COLORSINPALETTE - 1];
-	int moderncolors[COLORSINPALETTE]{};
+	int moderncolors[COLORSINPALETTE];
 	for (int c = 0; c < COLORSINPALETTE; c++)
 	{
 		int col = 0;

@@ -64,6 +64,8 @@ void Window::MakeFullscreenViewport(float aspect)
     int width;
     int height;
     GetWindowDimensions(&width, &height);
+    width <<= 1;
+    height <<= 1;
     float windowAspect = (float)width / (float)height;
 
     int viewwidth;

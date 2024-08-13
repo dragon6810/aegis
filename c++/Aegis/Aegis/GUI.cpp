@@ -43,23 +43,23 @@ void GUI::Reload()
 		}
 		else if (!strcmp(key, "Regular"))
 		{
-			if (sscanf(line, "\"Regular\": \"%127[^\"]\"\n", val))
-				normal.Load(Game::GetGame().gamedir + "/" + val);
+			//if (sscanf(line, "\"Regular\": \"%127[^\"]\"\n", val))
+			//	normal.Load(Game::GetGame().gamedir + "/" + val);
 		}
 		else if (!strcmp(key, "Bold"))
 		{
-			if (sscanf(line, "\"Bold\": \"%127[^\"]\"\n", val))
-				bold.Load(Game::GetGame().gamedir + "/" + val);
+			//if (sscanf(line, "\"Bold\": \"%127[^\"]\"\n", val))
+			//	bold.Load(Game::GetGame().gamedir + "/" + val);
 		}
 		else if (!strcmp(key, "Mono"))
 		{
-			if (sscanf(line, "\"Mono\": \"%127[^\"]\"\n", val))
-				mono.Load(Game::GetGame().gamedir + "/" + val);
+			//if (sscanf(line, "\"Mono\": \"%127[^\"]\"\n", val))
+			//	mono.Load(Game::GetGame().gamedir + "/" + val);
 		}
 		else if (!strcmp(key, "Icons"))
 		{
-			if(sscanf(line, "\"Icons\": \"%127[^\"]\"\n", val))
-				icons.Load(Game::GetGame().gamedir + "/" + val);
+			//if(sscanf(line, "\"Icons\": \"%127[^\"]\"\n", val))
+			//	icons.Load(Game::GetGame().gamedir + "/" + val);
 		}
 		else if (!strcmp(key, "Window Border"))
 		{

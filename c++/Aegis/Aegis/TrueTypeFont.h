@@ -182,7 +182,6 @@ private:
 		UTF_LAST_RESORT = 6, // ??
 	};
 	
-	std::unordered_map<std::string, tabledir_t> tagdirs;
 	std::vector<uint32_t> localengths;
 	std::vector<uint32_t> locaoffsets;
 

@@ -29,7 +29,7 @@ int loadBytes(const char* filename, char** data)
     return 1;
 }
 
-void LittleEndian(void* data, size_t size)
+void LittleEndian(void* data, long size)
 {
     short endiantest = 0x0001;
     char* endianessb = (char*)&endiantest;
@@ -45,7 +45,7 @@ void LittleEndian(void* data, size_t size)
     }
 }
 
-void BigEndian(void* data, size_t size)
+void BigEndian(void* data, long size)
 {
     short endiantest = 0x0001;
     char* endianessb = (char*)&endiantest;

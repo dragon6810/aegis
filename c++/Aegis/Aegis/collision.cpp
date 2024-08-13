@@ -46,7 +46,8 @@ vec3_t PlaneIntersection(vec3_t a, vec3_t b, vec3_t n, float d)
 
 bool IsPointInPolygon(vec3_t point, const std::vector<vec3_t>& polygon, vec3_t normal)
 {
-    vec3_t right = CrossProduct(normal, { 0.0, 0.0, 1.0 });
+    vec3_t right = {0.0, 0.0, 1.0};
+    right = CrossProduct(normal, right);
     vec3_t up = CrossProduct(normal, right);
     right = CrossProduct(up, normal);
 

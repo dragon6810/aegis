@@ -16,6 +16,7 @@ DecalEntity::~DecalEntity()
 
 void DecalEntity::SetTexture(char* texname)
 {
+    /*
 	memcpy(texture, texname, strlen(texname));
 
 	waddirentry_t* entry = (waddirentry_t*)((char*)decalswad->whdr + decalswad->whdr->diroffset);
@@ -37,7 +38,7 @@ void DecalEntity::SetTexture(char* texname)
 		texindex = AssetManager::getInst().getTexture(texname, "wad");
 
 		break;
-	}
+	}*/
 }
 
 void DecalEntity::SetWad(Wad& wad)

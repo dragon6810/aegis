@@ -1,9 +1,10 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 
-#include <GL/glew.h>
+#include "GL/glew.h"
 
 class AssetManager
 {
@@ -26,7 +27,7 @@ private:
 	AssetManager(AssetManager const&);
 	void operator=(AssetManager const&);
 
-	std::vector<std::string> texturelookup;
+	std::vector< std::string > texturelookup;
 	std::vector<GLuint> texturenames;
 	int numtextures = 0;
 };

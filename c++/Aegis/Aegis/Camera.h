@@ -10,11 +10,11 @@ public:
 	Camera() {}
 
 	// Roll, Pitch, Yaw
-	vec3_t rotation{};
-	vec3_t position{};
-	vec3_t forward{};
-	vec3_t up{};
-	vec3_t right{};
+    vec3_t rotation;
+    vec3_t position;
+    vec3_t forward;
+    vec3_t up;
+    vec3_t right;
 
 	float aspect;
 	float vfov;

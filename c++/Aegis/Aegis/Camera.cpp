@@ -9,7 +9,7 @@
 
 void Camera::ReconstructMatrices()
 {
-	vec3_t correctedrot = { rotation.x, rotation.y + 90 * DEG2RAD, rotation.z };
+	vec3_t correctedrot = { rotation.x, rotation.y + (float) (90.0 * DEG2RAD), rotation.z };
 	rot = Quaternion::FromAngle(correctedrot);
 	invrot = Quaternion::FromAngle(correctedrot * -1.0);
 

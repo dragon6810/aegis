@@ -1,4 +1,4 @@
-﻿#include "TrueTypeFont.h"
+#include "TrueTypeFont.h"
 
 #include <GL/glew.h>
 
@@ -31,22 +31,25 @@ bool TrueTypeFont::Load(std::string name)
 	BigEndian(&offsettable.entryselector, sizeof(offsettable.entryselector));
 	BigEndian(&offsettable.rangeshift, sizeof(offsettable.rangeshift));
 
+    std::unordered_map<std::string, tabledir_t> tagdirs;
 	tagdirs.clear();
-	for (i = 0; i < offsettable.numtables; i++)
-	{
-		tabledir_t dir;
-		fread(&dir, sizeof(dir), 1, ptr);
-		BigEndian(&dir.checksum, sizeof(dir.checksum));
-		BigEndian(&dir.offset, sizeof(dir.offset));
-		BigEndian(&dir.length, sizeof(dir.length));
+    tagdirs.reserve(22);
+    for (i = 0; i < offsettable.numtables; i++)
+    {
+        tabledir_t dir;
+        fread(&dir, sizeof(dir), 1, ptr);
+        BigEndian(&dir.checksum, sizeof(dir.checksum));
+        BigEndian(&dir.offset, sizeof(dir.offset));
+        BigEndian(&dir.length, sizeof(dir.length));
 
-		std::string tag(4, 0);
-		tag[0] = dir.tag[0];
-		tag[1] = dir.tag[1];
-		tag[2] = dir.tag[2];
-		tag[3] = dir.tag[3];
-		tagdirs[tag] = dir;
-	}
+        std::string tag(4, 0);
+        tag[0] = dir.tag[0];
+        tag[1] = dir.tag[1];
+        tag[2] = dir.tag[2];
+        tag[3] = dir.tag[3];
+        
+        tagdirs[tag] = dir;
+    }
 
 	fseek(ptr, tagdirs["cmap"].offset, SEEK_SET);
 	LoadCMap(ptr);
@@ -682,6 +685,8 @@ TrueTypeFont::glyph_t TrueTypeFont::LoadSimpleGlyph(FILE* ptr, glyphdesc_t desc)
 
 TrueTypeFont::glyph_t TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t desc)
 {
+    return {};
+    
 	int i;
 	int j;
 
@@ -790,7 +795,7 @@ TrueTypeFont::glyph_t TrueTypeFont::LoadCompoundGlyph(FILE* ptr, glyphdesc_t des
 
 		before = ftell(ptr);
 
-		fseek(ptr, tagdirs["glyf"].offset + (locaoffsets[glyfi] << 1), SEEK_SET);
+		//fseek(ptr, tagdirs["glyf"].offset + (locaoffsets[glyfi] << 1), SEEK_SET);
 		if (glyfi < glyfs.size())
 			curglyf = glyfs[glyfi];
 		else
