@@ -298,7 +298,7 @@ void BSPMap::LoadEntities()
                             
                             sscanf(val, "%d %d %d", &x, &y, &z);
                             angles.x = x * DEG2RAD;
-                            angles.y = y * DEG2RAD;
+                            angles.y = (y + 180) * DEG2RAD;
                             angles.z = z * DEG2RAD;
                             Game::GetGame().camera.rotation = { angles.z, -angles.x, angles.y };
                         }
@@ -331,7 +331,7 @@ void BSPMap::LoadEntities()
                             
                             sscanf(val, "%d %d %d", &x, &y, &z);
                             angles.x = x * DEG2RAD;
-                            angles.y = y * DEG2RAD;
+                            angles.y = (y + 180) * DEG2RAD;
                             angles.z = z * DEG2RAD;
                             entity.rotation = angles;
                         }

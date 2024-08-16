@@ -102,7 +102,7 @@ void PlayerEntity::Think(float deltatime)
 void PlayerEntity::Render()
 {
 	studio.lastlasbonecontrollervalues[0] = studio.lastbonecontrollervalues[0] = studio.bonecontrollervalues[0] 
-		= Lerp(lastlastlookdir, lastlookdir, Game::GetGame().tickinterp);
+		= -Lerp(lastlastlookdir, lastlookdir, Game::GetGame().tickinterp) - M_PI;
 
 	studio.render();
 }
