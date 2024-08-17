@@ -62,6 +62,7 @@ void Game::Main(int argc, char** argv)
     {
         long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         long long delta = now - lastFrame;
+        lastFrame = now;
 
         cursorshape = GLFW_ARROW_CURSOR;
 
@@ -72,6 +73,8 @@ void Game::Main(int argc, char** argv)
             lastcheck = this->Time();
             fps = 1.0 / ((float)delta / 1000.0);
         }
+        
+        fps = 1.0 / ((float)delta / 1000.0);
 
         // Don't tick while paused
         if(!paused)
@@ -87,13 +90,12 @@ void Game::Main(int argc, char** argv)
 
         Render();
 
+        // Presentation
         window->SetCursor(cursorshape);
-
-        glfwSwapInterval(0);
         window->SwapBuffers();
         glfwPollEvents();
         
-        lastFrame = now;
+        printf("%d frames per second\n", (int) fps);
     }
 
     window->Kill();
