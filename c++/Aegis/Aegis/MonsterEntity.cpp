@@ -1,10 +1,12 @@
 #include "MonsterEntity.h"
 
+#include "Game.h"
+
 #include "Quaternion.h"
 
 MonsterEntity::MonsterEntity(BSPMap& map) : BaseEntity(map)
 {
-
+    model.Load(GetStudioPath().c_str());
 }
 
 void MonsterEntity::Render()
@@ -26,4 +28,9 @@ void MonsterEntity::Render()
 void MonsterEntity::Think(float deltatime)
 {
 	model.Tick();
+}
+
+std::string MonsterEntity::GetStudioPath()
+{
+    return Game::GetGame().gamedir + "/models/missingno/missingno.mdl";
 }

@@ -46,8 +46,7 @@
 
 @BaseClass base(Angles) = Zombie
 [
-    health(integer) : "Spawn Health" : 100
-    
+    health(integer) : "Spawn Health" : 100   
 ]
 
 @SolidClass base(Targetname, Target) = breakable

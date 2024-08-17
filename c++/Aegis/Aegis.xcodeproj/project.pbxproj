@@ -45,6 +45,7 @@
 		D2DFE6B04007F522419AE4F0 /* mathutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A914B558F677AB8A6C96AB98 /* mathutils.cpp */; };
 		D619F10CCFDBAD7E09DAAF4C /* Aegis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82EB7FF4CB5C64260FFB3634 /* Aegis.cpp */; };
 		DA9C6BCA3201DEBCE40FFA0A /* BaseEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3012D201295D847B089912 /* BaseEntity.cpp */; };
+		DCBCA4292C712FF700C00BD6 /* GruntEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */; };
 		DCF079086F7E42FAD856E748 /* Waveform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E526C130A89282E2E7362770 /* Waveform.cpp */; };
 		DDF60F2052505412D033DD60 /* BSPModelEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDE5DFC8000FBC7A3400A608 /* BSPModelEntity.cpp */; };
 		F0CAC1345DF2CFA65F85BF74 /* GuiWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB158D9C087883CE7E9783DC /* GuiWindow.cpp */; };
@@ -146,6 +147,8 @@
 		D6E95160F8B4FE92356A27A0 /* Command.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Command.cpp; path = Aegis/Command.cpp; sourceTree = "<group>"; };
 		D96E49A4F080E4D6E09CDFE4 /* Mpeg3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mpeg3.h; path = Aegis/Mpeg3.h; sourceTree = "<group>"; };
 		DC01BA900227EA42692EE0D0 /* Font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Font.cpp; path = Aegis/Font.cpp; sourceTree = "<group>"; };
+		DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GruntEntity.cpp; path = Aegis/GruntEntity.cpp; sourceTree = "<group>"; };
+		DCBCA42A2C7130A500C00BD6 /* GruntEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GruntEntity.h; path = Aegis/GruntEntity.h; sourceTree = "<group>"; };
 		E05015A0833E3C5212641BE0 /* Game.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Game.h; path = Aegis/Game.h; sourceTree = "<group>"; };
 		E0C4A51C06EAD4CE6DF1CB5C /* Window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Window.h; path = Aegis/Window.h; sourceTree = "<group>"; };
 		E30208F40B3CC1A6F2D84F34 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Aegis/Camera.cpp; sourceTree = "<group>"; };
@@ -225,6 +228,7 @@
 				483B5E84DDB21DB64C4E74C4 /* loadtexture.cpp */,
 				A914B558F677AB8A6C96AB98 /* mathutils.cpp */,
 				BA7136EC4FE7F61EBE844D2C /* mstudioload.cpp */,
+				DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -249,6 +253,7 @@
 		C98A48C011FB2CF25699FF00 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				DCBCA42A2C7130A500C00BD6 /* GruntEntity.h */,
 				BB8549E2ED7E9494675DD022 /* AssetManager.h */,
 				8F5B4546C1548FF83B33CB86 /* AudioManager.h */,
 				19461BB23F6C4B64A67341F2 /* BSPMap.h */,
@@ -384,6 +389,7 @@
 				FE28F6A890B6C09AF98F64E8 /* Renderer.cpp in Sources */,
 				6A11A5C4DE6BEAB65C4F7404 /* RotatingEntity.cpp in Sources */,
 				40C956A2B1EBF79467B2A4E2 /* SModel.cpp in Sources */,
+				DCBCA4292C712FF700C00BD6 /* GruntEntity.cpp in Sources */,
 				3D439F9AAE66408C642CEDDA /* Skybox.cpp in Sources */,
 				9589EE8237738A742E9A9CC2 /* SpriteEntity.cpp in Sources */,
 				9EFB1F1898BCDB8AD2BBDD58 /* Targa.cpp in Sources */,

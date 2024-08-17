@@ -21,6 +21,7 @@
 #include "SpriteEntity.h"
 #include "LaserEntity.h"
 #include "PlayerEntity.h"
+#include "GruntEntity.h"
 
 #include "Light.h"
 
@@ -351,6 +352,43 @@ void BSPMap::LoadEntities()
                     entity.Init();
                     entities.push_back(std::make_unique<PlayerEntity>(entity));
                     SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
+                }
+                else if(!strcmp(classname, "zombie_grunt"))
+                {
+                    GruntEntity entity(*this);
+                    
+                    for(int i=0; i<npairs; i++)
+                    {
+                        key = keys[i];
+                        val = vals[i];
+                        
+                        if (!strcmp(key, "angles"))
+                        {
+                            vec3_t angles;
+                            int x, y, z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            angles.x = x * DEG2RAD;
+                            angles.y = (y + 180) * DEG2RAD;
+                            angles.z = z * DEG2RAD;
+                            entity.rotation = angles;
+                        }
+                        else if (!strcmp(key, "origin"))
+                        {
+                            vec3_t pos;
+                            int x; int y; int z;
+                            
+                            sscanf(val, "%d %d %d", &x, &y, &z);
+                            pos.x = x;
+                            pos.y = y;
+                            pos.z = z;
+                            entity.position = pos;
+                        }
+                        
+                        entity.Init();
+                        entities.push_back(std::make_unique<GruntEntity>(entity));
+                        SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
+                    }
                 }
                 
                 break;

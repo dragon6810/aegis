@@ -73,8 +73,6 @@ void Game::Main(int argc, char** argv)
             lastcheck = this->Time();
             fps = 1.0 / ((float)delta / 1000.0);
         }
-        
-        fps = 1.0 / ((float)delta / 1000.0);
 
         // Don't tick while paused
         if(!paused)
@@ -94,8 +92,6 @@ void Game::Main(int argc, char** argv)
         window->SetCursor(cursorshape);
         window->SwapBuffers();
         glfwPollEvents();
-        
-        printf("%d frames per second\n", (int) fps);
     }
 
     window->Kill();
