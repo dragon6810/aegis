@@ -350,7 +350,7 @@ void BSPMap::LoadEntities()
                     }
                     
                     entity.Init();
-                    entities.push_back(std::make_unique<PlayerEntity>(entity));
+                    //entities.push_back(std::make_unique<PlayerEntity>(entity));
                     SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
                 }
                 else if(!strcmp(classname, "zombie_grunt"))
@@ -369,7 +369,7 @@ void BSPMap::LoadEntities()
                             
                             sscanf(val, "%d %d %d", &x, &y, &z);
                             angles.x = x * DEG2RAD;
-                            angles.y = (y + 180) * DEG2RAD;
+                            angles.y = y * DEG2RAD;
                             angles.z = z * DEG2RAD;
                             entity.rotation = angles;
                         }
@@ -384,11 +384,11 @@ void BSPMap::LoadEntities()
                             pos.z = z;
                             entity.position = pos;
                         }
-                        
-                        entity.Init();
-                        entities.push_back(std::make_unique<GruntEntity>(entity));
-                        SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
                     }
+
+					entity.Init();
+					entities.push_back(std::make_unique<GruntEntity>(entity));
+					SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
                 }
                 
                 break;

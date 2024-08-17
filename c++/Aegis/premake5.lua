@@ -34,11 +34,13 @@ workspace "Aegis"
         }
 
         filter "system:windows"
+            defines { "WINDOWS" }
             links { "glfw3", "opengl32", "glew32s", "glu32" }
             libdirs { _MAIN_SCRIPT_DIR .. "/lib/glew/lib", _MAIN_SCRIPT_DIR .. "/lib/glfw/lib", _MAIN_SCRIPT_DIR .. "/lib/SFML/lib" }
             includedirs { "lib/glew/include", "lib/glfw/include", "lib/glm", "lib/SFML/include" }
 
         filter "system:macosx"
+            defines { "MACOS" }
             links { "glfw", "OpenGL.framework", "libGLEW.2.2.0.dylib" }
             libdirs { "/opt/homebrew/Cellar/glfw/3.4/lib", "/opt/homebrew/Cellar/glew/2.2.0_1/lib", "/opt/homebrew/Cellar/sfml/2.6.1/lib" }
             includedirs { "lib/glfw/include", "lib/glew/include", "lib/SFML/include", "lib/glm" }

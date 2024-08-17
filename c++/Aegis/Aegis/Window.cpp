@@ -64,8 +64,10 @@ void Window::MakeFullscreenViewport(float aspect)
     int width;
     int height;
     GetWindowDimensions(&width, &height);
+#ifdef MACOS
     width <<= 1;
     height <<= 1;
+#endif
     float windowAspect = (float)width / (float)height;
 
     int viewwidth;

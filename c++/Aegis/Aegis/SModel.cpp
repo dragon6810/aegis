@@ -464,9 +464,15 @@ void SModel::Tick()
     }
 
     mstudioseqdescription_t* seq = (mstudioseqdescription_t*)((char*)header + header->seqindex) + curseq;
-    int before = (int)frame % (seq->numframes - 1);
+    int before, now;
+    if (seq->numframes <= 1)
+        before = now = 0;
+
+    if(seq->numframes > 1)
+        before = (int)frame % (seq->numframes - 1);
     frame += ENGINE_TICKDUR * seq->fps;
-    int now = (int)frame % (seq->numframes - 1);
+    if (seq->numframes > 1)
+        now = (int)frame % (seq->numframes - 1);
 
     mstudioanimevent_t* events = (mstudioanimevent_t*)((char*)header + seq->eventindex);
     for (int i = 0; i < seq->numevents; i++)
@@ -533,7 +539,7 @@ Mat3x4 SModel::transformfrombone(int boneindex)
     mstudioseqgroup_t* pseqgroup = (mstudioseqgroup_t*)((char*)header + header->seqgroupindex) + pseqdesc->seqgroup;
 
     if (pseqdesc->numframes <= 1)
-        f = 0;
+        f = s = 0;
     else
        f %= pseqdesc->numframes - 1;
 

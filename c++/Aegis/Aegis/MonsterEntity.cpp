@@ -6,7 +6,13 @@
 
 MonsterEntity::MonsterEntity(BSPMap& map) : BaseEntity(map)
 {
-    model.Load(GetStudioPath().c_str());
+    
+}
+
+void MonsterEntity::Init()
+{
+	model.Load(GetStudioPath().c_str());
+	model.map = map;
 }
 
 void MonsterEntity::Render()
@@ -16,9 +22,9 @@ void MonsterEntity::Render()
 	glPushMatrix();
 
 	glTranslatef(position.x, position.y, position.z);
-	glRotatef(rotation.z * RAD2DEG, 0.0, 0.0, 1.0);
-	glRotatef(rotation.y * RAD2DEG, 0.0, 1.0, 0.0);
 	glRotatef(rotation.x * RAD2DEG, 1.0, 0.0, 0.0);
+	glRotatef(rotation.y * RAD2DEG, 0.0, 1.0, 0.0);
+	glRotatef(rotation.z * RAD2DEG, 0.0, 0.0, 1.0);
 
 	model.render();
 
