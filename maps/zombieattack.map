@@ -83,3 +83,9 @@
 "angles" "0 0 0"
 "origin" "0 0 -7.62939e-06"
 }
+{
+"classname" "zombie_grunt"
+"health" "100"
+"angles" "0 0 0"
+"origin" "-25 256 0"
+}
