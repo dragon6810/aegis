@@ -69,6 +69,7 @@ public:
 	// Utils
 	float Time(); // Time, in seconds since start of program
 	float R_Random(float min, float max); // Use for things like rendering, client based stuff
+    float P_Random(float min, float max); // Use for things like server side stuff
 
 	vec2_t cursorpos;
 
@@ -96,6 +97,7 @@ private:
 	long long start;
 
 	unsigned int r_seed = 1993;
+    unsigned int p_seed = 1998;
 
 	AudioManager audiomanager;
 

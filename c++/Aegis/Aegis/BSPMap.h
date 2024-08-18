@@ -14,6 +14,18 @@
 
 class BaseEntity;
 
+#define ZOMBIE_HULL 1
+#define GIANT_HULL 2
+#define LITTLE_HULL 3
+
+const static vec3_t hullbounds[8] =
+{
+    {0, 0, 0}, {0, 0, 0},
+    {-16, -16, -36}, {16, 16, 36},
+    {-32, -32, -32}, {32, 32, 32},
+    {-16, -16, -18}, {16, 16, 18},
+};
+
 class BSPMap
 {
 public:
@@ -31,6 +43,8 @@ public:
 	void Think(float deltatime);
 
 	~BSPMap();
+    
+    BaseEntity* player;
 
 	Skybox sky;
 	vec3_t camerapos = { 0.0, 0.0, 0.0 };
@@ -58,7 +72,7 @@ public:
 	std::unordered_map<std::string, std::string> keyval;
 
 	int LeafContents(vec3_t point);
-	bool FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection);
+	bool FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int hullnum);
 
 	vec3_t LightColor(vec3_t start, vec3_t end);
 
@@ -82,5 +96,5 @@ private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 
 	int LeafContentsRecursive(vec3_t point, int iclipnode);
-	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, int iclipnode);
+	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent);
 };

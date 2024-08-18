@@ -125,10 +125,10 @@ void Game::Render()
     map.Draw();
     
     glColor3f(0, 0, 1);
-    vec3_t p;
+    vec3_t p, n;
     vec3_t start = camera.position;
     vec3_t end = start + (camera.DirFromScreen(cursorpos) * 2048.0);
-    if (map.FineRaycast(start, end, &p))
+    if (map.FineRaycast(start, end, &p, &n, 0))
     {
         glPointSize(10000.0 / Vector3Dist(start, p));
         glBegin(GL_POINTS);
@@ -199,6 +199,14 @@ float Game::R_Random(float min, float max)
 
 	float normalized = static_cast<float>(r_seed) / 0xFFFFFFFF;
 	return min + normalized * (max - min);
+}
+
+float Game::P_Random(float min, float max)
+{
+    p_seed = (p_seed * 1664525 + 1013904223) & 0xFFFFFFFF;
+    
+    float normalized = static_cast<float>(p_seed) / 0xFFFFFFFF;
+    return min + normalized * (max - min);
 }
 
 void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

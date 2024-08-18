@@ -15,6 +15,7 @@
 		1CA789A489CF98168B6287E4 /* TextPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3ACEF70C8831ED3EFE50ED4C /* TextPanel.cpp */; };
 		2478FEAA3103B11CABE87CEA /* IllusionaryEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DD8CB275FAA6E4520402F2 /* IllusionaryEntity.cpp */; };
 		250724E67C6C97D82E7AB326 /* Quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4103482E72FC92E0ECDBCE6E /* Quaternion.cpp */; };
+		2768B594EDF6AD065BF8D3D4 /* GruntEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BD1C9DFC52935D2EC12FB43C /* GruntEntity.cpp */; };
 		29BAAEF0CBA44AE2C2CB5D30 /* AssetManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40F690980F19E44A962836D8 /* AssetManager.cpp */; };
 		3D439F9AAE66408C642CEDDA /* Skybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D027A5A2F8625E54DFFDEBE2 /* Skybox.cpp */; };
 		3FC2AA6CE1AC465ED8D358AC /* TrueTypeFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD27DA547B4B2E0602598094 /* TrueTypeFont.cpp */; };
@@ -45,7 +46,6 @@
 		D2DFE6B04007F522419AE4F0 /* mathutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A914B558F677AB8A6C96AB98 /* mathutils.cpp */; };
 		D619F10CCFDBAD7E09DAAF4C /* Aegis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82EB7FF4CB5C64260FFB3634 /* Aegis.cpp */; };
 		DA9C6BCA3201DEBCE40FFA0A /* BaseEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3012D201295D847B089912 /* BaseEntity.cpp */; };
-		DCBCA4292C712FF700C00BD6 /* GruntEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */; };
 		DCF079086F7E42FAD856E748 /* Waveform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E526C130A89282E2E7362770 /* Waveform.cpp */; };
 		DDF60F2052505412D033DD60 /* BSPModelEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDE5DFC8000FBC7A3400A608 /* BSPModelEntity.cpp */; };
 		F0CAC1345DF2CFA65F85BF74 /* GuiWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB158D9C087883CE7E9783DC /* GuiWindow.cpp */; };
@@ -135,6 +135,7 @@
 		BAB770C2DC831DF419384702 /* mathutils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mathutils.h; path = Aegis/mathutils.h; sourceTree = "<group>"; };
 		BB158D9C087883CE7E9783DC /* GuiWindow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GuiWindow.cpp; path = Aegis/GuiWindow.cpp; sourceTree = "<group>"; };
 		BB8549E2ED7E9494675DD022 /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = Aegis/AssetManager.h; sourceTree = "<group>"; };
+		BD1C9DFC52935D2EC12FB43C /* GruntEntity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GruntEntity.cpp; path = Aegis/GruntEntity.cpp; sourceTree = "<group>"; };
 		BF3115D654A7D508C3442C16 /* MonsterEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MonsterEntity.h; path = Aegis/MonsterEntity.h; sourceTree = "<group>"; };
 		BF973848E7D1F0FACF6D7E88 /* BeamFX.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BeamFX.cpp; path = Aegis/BeamFX.cpp; sourceTree = "<group>"; };
 		C0DF1552E919CE04D0B55B92 /* Window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Window.cpp; path = Aegis/Window.cpp; sourceTree = "<group>"; };
@@ -147,8 +148,7 @@
 		D6E95160F8B4FE92356A27A0 /* Command.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Command.cpp; path = Aegis/Command.cpp; sourceTree = "<group>"; };
 		D96E49A4F080E4D6E09CDFE4 /* Mpeg3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mpeg3.h; path = Aegis/Mpeg3.h; sourceTree = "<group>"; };
 		DC01BA900227EA42692EE0D0 /* Font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Font.cpp; path = Aegis/Font.cpp; sourceTree = "<group>"; };
-		DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GruntEntity.cpp; path = Aegis/GruntEntity.cpp; sourceTree = "<group>"; };
-		DCBCA42A2C7130A500C00BD6 /* GruntEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GruntEntity.h; path = Aegis/GruntEntity.h; sourceTree = "<group>"; };
+		DFDF21262D421758A3611766 /* GruntEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GruntEntity.h; path = Aegis/GruntEntity.h; sourceTree = "<group>"; };
 		E05015A0833E3C5212641BE0 /* Game.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Game.h; path = Aegis/Game.h; sourceTree = "<group>"; };
 		E0C4A51C06EAD4CE6DF1CB5C /* Window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Window.h; path = Aegis/Window.h; sourceTree = "<group>"; };
 		E30208F40B3CC1A6F2D84F34 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Aegis/Camera.cpp; sourceTree = "<group>"; };
@@ -200,6 +200,7 @@
 				DC01BA900227EA42692EE0D0 /* Font.cpp */,
 				65A8A52C7CBB405E6CD73B6C /* GUI.cpp */,
 				27EC1C964E124C48B51942D6 /* Game.cpp */,
+				BD1C9DFC52935D2EC12FB43C /* GruntEntity.cpp */,
 				BB158D9C087883CE7E9783DC /* GuiWindow.cpp */,
 				96DD8CB275FAA6E4520402F2 /* IllusionaryEntity.cpp */,
 				1BDFC52AB156845C1FF2DB6A /* LaserEntity.cpp */,
@@ -228,7 +229,6 @@
 				483B5E84DDB21DB64C4E74C4 /* loadtexture.cpp */,
 				A914B558F677AB8A6C96AB98 /* mathutils.cpp */,
 				BA7136EC4FE7F61EBE844D2C /* mstudioload.cpp */,
-				DCBCA4272C712FF700C00BD6 /* GruntEntity.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -253,7 +253,6 @@
 		C98A48C011FB2CF25699FF00 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
-				DCBCA42A2C7130A500C00BD6 /* GruntEntity.h */,
 				BB8549E2ED7E9494675DD022 /* AssetManager.h */,
 				8F5B4546C1548FF83B33CB86 /* AudioManager.h */,
 				19461BB23F6C4B64A67341F2 /* BSPMap.h */,
@@ -267,6 +266,7 @@
 				6E3EB1DA112CD88CA052B81A /* Font.h */,
 				911D8156948E538815FAF796 /* GUI.h */,
 				E05015A0833E3C5212641BE0 /* Game.h */,
+				DFDF21262D421758A3611766 /* GruntEntity.h */,
 				52C5DF8674918CB8B146B5C6 /* GuiWindow.h */,
 				1730535C5B44248E4F15A99C /* IllusionaryEntity.h */,
 				9D114714EA743D4660933D54 /* LaserEntity.h */,
@@ -375,6 +375,7 @@
 				C8470C68F92B045A0C433AA8 /* Font.cpp in Sources */,
 				181BBFC4735D133646B75E04 /* GUI.cpp in Sources */,
 				CB094DCEFBED45C00F057C0E /* Game.cpp in Sources */,
+				2768B594EDF6AD065BF8D3D4 /* GruntEntity.cpp in Sources */,
 				F0CAC1345DF2CFA65F85BF74 /* GuiWindow.cpp in Sources */,
 				2478FEAA3103B11CABE87CEA /* IllusionaryEntity.cpp in Sources */,
 				B92A64A27FB85C14EDBA82E2 /* LaserEntity.cpp in Sources */,
@@ -389,7 +390,6 @@
 				FE28F6A890B6C09AF98F64E8 /* Renderer.cpp in Sources */,
 				6A11A5C4DE6BEAB65C4F7404 /* RotatingEntity.cpp in Sources */,
 				40C956A2B1EBF79467B2A4E2 /* SModel.cpp in Sources */,
-				DCBCA4292C712FF700C00BD6 /* GruntEntity.cpp in Sources */,
 				3D439F9AAE66408C642CEDDA /* Skybox.cpp in Sources */,
 				9589EE8237738A742E9A9CC2 /* SpriteEntity.cpp in Sources */,
 				9EFB1F1898BCDB8AD2BBDD58 /* Targa.cpp in Sources */,
@@ -420,6 +420,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
 					GLEW_STATIC,
+					MACOS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -456,6 +457,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					DEBUG,
 					GLEW_STATIC,
+					MACOS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;

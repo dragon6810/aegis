@@ -51,6 +51,22 @@ vec3_t Vector3Lerp(vec3_t a, vec3_t b, float t)
     return v;
 }
 
+vec2_t NormalizeVector2(vec2_t v)
+{
+    float l;
+    
+    l = sqrtf(v.x * v.x + v.y * v.y);
+    v.x /= l;
+    v.y /= l;
+    
+    return v;
+}
+
+float Vector2Length(vec2_t v)
+{
+    return sqrtf(v.x * v.x + v.y * v.y);
+}
+
 vec2_t Vector2Lerp(vec2_t a, vec2_t b, float t)
 {
     vec2_t v;

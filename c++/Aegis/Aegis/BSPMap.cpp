@@ -350,7 +350,8 @@ void BSPMap::LoadEntities()
                     }
                     
                     entity.Init();
-                    //entities.push_back(std::make_unique<PlayerEntity>(entity));
+                    entities.push_back(std::make_unique<PlayerEntity>(entity));
+                    player = entities[entities.size() - 1].get();
                     SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(entity.position, 0));
                 }
                 else if(!strcmp(classname, "zombie_grunt"))
@@ -1025,17 +1026,20 @@ int BSPMap::LeafContentsRecursive(vec3_t point, int iclipnode)
 	return LeafContentsRecursive(point, clipnode->iChildren[1]);
 }
 
-bool BSPMap::FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection)
+bool BSPMap::FineRaycast(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int hullnum)
 {
 	bspmodel_t* hull = (bspmodel_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MODELS].nOffset);
-	return FineRaycastRecursive(start, end, intersection, hull->iHeadnodes[0]);
+	return FineRaycastRecursive(start, end, intersection, normal, hull->iHeadnodes[hullnum], hull->iHeadnodes[hullnum]);
 }
 
-bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, int iclipnode)
+bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent)
 {
 	if (iclipnode == BSP_CONTENTS_SOLID)
 	{
 		*intersection = start;
+        bspclipnode_t* clipnode = (bspclipnode_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_CLIPNODES].nOffset) + parent;
+        bspplane_t* plane = (bspplane_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_PLANES].nOffset) + clipnode->iPlane;
+        *normal = plane->vNormal;
 		return true;
 	}
 	else if (iclipnode < 0)
@@ -1051,15 +1055,24 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 
 	if (t1 * t2 >= 0 && !((t1 == 0) && (t2 == 0)))
 	{
-		if (t1 >= 0)
-			return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[0]);
-		return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
+        if(t1 == 0 || t2 == 0)
+        {
+            if(FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[0], iclipnode))
+               return true;
+            return FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[1], iclipnode);
+        }
+        else
+        {
+            if (t1 >= 0)
+                return FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[0], iclipnode);
+            return FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[1], iclipnode);
+        }
 	}
 	else if (t1 == 0 && t2 == 0)
 	{
-		if (FineRaycastRecursive(start, end, intersection, clipnode->iChildren[0]))
+		if (FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[0], iclipnode))
 			return true;
-		return FineRaycastRecursive(start, end, intersection, clipnode->iChildren[1]);
+		return FineRaycastRecursive(start, end, intersection, normal, clipnode->iChildren[1], iclipnode);
 	}
 
 	float t;
@@ -1076,9 +1089,9 @@ bool BSPMap::FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection
 	vec3_t mid = Vector3Lerp(start, end, t);
 	int side = (t1 >= 0) ? 0 : 1;
 
-	if (FineRaycastRecursive(start, mid, intersection, clipnode->iChildren[side]))
+	if (FineRaycastRecursive(start, mid, intersection, normal, clipnode->iChildren[side], iclipnode))
 		return true;
-	return FineRaycastRecursive(mid, end, intersection, clipnode->iChildren[!side]);
+	return FineRaycastRecursive(mid, end, intersection, normal, clipnode->iChildren[!side], iclipnode);
 }
 
 vec3_t BSPMap::LightColor(vec3_t start, vec3_t end)

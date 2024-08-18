@@ -14,4 +14,7 @@ public:
     GruntEntity(BSPMap& map);
     
     virtual std::string GetStudioPath() override;
+    virtual int GetPathMode() override;
+    virtual int GetClippingHull() override;
+    virtual float GetMaxSpeed() override;
 };
