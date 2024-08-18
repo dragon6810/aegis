@@ -34,7 +34,7 @@ protected:
     void Turn();
     void Advance();
     void CantAdvance();
-    
+
     bool CanAdvance(vec3_t p, vec3_t v);
     bool Sweep(vec3_t p, vec3_t v, vec3_t* result);
     vec3_t Slide(vec3_t p, vec3_t v, vec3_t n);
