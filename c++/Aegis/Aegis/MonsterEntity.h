@@ -10,6 +10,8 @@
 #define PATH_DOOM 0  // Doom pathfinding (e.g. grunt)
 #define PATH_GRAPH 1 // Smart pathfinding (e.g. spitter)
 
+#define ATTENTION_SPAN 32
+
 class MonsterEntity : public BaseEntity
 {
 public:
@@ -27,11 +29,14 @@ protected:
 	SModel model;
     
     bspplane_t floorplane, hitplane;
-    vec3_t target;
+    vec3_t target, dest; // Target is long term target, dest is short term
+    int attention;
+    float idealyaw, realyaw;
     
     void Gravity();
     void FindFloor();
     void Turn();
+    void LockOn();
     void Advance();
     void CantAdvance();
 

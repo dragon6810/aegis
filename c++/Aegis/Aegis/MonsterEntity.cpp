@@ -14,6 +14,8 @@ void MonsterEntity::Init()
 {
 	model.Load(GetStudioPath().c_str());
 	model.map = map;
+    target = dest = map->player->position;
+    attention = 0;
 }
 
 void MonsterEntity::Render()
@@ -39,13 +41,9 @@ void MonsterEntity::Render()
     glVertex3f(position.x, position.y, position.z - hullbounds[GetClippingHull() << 1].z);
     glVertex3f(target.x, target.y, target.z - hullbounds[GetClippingHull() << 1].z);
 
-    vlen = Vector3Length(vel);
-    if (vlen > 0)
-    {
-        glColor3f(1, 1, 0);
-        glVertex3f(position.x, position.y, position.z - hullbounds[GetClippingHull() << 1].z);
-        glVertex3f(position.x + vel.x / vlen * 128, position.y + vel.y / vlen * 128, position.z - hullbounds[GetClippingHull() << 1].z);
-    }
+    glColor3f(1, 1, 0);
+    glVertex3f(position.x, position.y, position.z - hullbounds[GetClippingHull() << 1].z);
+    glVertex3f(position.x + cosf(realyaw) * 128, position.y + sinf(realyaw) * 128, position.z - hullbounds[GetClippingHull() << 1].z);
 
     glEnd();
 
@@ -54,6 +52,7 @@ void MonsterEntity::Render()
 
 void MonsterEntity::Think(float deltatime)
 {
+    vec3_t p;
     int pathmode;
     
 	model.Tick();
@@ -65,7 +64,7 @@ void MonsterEntity::Think(float deltatime)
     if(!map->player)
         return;
     
-    target = map->player->position;
+    target.z = dest.z = position.z;
     
     Gravity();
     FindFloor();
@@ -75,11 +74,18 @@ void MonsterEntity::Think(float deltatime)
         vel.x = vel.x - (vel.x * (float)(16.0 * ENGINE_TICKDUR));
         vel.y = vel.y - (vel.y * (float)(16.0 * ENGINE_TICKDUR));
     }
-    Turn();
     
+    if(!attention--)
+    {
+        printf("Lock in!\n");
+        LockOn();
+        attention = ATTENTION_SPAN;
+    }
+    
+    Turn();
     Advance();
     
-    rotation.z = atan2(vel.y, vel.x);
+    rotation.z = realyaw;
 }
 
 void MonsterEntity::Gravity()
@@ -113,13 +119,15 @@ void MonsterEntity::FindFloor()
 void MonsterEntity::Turn()
 {
     const float maxaccel = 10 * GetMaxSpeed() * ENGINE_TICKDUR;
+    const float turnspeed = M_PI * 2 * ENGINE_TICKDUR; // One second for full rotation
     
     vec2_t wishdir;
     vec2_t vel2;
     vec3_t add;
     float movespeed, addspeed;
     
-    wishdir = NormalizeVector2({target.x - position.x, target.y - position.y});
+    wishdir.x = cosf(idealyaw);
+    wishdir.y = sinf(idealyaw);
     vel2 = {vel.x, vel.y};
     movespeed = wishdir.x * vel.x + wishdir.y * vel.y;
     addspeed = GetMaxSpeed() - movespeed;
@@ -130,11 +138,33 @@ void MonsterEntity::Turn()
     
     add = {wishdir.x * addspeed, wishdir.y * addspeed, 0};
     vel = vel + add;
+    
+    if(realyaw < idealyaw)
+        realyaw += minf(idealyaw - realyaw, turnspeed);
+    else if (realyaw > idealyaw)
+        realyaw -= minf(realyaw - idealyaw, turnspeed);
+}
+
+void MonsterEntity::LockOn() // Here's the doom part
+{
+    int olddir;
+    int wantdir;
+    
+    olddir = (int) (idealyaw * RAD2DEG / 45) * 45;
+    wantdir = (int) (atan2f(target.y - position.y, target.x - position.x) * RAD2DEG / 45) * 45;
+    
+    if(wantdir > olddir)
+        wantdir -= 45;
+    
+    if(wantdir < olddir)
+        wantdir += 45;
+    
+    idealyaw = (float) wantdir * 45.0;
 }
 
 void MonsterEntity::Advance()
 {
-    vec3_t p, v, planep;
+    vec3_t p, planep;
     int safety = 8;
 
     if(!CanAdvance(position, vel))
@@ -151,42 +181,21 @@ void MonsterEntity::Advance()
     position = position + vel;
 }
 
-void MonsterEntity::CantAdvance()
+void MonsterEntity::CantAdvance() // More doom stuff
 {
-    float angle, leftcos, rightcos, r;
-    vec3_t leftvel, rightvel;
+    int rand;
     
-    angle = 45.0 * DEG2RAD; // 1 degree left
-    leftvel.x = vel.x * cosf(angle) - vel.y * sinf(angle);
-    leftvel.y = vel.x * sinf(angle) + vel.y * cosf(angle);
-    leftvel.z = 0;
-    if(CanAdvance(position, leftvel))
-    {
-        vel = leftvel;
-        return;
-    }
-    leftcos = hitplane.vNormal.x * leftvel.x + hitplane.vNormal.y * leftvel.y;
+    rand = Game::GetGame().P_Random(0, 2) > 1;
     
-    angle = -45.0 * DEG2RAD; // 1 degree right
-    rightvel.x = vel.x * cosf(angle) - vel.y * sinf(angle);
-    rightvel.y = vel.x * sinf(angle) + vel.y * cosf(angle);
-    rightvel.z = 0;
-    if(CanAdvance(position, rightvel))
-    {
-        vel = rightvel;
-        return;
-    }
-    rightcos = hitplane.vNormal.x * rightvel.x + hitplane.vNormal.y * rightvel.y;
+    if(rand)
+        idealyaw += 45 * DEG2RAD;
+    else
+        idealyaw -= 45 * DEG2RAD;
     
-    if(rightcos < leftcos)
-    {
-        vel.x = rightvel.x;
-        vel.y = rightvel.y;
-        return;
-    }
-    
-    vel.x = leftvel.x;
-    vel.y = leftvel.y;
+    while(idealyaw > M_2_PI)
+        idealyaw -= M_2_PI;
+    while(idealyaw < 0)
+        idealyaw += M_2_PI;
 }
 
 bool MonsterEntity::CanAdvance(vec3_t p, vec3_t v)
@@ -213,6 +222,8 @@ bool MonsterEntity::CanAdvance(vec3_t p, vec3_t v)
     vel2 = {vel.x, vel.y};
     if(!Sweep(position, {0, 0, -maxslope * Vector2Length(vel2)}, &end))
         return false; // Too steep downwards
+    
+    hitplane.vNormal = NormalizeVector3(v * -1.0);
     
     return true;
 }
