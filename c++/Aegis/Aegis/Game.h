@@ -79,7 +79,10 @@ public:
 
 	// Boring GLFW shit
 	Window* window;
-
+    
+    // Console stuff
+    bool aidebug = false;
+    
 	int cursorshape;
 
 	Wad wad;

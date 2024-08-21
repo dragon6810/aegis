@@ -34,6 +34,9 @@ void MonsterEntity::Render()
 	model.render();
 
 	glPopMatrix();
+    
+    if(!Game::GetGame().aidebug)
+        return;
 
     glBegin(GL_LINES);
     glColor3f(1, 0, 0);
@@ -44,7 +47,11 @@ void MonsterEntity::Render()
     glColor3f(1, 1, 0);
     glVertex3f(position.x, position.y, position.z - hullbounds[GetClippingHull() << 1].z);
     glVertex3f(position.x + cosf(realyaw) * 128, position.y + sinf(realyaw) * 128, position.z - hullbounds[GetClippingHull() << 1].z);
-
+    
+    glColor3f(0, 1, 0);
+    glVertex3f(position.x, position.y, position.z - hullbounds[GetClippingHull() << 1].z);
+    glVertex3f(position.x + cosf(idealyaw) * 128, position.y + sinf(idealyaw) * 128, position.z - hullbounds[GetClippingHull() << 1].z);
+    
     glEnd();
 
     glEnable(GL_DEPTH);
@@ -77,7 +84,6 @@ void MonsterEntity::Think(float deltatime)
     
     if(!attention--)
     {
-        printf("Lock in!\n");
         LockOn();
         attention = ATTENTION_SPAN;
     }
@@ -124,7 +130,7 @@ void MonsterEntity::Turn()
     vec2_t wishdir;
     vec2_t vel2;
     vec3_t add;
-    float movespeed, addspeed;
+    float movespeed, addspeed, diff;
     
     wishdir.x = cosf(idealyaw);
     wishdir.y = sinf(idealyaw);
@@ -139,27 +145,47 @@ void MonsterEntity::Turn()
     add = {wishdir.x * addspeed, wishdir.y * addspeed, 0};
     vel = vel + add;
     
-    if(realyaw < idealyaw)
-        realyaw += minf(idealyaw - realyaw, turnspeed);
-    else if (realyaw > idealyaw)
-        realyaw -= minf(realyaw - idealyaw, turnspeed);
+    diff = (idealyaw - realyaw) * RAD2DEG;
+    diff = ((int) diff + 180) % 360 - 180;
+    diff *= DEG2RAD;
+    
+    if(diff > 0)
+        realyaw += minf(diff, turnspeed);
+    else if (diff < 0)
+        realyaw += maxf(diff, -turnspeed);
 }
 
 void MonsterEntity::LockOn() // Here's the doom part
 {
     int olddir;
     int wantdir;
+    int diff1, diff2;
+    vec3_t wantv;
     
-    olddir = (int) (idealyaw * RAD2DEG / 45) * 45;
-    wantdir = (int) (atan2f(target.y - position.y, target.x - position.x) * RAD2DEG / 45) * 45;
+    olddir = (int) round(idealyaw * RAD2DEG / 45) * 45;
+    wantdir = (int) round(atan2f(target.y - position.y, target.x - position.x) * RAD2DEG / 45) * 45;
     
-    if(wantdir > olddir)
-        wantdir -= 45;
+    olddir = (olddir + 45 + 360) % 360;
+    diff1 = abs(wantdir - olddir);
+    olddir = (olddir - 90 + 360) % 360;
+    diff2 = abs(wantdir - olddir);
+    olddir = (olddir + 45 + 360) % 360;
     
-    if(wantdir < olddir)
-        wantdir += 45;
+    diff1 = minf(diff1, 360 - diff1);
+    diff2 = minf(diff2, 360 - diff2);
     
-    idealyaw = (float) wantdir * 45.0;
+    if(diff1 < diff2)
+        wantdir = (olddir + 45) % 360;
+    
+    if(diff2 < diff1)
+        wantdir = (olddir - 45 + 360) % 360;
+    
+    wantv.x = cosf((float) wantdir * DEG2RAD);
+    wantv.y = sinf((float) wantdir * DEG2RAD);
+    wantv.z = 0;
+    
+    if(CanAdvance(position, wantv))
+        idealyaw = (float) wantdir * DEG2RAD;
 }
 
 void MonsterEntity::Advance()
