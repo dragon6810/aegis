@@ -185,7 +185,10 @@ void MonsterEntity::LockOn() // Here's the doom part
     wantv.z = 0;
     
     if(CanAdvance(position, wantv))
+    {
         idealyaw = (float) wantdir * DEG2RAD;
+        return;
+    }
 }
 
 void MonsterEntity::Advance()
@@ -209,19 +212,73 @@ void MonsterEntity::Advance()
 
 void MonsterEntity::CantAdvance() // More doom stuff
 {
+    int i;
+    
     int rand;
+    float newyaw;
+    vec3_t newv;
     
     rand = Game::GetGame().P_Random(0, 2) > 1;
     
     if(rand)
-        idealyaw += 45 * DEG2RAD;
+        newyaw = idealyaw + 45 * DEG2RAD;
     else
-        idealyaw -= 45 * DEG2RAD;
+        newyaw = idealyaw - 45 * DEG2RAD;
     
-    while(idealyaw > M_2_PI)
-        idealyaw -= M_2_PI;
-    while(idealyaw < 0)
-        idealyaw += M_2_PI;
+    newv.x = cosf(newyaw);
+    newv.y = sinf(newyaw);
+    newv.z = 0;
+    
+    for(i=0; i<6 && CanAdvance(position, newv); i++)
+    {
+        switch(i)
+        {
+            case 0:
+                if(rand)
+                    newyaw = idealyaw - 45 * DEG2RAD;
+                else
+                    newyaw = idealyaw + 45 * DEG2RAD;
+                break;
+            case 1:
+                if(rand)
+                    newyaw = idealyaw - 90 * DEG2RAD;
+                else
+                    newyaw = idealyaw + 90 * DEG2RAD;
+                break;
+            case 2:
+                if(rand)
+                    newyaw = idealyaw + 90 * DEG2RAD;
+                else
+                    newyaw = idealyaw - 90 * DEG2RAD;
+                break;
+            case 3:
+                if(rand)
+                    newyaw = idealyaw - 135 * DEG2RAD;
+                else
+                    newyaw = idealyaw + 135 * DEG2RAD;
+                break;
+            case 4:
+                if(rand)
+                    newyaw = idealyaw + 135 * DEG2RAD;
+                else
+                    newyaw = idealyaw - 135 * DEG2RAD;
+                break;
+            case 5:
+                newyaw = idealyaw + 180 * DEG2RAD;
+                break;
+        }
+                
+        newv.x = cosf(newyaw);
+        newv.y = sinf(newyaw);
+        newv.z = 0;
+    }
+    
+    while(newyaw > M_PI * 2)
+        newyaw -= M_PI * 2;
+    while(newyaw < 0)
+        newyaw += M_PI * 2;
+    
+    idealyaw = newyaw;
 }
 
 bool MonsterEntity::CanAdvance(vec3_t p, vec3_t v)

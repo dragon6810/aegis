@@ -10,7 +10,7 @@
 #define PATH_DOOM 0  // Doom pathfinding (e.g. grunt)
 #define PATH_GRAPH 1 // Smart pathfinding (e.g. spitter)
 
-#define ATTENTION_SPAN 32
+#define ATTENTION_SPAN 64
 
 class MonsterEntity : public BaseEntity
 {
