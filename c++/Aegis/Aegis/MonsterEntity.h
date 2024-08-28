@@ -32,6 +32,7 @@ protected:
     vec3_t target, dest; // Target is long term target, dest is short term
     int attention;
     float idealyaw, realyaw;
+    int nlocks;
     
     void Gravity();
     void FindFloor();

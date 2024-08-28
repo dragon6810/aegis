@@ -16,12 +16,11 @@ void MonsterEntity::Init()
 	model.map = map;
     target = dest = map->player->position;
     attention = 0;
+    nlocks = 0;
 }
 
 void MonsterEntity::Render()
 {
-    float vlen;
-
 	model.camerapos = camerapos;
 
 	glPushMatrix();
@@ -85,7 +84,11 @@ void MonsterEntity::Think(float deltatime)
     if(!attention--)
     {
         LockOn();
-        attention = ATTENTION_SPAN;
+        if(!nlocks) // Randomize attention offset to avoid lagspikes
+            attention = (int) Game::GetGame().P_Random(0, ATTENTION_SPAN);
+        else
+            attention = ATTENTION_SPAN;
+        nlocks++;
     }
     
     Turn();
