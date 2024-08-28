@@ -109,6 +109,8 @@ brushdef_t* ParseBrush()
     do
     {
         NextLine();
+        if(!strcmp(line, "{"))
+            break;
         
         memset(texname, 0, sizeof(texname));
         sscanf(line, ln, &ip1[0], &ip1[1], &ip1[2], &ip2[0], &ip2[1], &ip2[2], &ip3[0], &ip3[1], &ip3[2], texname, &is[0], &is[1], &is[2], &sshift, &it[0], &it[1], &it[2], &tshift, &rot, &sscale, &tscale);

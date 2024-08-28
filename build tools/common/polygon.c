@@ -213,7 +213,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
 {
     int nfirst;
     boolean infirst;
-    vnode_t *node, *last, *fout, *fin, *next, *new;
+    vnode_t *node, *last, *fout, *fin, *next, *new, *finlast;
     vec3_t delta;
     float dlast, dcur, t;
     
@@ -222,6 +222,8 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
     {
         if(node == poly->first)
             nfirst++;
+        if(nfirst>1)
+            break;
         
         if(fin && fout)
             break;
@@ -240,7 +242,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
         {
             if(!fout)
                 infirst = true;
-            fin = node;
+            fin = node->last;
         }
     }
     
@@ -289,9 +291,13 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
     node = fin;
     
     VectorSubtract(delta, node->val, last->val);
+    float a = VectorDot(n, last->val);
+    float b = VectorDot(n, node->val);
     t = (d - VectorDot(n, last->val)) / VectorDot(n, delta);
     VectorMultiply(delta, delta, t);
     VectorAdd(node->val, last->val, delta);
+    
+    //free(finlast);
 }
 
 void ClipVert(vnode_t* v, polynode_t* p)

@@ -66,6 +66,8 @@ void CutPolys(brushdef_t* brsh)
         {
             if(v == p->first)
                 j++;
+            if(j>1)
+                break;
             
             printf("(%d %d %d) ", (int)v->val[0], (int)v->val[1], (int)v->val[2]);
         }
