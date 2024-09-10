@@ -27,10 +27,11 @@ typedef struct
 typedef struct
 {
     struct polynode_t* firstp;
-    int npolys;
+    struct polynode_t* lastp;
     planedef_t* firstpl;
     planedef_t* lastpl;
     int nplanes;
+    vec3_t bbmin, bbmax;
     struct brushdef_t* next;
 } brushdef_t;
 
@@ -40,6 +41,7 @@ typedef struct
     int npairs;
     brushdef_t* firstbrsh;
     brushdef_t* lastbrsh;
+    struct entitydef_t *next;
 } entitydef_t;
 
 #endif /* mapdefs_h */

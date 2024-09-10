@@ -13,7 +13,10 @@
 
 #include "vector.h"
 
+#define ON_EPSILON 0.1
+
 typedef struct planedef_t planedef_t;
+typedef struct polynode_t polynode_t;
 typedef struct vnode_t vnode_t;
 
 struct vnode_t
@@ -23,12 +26,14 @@ struct vnode_t
     struct vnode_t *next, *last;
 };
 
-typedef struct
+struct polynode_t
 {
     vnode_t* first; // Cycically doubley linked list
     vec3_t normal;
     planedef_t* pl;
-} polynode_t;
+    polynode_t* next;
+    polynode_t* last;
+};
 
 struct planedef_t
 {
@@ -46,8 +51,16 @@ void HungryPoly(polynode_t* poly, vec3_t n, float d);
 // Winds a convex polygon to be counter clockwise
 void WindPoly(polynode_t* poly);
 
-// Clips a convex polygon to only be behind a plane
-void ClipPoly(polynode_t* poly, vec3_t n, float d);
+// Clips a cc-wound convex polygon to only be behind a plane.
+// Side=0? clip to back
+// Side=1? clip to front
+void ClipPoly(polynode_t* poly, vec3_t n, float d, int side);
+// Slices a cc-wound convex polygon into to along a plane
+boolean SlicePoly(polynode_t* poly, vec3_t n, float d);
+
+boolean PolyInsidePlane(polynode_t* poly, vec3_t n, float d);
+
+polynode_t *CopyPoly(polynode_t* p);
 
 void ClipVert(vnode_t* v, polynode_t* p);
 

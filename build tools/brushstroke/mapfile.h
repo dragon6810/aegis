@@ -23,12 +23,13 @@ FILE** hullouts;
 char* filename, *line;
 extern int linenum;
 
-brushdef_t *firstbr, *lastbr;
+extern entitydef_t *firstent, *lastent;
 
 void ParseMap(char* name);
 boolean ParseEntry();
 entitydef_t* ParseEntity();
 brushdef_t* ParseBrush();
+void Finish();
 void NextLine();
 
 void Error(char* msg);

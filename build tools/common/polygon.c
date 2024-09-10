@@ -209,14 +209,14 @@ void WindPoly(polynode_t* poly)
     } while (node != end);
 }
 
-void ClipPoly(polynode_t* poly, vec3_t n, float d)
+void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
 {
     int nfirst;
     boolean infirst;
-    vnode_t *node, *last, *fout, *fin, *next, *new, *finlast;
+    vnode_t *node, *last, *fout, *fin, *next, *new;
     vec3_t delta;
     float dlast, dcur, t;
-    
+
     infirst = false;
     for(nfirst=fout=fin=0, node=poly->first; nfirst<2; node=node->next)
     {
@@ -227,28 +227,36 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
         
         if(fin && fout)
             break;
-        
+
         last = node->last;
-        
+
         dlast = VectorDot(n, last->val) - d;
         dcur = VectorDot(n, node->val) - d;
         
-        if(dlast * dcur >= 0)
+        if (dlast * dcur >= 0)
             continue;
-        
-        if(dlast < 0 && dcur > 0) // Moving in front of plane
-            fout = node;
-        else // Moving behind plane
+
+        if (dlast < 0 && dcur > 0)
+        {
+            if(side)
+                fout = node->last;
+            else
+                fout = node;
+        }
+        else
         {
             if(!fout)
                 infirst = true;
-            fin = node->last;
+            if(side)
+                fin = node;
+            else
+                fin = node->last;
         }
     }
-    
-    if(!fin || !fout) // Polygon is fully behind/in front of the plane
+
+    if(!fin || !fout) // Polygon is fully on one side of the plane
         return;
-    
+
     if(fin == fout)
     {
         new = (vnode_t*) malloc(sizeof(vnode_t));
@@ -259,45 +267,47 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d)
     }
     else
     {
-        if(infirst)
+        if(side)
         {
-            for(node=fin->last; node!=fout; node=next)
+            for(node=fin->next; node!=fout; node=node->next=next)
             {
-                next = node->last;
+                next = node->next;
                 ClipVert(node, poly);
             }
         }
         else
         {
-            for(node=fout->next; node!=fin; node=next)
+            for(node=fout->next; node!=fin; node=node->next=next)
             {
                 next = node->next;
                 ClipVert(node, poly);
             }
         }
     }
-    
+
     // Snap first out to plane
-    last = fout->last;
+    if(side)
+        last = fout->next;
+    else
+        last = fout->last;
     node = fout;
-    
+
     VectorSubtract(delta, node->val, last->val);
     t = (d - VectorDot(n, last->val)) / VectorDot(n, delta);
     VectorMultiply(delta, delta, t);
     VectorAdd(node->val, last->val, delta);
-    
+
     // Snap first in to plane
-    last = fin->next;
+    if(side)
+        last = fin->last;
+    else
+        last = fin->next;
     node = fin;
-    
+
     VectorSubtract(delta, node->val, last->val);
-    float a = VectorDot(n, last->val);
-    float b = VectorDot(n, node->val);
     t = (d - VectorDot(n, last->val)) / VectorDot(n, delta);
     VectorMultiply(delta, delta, t);
     VectorAdd(node->val, last->val, delta);
-    
-    //free(finlast);
 }
 
 void ClipVert(vnode_t* v, polynode_t* p)
@@ -319,4 +329,110 @@ int CompNodes(const void* a, const void* b)
     if (nodeA->a < nodeB->a) return -1;
     if (nodeA->a > nodeB->a) return 1;
     return 0;
+}
+
+boolean SlicePoly(polynode_t* poly, vec3_t n, float d)
+{
+    int i;
+    
+    polynode_t *new;
+    boolean samesign;
+    int firstsign, nfirst;
+    float s;
+    vnode_t *v;
+    
+    for(i=0, nfirst=0, firstsign=0, v=poly->first, samesign=false;; v=v->next, i++)
+    {
+        if(v==poly->first)
+            nfirst++;
+        if(nfirst>1)
+            break;
+        
+        s = VectorDot(n, v->val) - d;
+        
+        if(!firstsign)
+        {
+            if(s < 0)
+                firstsign = -1;
+            else if(s > 0)
+                firstsign = 1;
+        }
+        else
+        {
+            if(s * firstsign < 0)
+            {
+                samesign = true;
+                break;
+            }
+        }
+    }
+    
+    if(!samesign)
+        return false;
+    
+    new = CopyPoly(poly);
+    ClipPoly(poly, n, d, 0);
+    ClipPoly(new, n, d, 1);
+    
+    new->next = poly->next;
+    new->last = poly;
+    if(poly->next)
+        poly->next->last = new;
+    poly->next = new;
+    
+    return true;
+}
+
+boolean PolyInsidePlane(polynode_t* poly, vec3_t n, float d)
+{
+    int nfirst;
+    vnode_t *v;
+    
+    for(nfirst=0, v=poly->first;; v=v->next)
+    {
+        if(v==poly->first)
+            nfirst++;
+        if(nfirst>1)
+            break;
+        
+        if(VectorDot(v->val, n) - d > ON_EPSILON)
+            return false;
+    }
+    
+    return true;
+}
+
+polynode_t *CopyPoly(polynode_t* p)
+{
+    int i, nfirst;
+    
+    polynode_t *new;
+    vnode_t *v, *curv;
+    
+    new = (polynode_t*) malloc(sizeof(polynode_t));
+    memcpy(new, p, sizeof(polynode_t));
+    
+    for(i=0, nfirst=0, v=p->first, curv=0;; i++, v=v->next)
+    {
+        if(v==p->first)
+            nfirst++;
+        if(nfirst>1)
+            break;
+        
+        if(curv)
+        {
+            curv->next = (vnode_t*) malloc(sizeof(vnode_t));
+            curv->next->last = curv;
+            curv = curv->next;
+        }
+        else
+            new->first = curv = (vnode_t*) malloc(sizeof(vnode_t));
+        
+        VectorCopy(curv->val, v->val);
+    }
+    
+    curv->next = new->first;
+    new->first->last = curv;
+    
+    return new;
 }

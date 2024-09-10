@@ -9,6 +9,7 @@
 
 int nhulls;
 int linenum = 0;
+entitydef_t *firstent, *lastent;
 
 void ParseMap(char* name)
 {
@@ -22,20 +23,31 @@ void ParseMap(char* name)
     
     NextLine();
     while(ParseEntry());
+    
+    Finish();
 }
 
 boolean ParseEntry()
 {
     char c;
     void* entry;
+    entitydef_t *ent;
     
     if(strcmp(line, "{"))
         return false;
     
     c = fgetc(mapfile);
     fseek(mapfile, -1, SEEK_CUR);
+    ent = 0;
     if(c == '"')
-        ParseEntity();
+        ent = ParseEntity();
+    if(ent)
+    {
+        if(firstent)
+            lastent = lastent->next = ent;
+        else
+            firstent = lastent = ent;
+    }
     
     return true;
 }
@@ -49,11 +61,13 @@ entitydef_t* ParseEntity()
     char val[MAX_VALUE+1];
     
     ent = AllocEntity();
-    memset(ent, 0, sizeof(ent));
+    memset(ent, 0, sizeof(entitydef_t));
     
     do
     {
         NextLine();
+        if(!strcmp(line, "}"))
+            break;
         
         memset(key, 0, sizeof(key));
         memset(val, 0, sizeof(val));
@@ -68,7 +82,7 @@ entitydef_t* ParseEntity()
             
             brsh = ParseBrush();
             if(!ent->firstbrsh)
-                ent->firstbrsh->next = ent->firstbrsh = ent->lastbrsh = brsh;
+                ent->firstbrsh = ent->lastbrsh = brsh;
             else
                 ent->lastbrsh = ent->lastbrsh->next = brsh;
         }
@@ -86,7 +100,7 @@ entitydef_t* ParseEntity()
             lastpair = pair;
             ent->npairs++;
         }
-    } while(strcmp(line, "}"));
+    } while(true);
     
     return ent;
 }
@@ -109,7 +123,7 @@ brushdef_t* ParseBrush()
     do
     {
         NextLine();
-        if(!strcmp(line, "{"))
+        if(!strcmp(line, "}"))
             break;
         
         memset(texname, 0, sizeof(texname));
@@ -132,8 +146,42 @@ brushdef_t* ParseBrush()
     
     GenPolys(brsh);
     CutPolys(brsh);
+    GenBB(brsh);
     
     return brsh;
+}
+
+void Finish()
+{
+    int i, j;
+    
+    brushdef_t *br;
+    entitydef_t *ent;
+    polynode_t *p;
+    vnode_t *v;
+    
+    for(ent=firstent; ent; ent=ent->next)
+    {
+        for(br=ent->firstbrsh; br; br=br->next)
+        {
+            Optimize(br, ent);
+            printf("Cut polygons of brush:\n");
+            for(i=0, p=br->firstp; p; i++, p=p->next)
+            {
+                printf("Polygon %d:\n", i+1);
+                for(j=0, v=p->first; j<2; v=v->next)
+                {
+                    if(v == p->first)
+                        j++;
+                    if(j>1)
+                        break;
+                    
+                    printf("(%d %d %d) ", (int)v->val[0], (int)v->val[1], (int)v->val[2]);
+                }
+                printf("\n");
+            }
+        }
+    }
 }
 
 void NextLine()
