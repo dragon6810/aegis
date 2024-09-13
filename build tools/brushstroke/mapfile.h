@@ -35,6 +35,7 @@ entitydef_t* ParseEntity();
 brushdef_t* ParseBrush();
 void Finish();
 void NextLine();
+void WriteEnts();
 void MemClean();
 
 void Error(char* msg);

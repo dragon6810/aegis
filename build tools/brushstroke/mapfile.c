@@ -206,6 +206,9 @@ void Finish()
     vnode_t *v;
     char *outname;
     
+    if(curhull == 0)
+        WriteEnts();
+    
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)
@@ -259,6 +262,51 @@ void NextLine()
     if(line) free(line);
     GetLine(&line, mapfile);
     linenum++;
+}
+
+void WriteEnts()
+{
+    int nmodels;
+    entitydef_t *ent;
+    entitypair_t *newpair, *pair;
+    char* outname;
+    FILE* entfile;
+    
+    for(nmodels=0, ent=firstent; ent; ent=ent->next)
+    {
+        if(ent->firstbrsh)
+        {
+            newpair = malloc(sizeof(entitypair_t));
+            memset(newpair->key, 0, sizeof(newpair->key));
+            memset(newpair->val, 0, sizeof(newpair->val));
+            strcpy(newpair->key, "model");
+            sprintf(newpair->val, "*%d", nmodels);
+            newpair->next = ent->pairs;
+            ent->pairs = newpair;
+            ent->npairs++;
+            nmodels++;
+        }
+    }
+    
+    outname = malloc(strlen(filename) + 1);
+    memcpy(outname, filename, strlen(filename) + 1);
+    outname[strlen(outname) - 3] = 'e';
+    outname[strlen(outname) - 2] = 'n';
+    outname[strlen(outname) - 1] = 't';
+    entfile = fopen(outname, "w");
+    
+    for(ent=firstent; ent; ent=ent->next)
+    {
+        fprintf(entfile, "{\n");
+        
+        for(pair=ent->pairs; pair; pair=pair->next)
+            fprintf(entfile, "\"%s\" \"%s\"\n", pair->key, pair->val);
+        
+        fprintf(entfile, "}\n");
+    }
+    
+    fclose(entfile);
+    free(outname);
 }
 
 void MemClean()
