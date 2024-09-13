@@ -14,11 +14,15 @@
 #include "textfile.h"
 #include "mapdefs.h"
 #include "brush.h"
+#include "gfile.h"
+#include "hullspec.h"
 
 extern int nhulls;
 
 FILE* mapfile;
-FILE** hullouts;
+FILE* hullouts[4];
+
+extern int curhull;
 
 char* filename, *line;
 extern int linenum;
@@ -31,6 +35,7 @@ entitydef_t* ParseEntity();
 brushdef_t* ParseBrush();
 void Finish();
 void NextLine();
+void MemClean();
 
 void Error(char* msg);
 

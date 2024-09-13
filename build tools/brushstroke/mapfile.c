@@ -7,7 +7,7 @@
 
 #include "mapfile.h"
 
-int nhulls;
+int curhull = 0;
 int linenum = 0;
 entitydef_t *firstent, *lastent;
 
@@ -21,10 +21,26 @@ void ParseMap(char* name)
     if(!mapfile)
         Error("Bad map file path");
     
-    NextLine();
-    while(ParseEntry());
-    
-    Finish();
+    // TODO: Fix this no good badd quick-fix way of doing things and don't make everything reload for each hull!
+    for(;curhull<NHULLS; curhull++)
+    {
+        char* hullname = malloc(strlen(filename));
+        memset(hullname, 0, strlen(filename));
+        memcpy(hullname, filename, strlen(filename) - 3);
+        hullname[strlen(hullname)] = 'g';
+        hullname[strlen(hullname)] = '0' + curhull;
+        hullouts[curhull] = fopen(hullname, "w");
+        free(hullname);
+        
+        linenum = 0;
+        fseek(mapfile, 0, SEEK_SET);
+        NextLine();
+        while(ParseEntry());
+        Finish();
+        MemClean();
+        
+        fclose(hullouts[curhull]);
+    }
 }
 
 boolean ParseEntry()
@@ -36,11 +52,7 @@ boolean ParseEntry()
     if(strcmp(line, "{"))
         return false;
     
-    c = fgetc(mapfile);
-    fseek(mapfile, -1, SEEK_CUR);
-    ent = 0;
-    if(c == '"')
-        ent = ParseEntity();
+    ent = ParseEntity();
     if(ent)
     {
         if(firstent)
@@ -89,6 +101,7 @@ entitydef_t* ParseEntity()
         else
         {
             pair = AllocEntPair();
+            pair->next = 0;
             memcpy(pair->key, key, sizeof(key));
             memcpy(pair->val, val, sizeof(val));
             
@@ -107,9 +120,11 @@ entitydef_t* ParseEntity()
 
 brushdef_t* ParseBrush()
 {
+    int i;
+    
     const char* ln = "( %d %d %d ) ( %d %d %d ) ( %d %d %d ) %s [ %d %d %d %d ] [ %d %d %d %d ] %d %d %d";
     brushdef_t* brsh;
-    planedef_t pl;
+    planedef_t pl, *ppl;
     vec3_t p1, p2, p3, a, b;
     int ip1[3], ip2[3], ip3[3];
     char texname[17];
@@ -117,6 +132,8 @@ brushdef_t* ParseBrush()
     int is[3], it[3];
     int sshift, tshift;
     int rot, sscale, tscale;
+    
+    vec3_t corner;
     
     brsh = (brushdef_t*) malloc(sizeof(brushdef_t));
     
@@ -140,31 +157,68 @@ brushdef_t* ParseBrush()
         VectorCross(pl.n, a, b);
         VectorNormalize(pl.n, pl.n);
         pl.d = VectorDot(pl.n, p1);
+        memcpy(pl.texname, texname, sizeof(texname));
+        VectorCopy(pl.shat, s);
+        VectorCopy(pl.that, t);
+        pl.sshift = sshift;
+        pl.tshift = tshift;
         
         AddPlane(brsh, pl);
     } while(strcmp(line, "}"));
     
+    GenBB(brsh);
+    for(ppl=brsh->firstpl; ppl; ppl=ppl->next)
+    {
+        for(i=0, VectorCopy(corner, vec3_origin); i<3; i++)
+        {
+            if (ppl->n[i] > 0)
+                corner[i] = hmaxs[curhull][i];
+            else if (ppl->n[i] < 0)
+                corner[i] = hmins[curhull][i];
+        }
+        ppl->d += VectorDot(ppl->n, corner);
+    }
+    for(i=0; i<3; i++)
+    {
+        VectorCopy(pl.n, vec3_origin);
+        pl.n[i] = 1;
+        pl.d = brsh->bbmax[i] + hmaxs[curhull][i];
+        AddPlane(brsh, pl);
+        
+        VectorCopy(pl.n, vec3_origin);
+        pl.n[i] = -1;
+        pl.d = brsh->bbmin[i] + hmins[curhull][i];
+        AddPlane(brsh, pl);
+    }
     GenPolys(brsh);
     CutPolys(brsh);
-    GenBB(brsh);
     
     return brsh;
 }
 
 void Finish()
 {
-    int i, j;
+    int i, j, b;
     
     brushdef_t *br;
     entitydef_t *ent;
     polynode_t *p;
     vnode_t *v;
+    char *outname;
     
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)
         {
             Optimize(br, ent);
+        }
+    }
+    
+#if 0
+    for(ent=firstent; ent; ent=ent->next)
+    {
+        for(br=ent->firstbrsh; br; br=br->next)
+        {
             printf("Cut polygons of brush:\n");
             for(i=0, p=br->firstp; p; i++, p=p->next)
             {
@@ -182,6 +236,22 @@ void Finish()
             }
         }
     }
+#endif
+    
+    for(ent=firstent, b=0; ent; ent=ent->next)
+    {
+        if(ent->firstbrsh)
+        {
+            for(br=ent->firstbrsh; br; br=br->next)
+            {
+                for(i=0, p=br->firstp; p; i++, p=p->next)
+                {
+                    WritePoly(*p, hullouts[curhull]);
+                }
+            }
+            b++;
+        }
+    }
 }
 
 void NextLine()
@@ -189,6 +259,48 @@ void NextLine()
     if(line) free(line);
     GetLine(&line, mapfile);
     linenum++;
+}
+
+void MemClean()
+{
+    entitydef_t *curent, *nextent;
+    entitypair_t *curpair, *nextpair;
+    brushdef_t *curbrush, *nextbrush;
+    polynode_t *curp, *nextp;
+    planedef_t *curpl, *nextpl;
+    
+    for(curent=firstent; curent; curent=nextent)
+    {
+        nextent = curent->next;
+        
+        for(curpair=curent->pairs; curpair; curpair=nextpair)
+        {
+            nextpair = curpair->next;
+            free(curpair);
+        }
+        
+        for(curbrush=curent->firstbrsh; curbrush; curbrush=nextbrush)
+        {
+            nextbrush = curbrush->next;
+            
+            for(curp=curbrush->firstp; curp; curp=nextp)
+            {
+                nextp = curp->next;
+                CullPoly(curp, curbrush);
+            }
+            for(curpl=curbrush->firstpl; curpl; curpl=nextpl)
+            {
+                nextpl = curpl->next;
+                free(curpl);
+            }
+            
+            free(curbrush);
+        }
+        
+        free(curent);
+    }
+    
+    firstent = lastent = 0;
 }
 
 void Error(char* msg)

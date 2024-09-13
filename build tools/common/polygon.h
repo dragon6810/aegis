@@ -39,6 +39,9 @@ struct planedef_t
 {
     vec3_t n;
     float d;
+    char texname[17];
+    vec3_t shat, that; // It's not the past tense of shit and that its s-hat and t-hat because they're basis vectors
+    float sshift, tshift;
     struct planedef_t* next;
 };
 

@@ -53,6 +53,14 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "-h"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/hulls.txt&quot;"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/brushstroketest.map&quot;"
             isEnabled = "YES">
          </CommandLineArgument>

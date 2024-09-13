@@ -13,11 +13,16 @@ int main(int argc, char** argv)
 {
     int i;
     
-    nhulls = 4;
+    printf("[========== BRUSHSTROKE v0.1 ==========]\n");
+    printf("Brushstroke is under the MIT license.\n\n");
     
     for(i=0; i<argc-1; i++)
     {
-        // TODO: Parse arguments
+        if(!strcmp(argv[i], "-h"))
+        {
+            ReadHullSpec(argv[++i]);
+            continue;
+        }
     }
     
     ParseMap(argv[i]);

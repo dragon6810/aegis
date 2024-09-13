@@ -212,12 +212,10 @@ void WindPoly(polynode_t* poly)
 void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
 {
     int nfirst;
-    boolean infirst;
     vnode_t *node, *last, *fout, *fin, *next, *new;
     vec3_t delta;
     float dlast, dcur, t;
 
-    infirst = false;
     for(nfirst=fout=fin=0, node=poly->first; nfirst<2; node=node->next)
     {
         if(node == poly->first)
@@ -245,8 +243,6 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
         }
         else
         {
-            if(!fout)
-                infirst = true;
             if(side)
                 fin = node;
             else
@@ -269,17 +265,17 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
     {
         if(side)
         {
-            for(node=fin->next; node!=fout; node=node->next=next)
+            for(node=fin->next; node!=fout; node=next)
             {
-                next = node->next;
+                next = node->last->next = node->next;
                 ClipVert(node, poly);
             }
         }
         else
         {
-            for(node=fout->next; node!=fin; node=node->next=next)
+            for(node=fout->next; node!=fin; node=next)
             {
-                next = node->next;
+                next = node->last->next = node->next;
                 ClipVert(node, poly);
             }
         }
@@ -308,6 +304,17 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
     t = (d - VectorDot(n, last->val)) / VectorDot(n, delta);
     VectorMultiply(delta, delta, t);
     VectorAdd(node->val, last->val, delta);
+    
+    if(side)
+    {
+        fin->next = fout;
+        fout->last = fin;
+    }
+    else
+    {
+        fout->next = fin;
+        fin->last = fout;
+    }
 }
 
 void ClipVert(vnode_t* v, polynode_t* p)

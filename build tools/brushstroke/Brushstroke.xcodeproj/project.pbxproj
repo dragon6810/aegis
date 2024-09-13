@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6037578A4B237D7C930945CA /* brush.c in Sources */ = {isa = PBXBuildFile; fileRef = 31A2E812D5F585C4E82DCE52 /* brush.c */; };
 		60FC8F84F6734EB6650FA5C4 /* textfile.c in Sources */ = {isa = PBXBuildFile; fileRef = E15208EC10E3D7DEEBF1172C /* textfile.c */; };
 		6DB6EAAA9FB0355C198F70EA /* polygon.c in Sources */ = {isa = PBXBuildFile; fileRef = CFDFD3B2266D3E24FEE651F2 /* polygon.c */; };
 		78667B8C71CC7CFE6567D9CC /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E0F7DF4115B07262C2BD434 /* main.c */; };
 		B5D7FC60033AF2927959F2A0 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 07619008F24DB5FA3A337E48 /* vector.c */; };
+		C95F11C88CCAD37ACB6E7808 /* gfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 87D1A5F08137A76274D30430 /* gfile.c */; };
 		D6291EBE05BAEDB0E0C82CFE /* mapfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 9E9EA806418CCEB8D0B2AE46 /* mapfile.c */; };
-		DC79C6CE2C7A7CEF00369D5D /* brush.c in Sources */ = {isa = PBXBuildFile; fileRef = DC79C6CD2C7A7CEF00369D5D /* brush.c */; };
+		DC1CA6C92C93A1B2001CF19A /* hullspec.c in Sources */ = {isa = PBXBuildFile; fileRef = DC1CA6C82C93A1B2001CF19A /* hullspec.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,15 +35,19 @@
 		121E5DB012D15AA286B32BF0 /* defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = defs.h; path = ../common/defs.h; sourceTree = "<group>"; };
 		124B5CF2FD3782E4451D4B32 /* vector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = vector.h; path = ../common/vector.h; sourceTree = "<group>"; };
 		2CB3ED3C834157AE5BBA6B7C /* polygon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = polygon.h; path = ../common/polygon.h; sourceTree = "<group>"; };
+		31A2E812D5F585C4E82DCE52 /* brush.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = brush.c; sourceTree = "<group>"; };
 		4567CD30E855F3E2777BD370 /* mapfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mapfile.h; sourceTree = "<group>"; };
 		6E0F7DF4115B07262C2BD434 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		6F071FFC1359BDAE2592063C /* brush.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = brush.h; sourceTree = "<group>"; };
+		71383A3A6A9E3BAC5E39987A /* gfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gfile.h; path = ../common/gfile.h; sourceTree = "<group>"; };
+		87D1A5F08137A76274D30430 /* gfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = gfile.c; path = ../common/gfile.c; sourceTree = "<group>"; };
 		93C897ECEA56025EC2CF162C /* mapdefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mapdefs.h; path = ../common/mapdefs.h; sourceTree = "<group>"; };
 		9E9EA806418CCEB8D0B2AE46 /* mapfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mapfile.c; sourceTree = "<group>"; };
 		CD5A0316FCEBD208D7F91156 /* textfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = textfile.h; path = ../common/textfile.h; sourceTree = "<group>"; };
 		CFDFD3B2266D3E24FEE651F2 /* polygon.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = polygon.c; path = ../common/polygon.c; sourceTree = "<group>"; };
 		D9F4B3257CE2D9D70C08B965 /* Brushstroke */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Brushstroke; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC79C6CC2C7A7CEF00369D5D /* brush.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = brush.h; sourceTree = "<group>"; };
-		DC79C6CD2C7A7CEF00369D5D /* brush.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = brush.c; sourceTree = "<group>"; };
+		DC1CA6C72C93A1B2001CF19A /* hullspec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hullspec.h; sourceTree = "<group>"; };
+		DC1CA6C82C93A1B2001CF19A /* hullspec.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hullspec.c; sourceTree = "<group>"; };
 		E15208EC10E3D7DEEBF1172C /* textfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = textfile.c; path = ../common/textfile.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,6 +66,8 @@
 			isa = PBXGroup;
 			children = (
 				121E5DB012D15AA286B32BF0 /* defs.h */,
+				87D1A5F08137A76274D30430 /* gfile.c */,
+				71383A3A6A9E3BAC5E39987A /* gfile.h */,
 				93C897ECEA56025EC2CF162C /* mapdefs.h */,
 				CFDFD3B2266D3E24FEE651F2 /* polygon.c */,
 				2CB3ED3C834157AE5BBA6B7C /* polygon.h */,
@@ -82,8 +90,10 @@
 		F2ACF31C5CBF750EF5EA615C /* Brushstroke */ = {
 			isa = PBXGroup;
 			children = (
-				DC79C6CC2C7A7CEF00369D5D /* brush.h */,
-				DC79C6CD2C7A7CEF00369D5D /* brush.c */,
+				DC1CA6C72C93A1B2001CF19A /* hullspec.h */,
+				DC1CA6C82C93A1B2001CF19A /* hullspec.c */,
+				31A2E812D5F585C4E82DCE52 /* brush.c */,
+				6F071FFC1359BDAE2592063C /* brush.h */,
 				9660399A39ABC2CC547C8FDA /* common */,
 				6E0F7DF4115B07262C2BD434 /* main.c */,
 				9E9EA806418CCEB8D0B2AE46 /* mapfile.c */,
@@ -154,8 +164,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC79C6CE2C7A7CEF00369D5D /* brush.c in Sources */,
+				6037578A4B237D7C930945CA /* brush.c in Sources */,
+				C95F11C88CCAD37ACB6E7808 /* gfile.c in Sources */,
 				6DB6EAAA9FB0355C198F70EA /* polygon.c in Sources */,
+				DC1CA6C92C93A1B2001CF19A /* hullspec.c in Sources */,
 				60FC8F84F6734EB6650FA5C4 /* textfile.c in Sources */,
 				B5D7FC60033AF2927959F2A0 /* vector.c in Sources */,
 				78667B8C71CC7CFE6567D9CC /* main.c in Sources */,
@@ -184,6 +196,7 @@
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
 				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -214,6 +227,7 @@
 				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
 				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
 				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;

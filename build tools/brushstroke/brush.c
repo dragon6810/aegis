@@ -15,6 +15,7 @@ void AddPlane(brushdef_t* brsh, planedef_t pl)
     
     ppl = (planedef_t*) malloc(sizeof(planedef_t));
     memcpy(ppl, &pl, sizeof(planedef_t));
+    ppl->next = 0;
     
     if(!brsh->firstpl)
         brsh->firstpl->next = brsh->firstpl = brsh->lastpl = ppl;
@@ -74,7 +75,64 @@ void GenBB(brushdef_t* brsh)
     boolean started;
     polynode_t *p;
     vnode_t* v;
+    planedef_t *a, *b, *c;
+    float det, dx, dy, dz;
+    vec3_t in;
     
+    for(a=brsh->firstpl; a; a=a->next)
+    {
+        for(b=brsh->firstpl; b; b=b->next)
+        {
+            if(a==b)
+                continue;
+            for(c=brsh->firstpl; c; c=c->next)
+            {
+                if(b==c)
+                    continue;
+                
+                det = a->n[0] * (b->n[1] * c->n[2] - b->n[2] * c->n[1]) -
+                      a->n[1] * (b->n[0] * c->n[2] - b->n[2] * c->n[0]) +
+                      a->n[2] * (b->n[0] * c->n[1] - b->n[1] * c->n[0]);
+                
+                if(det == 0)
+                    continue;
+                
+                dx = a->d * (b->n[1] * c->n[2] - b->n[2] * c->n[1]) -
+                    a->n[1] * (b->d * c->n[2] - b->n[2] * c->d) +
+                    a->n[2] * (b->d * c->n[1] - b->n[1] * c->d);
+
+                dy = a->n[0] * (b->d * c->n[2] - b->n[2] * c->d) -
+                    a->d * (b->n[0] * c->n[2] - b->n[2] * c->n[0]) +
+                    a->n[2] * (b->n[0] * c->d - b->d * c->n[0]);
+
+                dz = a->n[0] * (b->n[1] * c->d - b->d * c->n[1]) -
+                    a->n[1] * (b->n[0] * c->d - b->d * c->n[0]) +
+                    a->d * (b->n[0] * c->n[1] - b->n[1] * c->n[0]);
+                
+                in[0] = dx / det;
+                in[1] = dy / det;
+                in[2] = dz / det;
+                
+                if(!started)
+                {
+                    VectorCopy(brsh->bbmin, in);
+                    VectorCopy(brsh->bbmax, in);
+                    started=true;
+                    continue;
+                }
+                
+                for(j=0; j<3; j++)
+                {
+                    if(in[j] < brsh->bbmin[j])
+                        brsh->bbmin[j] = in[j];
+                    if(in[j] > brsh->bbmax[j])
+                        brsh->bbmax[j] = in[j];
+                }
+            }
+        }
+    }
+    
+    /*
     for(i=0, started=false, p=brsh->firstp; p; i++, p=p->next)
     {
         for(v=p->first->next; v!=p->first; v=v->next)
@@ -96,6 +154,7 @@ void GenBB(brushdef_t* brsh)
             }
         }
     }
+     */
 }
 
 /*
@@ -117,13 +176,16 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
     for(br2=set->firstbrsh; br2; br2=br2->next)
     {
         if(br1==br2) // Don't clip against yourself!
-            goto skipbr;
+            continue;
         
         for(i=0; i<3; i++)
         {
             if (br1->bbmin[i] > br2->bbmax[i] || br1->bbmax[i] < br2->bbmin[i])
-                goto skipbr;
+                break;
         }
+        
+        if(i > 3)
+            continue;
         
         for(pl=br2->firstpl; pl; pl=pl->next)
         {
@@ -140,9 +202,6 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
                     CullPoly(p, br1);
             }
         }
-        
-    skipbr:
-        i=0;
     }
 }
 
