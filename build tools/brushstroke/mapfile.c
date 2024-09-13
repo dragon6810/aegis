@@ -15,15 +15,18 @@ void ParseMap(char* name)
 {
     filename = name;
     
-    printf("Parsing map \"%s\"...\n", name);
+    printf("Parsing map \"%s\"...\n\n", name);
     
     mapfile = fopen(name, "r");
     if(!mapfile)
         Error("Bad map file path");
     
+    printf("Parsing %d hulls.\n", NHULLS);
+    
     // TODO: Fix this no good badd quick-fix way of doing things and don't make everything reload for each hull!
     for(;curhull<NHULLS; curhull++)
     {
+        printf("Parsing hull %d/%d:\n", curhull, NHULLS);
         char* hullname = malloc(strlen(filename));
         memset(hullname, 0, strlen(filename));
         memcpy(hullname, filename, strlen(filename) - 3);
@@ -34,9 +37,12 @@ void ParseMap(char* name)
         
         linenum = 0;
         fseek(mapfile, 0, SEEK_SET);
+        printf("\tLoading brushes...\n");
         NextLine();
         while(ParseEntry());
+        printf("\tOptimizing and Writing brushes...\n");
         Finish();
+        printf("\tCleaning memory...\n\n");
         MemClean();
         
         fclose(hullouts[curhull]);
