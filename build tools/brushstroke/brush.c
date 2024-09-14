@@ -29,8 +29,39 @@ void GenPolys(brushdef_t* brsh)
 {
     int i;
     
-    planedef_t* pl;
+    planedef_t *pl, *_pl, *nextpl, *lastpl;
     polynode_t* p;
+    
+    // Prune duplicate faces often generatted when expanding hulls
+    for(pl=brsh->firstpl; pl; pl=pl->next)
+    {
+        for(_pl=brsh->firstpl, lastpl=0; _pl; lastpl=_pl, _pl=nextpl)
+        {
+            nextpl = _pl->next;
+            if(pl == _pl)
+                continue;
+            
+            if(pl->d != _pl->d)
+                continue;
+            
+            for(i=0; i<3; i++)
+            {
+                if(pl->n[i] != _pl->n[i])
+                    break;
+            }
+            
+            if(i < 3)
+                continue;
+            
+            if(lastpl)
+                lastpl->next = _pl->next;
+            else
+                brsh->firstpl = _pl->next;
+            
+            brsh->nplanes--;
+            free(_pl);
+        }
+    }
     
     for(i=0, pl=brsh->firstpl, p=brsh->firstp; pl; i++, pl=pl->next, p++)
     {

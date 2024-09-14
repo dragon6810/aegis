@@ -193,7 +193,7 @@ brushdef_t* ParseBrush()
         
         VectorCopy(pl.n, vec3_origin);
         pl.n[i] = -1;
-        pl.d = brsh->bbmin[i] + hmins[curhull][i];
+        pl.d = -brsh->bbmin[i] - hmins[curhull][i];
         AddPlane(brsh, pl);
     }
     GenPolys(brsh);
@@ -204,13 +204,12 @@ brushdef_t* ParseBrush()
 
 void Finish()
 {
-    int i, j, b;
+    int i, j, b, n;
     
     brushdef_t *br;
     entitydef_t *ent;
     polynode_t *p;
     vnode_t *v;
-    char *outname;
     
     if(curhull == 0)
         WriteEnts();
@@ -223,7 +222,7 @@ void Finish()
         }
     }
     
-#if 0
+#if 1
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)
@@ -247,10 +246,12 @@ void Finish()
     }
 #endif
     
-    for(ent=firstent, b=0; ent; ent=ent->next)
+    for(ent=firstent, b=0, n=0; ent; ent=ent->next)
     {
+        fprintf(hullouts[curhull], " ");
         if(ent->firstbrsh)
         {
+            fprintf(hullouts[curhull], "*%d\n", b);
             for(br=ent->firstbrsh; br; br=br->next)
             {
                 for(i=0, p=br->firstp; p; i++, p=p->next)
