@@ -13,10 +13,11 @@ void GetLine(char** out, FILE* ptr)
     
     int len;
     long start;
+    char c;
     
     len = 1;
     start = ftell(ptr);
-    while(fgetc(ptr) != '\n')
+    while(fgetc(ptr) != '\n' && !feof(ptr))
         len++;
     
     fseek(ptr, start, SEEK_SET);

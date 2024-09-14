@@ -26,7 +26,7 @@ void ParseMap(char* name)
     // TODO: Fix this no good badd quick-fix way of doing things and don't make everything reload for each hull!
     for(;curhull<NHULLS; curhull++)
     {
-        printf("Parsing hull %d/%d:\n", curhull, NHULLS);
+        printf("Parsing hull %d/%d:\n", curhull+1, NHULLS);
         char* hullname = malloc(strlen(filename));
         memset(hullname, 0, strlen(filename));
         memcpy(hullname, filename, strlen(filename) - 3);
@@ -38,7 +38,6 @@ void ParseMap(char* name)
         linenum = 0;
         fseek(mapfile, 0, SEEK_SET);
         printf("\tLoading brushes...\n");
-        NextLine();
         while(ParseEntry());
         printf("\tOptimizing and Writing brushes...\n");
         Finish();
@@ -55,6 +54,7 @@ boolean ParseEntry()
     void* entry;
     entitydef_t *ent;
     
+    NextLine();
     if(strcmp(line, "{"))
         return false;
     
@@ -222,7 +222,7 @@ void Finish()
         }
     }
     
-#if 1
+#if 0
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)
