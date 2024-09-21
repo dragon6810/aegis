@@ -24,7 +24,7 @@ typedef struct bspleaf_t bspleaf_t;
 
 struct brushset_t
 {
-    brush_t *firstbr;
+    surfnode_t *firstsurf;
     int nbr;
     vec3_t bbmin, bbmax;
 };
@@ -33,14 +33,6 @@ struct brushsetnode_t
 {
     brushset_t *brushet;
     brushetnode_t *last, *next;
-};
-
-struct brush_t
-{
-    surfnode_t *firstsurf;
-    int nsurfs, contents;
-    vec3_t bbmin, bbmax;
-    brush_t *last, *next;
 };
 
 struct surf_t
@@ -79,7 +71,7 @@ struct bspleaf_t
 };
 
 char *filename;
-FILE *gfiles[NHULLS];
+FILE* gfiles[NHULLS];
 struct brushsetnode_t *brushsets[NHULLS];
 
 void LoadBrushSets(char* file);
