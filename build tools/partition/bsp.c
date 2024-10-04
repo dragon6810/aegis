@@ -346,9 +346,9 @@ surf_t* CopySurf(surf_t* surf)
     newsurf = malloc(sizeof(surf_t));
     memcpy(newsurf, surf, sizeof(surf_t));
     
-    for(curv=newsurf->geo.first, i=lastv=0;; curv=curv->next)
+    for(curv=surf->geo.first, i=lastv=0;; curv=curv->next)
     {
-        if(curv==newsurf->geo.first)
+        if(curv==surf->geo.first)
             i++;
         if(i>1)
             break;
