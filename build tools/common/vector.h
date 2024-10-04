@@ -13,5 +13,6 @@ float VectorLength(vec3_t src);
 float VectorLengthSqr(vec3_t src);
 float VectorDot(vec3_t a, vec3_t b);
 void VectorCross(vec3_t dest, vec3_t a, vec3_t b);
+boolean VectorComp(vec3_t a, vec3_t b);
 
 #endif

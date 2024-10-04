@@ -215,7 +215,7 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
                 break;
         }
         
-        if(i > 3)
+        if(i < 3)
             continue;
         
         for(pl=br2->firstpl; pl; pl=pl->next)

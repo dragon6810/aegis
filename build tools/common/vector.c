@@ -61,3 +61,11 @@ void VectorCross(vec3_t dest, vec3_t a, vec3_t b)
     dest[1] = a[2] * b[0] - a[0] * b[2];
     dest[2] = a[0] * b[1] - a[1] * b[0];
 }
+
+boolean VectorComp(vec3_t a, vec3_t b)
+{
+    if(a[0] != b[0]) return false;
+    if(a[1] != b[1]) return false;
+    if(a[2] != b[2]) return false;
+    return true;
+}

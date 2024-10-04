@@ -14,7 +14,7 @@
 #define NHULLS 4
 
 typedef struct brushset_t brushset_t;
-typedef struct brushetnode_t brushetnode_t;
+typedef struct brushsetnode_t brushsetnode_t;
 typedef struct brush_t brush_t;
 typedef struct surf_t surf_t;
 typedef struct surfnode_t surfnode_t;
@@ -25,14 +25,13 @@ typedef struct bspleaf_t bspleaf_t;
 struct brushset_t
 {
     surfnode_t *firstsurf;
-    int nbr;
     vec3_t bbmin, bbmax;
 };
 
 struct brushsetnode_t
 {
     brushset_t *brushet;
-    brushetnode_t *last, *next;
+    brushsetnode_t *last, *next;
 };
 
 struct surf_t
@@ -42,6 +41,9 @@ struct surf_t
     int sshift, tshift;
     char texname[17];
     splitplane_t *parent;
+    vec3_t n;
+    float d;
+    boolean onplane;
 };
 
 struct surfnode_t
@@ -55,6 +57,8 @@ struct splitplane_t
     vec3_t n;
     float d;
     surfnode_t *surfs;
+    surfnode_t *childsurfs[2];
+    splitplane_t *children[2];
 };
 
 struct bspnode_t
@@ -72,9 +76,17 @@ struct bspleaf_t
 
 char *filename;
 FILE* gfiles[NHULLS];
-struct brushsetnode_t *brushsets[NHULLS];
+brushsetnode_t *brushsets[NHULLS];
+splitplane_t rootnode, outsidenode;
 
 void LoadBrushSets(char* file);
-surf_t FindIdealSplitSurf(surfnode_t *surfs);
+void ProcessWorld();
+splitplane_t MakeSplitNode(surfnode_t *surfs);
+void CutWorld_r(splitplane_t* parent);
+surfnode_t* FindIdealSplitSurf(surfnode_t *surfs);
+
+// -1 for back, 0 for on, 1 for front, 2 for both
+int GetSurfSide(surf_t* surf, vec3_t n, float d);
+surf_t* CopySurf(surf_t* surf);
 
 #endif /* map_h */
