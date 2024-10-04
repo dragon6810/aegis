@@ -13,6 +13,22 @@
 
 #define NHULLS 4
 
+#define CONTENTS_EMPTY        -1
+#define CONTENTS_SOLID        -2
+#define CONTENTS_WATER        -3
+#define CONTENTS_SLIME        -4
+#define CONTENTS_LAVA         -5
+#define CONTENTS_SKY          -6
+#define CONTENTS_ORIGIN       -7
+#define CONTENTS_CLIP         -8
+#define CONTENTS_CURRENT_0    -9
+#define CONTENTS_CURRENT_90   -10
+#define CONTENTS_CURRENT_180  -11
+#define CONTENTS_CURRENT_270  -12
+#define CONTENTS_CURRENT_UP   -13
+#define CONTENTS_CURRENT_DOWN -14
+#define CONTENTS_TRANSLUCENT  -15
+
 typedef struct brushset_t brushset_t;
 typedef struct brushsetnode_t brushsetnode_t;
 typedef struct brush_t brush_t;
@@ -59,6 +75,8 @@ struct splitplane_t
     surfnode_t *surfs;
     surfnode_t *childsurfs[2];
     splitplane_t *children[2];
+    int childcontents[2];
+    surfnode_t *mainsurf;
 };
 
 struct bspnode_t

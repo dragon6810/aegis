@@ -128,6 +128,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
     
     memset(&newplane, 0, sizeof(newplane));
     node = FindIdealSplitSurf(surfs);
+    newplane.mainsurf = node;
     node->surf->onplane = true;
     VectorCopy(newplane.n, node->surf->n);
     newplane.d = node->surf->d;
@@ -234,7 +235,13 @@ void CutWorld_r(splitplane_t* parent)
         
         // All surfs on this side have been divided so its ok
         if(alldone)
+        {
+            if(i==0) // Back
+                parent->childcontents[i] = CONTENTS_SOLID;
+            else // Front
+                parent->childcontents[i] = CONTENTS_EMPTY;
             continue;
+        }
         
         newplane = (splitplane_t*) malloc(sizeof(splitplane_t));
         *newplane = MakeSplitNode(parent->childsurfs[i]);

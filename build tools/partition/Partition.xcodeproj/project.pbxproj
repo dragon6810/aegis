@@ -40,6 +40,7 @@
 		78493BE13BB4FD937A58A221 /* textfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = textfile.h; path = ../common/textfile.h; sourceTree = "<group>"; };
 		AFD1D977D19D86A90E52AFB7 /* mapdefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mapdefs.h; path = ../common/mapdefs.h; sourceTree = "<group>"; };
 		B135565DD301038F0FB62C9D /* polygon.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = polygon.c; path = ../common/polygon.c; sourceTree = "<group>"; };
+		DCB14CAB2CB0349D003312AC /* bspfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bspfile.h; path = ../common/bspfile.h; sourceTree = SOURCE_ROOT; };
 		DCDADFB12C9B27AF00F86DE7 /* map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
 		DCDADFB22C9B3C2E00F86DE7 /* bsp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsp.c; sourceTree = "<group>"; };
 		EC48F9731483B225FC1F3FB3 /* vector.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = vector.c; path = ../common/vector.c; sourceTree = "<group>"; };
@@ -69,6 +70,7 @@
 				78493BE13BB4FD937A58A221 /* textfile.h */,
 				EC48F9731483B225FC1F3FB3 /* vector.c */,
 				4E00E83D763BA0EF5DD72E7D /* vector.h */,
+				DCB14CAB2CB0349D003312AC /* bspfile.h */,
 			);
 			name = common;
 			sourceTree = "<group>";
