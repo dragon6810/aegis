@@ -11,6 +11,7 @@
 		78667B8C71CC7CFE6567D9CC /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E0F7DF4115B07262C2BD434 /* main.c */; };
 		A38B1E539D4CDAC5D74BDC93 /* gfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 75FB217BBE6C05AD030AD7BB /* gfile.c */; };
 		CA6826CB3B8AC7BDF151750B /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = EC48F9731483B225FC1F3FB3 /* vector.c */; };
+		DCB14CAF2CB55DE9003312AC /* bspfile.c in Sources */ = {isa = PBXBuildFile; fileRef = DCB14CAE2CB55DE9003312AC /* bspfile.c */; };
 		DCDADFB32C9B3C3300F86DE7 /* bsp.c in Sources */ = {isa = PBXBuildFile; fileRef = DCDADFB22C9B3C2E00F86DE7 /* bsp.c */; };
 		EA9B476F7D291161E601B5AF /* textfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 496327D70CCEE9894B728E17 /* textfile.c */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,7 @@
 		AFD1D977D19D86A90E52AFB7 /* mapdefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mapdefs.h; path = ../common/mapdefs.h; sourceTree = "<group>"; };
 		B135565DD301038F0FB62C9D /* polygon.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = polygon.c; path = ../common/polygon.c; sourceTree = "<group>"; };
 		DCB14CAB2CB0349D003312AC /* bspfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bspfile.h; path = ../common/bspfile.h; sourceTree = SOURCE_ROOT; };
+		DCB14CAE2CB55DE9003312AC /* bspfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = bspfile.c; path = ../common/bspfile.c; sourceTree = SOURCE_ROOT; };
 		DCDADFB12C9B27AF00F86DE7 /* map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
 		DCDADFB22C9B3C2E00F86DE7 /* bsp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsp.c; sourceTree = "<group>"; };
 		EC48F9731483B225FC1F3FB3 /* vector.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = vector.c; path = ../common/vector.c; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 				EC48F9731483B225FC1F3FB3 /* vector.c */,
 				4E00E83D763BA0EF5DD72E7D /* vector.h */,
 				DCB14CAB2CB0349D003312AC /* bspfile.h */,
+				DCB14CAE2CB55DE9003312AC /* bspfile.c */,
 			);
 			name = common;
 			sourceTree = "<group>";
@@ -158,6 +161,7 @@
 			files = (
 				A38B1E539D4CDAC5D74BDC93 /* gfile.c in Sources */,
 				2044AA5564934FC7A6BA8895 /* polygon.c in Sources */,
+				DCB14CAF2CB55DE9003312AC /* bspfile.c in Sources */,
 				EA9B476F7D291161E601B5AF /* textfile.c in Sources */,
 				DCDADFB32C9B3C3300F86DE7 /* bsp.c in Sources */,
 				CA6826CB3B8AC7BDF151750B /* vector.c in Sources */,

@@ -9,6 +9,8 @@
 #define map_h
 
 #include "polygon.h"
+#include "bspfile.h"
+#include <math.h>
 #include <string.h>
 
 #define NHULLS 4
@@ -92,19 +94,39 @@ struct bspleaf_t
     int contents;
 };
 
-char *filename;
-FILE* gfiles[NHULLS];
-brushsetnode_t *brushsets[NHULLS];
-splitplane_t rootnode, outsidenode;
+extern char *filename;
+extern FILE* gfiles[NHULLS];
+extern brushsetnode_t *brushsets[NHULLS];
+extern splitplane_t rootnode[MAX_MAP_MODELS][NHULLS];
+extern int nmodels;
+extern bspffile_t bspfile;
 
 void LoadBrushSets(char* file);
+void LoadEnts(char* file);
 void ProcessWorld();
 splitplane_t MakeSplitNode(surfnode_t *surfs);
 void CutWorld_r(splitplane_t* parent);
 surfnode_t* FindIdealSplitSurf(surfnode_t *surfs);
+void WriteFile();
 
 // -1 for back, 0 for on, 1 for front, 2 for both
 int GetSurfSide(surf_t* surf, vec3_t n, float d);
 surf_t* CopySurf(surf_t* surf);
+
+void LoadNodes_r(splitplane_t *node, boolean rendertree);
+int LoadSurfs(surfnode_t* surf);
+void LoadFace(surf_t* face);
+int LoadLeaf(splitplane_t* parent, int which);
+int FindEdge(int v1, int v2);
+int FindVertex(vec3_t v);
+int FindTexinfo(bspftexinfo_t* texinfo);
+int FindMiptex(char* name);
+int FindPlane(vec3_t n, float d);
+int FindFace(bspfface_t* face);
+void FindFacePlanes();
+void LoadModels();
+
+void SurfListBB(surfnode_t* surfs, vec3_t* outmin, vec3_t* outmax);
+void SurfBB(surf_t* surf, vec3_t* outmin, vec3_t* outmax);
 
 #endif /* map_h */
