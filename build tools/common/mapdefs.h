@@ -21,7 +21,7 @@ typedef struct
 {
     char key[MAX_KEY+1];
     char val[MAX_VALUE+1];
-    struct entitypair_t* next;
+    struct entitypair_t* next, *last;
 } entitypair_t;
 
 typedef struct

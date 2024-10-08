@@ -114,7 +114,10 @@ entitydef_t* ParseEntity()
             if(!ent->npairs)
                 ent->pairs = pair;
             else
+            {
                 lastpair->next = pair;
+                pair->last = lastpair;
+            }
             
             lastpair = pair;
             ent->npairs++;
@@ -281,6 +284,9 @@ void WriteEnts()
     
     for(nmodels=0, ent=firstent; ent; ent=ent->next)
     {
+        pair = ent->pairs;
+        while(pair->next)
+            pair = pair->next;
         if(ent->firstbrsh)
         {
             newpair = malloc(sizeof(entitypair_t));
@@ -288,8 +294,8 @@ void WriteEnts()
             memset(newpair->val, 0, sizeof(newpair->val));
             strcpy(newpair->key, "model");
             sprintf(newpair->val, "*%d", nmodels);
-            newpair->next = ent->pairs;
-            ent->pairs = newpair;
+            pair->next = newpair;
+            newpair->last = pair;
             ent->npairs++;
             nmodels++;
         }
@@ -306,7 +312,10 @@ void WriteEnts()
     {
         fprintf(entfile, "{\n");
         
-        for(pair=ent->pairs; pair; pair=pair->next)
+        pair = ent->pairs;
+        while(pair->next)
+            pair = pair->next;
+        for(; pair; pair=pair->last)
             fprintf(entfile, "\"%s\" \"%s\"\n", pair->key, pair->val);
         
         fprintf(entfile, "}\n");

@@ -68,9 +68,11 @@ void LoadBrushSets(char* file)
                 }
                 j = 1;
                 lastsurfnode = 0;
+                int k = 0;
                 while(j != 0)
                 {
                     newsurf = malloc(sizeof(surf_t));
+                    memset(newsurf, 0, sizeof(surf_t));
                     j = lastv = 0;
                     while(fscanf(gfiles[i], "( %f %f %f )", &val[0], &val[1], &val[2]) == 3)
                     {
@@ -92,9 +94,17 @@ void LoadBrushSets(char* file)
                         
                         j++;
                     }
+                    if(!j)
+                        continue;
+                    
                     newsurf->geo.first = firstv;
                     
-                    fscanf(gfiles[i], "[ %f %f %f %d ] ", &newsurf->s[0], &newsurf->s[1], &newsurf->s[2], &newsurf->sshift);
+                    if(fscanf(gfiles[i], "[ %f %f %f %d ] ", &newsurf->s[0], &newsurf->s[1], &newsurf->s[2], &newsurf->sshift) < 4)
+                    {
+                        char test[17];
+                        fread(test, 17, 1, gfiles[i]);
+                        printf("uh oh\n");
+                    }
                     fscanf(gfiles[i], "[ %f %f %f %d ] ", &newsurf->t[0], &newsurf->t[1], &newsurf->t[2], &newsurf->tshift);
                     fscanf(gfiles[i], "%s\n", newsurf->texname);
                     
@@ -110,6 +120,7 @@ void LoadBrushSets(char* file)
                         lastsurfnode = newset->firstsurf = newsurfnode;
                     }
                     newsurfnode->surf = newsurf;
+                    k++;
                 }
             }
             else
@@ -189,8 +200,9 @@ void WriteFile()
 
 void LoadNodes_r(splitplane_t *node, boolean rendertree)
 {
-    int i, j;
+    int i;
     
+    int nodeindex, clipindex;
     bspfplane_t bspplane;
     bspfnode_t bspnode;
     bspfclipnode_t bspclipnode;
@@ -235,36 +247,38 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
             bspnode.max[i] = ceilf(max);
         }
         
+        nodeindex = bspfile.nnodes;
         bspfile.nodes[bspfile.nnodes++] = bspnode;
     }
     
+    clipindex = bspfile.nclipnodes;
     bspfile.clipnodes[bspfile.nclipnodes++] = bspclipnode;
     
     if(node->children[0])
     {
         if(rendertree)
-            bspfile.nodes[bspfile.nnodes - 1].children[0] = bspfile.nnodes;
-        bspfile.clipnodes[bspfile.nclipnodes - 1].children[0] = bspfile.nclipnodes;
+            bspfile.nodes[nodeindex].children[0] = bspfile.nnodes;
+        bspfile.clipnodes[clipindex].children[0] = bspfile.nclipnodes;
         LoadNodes_r(node->children[0], rendertree);
     }
     else
     {
         if(rendertree)
-            bspfile.nodes[bspfile.nnodes - 1].children[0] = ~LoadLeaf(node, 0);
-        bspfile.clipnodes[bspfile.nclipnodes - 1].children[0] = node->childcontents[0];
+            bspfile.nodes[nodeindex].children[0] = ~LoadLeaf(node, 0);
+        bspfile.clipnodes[clipindex].children[0] = node->childcontents[0];
     }
     if(node->children[1])
     {
         if(rendertree)
-            bspfile.nodes[bspfile.nnodes - 1].children[1] = bspfile.nnodes;
-        bspfile.clipnodes[bspfile.nclipnodes - 1].children[1] = bspfile.nclipnodes;
+            bspfile.nodes[nodeindex].children[1] = bspfile.nnodes;
+        bspfile.clipnodes[clipindex].children[1] = bspfile.nclipnodes;
         LoadNodes_r(node->children[1], rendertree);
     }
     else
     {
         if(rendertree)
-            bspfile.nodes[bspfile.nnodes - 1].children[1] = ~LoadLeaf(node, 1);
-        bspfile.clipnodes[bspfile.nclipnodes - 1].children[1] = node->childcontents[1];
+            bspfile.nodes[nodeindex].children[1] = ~LoadLeaf(node, 1);
+        bspfile.clipnodes[clipindex].children[1] = node->childcontents[1];
     }
 }
 
@@ -321,6 +335,8 @@ int LoadSurfs(surfnode_t* surf)
 
 void LoadFace(surf_t* face)
 {
+    int i;
+    
     bspfface_t newface;
     bspftexinfo_t texinfo;
     vnode_t *v, *next;
@@ -352,6 +368,9 @@ void LoadFace(surf_t* face)
     texinfo.tshift = face->tshift;
     texinfo.miptex = FindMiptex(face->texname);
     newface.texinfo = FindTexinfo(&texinfo);
+    for(i=0; i<4; i++)
+        newface.styles[i] = 255;
+    newface.lightmapoffs = -1;
     
     bspfile.faces[bspfile.nfaces++] = newface;
 }
@@ -538,7 +557,11 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
     lastback = laston = lastfront = 0;
     for(curnode=surfs; curnode; curnode=curnode->next)
     {
-        sign = GetSurfSide(curnode->surf, newplane.n, newplane.d);
+        if(curnode->surf == node->surf)
+            sign = 0;
+        else
+            sign = GetSurfSide(curnode->surf, newplane.n, newplane.d);
+        
         newnode = (surfnode_t*) malloc(sizeof(surfnode_t));
         memcpy(newnode, curnode, sizeof(surfnode_t));
         newnode->next = newnode->last = 0;
@@ -549,6 +572,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 lastback->next = newnode;
                 newnode->last = lastback;
+                lastback = newnode;
             }
             else
             {
@@ -561,6 +585,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 lastfront->next = newnode;
                 newnode->last = lastfront;
+                lastfront = newnode;
             }
             else
             {
@@ -574,6 +599,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 laston->next = newnode;
                 newnode->last = laston;
+                laston = newnode;
             }
             else
             {
@@ -594,6 +620,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 lastback->next = newnode;
                 newnode->last = lastback;
+                lastback = newnode;
             }
             else
             {
@@ -604,6 +631,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 lastfront->next = newnode;
                 newnode->last = lastfront;
+                lastfront = newnode;
             }
             else
             {
@@ -624,7 +652,7 @@ void CutWorld_r(splitplane_t* parent)
     int i;
     
     boolean alldone;
-    surfnode_t *cursurf;
+    surfnode_t *cursurf, *unionsurfs, *lastunionsurf, *newsurf, *_cursurf;
     splitplane_t *newplane;
     
     for(i=0; i<2; i++)
@@ -646,7 +674,47 @@ void CutWorld_r(splitplane_t* parent)
         }
         
         newplane = (splitplane_t*) malloc(sizeof(splitplane_t));
-        *newplane = MakeSplitNode(parent->childsurfs[i]);
+        lastunionsurf = unionsurfs = 0;
+        for(_cursurf = parent->surfs; _cursurf; _cursurf=_cursurf->next)
+        {
+            newsurf = malloc(sizeof(surfnode_t));
+            newsurf->surf = _cursurf->surf;
+            newsurf->last = newsurf->next = 0;
+            if(lastunionsurf)
+            {
+                lastunionsurf->next = newsurf;
+                newsurf->last = lastunionsurf;
+            }
+            else
+            {
+                unionsurfs = newsurf;
+            }
+            
+            lastunionsurf = newsurf;
+        }
+        for(_cursurf = parent->childsurfs[i]; _cursurf; _cursurf=_cursurf->next)
+        {
+            newsurf = malloc(sizeof(surfnode_t));
+            newsurf->surf = _cursurf->surf;
+            newsurf->last = newsurf->next = 0;
+            if(lastunionsurf)
+            {
+                lastunionsurf->next = newsurf;
+                newsurf->last = lastunionsurf;
+            }
+            else
+            {
+                unionsurfs = newsurf;
+            }
+            
+            lastunionsurf = newsurf;
+        }
+        *newplane = MakeSplitNode(unionsurfs);
+        for(_cursurf=unionsurfs; _cursurf; _cursurf=newsurf)
+        {
+            newsurf = _cursurf->next;
+            free(_cursurf);
+        }
         parent->children[i] = newplane;
         CutWorld_r(parent->children[i]);
     }

@@ -873,6 +873,7 @@ void BSPMap::RenderFace(uint16_t f)
 	
 	glEnable(GL_BLEND);
 
+    /*
 	// First Pass: Sum the lightmaps
 	glActiveTexture(GL_TEXTURE0);
 	for (int i = 0; i < BSP_FACE_NLIGHTSTYLES; i++)
@@ -912,11 +913,12 @@ void BSPMap::RenderFace(uint16_t f)
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 	}
+     */
 
 	glColor3f(1, 1, 1);
 
 	// Second Pass: Multiply the summed lightmaps with the base texture
-	glBlendFunc(GL_DST_COLOR, GL_ZERO);
+	//glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);

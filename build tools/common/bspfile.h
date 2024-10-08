@@ -101,7 +101,7 @@ typedef struct
     uint8_t ambientlevels[4];
 } bspfleaf_t;
 
-typedef uint16_t bspfedge[2];
+typedef uint16_t bspfedge_t[2];
 
 typedef struct
 {
@@ -137,9 +137,9 @@ typedef struct
     int nleaves;
     uint16_t marksurfs[MAX_MAP_MARKSURFACES];
     int nmarksurfs;
-    bspfedge edges[MAX_MAP_EDGES];
+    bspfedge_t edges[MAX_MAP_EDGES];
     int nedges;
-    int32_t surfedes[MAX_MAP_SURFEDGES];
+    int surfedes[MAX_MAP_SURFEDGES];
     int nsurfedges;
     bspmodel_t models[MAX_MAP_MODELS];
     int nmodels;
