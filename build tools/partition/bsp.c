@@ -733,6 +733,8 @@ surfnode_t* FindIdealSplitSurf(surfnode_t *surfs)
     for(curnode=surfs, bestscore=-1; curnode; curnode=curnode->next)
     {
         cursurf = curnode->surf;
+        if(cursurf->onplane)
+            continue;
         
         // Figure out the surf's plane if it doesn't exist yet
         if(VectorComp(cursurf->n, vec3_origin))
