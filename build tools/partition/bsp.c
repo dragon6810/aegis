@@ -304,6 +304,7 @@ int LoadLeaf(splitplane_t* parent, int which)
     }
     
     leaf.firstmarksurf = bspfile.nmarksurfs;
+    leaf.nmarksurfs = 0;
     for(surfnode=parent->childsurfs[which]; surfnode; surfnode=surfnode->next)
     {
         LoadFace(surfnode->surf);
@@ -343,6 +344,7 @@ void LoadFace(surf_t* face)
     int v1, v2;
     int e;
     
+    memset(&newface, 0, sizeof(bspfface_t));
     newface.firstedge = bspfile.nsurfedges;
     newface.nedges = 0;
     for(v=face->geo.first, next=v->next;; v=next=v->next)
@@ -499,6 +501,7 @@ void FindFacePlanes()
             if(VectorComp(n, plane->n) && d == plane->d)
             {
                 face->plane = j;
+                face->planeside = 0;
                 break;
             }
             

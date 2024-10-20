@@ -211,47 +211,76 @@ void WindPoly(polynode_t* poly)
 
 void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
 {
-    int nfirst;
     vnode_t *node, *last, *fout, *fin, *next, *new;
     vec3_t delta;
     float dlast, dcur, t;
-
-    for(nfirst=fout=fin=0, node=poly->first; nfirst<2; node=node->next)
+    float firstsign;
+    boolean sameside;
+    
+    // All logic will be clipping a counter clockwise winding to the back of a plane
+    if(side)
     {
-        if(node == poly->first)
-            nfirst++;
-        if(nfirst>1)
-            break;
-        
-        if(fin && fout)
-            break;
+        VectorMultiply(n, n, -1);
+        d = -d;
+    }
+
+    for(fout=fin=0, firstsign=0, node=poly->first, sameside = true;; node=node->next)
+    {
+        if(fabs(firstsign) > 0.001)
+            firstsign = VectorDot(node->val, n) - d;
+        else if(firstsign * (VectorDot(node->val, n) - d) < -0.001)
+            sameside = false;
 
         last = node->last;
 
         dlast = VectorDot(n, last->val) - d;
         dcur = VectorDot(n, node->val) - d;
         
-        if (dlast * dcur >= 0)
+        if (dlast * dcur > -0.01)
+        {
+            if(node->next == poly->first)
+                break;
+            
             continue;
-
-        if (dlast < 0 && dcur > 0)
-        {
-            if(side)
-                fout = node->last;
-            else
-                fout = node;
         }
+
+        if (dlast < 0)
+            fout = node;
         else
-        {
-            if(side)
-                fin = node;
-            else
-                fin = node->last;
-        }
+            fin = node->last;
+        
+        if(node->next == poly->first)
+            break;
     }
-
-    if(!fin || !fout) // Polygon is fully on one side of the plane
+    
+    if(sameside) // Polygon is fully on one side of the plane
+    {
+        if((firstsign > 0 && side == 0) || (firstsign < 0 && side == 1))
+        {
+            for(node=poly->first;; node=next)
+            {
+                next=node->next;
+                free(node);
+                if(next == poly->first)
+                    break;
+            }
+            
+            poly->first = 0;
+        }
+        
+        if(side)
+            VectorMultiply(n, n, -1);
+        
         return;
+    }
+    
+    if(!fin || !fout) // I wrote this function a while ago but i think is is bad
+    {
+        if(side)
+            VectorMultiply(n, n, -1);
+        
+        return;
+    }
 
     if(fin == fout)
     {
@@ -260,32 +289,20 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
         new->next = fout->next;
         new->last = fout;
         fout->next = new;
+        new->next->last = new;
+        fin = new;
     }
     else
     {
-        if(side)
+        for(node=fout->next; node!=fin; node=next)
         {
-            for(node=fin->next; node!=fout; node=next)
-            {
-                next = node->last->next = node->next;
-                ClipVert(node, poly);
-            }
-        }
-        else
-        {
-            for(node=fout->next; node!=fin; node=next)
-            {
-                next = node->last->next = node->next;
-                ClipVert(node, poly);
-            }
+            next = fout->next = node->next;
+            ClipVert(node, poly);
         }
     }
 
     // Snap first out to plane
-    if(side)
-        last = fout->next;
-    else
-        last = fout->last;
+    last = fout->last;
     node = fout;
 
     VectorSubtract(delta, node->val, last->val);
@@ -294,10 +311,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
     VectorAdd(node->val, last->val, delta);
 
     // Snap first in to plane
-    if(side)
-        last = fin->last;
-    else
-        last = fin->next;
+    last = fin->next;
     node = fin;
 
     VectorSubtract(delta, node->val, last->val);
@@ -305,16 +319,11 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
     VectorMultiply(delta, delta, t);
     VectorAdd(node->val, last->val, delta);
     
+    fout->next = fin;
+    fin->last = fout;
+    
     if(side)
-    {
-        fin->next = fout;
-        fout->last = fin;
-    }
-    else
-    {
-        fout->next = fin;
-        fin->last = fout;
-    }
+        VectorMultiply(n, n, -1);
 }
 
 void ClipVert(vnode_t* v, polynode_t* p)
@@ -348,7 +357,7 @@ boolean SlicePoly(polynode_t* poly, vec3_t n, float d)
     float s;
     vnode_t *v;
     
-    for(i=0, nfirst=0, firstsign=0, v=poly->first, samesign=false;; v=v->next, i++)
+    for(i=0, nfirst=0, firstsign=0, v=poly->first, samesign=true;; v=v->next, i++)
     {
         if(v==poly->first)
             nfirst++;
@@ -359,28 +368,28 @@ boolean SlicePoly(polynode_t* poly, vec3_t n, float d)
         
         if(!firstsign)
         {
-            if(s < 0)
+            if(s < -0.001)
                 firstsign = -1;
-            else if(s > 0)
+            else if(s > 0.001)
                 firstsign = 1;
         }
         else
         {
-            if(s * firstsign < 0)
+            if(s * firstsign < -0.001)
             {
-                samesign = true;
+                samesign = false;
                 break;
             }
         }
     }
     
-    if(!samesign)
+    if(samesign)
         return false;
     
     new = CopyPoly(poly);
     ClipPoly(poly, n, d, 0);
     ClipPoly(new, n, d, 1);
-    
+        
     new->next = poly->next;
     new->last = poly;
     if(poly->next)

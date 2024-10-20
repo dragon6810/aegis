@@ -60,6 +60,8 @@ public:
 	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
 
 	std::vector<int> gltextures;
+    std::vector<int> texwidths;
+    std::vector<int> texheights;
 	std::vector<lightmaptexture_t> lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];

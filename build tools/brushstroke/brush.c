@@ -8,6 +8,7 @@
 #include "brush.h"
 
 #include "mapfile.h"
+#include <math.h>
 
 void AddPlane(brushdef_t* brsh, planedef_t pl)
 {
@@ -27,10 +28,11 @@ void AddPlane(brushdef_t* brsh, planedef_t pl)
 
 void GenPolys(brushdef_t* brsh)
 {
-    int i;
+    int i, j, k;
     
     planedef_t *pl, *_pl, *nextpl, *lastpl;
     polynode_t* p;
+    vnode_t *original, *cur, *v;
     
     // Prune duplicate faces often generatted when expanding hulls
     for(pl=brsh->firstpl; pl; pl=pl->next)
@@ -41,16 +43,10 @@ void GenPolys(brushdef_t* brsh)
             if(pl == _pl)
                 continue;
             
-            if(pl->d != _pl->d)
+            if(fabs(pl->d - _pl->d) > 0.01)
                 continue;
             
-            for(i=0; i<3; i++)
-            {
-                if(pl->n[i] != _pl->n[i])
-                    break;
-            }
-            
-            if(i < 3)
+            if(!VectorComp(pl->n, _pl->n))
                 continue;
             
             if(lastpl)
@@ -67,6 +63,7 @@ void GenPolys(brushdef_t* brsh)
     {
         p = (polynode_t*) malloc(sizeof(polynode_t));
         HungryPoly(p, pl->n, pl->d);
+        ValidatePoly(p);
         p->pl = pl;
         if(!brsh->firstp)
             brsh->firstp = brsh->lastp = p;
@@ -81,20 +78,24 @@ void GenPolys(brushdef_t* brsh)
 
 void CutPolys(brushdef_t* brsh)
 {
-    int i, j;
-    
-    polynode_t* p;
+    polynode_t* p, *nextp;
     planedef_t* pl;
-    vnode_t* v;
     
-    for(i=0, p=brsh->firstp; p; i++, p=p->next)
+    for(p=brsh->firstp; p; p=nextp)
     {
-        for(j=0, pl=brsh->firstpl; j<brsh->nplanes; j++, pl=pl->next)
+        for(pl=brsh->firstpl; pl; pl=pl->next)
         {
             if(pl == p->pl) // Don't clip yourself against your own plane!
                 continue;
             
+            nextp = p->next;
             ClipPoly(p, pl->n, pl->d, 0);
+            if(!p->first)
+            {
+                CullPlane(p->pl, brsh);
+                CullPoly(p, brsh);
+                break; // Break outta the plane loop because this poly is gone
+            }
         }
     }
 }
@@ -226,9 +227,13 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
                 
                 if(SlicePoly(p, pl->n, pl->d))
                 {
+                    if(p == br1->lastp)
+                        br1->lastp = p->next;
+                    
                     if(PolyInsideBrush(p->next, br2))
                         CullPoly(p->next, br1);
                 }
+                
                 if(PolyInsideBrush(p, br2))
                     CullPoly(p, br1);
             }
@@ -261,4 +266,89 @@ void CullPoly(polynode_t* p, brushdef_t* owner)
     if(p->next)
         p->next->last = p->last;
     free(p);
+}
+
+void CullPlane(planedef_t* p, brushdef_t* owner)
+{
+    planedef_t* curpl;
+    
+    if(p == owner->firstpl)
+        owner->firstpl = p->next;
+    if(p == owner->lastpl)
+    {
+        for(curpl=owner->firstpl; curpl->next->next; curpl=curpl->next);
+        owner->lastpl = curpl;
+    }
+    
+    for(curpl=owner->firstpl; curpl->next!=p; curpl=curpl->next);
+    if(curpl)
+        curpl->next = p->next;
+    free(p);
+    owner->nplanes--;
+}
+
+vnode_t* GetPoints(brushdef_t *brsh)
+{
+    int i, j;
+    
+    boolean started;
+    polynode_t *p;
+    vnode_t *firstv, *lastv, *v;
+    planedef_t *a, *b, *c;
+    float det, dx, dy, dz;
+    vec3_t in;
+    
+    firstv = lastv = 0;
+    for(a=brsh->firstpl; a; a=a->next)
+    {
+        for(b=brsh->firstpl; b; b=b->next)
+        {
+            if(a==b)
+                continue;
+            for(c=brsh->firstpl; c; c=c->next)
+            {
+                if(b==c || b==a)
+                    continue;
+                
+                det = a->n[0] * (b->n[1] * c->n[2] - b->n[2] * c->n[1]) -
+                      a->n[1] * (b->n[0] * c->n[2] - b->n[2] * c->n[0]) +
+                      a->n[2] * (b->n[0] * c->n[1] - b->n[1] * c->n[0]);
+                
+                if(det == 0)
+                    continue;
+                
+                dx = a->d * (b->n[1] * c->n[2] - b->n[2] * c->n[1]) -
+                    a->n[1] * (b->d * c->n[2] - b->n[2] * c->d) +
+                    a->n[2] * (b->d * c->n[1] - b->n[1] * c->d);
+
+                dy = a->n[0] * (b->d * c->n[2] - b->n[2] * c->d) -
+                    a->d * (b->n[0] * c->n[2] - b->n[2] * c->n[0]) +
+                    a->n[2] * (b->n[0] * c->d - b->d * c->n[0]);
+
+                dz = a->n[0] * (b->n[1] * c->d - b->d * c->n[1]) -
+                    a->n[1] * (b->n[0] * c->d - b->d * c->n[0]) +
+                    a->d * (b->n[0] * c->n[1] - b->n[1] * c->n[0]);
+                
+                in[0] = dx / det;
+                in[1] = dy / det;
+                in[2] = dz / det;
+                
+                v = malloc(sizeof(vnode_t));
+                memset(v, 0, sizeof(v));
+                VectorCopy(v->val, in);
+                
+                if(firstv)
+                {
+                    lastv->next = v;
+                    v->last = lastv;
+                    lastv = v;
+                }
+                else
+                    lastv = firstv = v;
+            }
+        }
+    }
+    
+    // Don't cyclically link
+    return firstv;
 }

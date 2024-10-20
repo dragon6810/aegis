@@ -61,7 +61,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/brushstroketest.map&quot;"
+            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/zombieattack.map&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -31,6 +31,8 @@
 void BSPMap::Load(const char* filename)
 {
 	Game::GetGame().wad.Unload();
+    Game::GetGame().camera.position = {0, 0, 128};
+    //Game::GetGame().camera.rotation = {0, -90 * DEG2RAD, 0};
 
 	loadBytes(filename, (char**) &mhdr);
 	
@@ -163,6 +165,8 @@ void BSPMap::Load(const char* filename)
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
 			gltextures.push_back(Game::GetGame().wad.LoadTexture(miptex->name));
+            texwidths.push_back(Game::GetGame().wad.widths[Game::GetGame().wad.widths.size() - 1]);
+            texheights.push_back(Game::GetGame().wad.heights[Game::GetGame().wad.heights.size() - 1]);
 		}
 		else
 		{
@@ -172,6 +176,8 @@ void BSPMap::Load(const char* filename)
 			int width, height;
 
 			loadmiptex((char*)miptex, texdata, &width, &height);
+            texwidths.push_back(width);
+            texheights.push_back(height);
 
 			glBindTexture(GL_TEXTURE_2D, gltextures[i]);
 
@@ -806,6 +812,7 @@ void BSPMap::RenderLeavesRecursive(int nodenum)
 
 void BSPMap::RenderLeaf(short leafnum)
 {
+    glDisable(GL_CULL_FACE);
 	bspleaf_t* leaf = (bspleaf_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_LEAVES].nOffset) + leafnum;
 	uint16_t* marksurfaces = (uint16_t*)((char*)mhdr + mhdr->lump[BSP_LUMP_MARKSURFACES].nOffset);
 
@@ -920,10 +927,12 @@ void BSPMap::RenderFace(uint16_t f)
 	// Second Pass: Multiply the summed lightmaps with the base texture
 	//glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
+    
 	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, gltextures[texinfo->iMiptex]);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+     
 
 	glBegin(GL_POLYGON);
 	for (int j = face->iFirstEdge; j < face->iFirstEdge + face->nEdges; j++)
@@ -935,9 +944,10 @@ void BSPMap::RenderFace(uint16_t f)
 			pos = vertices[edges[-surfedges[j]].iVertex[1]];
 
 		float s = pos.x * texinfo->vS.x + pos.y * texinfo->vS.y + pos.z * texinfo->vS.z + texinfo->fSShift;
-		s /= miptex->width;
+        
+        s /= texwidths[texinfo->iMiptex];
 		float t = pos.x * texinfo->vT.x + pos.y * texinfo->vT.y + pos.z * texinfo->vT.z + texinfo->fTShift;
-		t /= miptex->height;
+        t /= texheights[texinfo->iMiptex];
 
 		glTexCoord2f(s, t);
 		glVertex3f(pos.x, pos.y, pos.z);

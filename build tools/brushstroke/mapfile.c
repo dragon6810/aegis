@@ -10,6 +10,7 @@
 int curhull = 0;
 int linenum = 0;
 entitydef_t *firstent, *lastent;
+boolean verbose = false;
 
 void ParseMap(char* name)
 {
@@ -176,28 +177,32 @@ brushdef_t* ParseBrush()
     } while(strcmp(line, "}"));
     
     GenBB(brsh);
-    for(ppl=brsh->firstpl; ppl; ppl=ppl->next)
+    if(curhull)
     {
-        for(i=0, VectorCopy(corner, vec3_origin); i<3; i++)
+        for(ppl=brsh->firstpl; ppl; ppl=ppl->next)
         {
-            if (ppl->n[i] > 0)
-                corner[i] = hmaxs[curhull][i];
-            else if (ppl->n[i] < 0)
-                corner[i] = hmins[curhull][i];
+            for(i=0, VectorCopy(corner, vec3_origin); i<3; i++)
+            {
+                if (ppl->n[i] > 0)
+                    corner[i] = hmaxs[curhull][i];
+                else if (ppl->n[i] < 0)
+                    corner[i] = hmins[curhull][i];
+            }
+            ppl->d += VectorDot(ppl->n, corner);
         }
-        ppl->d += VectorDot(ppl->n, corner);
-    }
-    for(i=0; i<3; i++)
-    {
-        VectorCopy(pl.n, vec3_origin);
-        pl.n[i] = 1;
-        pl.d = brsh->bbmax[i] + hmaxs[curhull][i];
-        AddPlane(brsh, pl);
-        
-        VectorCopy(pl.n, vec3_origin);
-        pl.n[i] = -1;
-        pl.d = -brsh->bbmin[i] - hmins[curhull][i];
-        AddPlane(brsh, pl);
+        for(i=0; i<3; i++)
+        {
+            VectorCopy(pl.n, vec3_origin);
+            pl.n[i] = 1;
+            pl.d = brsh->bbmax[i] + hmaxs[curhull][i];
+            AddPlane(brsh, pl);
+            
+            VectorCopy(pl.n, vec3_origin);
+            pl.n[i] = -1;
+            pl.d = -brsh->bbmin[i] - hmins[curhull][i];
+            AddPlane(brsh, pl);
+        }
+        GenBB(brsh);
     }
     GenPolys(brsh);
     CutPolys(brsh);
@@ -225,7 +230,7 @@ void Finish()
         }
     }
     
-#if 0
+#if 1
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)
@@ -308,6 +313,13 @@ void WriteEnts()
     outname[strlen(outname) - 1] = 't';
     entfile = fopen(outname, "w");
     
+    if(!entfile)
+    {
+        printf("Couldn't open/create file \"%s\"\n", outname);
+        free(outname);
+        return;;
+    }
+    
     for(ent=firstent; ent; ent=ent->next)
     {
         fprintf(entfile, "{\n");
@@ -365,6 +377,30 @@ void MemClean()
     }
     
     firstent = lastent = 0;
+}
+
+void ValidatePoly(polynode_t* poly)
+{
+    int i, j;
+    vnode_t *curnode, *_curnode;
+    
+    for(curnode=poly->first, i=0;; curnode=curnode->next, i++)
+    {
+        if(curnode->next == curnode || curnode->last == curnode)
+            break;
+        
+        for(_curnode=poly->first, j=0; j<i; _curnode=_curnode->next, j++)
+            if(_curnode == curnode)
+                goto broken;
+        
+        if(curnode->next == poly->first)
+            return;
+    }
+    
+broken:
+    printf("Broken Polygon\n");
+    
+    exit(1);
 }
 
 void Error(char* msg)

@@ -293,7 +293,7 @@ void SModel::render()
                     vec3_t position = xformverts[ptricmds[0]];
                     vec3_t norm = xformnorms[ptricmds[1]];
 
-                    glColor3f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z);
+                    //glColor3f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z);
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {

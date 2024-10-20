@@ -92,6 +92,8 @@ void Game::Main(int argc, char** argv)
         window->SetCursor(cursorshape);
         window->SwapBuffers();
         glfwPollEvents();
+        
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     window->Kill();

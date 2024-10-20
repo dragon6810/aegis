@@ -18,5 +18,7 @@ public:
 	GLuint LoadTexture(const char* texturename);
 
 	std::vector<std::string> textures;
+    std::vector<int> widths;
+    std::vector<int> heights;
     std::vector<FILE*> files;
 };

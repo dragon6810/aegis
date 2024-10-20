@@ -27,6 +27,8 @@ extern int curhull;
 char* filename, *line;
 extern int linenum;
 
+extern boolean verbose;
+
 extern entitydef_t *firstent, *lastent;
 
 void ParseMap(char* name);
@@ -39,6 +41,8 @@ void WriteEnts();
 void MemClean();
 
 void Error(char* msg);
+
+void ValidatePoly(polynode_t* poly);
 
 entitypair_t* AllocEntPair();
 entitydef_t* AllocEntity();

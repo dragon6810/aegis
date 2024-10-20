@@ -23,6 +23,11 @@ int main(int argc, char** argv)
             ReadHullSpec(argv[++i]);
             continue;
         }
+        if(!strcmp(argv[i], "-v"))
+        {
+            verbose = true;
+            continue;
+        }
     }
     
     ParseMap(argv[i]);
