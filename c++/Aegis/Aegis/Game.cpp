@@ -130,18 +130,19 @@ void Game::Render()
     vec3_t p, n;
     vec3_t start = camera.position;
     vec3_t end = start + (camera.DirFromScreen(cursorpos) * 2048.0);
-    if (map.FineRaycast(start, end, &p, &n, 0))
+    if (map.FineRaycast(start, end, &p, &n, 1))
     {
-        glPointSize(10000.0 / Vector3Dist(start, p));
+        float dist = DotProduct(camera.forward, p) + DotProduct(camera.forward, camera.position);
+        glPointSize(10000.0 / dist);
+        //glPointSize(15);
         glBegin(GL_POINTS);
         glVertex3f(p.x, p.y, p.z);
         glEnd();
     }
 
     glPointSize(15.0f);
-
     glDisable(GL_DEPTH_TEST);
-
+    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, SCREEN_MED_WIDTH, 0.0, SCREEN_MED_HEIGHT, -1.0, 1.0);

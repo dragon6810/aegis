@@ -124,7 +124,6 @@ void WriteBspFile(bspffile_t* bsp, char* file)
     fwrite(bsp->clipnodes, sizeof(bspfclipnode_t), bsp->nclipnodes, ptr);
     fwrite(bsp->leaves, sizeof(bspfleaf_t), bsp->nleaves, ptr);
     fwrite(bsp->marksurfs, sizeof(uint16_t), bsp->nmarksurfs, ptr);
-    long test = ftell(ptr);
     fwrite(bsp->edges, sizeof(bspfedge_t), bsp->nedges, ptr);
     fwrite(bsp->surfedes, sizeof(int), bsp->nsurfedges, ptr);
     fwrite(bsp->models, sizeof(bspmodel_t), bsp->nmodels, ptr);

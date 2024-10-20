@@ -147,7 +147,11 @@ void SModel::SetupLighting()
         lightdir = NormalizeVector3(lightdir);
     else
         lightdir.z = 1;
+    
+    lightdir.x = lightdir.y = 0;
+    lightdir.z = 1;
 
+    lightcolor.x = lightcolor.y = lightcolor.z = 255;
     float maxchannel = lightcolor.x;
     if (lightcolor.y > maxchannel) maxchannel = lightcolor.y;
     if (lightcolor.z > maxchannel) maxchannel = lightcolor.z;
@@ -293,7 +297,7 @@ void SModel::render()
                     vec3_t position = xformverts[ptricmds[0]];
                     vec3_t norm = xformnorms[ptricmds[1]];
 
-                    //glColor3f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z);
+                    glColor3f(lightvals[ptricmds[1]].x, lightvals[ptricmds[1]].y, lightvals[ptricmds[1]].z);
 
                     if (ptextures[pmesh->skinref].flags & STUDIO_NF_CHROME)
                     {

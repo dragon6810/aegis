@@ -227,10 +227,10 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
         bspplane.type = PLANE_ANYZ;
     
     bspfile.planes[bspfile.nplanes] = bspplane;
-    bspclipnode.plane = bspfile.nplanes;
+    bspclipnode.plane = bspfile.nplanes++;
     if(rendertree)
     {
-        bspnode.plane = bspfile.nplanes++;
+        bspnode.plane = bspfile.nplanes;
         bspnode.firstface = bspfile.nfaces;
         bspnode.nfaces = LoadSurfs(node->surfs);
         
@@ -258,27 +258,27 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
     {
         if(rendertree)
             bspfile.nodes[nodeindex].children[0] = bspfile.nnodes;
-        bspfile.clipnodes[clipindex].children[0] = bspfile.nclipnodes;
+        bspfile.clipnodes[clipindex].children[1] = bspfile.nclipnodes;
         LoadNodes_r(node->children[0], rendertree);
     }
     else
     {
         if(rendertree)
             bspfile.nodes[nodeindex].children[0] = ~LoadLeaf(node, 0);
-        bspfile.clipnodes[clipindex].children[0] = node->childcontents[0];
+        bspfile.clipnodes[clipindex].children[1] = node->childcontents[0];
     }
     if(node->children[1])
     {
         if(rendertree)
             bspfile.nodes[nodeindex].children[1] = bspfile.nnodes;
-        bspfile.clipnodes[clipindex].children[1] = bspfile.nclipnodes;
+        bspfile.clipnodes[clipindex].children[0] = bspfile.nclipnodes;
         LoadNodes_r(node->children[1], rendertree);
     }
     else
     {
         if(rendertree)
             bspfile.nodes[nodeindex].children[1] = ~LoadLeaf(node, 1);
-        bspfile.clipnodes[clipindex].children[1] = node->childcontents[1];
+        bspfile.clipnodes[clipindex].children[0] = node->childcontents[1];
     }
 }
 
@@ -527,7 +527,7 @@ void LoadModels()
         model.firstface = bspfile.nfaces;
         for(j=0; j<NHULLS; j++)
         {
-            model.rootnodes[j] = bspfile.nnodes;
+            model.rootnodes[j] = bspfile.nclipnodes;
             LoadNodes_r(&rootnode[i][j], !j);
         }
         model.nfaces = bspfile.nfaces - model.firstface;

@@ -64,7 +64,7 @@ void VectorCross(vec3_t dest, vec3_t a, vec3_t b)
 
 boolean VectorComp(vec3_t a, vec3_t b)
 {
-    const float fudge = 0.01;
+    const float fudge = 0.001;
     
     if(fabs(a[0] - b[0]) > fudge) return false;
     if(fabs(a[1] - b[1]) > fudge) return false;

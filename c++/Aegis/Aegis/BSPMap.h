@@ -98,5 +98,5 @@ private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 
 	int LeafContentsRecursive(vec3_t point, int iclipnode);
-	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent);
+	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent, int lastplane);
 };
