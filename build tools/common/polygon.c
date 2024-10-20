@@ -226,7 +226,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
 
     for(fout=fin=0, firstsign=0, node=poly->first, sameside = true;; node=node->next)
     {
-        if(fabs(firstsign) > 0.001)
+        if(fabs(firstsign) < 0.001)
             firstsign = VectorDot(node->val, n) - d;
         else if(firstsign * (VectorDot(node->val, n) - d) < -0.001)
             sameside = false;

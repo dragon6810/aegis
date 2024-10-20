@@ -230,7 +230,7 @@ void Finish()
         }
     }
     
-#if 1
+#if 0
     for(ent=firstent; ent; ent=ent->next)
     {
         for(br=ent->firstbrsh; br; br=br->next)

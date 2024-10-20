@@ -221,7 +221,7 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
         
         for(pl=br2->firstpl; pl; pl=pl->next)
         {
-            for(p=br1->firstp; p; p=nextp)
+            for(p=br1->firstp, i=0; p; p=nextp, i++)
             {
                 nextp = p->next;
                 
@@ -236,6 +236,9 @@ void Optimize(brushdef_t* brsh, entitydef_t* set)
                 
                 if(PolyInsideBrush(p, br2))
                     CullPoly(p, br1);
+                
+                if(i>999)
+                    printf("Uh oh\n");
             }
         }
     }
