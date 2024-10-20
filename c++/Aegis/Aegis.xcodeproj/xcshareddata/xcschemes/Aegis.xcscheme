@@ -56,7 +56,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "+map brushstroketest.bsp"
+            argument = "+map zombieattack.bsp"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
