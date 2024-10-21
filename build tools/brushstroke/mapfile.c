@@ -10,6 +10,7 @@
 int curhull = 0;
 int linenum = 0;
 entitydef_t *firstent, *lastent;
+boolean verbose = false;
 
 void ParseMap(char* name)
 {
@@ -114,7 +115,10 @@ entitydef_t* ParseEntity()
             if(!ent->npairs)
                 ent->pairs = pair;
             else
+            {
                 lastpair->next = pair;
+                pair->last = lastpair;
+            }
             
             lastpair = pair;
             ent->npairs++;
@@ -173,28 +177,32 @@ brushdef_t* ParseBrush()
     } while(strcmp(line, "}"));
     
     GenBB(brsh);
-    for(ppl=brsh->firstpl; ppl; ppl=ppl->next)
+    if(curhull)
     {
-        for(i=0, VectorCopy(corner, vec3_origin); i<3; i++)
+        for(ppl=brsh->firstpl; ppl; ppl=ppl->next)
         {
-            if (ppl->n[i] > 0)
-                corner[i] = hmaxs[curhull][i];
-            else if (ppl->n[i] < 0)
-                corner[i] = hmins[curhull][i];
+            for(i=0, VectorCopy(corner, vec3_origin); i<3; i++)
+            {
+                if (ppl->n[i] > 0)
+                    corner[i] = hmaxs[curhull][i];
+                else if (ppl->n[i] < 0)
+                    corner[i] = hmins[curhull][i];
+            }
+            ppl->d += VectorDot(ppl->n, corner);
         }
-        ppl->d += VectorDot(ppl->n, corner);
-    }
-    for(i=0; i<3; i++)
-    {
-        VectorCopy(pl.n, vec3_origin);
-        pl.n[i] = 1;
-        pl.d = brsh->bbmax[i] + hmaxs[curhull][i];
-        AddPlane(brsh, pl);
-        
-        VectorCopy(pl.n, vec3_origin);
-        pl.n[i] = -1;
-        pl.d = -brsh->bbmin[i] - hmins[curhull][i];
-        AddPlane(brsh, pl);
+        for(i=0; i<3; i++)
+        {
+            VectorCopy(pl.n, vec3_origin);
+            pl.n[i] = 1;
+            pl.d = brsh->bbmax[i] + hmaxs[curhull][i];
+            AddPlane(brsh, pl);
+            
+            VectorCopy(pl.n, vec3_origin);
+            pl.n[i] = -1;
+            pl.d = -brsh->bbmin[i] - hmins[curhull][i];
+            AddPlane(brsh, pl);
+        }
+        GenBB(brsh);
     }
     GenPolys(brsh);
     CutPolys(brsh);
@@ -281,6 +289,9 @@ void WriteEnts()
     
     for(nmodels=0, ent=firstent; ent; ent=ent->next)
     {
+        pair = ent->pairs;
+        while(pair->next)
+            pair = pair->next;
         if(ent->firstbrsh)
         {
             newpair = malloc(sizeof(entitypair_t));
@@ -288,8 +299,8 @@ void WriteEnts()
             memset(newpair->val, 0, sizeof(newpair->val));
             strcpy(newpair->key, "model");
             sprintf(newpair->val, "*%d", nmodels);
-            newpair->next = ent->pairs;
-            ent->pairs = newpair;
+            pair->next = newpair;
+            newpair->last = pair;
             ent->npairs++;
             nmodels++;
         }
@@ -302,11 +313,21 @@ void WriteEnts()
     outname[strlen(outname) - 1] = 't';
     entfile = fopen(outname, "w");
     
+    if(!entfile)
+    {
+        printf("Couldn't open/create file \"%s\"\n", outname);
+        free(outname);
+        return;;
+    }
+    
     for(ent=firstent; ent; ent=ent->next)
     {
         fprintf(entfile, "{\n");
         
-        for(pair=ent->pairs; pair; pair=pair->next)
+        pair = ent->pairs;
+        while(pair->next)
+            pair = pair->next;
+        for(; pair; pair=pair->last)
             fprintf(entfile, "\"%s\" \"%s\"\n", pair->key, pair->val);
         
         fprintf(entfile, "}\n");
@@ -356,6 +377,30 @@ void MemClean()
     }
     
     firstent = lastent = 0;
+}
+
+void ValidatePoly(polynode_t* poly)
+{
+    int i, j;
+    vnode_t *curnode, *_curnode;
+    
+    for(curnode=poly->first, i=0;; curnode=curnode->next, i++)
+    {
+        if(curnode->next == curnode || curnode->last == curnode)
+            break;
+        
+        for(_curnode=poly->first, j=0; j<i; _curnode=_curnode->next, j++)
+            if(_curnode == curnode)
+                goto broken;
+        
+        if(curnode->next == poly->first)
+            return;
+    }
+    
+broken:
+    printf("Broken Polygon\n");
+    
+    exit(1);
 }
 
 void Error(char* msg)

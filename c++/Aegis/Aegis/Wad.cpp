@@ -129,6 +129,8 @@ GLuint Wad::LoadTexture(const char* texturename)
         miptex_t miptex;
         fseek(fileptr, foundentry.entryoffset, SEEK_SET);
         fread(&miptex, sizeof(miptex_t), 1, fileptr);
+        widths.push_back(miptex.width);
+        heights.push_back(miptex.height);
         uint32_t texdatasize = 0;
         for (int i = 0; i < BSP_MIPLEVELS; i++)
             texdatasize += (miptex.width >> i) * (miptex.height >> i);

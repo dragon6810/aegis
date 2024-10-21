@@ -1,12 +1,12 @@
 {
 "model" "*0"
-"classname" "worldspawn"
-"mapversion" "220"
-"wad" "/Users/henrydunn/Documents/GitHub/aegis/c++/Aegis/Aegis/deadbird/aegis.wad"
 "_generator" "J.A.C.K. 1.1.3773 (vpHalfLife)"
+"wad" "aegis.wad"
+"mapversion" "220"
+"classname" "worldspawn"
 }
 {
-"classname" "player_tank"
-"angles" "0 0 0"
 "origin" "96 -128 64"
+"angles" "0 0 0"
+"classname" "player_tank"
 }

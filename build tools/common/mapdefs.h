@@ -10,21 +10,21 @@
 
 #include "polygon.h"
 
-planedef_t test;
-
 #define MAP_MAX_BOUNDS 4096
 
 #define MAX_KEY     32
 #define MAX_VALUE   1024
 
+typedef struct brushdef_t brushdef_t;
+
 typedef struct
 {
     char key[MAX_KEY+1];
     char val[MAX_VALUE+1];
-    struct entitypair_t* next;
+    struct entitypair_t* next, *last;
 } entitypair_t;
 
-typedef struct
+struct brushdef_t
 {
     struct polynode_t* firstp;
     struct polynode_t* lastp;
@@ -32,8 +32,8 @@ typedef struct
     planedef_t* lastpl;
     int nplanes;
     vec3_t bbmin, bbmax;
-    struct brushdef_t* next;
-} brushdef_t;
+    brushdef_t* next;
+};
 
 typedef struct
 {

@@ -147,7 +147,11 @@ void SModel::SetupLighting()
         lightdir = NormalizeVector3(lightdir);
     else
         lightdir.z = 1;
+    
+    lightdir.x = lightdir.y = 0;
+    lightdir.z = 1;
 
+    lightcolor.x = lightcolor.y = lightcolor.z = 255;
     float maxchannel = lightcolor.x;
     if (lightcolor.y > maxchannel) maxchannel = lightcolor.y;
     if (lightcolor.z > maxchannel) maxchannel = lightcolor.z;

@@ -60,6 +60,8 @@ public:
 	vec2_t GetLightmapCoords(uint16_t f, vec3_t pos);
 
 	std::vector<int> gltextures;
+    std::vector<int> texwidths;
+    std::vector<int> texheights;
 	std::vector<lightmaptexture_t> lightmaptextures;
 	vec2_t maxtex[BSP_MAX_MAP_FACES];
 	vec2_t mintex[BSP_MAX_MAP_FACES];
@@ -96,5 +98,5 @@ private:
 	bool LightColorRecursive(vec3_t start, vec3_t end, int nodenum, vec3_t* color);
 
 	int LeafContentsRecursive(vec3_t point, int iclipnode);
-	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent);
+	bool FineRaycastRecursive(vec3_t start, vec3_t end, vec3_t* intersection, vec3_t* normal, int iclipnode, int parent, int lastplane);
 };

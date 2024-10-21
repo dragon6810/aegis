@@ -25,6 +25,9 @@ int main(int argc, char** argv)
     }
     
     LoadBrushSets(argv[i]);
+    LoadEnts(argv[i]);
+    ProcessWorld();
+    WriteFile();
     
     return 0;
 }

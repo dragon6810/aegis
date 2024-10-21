@@ -31,7 +31,7 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -61,7 +61,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/brushstroketest.map&quot;"
+            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/brushstroke/zombieattack.map&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

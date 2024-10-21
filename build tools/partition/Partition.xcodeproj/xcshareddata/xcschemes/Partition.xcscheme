@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/partition/brushstroketest&quot;"
+            argument = "&quot;/Users/henrydunn/Documents/GitHub/aegis/build tools/partition/zombieattack&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

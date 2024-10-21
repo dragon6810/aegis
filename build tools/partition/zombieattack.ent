@@ -1,0 +1,36 @@
+{
+"model" "*0"
+"_generator" "J.A.C.K. 1.1.3773 (vpHalfLife)"
+"wad" "aegis.wad"
+"mapversion" "220"
+"classname" "worldspawn"
+}
+{
+"origin" "-12 0 64"
+"volume" "8"
+"pitch" "100"
+"spawnflags" "4"
+"classname" "ambient_generic"
+}
+{
+"origin" "64 33 64"
+"_light" "255 255 255 500"
+"style" "0"
+"classname" "light"
+}
+{
+"origin" "160 0 736"
+"angles" "70 0 0"
+"classname" "player_camera"
+}
+{
+"origin" "0 0 -7.62939e-06"
+"angles" "0 0 0"
+"classname" "player_tank"
+}
+{
+"origin" "-352 448 0"
+"angles" "0 0 0"
+"health" "100"
+"classname" "zombie_grunt"
+}

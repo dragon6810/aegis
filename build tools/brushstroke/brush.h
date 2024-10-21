@@ -21,5 +21,8 @@ void Optimize(brushdef_t* brsh, entitydef_t* set);
 
 boolean PolyInsideBrush(polynode_t* p, brushdef_t* brsh);
 void CullPoly(polynode_t* p, brushdef_t* owner);
+void CullPlane(planedef_t* p, brushdef_t* owner);
+
+vnode_t* GetPoints(brushdef_t *brsh);
 
 #endif /* brush_h */
