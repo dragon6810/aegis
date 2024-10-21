@@ -8,6 +8,7 @@ project "Partition"
 
    files { "**.h", "**.c" }
    files { "../common/**.h", "../common/**.c" }
+   includedirs { "../common/" }
 
    vpaths
    {
@@ -22,5 +23,5 @@ project "Partition"
       defines { "NDEBUG" }
       optimize "On"
 
-   debugargs { "brushstroketest.map" }
+   debugargs { "brushstroketest" }
    debugdir (_MAIN_SCRIPT_DIR)

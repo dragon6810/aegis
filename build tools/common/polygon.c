@@ -170,7 +170,7 @@ void WindPoly(polynode_t* poly)
     }
     VectorDivide(center, center, (float) npoints);
     
-    vnode_t* nodes[npoints];
+    vnode_t** nodes = (vnode_t*)malloc(npoints * sizeof(vnode_t*));
     for(nfirst=0, npoints=0, node=poly->first; nfirst<2; node=next, npoints++)
     {
         if(node == poly->first)
@@ -207,6 +207,8 @@ void WindPoly(polynode_t* poly)
         free(node);
         node = next;
     } while (node != end);
+
+    free(nodes);
 }
 
 void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
