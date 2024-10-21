@@ -6,8 +6,8 @@ project "Awol"
    language "C"
    targetdir "bin/%{cfg.buildcfg}"
 
-   files { "**.h", "**.c" }
-   files { "../common/**.h", "../common/**.c" }
+   files { "**.h", "**.c", "../common/**.h", "../common/**.c" }
+   includedirs { "../common" }
 
    filter "configurations:Debug"
       defines { "DEBUG" }

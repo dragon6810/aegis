@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "defs.h"
 
@@ -23,10 +24,22 @@ typedef struct
 typedef struct
 {
     char* pixeldata;
-    char name[17]; // Null terminated, max length 16
+    char name[16]; // Null terminated, max length 16
     uint32_t w, h;
+    char type;
     rgb8_t pallete[256];
 } ws_texture_t;
+
+typedef struct
+{
+    int entryoffset;
+    int disksize;    // Compressed
+    int entrysize;   // Uncompressed
+    char type;
+    char compressed;
+    short pad;
+    char texname[16];
+} wad_direntry_t;
 
 extern FILE* ptr;
 extern ws_cmd_t *commands;

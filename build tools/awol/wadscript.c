@@ -44,11 +44,12 @@ boolean WS_NextCMD()
     while((c = fgetc(ptr)) != ' ' && c != '\n' && c != '\t' && !feof(ptr));
     fseek(ptr, -1, SEEK_CUR);
     end = ftell(ptr);
-    cmd.cmd = malloc(end - start + 1);
+    if(start == end)
+        return false;
+    cmd.cmd = calloc(end - start + 1, 1);
     fseek(ptr, start, SEEK_SET);
     for(i=0; i<end-start; i++)
         cmd.cmd[i] = fgetc(ptr);
-    cmd.cmd[i] = 0;
     
     c = fgetc(ptr);
     while(c == ' ' || c == '\n' || c == '\t')
@@ -62,11 +63,16 @@ boolean WS_NextCMD()
     while(!feof(ptr) && (c = fgetc(ptr)) != ' ' && c != '\n' && c != '\t');
     fseek(ptr, -1, SEEK_CUR);
     end = ftell(ptr);
-    cmd.params = malloc(end - start + 1);
+    if(start == end)
+    {
+        free(cmd.cmd);
+        return false;
+    }
+    cmd.params = calloc(end - start, 1);
     fseek(ptr, start, SEEK_SET);
-    for(i=0; i<end-start; i++)
+    printf("%d\n", end-start);
+    for(i=0; i<end-start-1; i++)
         cmd.params[i] = fgetc(ptr);
-    cmd.params[i] = 0;
     
     if(commands)
         commands = realloc(commands, sizeof(ws_cmd_t) * (ncommands + 1));
@@ -77,6 +83,8 @@ boolean WS_NextCMD()
     
     if(feof(ptr))
         return false;
+
+    fseek(ptr, 1, SEEK_CUR);
     
     return true;
 }
@@ -92,16 +100,28 @@ void WS_Run()
         if(!strcmp(commands[i].cmd, "outfile"))
         {
             outfile = fopen(commands[i].params, "wb");
+            printf("Opening wad output \"%s\".\n", commands[i].params);
             if(outfile)
                 break;
+            else
+                printf("Failed to open wad output \"%s\".\n", commands[i].params);
         }
     }
     
     for(i=0; i<ncommands; i++)
     {
-        if(!strcmp(commands[i].cmd, "texture"))
-            WS_LoadBMP(commands[i].params, type);
+        printf("cmd: %s\n", commands[i].cmd);
+        if(!strcmp(commands[i].cmd, "spraypaint"))
+            WS_LoadBMP(commands[i].params, 0x40);
+        else if(!strcmp(commands[i].cmd, "picture"))
+            WS_LoadBMP(commands[i].params, 0x42);
+        else if(!strcmp(commands[i].cmd, "texture"))
+            WS_LoadBMP(commands[i].params, 0x43);
+        else if(!strcmp(commands[i].cmd, "font"))
+            WS_LoadBMP(commands[i].params, 0x46);
     }
+
+    WS_WriteWAD();
 }
 
 boolean WS_LoadBMP(char* path, char type)
@@ -119,9 +139,11 @@ boolean WS_LoadBMP(char* path, char type)
     uint16_t bitdepth;
     uint32_t compressiontype, ncolors;
     
-    if(strlen(path) > 16)
+    tex.type = type;
+
+    if(strlen(path) > 15)
     {
-        printf("Texture names \"%s\" is too long: max is 16 characters.\n", path);
+        printf("Texture names \"%s\" is too long: max is 15 characters.\n", path);
         return false;
     }
     memset(tex.name, 0, sizeof(tex.name));
@@ -211,8 +233,111 @@ boolean WS_LoadBMP(char* path, char type)
 
 boolean WS_WriteWAD()
 {
+    int i, j, x, y;
+    ws_texture_t *curtex;
+
+    char magic[4] = "WAD3";
+    int16_t ncolors = 256;
+    char zero = 0;
+
+    uint32_t datasize;
+    uint32_t *texoffsets;
+    uint32_t *texsizes;
+    char p;
+
     if(!outfile)
+    {
+        printf("No valid wad output, aborting.\n");
         return false;
+    }
     
-    
+    fwrite(magic, 1, 4, outfile);
+    fwrite(&ntextures, sizeof(ntextures), 1, outfile);
+
+    texoffsets = malloc(sizeof(uint32_t) * ntextures);
+    texsizes = malloc(sizeof(uint32_t) * ntextures);
+    printf("type: %d\n", ntextures);
+    for(i=0, curtex=textures, datasize=0; i<ntextures; i++, curtex++)
+    {
+        texoffsets[i] = datasize;
+
+        switch(curtex->type)
+        {
+            case 0x42:
+                texsizes[i] = 10 + curtex->w * curtex->h + 256 * sizeof(rgb8_t);
+                datasize += texsizes[i];
+                break;
+            case 0x43:
+                texsizes[i] = 16 + 8 + 16 + 2 + 256 * sizeof(rgb8_t);
+                for(j=0; j<4; j++)
+                    texsizes[i] += (curtex->w * curtex->h) >> j;
+                datasize += texsizes[i];
+                break;
+            case 0x46:
+                break;
+                texsizes[i] = 1042 + 256 * sizeof(rgb8_t) + curtex->w * curtex->h;
+                datasize += texsizes;
+                break;
+        }
+    }
+
+    datasize += 12;
+    fwrite(&datasize, sizeof(datasize), 1, outfile);
+    datasize -= 12;
+
+    for(i=0, curtex=textures; i<ntextures; i++, curtex++)
+    {
+        if(curtex->type == 0x46)
+        {
+            printf("Fonts not supported in this version of AWOL.\n");
+            continue;
+        }
+
+        if(curtex->type == 0x43)
+            fwrite(curtex->name, 1, sizeof(curtex->name), outfile);
+        
+        fwrite(&curtex->w, sizeof(curtex->w), 1, outfile);
+        fwrite(&curtex->h, sizeof(curtex->h), 1, outfile);
+
+        if(curtex->type == 0x42)
+            fwrite(curtex->pixeldata, 1, curtex->w * curtex->h, outfile);
+        else if(curtex->type == 0x43)
+        {
+            for(j=0, x=40; j<4; x+=(curtex->w * curtex->h) >> j, j++)
+                fwrite(&x, sizeof(x), 1, outfile);
+
+            for(j=0; j<4; j++)
+            {
+                for(y=0; y<(curtex->h>>j); y++)
+                {
+                    for(x=0; x<(curtex->w>>j); x++)
+                    {
+                        p = curtex->pixeldata[y * curtex->w + y];
+                        fwrite(&p, 1, 1, outfile);
+                    }
+                }
+            }
+        }
+
+        fwrite(&ncolors, sizeof(ncolors), 1, outfile);
+        fwrite(curtex->pallete, sizeof(rgb8_t), 256, outfile);
+    }
+
+    for(i=0, curtex=textures; i<ntextures; i++, curtex++)
+    {
+        if(curtex->type == 0x46)
+            continue;
+
+        fwrite(&texoffsets[i], sizeof(uint32_t), 1, outfile);
+        fwrite(&texsizes[i], sizeof(uint32_t), 1, outfile);
+        fwrite(&texsizes[i], sizeof(uint32_t), 1, outfile);
+        fwrite(&curtex->type, 1, 1, outfile);
+        fwrite(&zero, 1, 1, outfile);
+        fwrite(&zero, 1, 1, outfile);
+        fwrite(&zero, 1, 1, outfile);
+        fwrite(curtex->name, 1, sizeof(curtex->name), outfile);
+    }
+
+    free(texoffsets);
+    free(texsizes);
 }
