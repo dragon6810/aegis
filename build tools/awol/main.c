@@ -1,7 +1,10 @@
 #include "wadscript.h"
 
-void main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	WS_Open();
 	WS_Parse();
+    WS_Run();
+    
+    return 0;
 }
