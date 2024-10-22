@@ -68,10 +68,9 @@ boolean WS_NextCMD()
         free(cmd.cmd);
         return false;
     }
-    cmd.params = calloc(end - start, 1);
+    cmd.params = calloc(end - start + 1, 1);
     fseek(ptr, start, SEEK_SET);
-    printf("%d\n", end-start);
-    for(i=0; i<end-start-1; i++)
+    for(i=0; i<end-start; i++)
         cmd.params[i] = fgetc(ptr);
     
     if(commands)
@@ -83,8 +82,6 @@ boolean WS_NextCMD()
     
     if(feof(ptr))
         return false;
-
-    fseek(ptr, 1, SEEK_CUR);
     
     return true;
 }
@@ -110,7 +107,6 @@ void WS_Run()
     
     for(i=0; i<ncommands; i++)
     {
-        printf("cmd: %s\n", commands[i].cmd);
         if(!strcmp(commands[i].cmd, "spraypaint"))
             WS_LoadBMP(commands[i].params, 0x40);
         else if(!strcmp(commands[i].cmd, "picture"))
@@ -256,7 +252,6 @@ boolean WS_WriteWAD()
 
     texoffsets = malloc(sizeof(uint32_t) * ntextures);
     texsizes = malloc(sizeof(uint32_t) * ntextures);
-    printf("type: %d\n", ntextures);
     for(i=0, curtex=textures, datasize=0; i<ntextures; i++, curtex++)
     {
         texoffsets[i] = datasize;
