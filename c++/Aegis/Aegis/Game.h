@@ -72,6 +72,7 @@ public:
     float P_Random(float min, float max); // Use for things like server side stuff
 
 	vec2_t cursorpos;
+    vec3_t mouseworldpos;
 
 	// UI
 	GUI gui;

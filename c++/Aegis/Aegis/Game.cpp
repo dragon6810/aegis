@@ -134,6 +134,7 @@ void Game::Render()
     {
         float dist = DotProduct(camera.forward, p) + DotProduct(camera.forward, camera.position);
         glPointSize(10000.0 / dist);
+        mouseworldpos = p;
         //glPointSize(15);
         glBegin(GL_POINTS);
         glVertex3f(p.x, p.y, p.z);
@@ -263,7 +264,11 @@ void Game::CursorCallback(GLFWwindow* window, double xpos, double ypos)
 void Game::MouseBtnCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
         Game::GetGame().gui.MouseDown(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
+        
+        //Game::GetGame().map.bullet.Start({0, 0, 0}, Game::GetGame().mouseworldpos, 100);
+    }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
         Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
 }

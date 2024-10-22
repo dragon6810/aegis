@@ -22,6 +22,7 @@
 #include "LaserEntity.h"
 #include "PlayerEntity.h"
 #include "GruntEntity.h"
+#include "EntityBullet.h"
 
 #include "Light.h"
 
@@ -415,6 +416,11 @@ void BSPMap::LoadEntities()
         }
         currentchar += 2;
     }
+    
+    EntityBullet bullet(*this);
+    bullet.Start({0, 0, 0}, Game::GetGame().mouseworldpos, 100);
+    entities.push_back(std::make_unique<EntityBullet>(bullet));
+    SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(bullet.position, 0));
     
 #if 0
         if (keyval["classname"] == "func_rotating")

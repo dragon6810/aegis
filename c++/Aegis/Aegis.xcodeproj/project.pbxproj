@@ -46,6 +46,7 @@
 		D2DFE6B04007F522419AE4F0 /* mathutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A914B558F677AB8A6C96AB98 /* mathutils.cpp */; };
 		D619F10CCFDBAD7E09DAAF4C /* Aegis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82EB7FF4CB5C64260FFB3634 /* Aegis.cpp */; };
 		DA9C6BCA3201DEBCE40FFA0A /* BaseEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3012D201295D847B089912 /* BaseEntity.cpp */; };
+		DCB14CB52CC7F7B8003312AC /* EntityBullet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DCB14CB42CC7F7B8003312AC /* EntityBullet.cpp */; };
 		DCF079086F7E42FAD856E748 /* Waveform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E526C130A89282E2E7362770 /* Waveform.cpp */; };
 		DDF60F2052505412D033DD60 /* BSPModelEntity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDE5DFC8000FBC7A3400A608 /* BSPModelEntity.cpp */; };
 		F0CAC1345DF2CFA65F85BF74 /* GuiWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB158D9C087883CE7E9783DC /* GuiWindow.cpp */; };
@@ -148,6 +149,8 @@
 		D6E95160F8B4FE92356A27A0 /* Command.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Command.cpp; path = Aegis/Command.cpp; sourceTree = "<group>"; };
 		D96E49A4F080E4D6E09CDFE4 /* Mpeg3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mpeg3.h; path = Aegis/Mpeg3.h; sourceTree = "<group>"; };
 		DC01BA900227EA42692EE0D0 /* Font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Font.cpp; path = Aegis/Font.cpp; sourceTree = "<group>"; };
+		DCB14CB32CC7F7A0003312AC /* EntityBullet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityBullet.h; sourceTree = "<group>"; };
+		DCB14CB42CC7F7B8003312AC /* EntityBullet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBullet.cpp; sourceTree = "<group>"; };
 		DFDF21262D421758A3611766 /* GruntEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GruntEntity.h; path = Aegis/GruntEntity.h; sourceTree = "<group>"; };
 		E05015A0833E3C5212641BE0 /* Game.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Game.h; path = Aegis/Game.h; sourceTree = "<group>"; };
 		E0C4A51C06EAD4CE6DF1CB5C /* Window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Window.h; path = Aegis/Window.h; sourceTree = "<group>"; };
@@ -186,6 +189,7 @@
 		8F1EDA50D78FBE821C2E9090 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				DCB14CB42CC7F7B8003312AC /* EntityBullet.cpp */,
 				82EB7FF4CB5C64260FFB3634 /* Aegis.cpp */,
 				40F690980F19E44A962836D8 /* AssetManager.cpp */,
 				7061097C3E845D2EC592AFBC /* AudioManager.cpp */,
@@ -253,6 +257,7 @@
 		C98A48C011FB2CF25699FF00 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				DCB14CB32CC7F7A0003312AC /* EntityBullet.h */,
 				BB8549E2ED7E9494675DD022 /* AssetManager.h */,
 				8F5B4546C1548FF83B33CB86 /* AudioManager.h */,
 				19461BB23F6C4B64A67341F2 /* BSPMap.h */,
@@ -399,6 +404,7 @@
 				1B4B021472B0750624BE9054 /* WallEntity.cpp in Sources */,
 				DCF079086F7E42FAD856E748 /* Waveform.cpp in Sources */,
 				A7EF224A1911C33CCED8708A /* Window.cpp in Sources */,
+				DCB14CB52CC7F7B8003312AC /* EntityBullet.cpp in Sources */,
 				D1CF601273B8FC046AE00E52 /* binaryloader.cpp in Sources */,
 				C5AB361232D3448434663452 /* collision.cpp in Sources */,
 				42ED0A9C097B020E777D28DC /* loadtexture.cpp in Sources */,
