@@ -62,7 +62,7 @@ boolean WS_NextCMD()
     start = ftell(ptr);
     while(!feof(ptr) && (c = fgetc(ptr)) != ' ' && c != '\n' && c != '\t');
     fseek(ptr, -1, SEEK_CUR);
-    end = ftell(ptr);
+    end = ftell(ptr) - 1;
     if(start == end)
     {
         free(cmd.cmd);
@@ -82,6 +82,8 @@ boolean WS_NextCMD()
     
     if(feof(ptr))
         return false;
+
+    fseek(ptr, 1, SEEK_CUR);
     
     return true;
 }
@@ -207,12 +209,11 @@ boolean WS_LoadBMP(char* path, char type)
     {
         for(x=0; x<w; x++)
         {
-            fread(tex.pixeldata + x * w + y, 1, 1, tptr);
+            fread(tex.pixeldata + y * w + x, 1, 1, tptr);
         }
         
         fseek(tptr, w % 4, SEEK_CUR);
     }
-    fread(tex.pixeldata, 1, w * h, tptr);
     
     if(!textures)
         textures = malloc(sizeof(ws_texture_t) * ntextures + 1);
@@ -232,7 +233,7 @@ boolean WS_WriteWAD()
     int i, j, x, y;
     ws_texture_t *curtex;
 
-    char magic[4] = "WAD3";
+    char magic[4];
     int16_t ncolors = 256;
     char zero = 0;
 
@@ -247,6 +248,10 @@ boolean WS_WriteWAD()
         return false;
     }
     
+    magic[0] = 'W';
+    magic[1] = 'A';
+    magic[2] = 'D';
+    magic[3] = '3';
     fwrite(magic, 1, 4, outfile);
     fwrite(&ntextures, sizeof(ntextures), 1, outfile);
 
@@ -271,7 +276,7 @@ boolean WS_WriteWAD()
             case 0x46:
                 break;
                 texsizes[i] = 1042 + 256 * sizeof(rgb8_t) + curtex->w * curtex->h;
-                datasize += texsizes;
+                datasize += texsizes[i];
                 break;
         }
     }

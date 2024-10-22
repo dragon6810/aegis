@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="common">
+      <UniqueIdentifier>{AEFEE3F6-9AA0-0ECD-835B-22216F9C951D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\bspfile.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\defs.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\gfile.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\mapdefs.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\polygon.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\textfile.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\vector.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="wadscript.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\bspfile.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\gfile.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\polygon.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\textfile.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\vector.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c" />
+    <ClCompile Include="wadscript.c" />
+  </ItemGroup>
+</Project>
