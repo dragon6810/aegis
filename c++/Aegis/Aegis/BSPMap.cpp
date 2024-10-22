@@ -164,9 +164,19 @@ void BSPMap::Load(const char* filename)
 
 		if (miptex->offsets[0] == 0 || miptex->offsets[1] == 0 || miptex->offsets[2] == 0 || miptex->offsets[3] == 0)
 		{
-			gltextures.push_back(Game::GetGame().wad.LoadTexture(miptex->name));
-            texwidths.push_back(Game::GetGame().wad.widths[Game::GetGame().wad.widths.size() - 1]);
-            texheights.push_back(Game::GetGame().wad.heights[Game::GetGame().wad.heights.size() - 1]);
+			//gltextures.push_back(Game::GetGame().wad.LoadTexture(miptex->name));
+            //int name = Game::GetGame().wad.LoadTexture("-TEMPLATE");
+            gltextures.push_back(Game::GetGame().wad.LoadTexture("-TEMPLATE"));
+            if(Game::GetGame().wad.widths.size())
+            {
+                texwidths.push_back(Game::GetGame().wad.widths[Game::GetGame().wad.widths.size() - 1]);
+                texheights.push_back(Game::GetGame().wad.heights[Game::GetGame().wad.heights.size() - 1]);
+            }
+            else
+            {
+                texwidths.push_back(1);
+                texheights.push_back(1);
+            }
 		}
 		else
 		{

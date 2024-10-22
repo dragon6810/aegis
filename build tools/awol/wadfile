@@ -1,3 +1,3 @@
-outfile deadbird/aegis.wad
+outfile ../../c++/Aegis/Aegis/deadbird/aegis.wad
 
 texture -TEMPLATE

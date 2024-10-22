@@ -61,7 +61,7 @@ boolean WS_NextCMD()
     fseek(ptr, -1, SEEK_CUR);
     start = ftell(ptr);
     while(!feof(ptr) && (c = fgetc(ptr)) != ' ' && c != '\n' && c != '\t');
-    fseek(ptr, -1, SEEK_CUR);
+    //fseek(ptr, -1, SEEK_CUR);
     end = ftell(ptr) - 1;
     if(start == end)
     {
@@ -216,10 +216,10 @@ boolean WS_LoadBMP(char* path, char type)
     }
     
     if(!textures)
-        textures = malloc(sizeof(ws_texture_t) * ntextures + 1);
+        textures = malloc(sizeof(ws_texture_t) * (ntextures + 1));
     else
-        textures = realloc(textures, malloc(sizeof(ws_texture_t) * ntextures + 1));
-    
+        textures = realloc(textures, sizeof(ws_texture_t) * (ntextures + 1));
+
     textures[ntextures++] = tex;
     
     free(realpath);
@@ -248,6 +248,8 @@ boolean WS_WriteWAD()
         return false;
     }
     
+    printf("Writing WAD...\n");
+    
     magic[0] = 'W';
     magic[1] = 'A';
     magic[2] = 'D';
@@ -259,7 +261,7 @@ boolean WS_WriteWAD()
     texsizes = malloc(sizeof(uint32_t) * ntextures);
     for(i=0, curtex=textures, datasize=0; i<ntextures; i++, curtex++)
     {
-        texoffsets[i] = datasize;
+        texoffsets[i] = datasize + 12;
 
         switch(curtex->type)
         {
@@ -270,7 +272,7 @@ boolean WS_WriteWAD()
             case 0x43:
                 texsizes[i] = 16 + 8 + 16 + 2 + 256 * sizeof(rgb8_t);
                 for(j=0; j<4; j++)
-                    texsizes[i] += (curtex->w * curtex->h) >> j;
+                    texsizes[i] += (curtex->w >> j) * (curtex->h >> j);
                 datasize += texsizes[i];
                 break;
             case 0x46:
@@ -292,7 +294,7 @@ boolean WS_WriteWAD()
             printf("Fonts not supported in this version of AWOL.\n");
             continue;
         }
-
+        
         if(curtex->type == 0x43)
             fwrite(curtex->name, 1, sizeof(curtex->name), outfile);
         
@@ -303,16 +305,16 @@ boolean WS_WriteWAD()
             fwrite(curtex->pixeldata, 1, curtex->w * curtex->h, outfile);
         else if(curtex->type == 0x43)
         {
-            for(j=0, x=40; j<4; x+=(curtex->w * curtex->h) >> j, j++)
+            for(j=0, x=40; j<4; x+=((curtex->w * curtex->h) >> j), j++)
                 fwrite(&x, sizeof(x), 1, outfile);
 
             for(j=0; j<4; j++)
             {
-                for(y=0; y<(curtex->h>>j); y++)
+                for(y=0; y<curtex->h; y+=(1<<j))
                 {
-                    for(x=0; x<(curtex->w>>j); x++)
+                    for(x=0; x<curtex->w; x+=(1<<j))
                     {
-                        p = curtex->pixeldata[y * curtex->w + y];
+                        p = curtex->pixeldata[y * curtex->w + x];
                         fwrite(&p, 1, 1, outfile);
                     }
                 }
