@@ -1,17 +1,13 @@
 # ninja log v5
-2	223	7516660269389393	CMakeFiles/Aegis.dir/src/main.cpp.obj	3754bafc6283d9c7
-299	715	7516654377659011	Aegis.exe	924da986568c0c04
-10	238	7516660269539400	CMakeFiles/Aegis.dir/src/Window.cpp.obj	2fa95445ae5f435c
-6	278	7516660269935357	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
-10	52	7516648650817699	CMakeFiles/Aegis.dir/src/World.cpp.obj	6ab99b8142eb2cc2
-10	216	7516660391248957	CMakeFiles/Aegis.dir/src/Renderer.cpp.obj	4fc02617cb82918e
-3	636	7516661170264819	Aegis.exe	dda271b2f2c830f
-6	218	7516662072494486	CMakeFiles/Aegis.dir/src/Window.cpp.obj	2fa95445ae5f435c
-219	596	7516662073425505	Aegis.exe	dda271b2f2c830f
+2	469	7516682029669808	CMakeFiles/Aegis.dir/src/main.cpp.obj	3754bafc6283d9c7
+629	1008	7516690884399652	Aegis.exe	dda271b2f2c830f
 8	215	7516662253777125	CMakeFiles/Aegis.dir/src/Window.cpp.obj	2fa95445ae5f435c
-216	575	7516662254679211	Aegis.exe	dda271b2f2c830f
-10	225	7516662875600226	CMakeFiles/Aegis.dir/src/Renderer.cpp.obj	4fc02617cb82918e
-226	597	7516662876536274	Aegis.exe	dda271b2f2c830f
+10	628	7516690883272781	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+10	307	7516682028042479	CMakeFiles/Aegis.dir/src/World.cpp.obj	6ab99b8142eb2cc2
 14	226	7516663455355067	CMakeFiles/Aegis.dir/src/Renderer.cpp.obj	4fc02617cb82918e
-10	275	7516663455831453	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
-275	633	7516663456742345	Aegis.exe	dda271b2f2c830f
+7	53	7516694748580938	CMakeFiles/Aegis.dir/src/Command.cpp.obj	fd7b99e0d5d5c8c8
+6	280	7516699306968699	CMakeFiles/Aegis.dir/src/Command.cpp.obj	fd7b99e0d5d5c8c8
+2	651	7516699310666532	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+651	1088	7516699311989812	Aegis.exe	a47b698a39c1c8ae
+9	295	7516699760345727	CMakeFiles/Aegis.dir/src/Command.cpp.obj	fd7b99e0d5d5c8c8
+295	695	7516699761351901	Aegis.exe	a47b698a39c1c8ae

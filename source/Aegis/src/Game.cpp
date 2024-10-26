@@ -2,18 +2,56 @@
 
 #include <stdio.h>
 #include <chrono>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <thread>
+#include <atomic>
+#include <regex>
+
+#include "Command.h"
+
+bool Game::ParseCommands(std::string cmd)
+{
+	int i, k;
+
+	std::vector<std::string> commands;
+	std::stringstream ss(cmd);
+	std::string token;
+	std::string key, val;
+	std::regex pattern(R"(\s*(\S+)\s+(.+)\s*)");
+	std::smatch matches;
+	
+	while (std::getline(ss, token, ';'))
+		commands.push_back(token);
+
+	for (i = 0; i < commands.size(); i++)
+	{
+		if (std::regex_match(commands[i], matches, pattern)) 
+		{
+			key = matches[1];
+			val = matches[2];
+			while (val[val.size() - 1] <= 32)
+				val.pop_back();
+
+			Command::Run(key, val);
+		}
+	}
+
+	return true;
+}
 
 void Game::Render()
 {
 	renderer.Clear();
 	renderer.Submit();
 
-	printf("Render\n");
+	
 }
 
 void Game::Tick()
 {
-	printf("Tick\n");
+	
 }
 
 bool Game::Loop()
@@ -40,11 +78,28 @@ bool Game::Loop()
 	return !window.ShouldClose();
 }
 
+void inputlistener()
+{
+	std::string input;
+
+	while (Game::GetGame().running)
+	{
+		std::getline(std::cin, input);  // Blocking call, but it runs in a separate thread
+		if (!input.empty())
+			Game::GetGame().ParseCommands(input);  // Parse command when input is available
+	}
+}
+
 void Game::Run()
 {
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");
 	renderer.PostWindow(&window);
 
+	running = true;
+	std::thread inputhread(inputlistener);
 	while (Loop());
+	running = false;
+
+	inputhread.join();
 }

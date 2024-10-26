@@ -2,6 +2,7 @@
 
 #include "Window.h"
 #include "Renderer.h"
+#include "World.h"
 
 #define ENGINE_TICKRATE 50
 #define ENGINE_TICKDUR_MS 1000 / ENGINE_TICKRATE
@@ -25,12 +26,16 @@ private:
 // Real Stuff begins here:
 
 public:
+	bool running;
 	float intertick;
 
 	void Run(); // Start the game
+
+	bool ParseCommands(std::string cmd);
 private:
 	Window window;
 	Renderer renderer;
+	World world;
 
 	long long lasttick;
 
