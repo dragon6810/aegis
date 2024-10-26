@@ -5,6 +5,9 @@
 
 void Game::Render()
 {
+	renderer.Clear();
+	renderer.Submit();
+
 	printf("Render\n");
 }
 
@@ -34,10 +37,14 @@ bool Game::Loop()
 
 	Render();
 
-	return true;
+	return !window.ShouldClose();
 }
 
 void Game::Run()
 {
+	renderer.PreWindow();
+	window.MakeWindow(800, 600, "Aegis");
+	renderer.PostWindow(&window);
+
 	while (Loop());
 }

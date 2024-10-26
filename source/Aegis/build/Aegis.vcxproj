@@ -116,7 +116,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-window.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-graphics.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -161,7 +161,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-window.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-graphics.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -206,7 +206,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-window.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-graphics.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -250,7 +250,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-window.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-graphics.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib;C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -321,9 +321,15 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\main.cpp" />
     <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Game.cpp" />
     <ClInclude Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Game.h" />
-    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\main.cpp" />
+    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\World.cpp" />
+    <ClInclude Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\World.h" />
+    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Window.cpp" />
+    <ClInclude Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Window.h" />
+    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Renderer.cpp" />
+    <ClInclude Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\build\ZERO_CHECK.vcxproj">
