@@ -41,6 +41,7 @@ public:
 	void SetCameraPosition(vec3_t pos);
 	void Draw();
 	void Think(float deltatime);
+	void AddEntity(std::unique_ptr<BaseEntity> ent);
 
 	~BSPMap();
     

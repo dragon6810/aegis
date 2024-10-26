@@ -11,6 +11,8 @@
 
 #include "Quaternion.h"
 
+#include "EntityBullet.h"
+
 void Game::Main(int argc, char** argv)
 {
     start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -267,7 +269,9 @@ void Game::MouseBtnCallback(GLFWwindow* window, int button, int action, int mods
     {
         Game::GetGame().gui.MouseDown(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);
         
-        //Game::GetGame().map.bullet.Start({0, 0, 0}, Game::GetGame().mouseworldpos, 100);
+        EntityBullet bullet = EntityBullet(Game::GetGame().map);
+        bullet.Start({ 0, 0, 0 }, Game::GetGame().mouseworldpos, 100);
+        Game::GetGame().map.AddEntity(std::make_unique<EntityBullet>(bullet));
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
         Game::GetGame().gui.MouseUp(Game::GetGame().cursorpos.x * SCREEN_MED_WIDTH, SCREEN_MED_HEIGHT - Game::GetGame().cursorpos.y * SCREEN_MED_HEIGHT);

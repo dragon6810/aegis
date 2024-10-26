@@ -39,6 +39,9 @@
     <ClInclude Include="Aegis\DecalEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Aegis\EntityBullet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Aegis\Font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,6 +174,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Aegis\DecalEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Aegis\EntityBullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Aegis\Font.cpp">

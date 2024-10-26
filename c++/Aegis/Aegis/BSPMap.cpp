@@ -721,6 +721,12 @@ void BSPMap::LoadEntities()
 #endif
 }
 
+void BSPMap::AddEntity(std::unique_ptr<BaseEntity> ent)
+{
+	entities.push_back(std::make_unique<BaseEntity>(*ent));
+	SetEntityToLeaf(entities.size() - 1, GetLeafFromPoint(ent->position, 0));
+}
+
 void BSPMap::ScanLine(char** line, char* out)
 {
 	char* start = *line;

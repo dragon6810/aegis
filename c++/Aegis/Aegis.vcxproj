@@ -272,6 +272,7 @@
     <ClInclude Include="Aegis\Command.h" />
     <ClInclude Include="Aegis\Console.h" />
     <ClInclude Include="Aegis\DecalEntity.h" />
+    <ClInclude Include="Aegis\EntityBullet.h" />
     <ClInclude Include="Aegis\Font.h" />
     <ClInclude Include="Aegis\GUI.h" />
     <ClInclude Include="Aegis\Game.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="Aegis\Command.cpp" />
     <ClCompile Include="Aegis\Console.cpp" />
     <ClCompile Include="Aegis\DecalEntity.cpp" />
+    <ClCompile Include="Aegis\EntityBullet.cpp" />
     <ClCompile Include="Aegis\Font.cpp" />
     <ClCompile Include="Aegis\GUI.cpp" />
     <ClCompile Include="Aegis\Game.cpp" />

@@ -23,4 +23,5 @@ public:
     vec3_t direction;
     float distance;
     float progress;
+    float speed;
 };
