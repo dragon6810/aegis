@@ -321,6 +321,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Game.cpp" />
+    <ClInclude Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\Game.h" />
     <ClCompile Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,12 @@
+# ninja log v5
+13	348	7516635708636257	CMakeFiles/Aegis.dir/src/main.cpp.obj	3754bafc6283d9c7
+71	1165	7516616417430590	Aegis.exe	d242c8b8e9572e48
+2	63	7516636748104378	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+64	415	7516636748990784	Aegis.exe	c0aa43abfee28b02
+13	331	7516643028593077	CMakeFiles/Aegis.dir/src/main.cpp.obj	3754bafc6283d9c7
+9	501	7516643030286505	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+501	930	7516643031362965	Aegis.exe	c0aa43abfee28b02
+2	233	7516643474764032	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+234	593	7516643475700559	Aegis.exe	c0aa43abfee28b02
+2	231	7516644308006810	CMakeFiles/Aegis.dir/src/Game.cpp.obj	48fe9f7e053377b0
+231	584	7516644308892756	Aegis.exe	c0aa43abfee28b02
