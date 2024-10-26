@@ -1,5 +1,7 @@
 #include "Command.h"
 
+#include "Game.h"
+
 const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
 {
     {"+map", &Command::CommandMap},
@@ -10,6 +12,7 @@ const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
 bool Command::CommandMap(std::string val)
 {
     printf("Load Map \"%s\".\n", val.c_str());
+    Game::GetGame().world.Load(val);
 
     return true;
 }

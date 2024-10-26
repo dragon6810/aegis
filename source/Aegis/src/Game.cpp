@@ -6,8 +6,15 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
-#include <atomic>
 #include <regex>
+
+#ifdef _WIN32
+#include <conio.h>       // For Windows input handling
+#else
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/select.h>  // For POSIX input handling
+#endif
 
 #include "Command.h"
 
@@ -92,12 +99,12 @@ void inputlistener()
 
 void Game::Run()
 {
+	std::thread inputhread(inputlistener);
+
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");
 	renderer.PostWindow(&window);
-
-	running = true;
-	std::thread inputhread(inputlistener);
+	
 	while (Loop());
 	running = false;
 

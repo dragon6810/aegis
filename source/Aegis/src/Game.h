@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include "Window.h"
 #include "Renderer.h"
 #include "World.h"
@@ -26,8 +28,10 @@ private:
 // Real Stuff begins here:
 
 public:
-	bool running;
+	std::atomic<bool> running = true;
 	float intertick;
+
+	World world;
 
 	void Run(); // Start the game
 
@@ -35,7 +39,6 @@ public:
 private:
 	Window window;
 	Renderer renderer;
-	World world;
 
 	long long lasttick;
 
