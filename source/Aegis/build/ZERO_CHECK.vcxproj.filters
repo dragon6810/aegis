@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\theto\Documents\Github\aegis\source\Aegis\build\CMakeFiles\3b914693397de9284979c224624a3cff\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{7885473B-B87F-3FD4-89C9-A9CDF86F9431}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
