@@ -97,6 +97,22 @@ build CMakeFiles\Aegis.dir\src\Command.cpp.obj: CXX_COMPILER__Aegis_unscanned_De
   TARGET_COMPILE_PDB = CMakeFiles\Aegis.dir\
   TARGET_PDB = Aegis.pdb
 
+build CMakeFiles\Aegis.dir\src\ResourceManager.cpp.obj: CXX_COMPILER__Aegis_unscanned_Debug C$:\Users\theto\Documents\Github\aegis\source\Aegis\src\ResourceManager.cpp || cmake_object_order_depends_target_Aegis
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17
+  INCLUDES = -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\include -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\include -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glm -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\include
+  OBJECT_DIR = CMakeFiles\Aegis.dir
+  OBJECT_FILE_DIR = CMakeFiles\Aegis.dir\src
+  TARGET_COMPILE_PDB = CMakeFiles\Aegis.dir\
+  TARGET_PDB = Aegis.pdb
+
+build CMakeFiles\Aegis.dir\src\Input.cpp.obj: CXX_COMPILER__Aegis_unscanned_Debug C$:\Users\theto\Documents\Github\aegis\source\Aegis\src\Input.cpp || cmake_object_order_depends_target_Aegis
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17
+  INCLUDES = -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\include -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\include -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\glm -IC:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\include
+  OBJECT_DIR = CMakeFiles\Aegis.dir
+  OBJECT_FILE_DIR = CMakeFiles\Aegis.dir\src
+  TARGET_COMPILE_PDB = CMakeFiles\Aegis.dir\
+  TARGET_PDB = Aegis.pdb
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Aegis
@@ -105,7 +121,7 @@ build CMakeFiles\Aegis.dir\src\Command.cpp.obj: CXX_COMPILER__Aegis_unscanned_De
 #############################################
 # Link the executable Aegis.exe
 
-build Aegis.exe: CXX_EXECUTABLE_LINKER__Aegis_Debug CMakeFiles\Aegis.dir\src\main.cpp.obj CMakeFiles\Aegis.dir\src\Game.cpp.obj CMakeFiles\Aegis.dir\src\World.cpp.obj CMakeFiles\Aegis.dir\src\Window.cpp.obj CMakeFiles\Aegis.dir\src\Renderer.cpp.obj CMakeFiles\Aegis.dir\src\Command.cpp.obj | C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib
+build Aegis.exe: CXX_EXECUTABLE_LINKER__Aegis_Debug CMakeFiles\Aegis.dir\src\main.cpp.obj CMakeFiles\Aegis.dir\src\Game.cpp.obj CMakeFiles\Aegis.dir\src\World.cpp.obj CMakeFiles\Aegis.dir\src\Window.cpp.obj CMakeFiles\Aegis.dir\src\Renderer.cpp.obj CMakeFiles\Aegis.dir\src\Command.cpp.obj CMakeFiles\Aegis.dir\src\ResourceManager.cpp.obj CMakeFiles\Aegis.dir\src\Input.cpp.obj | C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib C$:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glew\lib\glew32.lib  C:\Users\theto\Documents\Github\aegis\source\Aegis\external\glfw\lib\glfw3.lib  C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-system.lib  C:\Users\theto\Documents\Github\aegis\source\Aegis\external\SFML\lib\sfml-audio.lib  opengl32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

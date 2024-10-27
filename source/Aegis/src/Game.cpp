@@ -7,58 +7,22 @@
 #include <iostream>
 #include <thread>
 #include <regex>
-
-#ifdef _WIN32
-#include <conio.h>       // For Windows input handling
-#else
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/select.h>  // For POSIX input handling
-#endif
+#include <filesystem>
 
 #include "Command.h"
-
-bool Game::ParseCommands(std::string cmd)
-{
-	int i, k;
-
-	std::vector<std::string> commands;
-	std::stringstream ss(cmd);
-	std::string token;
-	std::string key, val;
-	std::regex pattern(R"(\s*(\S+)\s+(.+)\s*)");
-	std::smatch matches;
-	
-	while (std::getline(ss, token, ';'))
-		commands.push_back(token);
-
-	for (i = 0; i < commands.size(); i++)
-	{
-		if (std::regex_match(commands[i], matches, pattern)) 
-		{
-			key = matches[1];
-			val = matches[2];
-			while (val[val.size() - 1] <= 32)
-				val.pop_back();
-
-			Command::Run(key, val);
-		}
-	}
-
-	return true;
-}
 
 void Game::Render()
 {
 	renderer.Clear();
-	renderer.Submit();
 
-	
+	// TODO: Render
+
+	renderer.Submit();
 }
 
 void Game::Tick()
 {
-	
+	// TODO: Tick
 }
 
 bool Game::Loop()
@@ -85,28 +49,77 @@ bool Game::Loop()
 	return !window.ShouldClose();
 }
 
-void inputlistener()
+bool Game::ParseCommands(std::string cmd)
 {
-	std::string input;
+	std::replace(cmd.begin(), cmd.end(), '\n', ';');
 
-	while (Game::GetGame().running)
+	int i;
+
+	std::vector<std::string> commands;
+	std::stringstream ss(cmd);
+	std::string token;
+	std::string key, val;
+	std::regex pattern(R"(\s*(\S+)(?:\s+(.+))?\s*)");
+	std::smatch matches;
+
+	while (std::getline(ss, token, ';'))
+		commands.push_back(token);
+
+	for (i = 0; i < commands.size(); i++)
 	{
-		std::getline(std::cin, input);  // Blocking call, but it runs in a separate thread
-		if (!input.empty())
-			Game::GetGame().ParseCommands(input);  // Parse command when input is available
+		if (std::regex_match(commands[i], matches, pattern))
+		{
+			key = matches[1];
+			if (matches.size() > 2 && matches[2].matched)
+			{
+				val = matches[2];
+				while (val[val.size() - 1] <= 32)
+					val.pop_back();
+			}
+			else
+				val = "";
+
+			Command::Run(key, val);
+		}
 	}
+
+	return true;
+}
+
+
+void Game::AutoExecute()
+{
+	FILE* ptr;
+
+	uint64_t size;
+	std::string commands;
+
+	ptr = fopen(Command::autoexec.c_str(), "r");
+	if (!ptr)
+	{
+		printf("autoexec file \"%s\" does not exist.\n", Command::autoexec.c_str());
+		return;
+	}
+
+	fseek(ptr, 0, SEEK_END);
+	size = ftell(ptr);
+	fseek(ptr, 0, SEEK_SET);
+
+	commands.resize(size);
+	fread(commands.data(), 1, size, ptr);
+
+	ParseCommands(commands);
+
+	fclose(ptr);
 }
 
 void Game::Run()
 {
-	std::thread inputhread(inputlistener);
-
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");
 	renderer.PostWindow(&window);
+
+	AutoExecute();
 	
 	while (Loop());
-	running = false;
-
-	inputhread.join();
 }

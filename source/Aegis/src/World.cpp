@@ -1,6 +1,6 @@
 #include "World.h"
 
-bool Load(std::string name)
+bool World::Load(std::string name)
 {
-
+	return true;
 }

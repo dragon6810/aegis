@@ -28,7 +28,6 @@ private:
 // Real Stuff begins here:
 
 public:
-	std::atomic<bool> running = true;
 	float intertick;
 
 	World world;
@@ -42,7 +41,11 @@ private:
 
 	long long lasttick;
 
-	bool Loop(); // Run as fast as possible
-	void Tick();
-	void Render();
+	// Startup
+	void AutoExecute(); // Run userdata/autoexec.cfg on startup (config)
+
+	// Heartbeat
+	bool Loop();        // Run as fast as possible
+	void Tick();        // Run ENGINE_TICKRATE times per second
+	void Render();      // Run as fast as possible OR as fast as vsync allows
 };
