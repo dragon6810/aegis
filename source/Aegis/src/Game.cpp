@@ -115,6 +115,7 @@ void Game::AutoExecute()
 
 void Game::Run()
 {
+
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");
 	renderer.PostWindow(&window);

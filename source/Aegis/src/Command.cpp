@@ -47,7 +47,7 @@ bool Command::CommandBind(std::string val)
 
     if (Input::stringkeycodes.find(key) == Input::stringkeycodes.end())
     {
-        printf("Unknown key \"%s\".\n", key);
+        printf("Unknown key \"%s\".\n", key.c_str());
         return false;
     }
 

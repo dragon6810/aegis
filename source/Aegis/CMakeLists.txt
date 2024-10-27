@@ -1,3 +1,6 @@
+# TO COMPILE ON MAC:
+# brew install glew glfw sfml
+
 cmake_minimum_required(VERSION 3.10)
 project(Aegis)
 
@@ -16,19 +19,23 @@ include_directories(
 # Add the executable
 add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/Game.h" "src/World.cpp" "src/World.h" "src/Window.cpp" "src/Window.h" "src/Renderer.cpp" "src/Renderer.h" "src/Command.cpp" "src/ResourceManager.cpp" "src/ResourceManager.h" "src/Input.cpp" "src/Input.h")
 
-# Link with the .lib files (adjust paths to match your setup)
-target_link_libraries(Aegis
-    ${CMAKE_SOURCE_DIR}/external/glew/lib/glew32.lib
-    ${CMAKE_SOURCE_DIR}/external/glfw/lib/glfw3.lib
-    ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-system.lib
-    ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-audio.lib
-)
-
-# Platform-specific settings
-if (WIN32)
-    # Link OpenGL on Windows
-    target_link_libraries(Aegis opengl32)
-elseif(APPLE)
-    # Link OpenGL on macOS
-    target_link_libraries(Aegis "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
+if (APPLE)
+    find_package(GLEW REQUIRED)
+    find_package(GLFW3 REQUIRED)
+    find_package(SFML COMPONENTS system audio REQUIRED)
+    
+    target_link_libraries(Aegis PRIVATE
+        GLEW::GLEW
+        glfw
+        sfml-system
+        sfml-audio
+        "-framework OpenGL"
+    )
+elseif (WIN32)
+    target_link_libraries(Aegis PRIVATE
+        ${GLEW_LIBRARIES}
+        ${GLFW_LIBRARIES}
+        ${SFML_LIBRARIES}
+        opengl32
+    )
 endif()
