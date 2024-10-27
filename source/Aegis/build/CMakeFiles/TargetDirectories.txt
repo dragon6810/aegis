@@ -1,3 +1,0 @@
-/Users/henrydunn/Documents/GitHub/aegis/source/Aegis/build/CMakeFiles/Aegis.dir
-/Users/henrydunn/Documents/GitHub/aegis/source/Aegis/build/CMakeFiles/edit_cache.dir
-/Users/henrydunn/Documents/GitHub/aegis/source/Aegis/build/CMakeFiles/rebuild_cache.dir

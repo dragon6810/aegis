@@ -19,6 +19,8 @@ include_directories(
 # Add the executable
 add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/Game.h" "src/World.cpp" "src/World.h" "src/Window.cpp" "src/Window.h" "src/Renderer.cpp" "src/Renderer.h" "src/Command.cpp" "src/ResourceManager.cpp" "src/ResourceManager.h" "src/Input.cpp" "src/Input.h")
 
+set_target_properties(Aegis PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
 if (APPLE)
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
@@ -33,9 +35,12 @@ if (APPLE)
     )
 elseif (WIN32)
     target_link_libraries(Aegis PRIVATE
-        ${GLEW_LIBRARIES}
-        ${GLFW_LIBRARIES}
-        ${SFML_LIBRARIES}
+        ${CMAKE_SOURCE_DIR}/external/glew/lib/glew32.lib
+        ${CMAKE_SOURCE_DIR}/external/glfw/lib/glfw3.lib
+        ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-system.lib
+        ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-window.lib
+        ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-graphics.lib
+        ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-audio.lib
         opengl32
     )
 endif()
