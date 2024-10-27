@@ -1,3 +1,4 @@
-outfile ../../c++/Aegis/Aegis/deadbird/aegis.wad
+outfile deadbird/aegis.wad
 
 texture -TEMPLATE
+texture console

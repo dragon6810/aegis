@@ -61,7 +61,7 @@ boolean WS_NextCMD()
     fseek(ptr, -1, SEEK_CUR);
     start = ftell(ptr);
     while(!feof(ptr) && (c = fgetc(ptr)) != ' ' && c != '\n' && c != '\t');
-    //fseek(ptr, -1, SEEK_CUR);
+    fseek(ptr, -1, SEEK_CUR);
     end = ftell(ptr) - 1;
     if(start == end)
     {
@@ -322,7 +322,12 @@ boolean WS_WriteWAD()
         }
 
         fwrite(&ncolors, sizeof(ncolors), 1, outfile);
-        fwrite(curtex->pallete, sizeof(rgb8_t), 256, outfile);
+        for (j=0; j<256; j++)
+        {
+            fwrite(&curtex->pallete[j].b, 1, 1, outfile);
+            fwrite(&curtex->pallete[j].g, 1, 1, outfile);
+            fwrite(&curtex->pallete[j].r, 1, 1, outfile);
+        }
     }
 
     for(i=0, curtex=textures; i<ntextures; i++, curtex++)
