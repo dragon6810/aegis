@@ -7,6 +7,8 @@ class Command
 {
 public:
 	static std::string autoexec;
+	static std::string datadir;
+	static bool filtertextures;
 
 	static const std::unordered_map<std::string, bool(*)(std::string)> cmdtable;
 
@@ -14,5 +16,5 @@ public:
 
 	static bool CommandMap(std::string val);
 	static bool CommandBind(std::string val);
-	static bool CommandConsole(std::string val);
+	static bool CommandToggleConsole(std::string val);
 };

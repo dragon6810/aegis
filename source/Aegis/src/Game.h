@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "World.h"
+#include "Console.h"
 
 #define ENGINE_TICKRATE 50
 #define ENGINE_TICKDUR_MS 1000 / ENGINE_TICKRATE
@@ -31,6 +32,7 @@ public:
 	float intertick;
 
 	World world;
+	Console console;
 
 	void Run(); // Start the game
 

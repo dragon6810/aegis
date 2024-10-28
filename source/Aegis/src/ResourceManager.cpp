@@ -1,5 +1,7 @@
 #include "ResourceManager.h"
 
+std::vector<ResourceManager::texture_t> ResourceManager::textures;
+
 ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std::string id)
 {
 	int i;
@@ -17,12 +19,16 @@ ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std
 ResourceManager::texture_t* ResourceManager::NewTexture()
 {
 	textures.push_back({});
+	glGenTextures(1, &textures[textures.size() - 1].name);
 	return &textures[textures.size() - 1];
 }
 
 bool ResourceManager::FreeTexture(texture_t* texture)
 {
 	int i;
+
+	if(!texture)
+		return false;
 
 	i = (texture - textures.data()) / sizeof(texture_t);
 
@@ -35,11 +41,17 @@ bool ResourceManager::FreeTexture(texture_t* texture)
 
 void ResourceManager::UseTexture(texture_t* texture)
 {
+	if(!texture)
+		return;
+
 	texture->users++;
 }
 
 void ResourceManager::AbandonTexture(texture_t* texture)
 {
+	if(!texture)
+		return;
+	
 	texture->users--;
 
 	if (texture->users <= 0)

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 class ResourceManager
 {
@@ -19,11 +20,11 @@ public:
 		uint32_t height;
 	} texture_t;
 
-	texture_t* FindTexture(std::string source, std::string id);
-	texture_t* NewTexture();
-	bool FreeTexture(texture_t* texture);
-	void UseTexture(texture_t* texture);
-	void AbandonTexture(texture_t* texture);
+	static texture_t* FindTexture(std::string source, std::string id);
+	static texture_t* NewTexture();
+	static bool FreeTexture(texture_t* texture);
+	static void UseTexture(texture_t* texture);
+	static void AbandonTexture(texture_t* texture);
 private:
-	std::vector<texture_t> textures;
+	static std::vector<texture_t> textures;
 };

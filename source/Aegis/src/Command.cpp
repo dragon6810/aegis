@@ -4,6 +4,8 @@
 #include "Input.h"
 
 std::string Command::autoexec = "userdata/autoexec.cfg";
+std::string Command::datadir = "deadbird/";
+bool Command::filtertextures = false;
 
 const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
 {
@@ -13,7 +15,7 @@ const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
     { "+bind", &Command::CommandBind },
     { "-bind", &Command::CommandBind },
     {  "bind", &Command::CommandBind },
-    { "console", &Command::CommandConsole },
+    { "toggleconsole", &Command::CommandToggleConsole },
 };
 
 bool Command::CommandMap(std::string val)
@@ -57,9 +59,9 @@ bool Command::CommandBind(std::string val)
     return true;
 }
 
-bool Command::CommandConsole(std::string val)
+bool Command::CommandToggleConsole(std::string val)
 {
-    printf("Drop Down, Console!\n");
+    Game::GetGame().console.Toggle();
     return true;
 }
 
@@ -71,6 +73,9 @@ void Command::Run(std::string key, std::string val)
         return;
     }
 
-    printf("Running command \"%s\".\n", (key + " " + val).c_str());
+    if(val != "")
+        printf("Running command \"%s\".\n", (key + " " + val).c_str());
+    else
+        printf("Running command \"%s\".\n", key.c_str());
     cmdtable.at(key)(val);
 }

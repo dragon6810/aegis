@@ -15,7 +15,12 @@ void Game::Render()
 {
 	renderer.Clear();
 
-	// TODO: Render
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0,640,0,480,-1,1);
+	glMatrixMode(GL_MODELVIEW);
+
+	console.Render();
 
 	renderer.Submit();
 }
@@ -116,12 +121,12 @@ void Game::AutoExecute()
 
 void Game::Run()
 {
-
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");
 	renderer.PostWindow(&window);
 
 	AutoExecute();
+	console.Load();
 	
 	while (Loop());
 }

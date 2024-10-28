@@ -24,6 +24,7 @@ bool Window::MakeWindow(int w, int h, std::string name)
 	glfwMakeContextCurrent(win);
 
 	glfwSetKeyCallback(win, Input::KeyCallback);
+	glfwSetCharCallback(win, Input::CharCallback);
 
 	return win;
 }

@@ -1,7 +1,5 @@
 #include "Input.h"
 
-#include <GLFW/glfw3.h>
-
 #include "Game.h"
 
 std::unordered_map<int, std::string> Input::keycommands;
@@ -99,6 +97,16 @@ void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 {
 	std::string cmd;
 
+	if(Game::GetGame().console.IsDown())
+	{
+		if(key == GLFW_KEY_ESCAPE)
+			Game::GetGame().console.Toggle();
+		else if(key == GLFW_KEY_ENTER)
+			Game::GetGame().console.KeyInput('\n');
+		
+		return;
+	}
+
 	if (action == GLFW_REPEAT)
 		return;
 
@@ -119,4 +127,18 @@ void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 	}
 
 	Game::GetGame().ParseCommands(cmd);
+}
+
+void Input::CharCallback(GLFWwindow* window, unsigned int codepoint)
+{
+	if(codepoint > 128)
+	{
+		printf("Aegis currently only supports ASCII characters!\n");
+		return;
+	}
+
+	if(!Game::GetGame().console.IsDown())
+		return;
+
+	Game::GetGame().console.KeyInput((char) codepoint);
 }
