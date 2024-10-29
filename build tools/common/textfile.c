@@ -7,6 +7,8 @@
 
 #include "textfile.h"
 
+#include <string.h>
+
 void GetLine(char** out, FILE* ptr)
 {
     int i;

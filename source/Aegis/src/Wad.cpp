@@ -55,6 +55,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     char g[256];
     char b[256];
     unsigned char p;
+    char type;
     int datasize;
 
     if (!ptr)
@@ -68,7 +69,9 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     for(i=0; i<ntextures; i++)
     {
         fread(&diroffset, sizeof(diroffset), 1, ptr);
-        fseek(ptr, 12, SEEK_CUR);
+        fseek(ptr, 8, SEEK_CUR);
+        fread(&type, 1, 1, ptr);
+        fseek(ptr, 3, SEEK_CUR);
         fread(texname, 1, sizeof(texname), ptr);
         if(texname[15]) // Not null-terminated
         {
@@ -90,12 +93,23 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         return NULL;
     }
 
-    fseek(ptr, diroffset + 16, SEEK_SET);
+    if(type != 0x42 && type != 0x43)
+    {
+        printf("Unknown wad texture type %d.\n", type);
+        return NULL;
+    }
+
+    fseek(ptr, diroffset + 12, SEEK_SET);
     fread(&w, sizeof(w), 1, ptr);
     fread(&h, sizeof(h), 1, ptr);
-    fseek(ptr, 4 * sizeof(int), SEEK_CUR);
-    for(i=0, datasize=0; i<nmips; i++)
-        datasize += (w>>i) * (h>>i);
+    if(type == 0x43)
+    {
+        fseek(ptr, 4 * sizeof(int), SEEK_CUR);
+        for(i=0, datasize=0; i<nmips; i++)
+            datasize += (w>>i) * (h>>i);
+    }
+    else if(type == 0x42)
+        datasize = w * h;
     fseek(ptr, datasize + 2, SEEK_CUR);
 
     for(i=0; i<256; i++)
@@ -106,20 +120,39 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     }
 
     fseek(ptr, -256 * 3 - 2 - datasize, SEEK_CUR);
-    for(i=0; i<nmips; i++)
+    if(type == 0x43)
     {
-        pixeldata[i].resize((w>>i)*(h>>i));
-        for(j=0; j<(w>>i)*(h>>i); j++)
+        for(i=0; i<nmips; i++)
+        {
+            pixeldata[i].resize((w>>i)*(h>>i));
+            for(j=0; j<(w>>i)*(h>>i); j++)
+            {
+                fread(&p, 1, 1, ptr);
+                pixeldata[i][j] = 0;
+                pixeldata[i][j] |= r[p] <<  0;
+                pixeldata[i][j] |= g[p] <<  8;
+                pixeldata[i][j] |= b[p] << 16;
+                if(pixeldata[i][j] == 0x00FF0000)
+                    pixeldata[i][j] = 0;
+                else
+                    pixeldata[i][j] |= 0xFF000000;
+            }
+        }
+    }
+    else if(type == 0x42)
+    {
+        pixeldata[0].resize(w * h);
+        for(i=0; i<w*h; i++)
         {
             fread(&p, 1, 1, ptr);
-            pixeldata[i][j] = 0;
-            pixeldata[i][j] |= r[p] <<  0;
-            pixeldata[i][j] |= g[p] <<  8;
-            pixeldata[i][j] |= b[p] << 16;
-            if(pixeldata[i][j] == 0x00FF0000)
-                pixeldata[i][j] = 0;
+            pixeldata[0][i] = 0;
+            pixeldata[0][i] |= r[p] <<  0;
+            pixeldata[0][i] |= g[p] <<  8;
+            pixeldata[0][i] |= b[p] << 16;
+            if(pixeldata[0][i] == 0x00FF0000)
+                pixeldata[0][i] = 0;
             else
-                pixeldata[i][j] |= 0xFF000000;
+                pixeldata[0][i] |= 0xFF000000;
         }
     }
 

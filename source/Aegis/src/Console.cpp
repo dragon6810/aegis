@@ -40,7 +40,8 @@ void Console::Render()
         return;
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, consback->name);
+    if(consback)
+        glBindTexture(GL_TEXTURE_2D, consback->name);
 
     glBegin(GL_QUADS);
     glTexCoord2f(0, 1);
@@ -60,8 +61,8 @@ void Console::Load()
 {
     Wad wad;
 
-    wad.Open("gfx.wad");
-    consback = wad.LoadTexture("console");
+    wad.Open("aegis.wad");
+    consback = wad.LoadTexture("CONSBACK");
     wad.Unload();
 
     ResourceManager::UseTexture(consback);
