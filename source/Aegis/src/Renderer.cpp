@@ -11,7 +11,12 @@ void Renderer::Clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	window->GetSize();
-	glViewport(0, 0, window->w, window->h);
+
+	#ifdef __APPLE__
+		glViewport(0, 0, window->w<<1, window->h<<1);
+	#else
+		glViewport(0, 0, window->w, window->h);
+	#endif
 }
 
 bool Renderer::PostWindow(Window* window)
