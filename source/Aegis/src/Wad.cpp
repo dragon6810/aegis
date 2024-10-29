@@ -99,7 +99,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         return NULL;
     }
 
-    fseek(ptr, diroffset + 12, SEEK_SET);
+    fseek(ptr, diroffset, SEEK_SET);
     fread(&w, sizeof(w), 1, ptr);
     fread(&h, sizeof(h), 1, ptr);
     if(type == 0x43)
