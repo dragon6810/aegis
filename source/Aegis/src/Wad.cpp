@@ -29,7 +29,8 @@ void Wad::Open(std::string filename)
         return;
     }
 
-    fclose(old);
+    if(old)
+        fclose(old);
 }
 
 void Wad::Unload()
@@ -55,6 +56,9 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     char b[256];
     unsigned char p;
     int datasize;
+
+    if (!ptr)
+        return NULL;
 
     fseek(ptr, 4, SEEK_SET);
     fread(&ntextures, sizeof(ntextures), 1, ptr);
@@ -101,7 +105,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         fread(r + i, 1, 1, ptr);
     }
 
-    fseek(ptr, -258 - datasize, SEEK_CUR);
+    fseek(ptr, -256 * 3 - 2 - datasize, SEEK_CUR);
     for(i=0; i<nmips; i++)
     {
         pixeldata[i].resize((w>>i)*(h>>i));

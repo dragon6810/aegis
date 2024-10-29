@@ -27,3 +27,99 @@ void GetLine(char** out, FILE* ptr)
     
     (*out)[i-1] = 0;
 }
+
+char token[64];
+char *script, *scriptp, *scriptend;
+int scriptline;
+
+void LoadScript(char* filename)
+{
+    FILE* ptr;
+    int len;
+
+    ptr = fopen(filename, "r");
+    if (!ptr)
+    {
+        printf("Can't find script \"%s\".\n", filename);
+        return;
+    }
+    
+    fseek(ptr, 0, SEEK_END);
+    len = ftell(ptr);
+    fseek(ptr, 0, SEEK_SET);
+
+    scriptp = script = malloc(len);
+    fread(scriptp, 1, len, ptr);
+    scriptend = script + len;
+    scriptline = 1;
+    fclose(ptr);
+}
+
+boolean NextToken()
+{
+    int i;
+
+    memset(token, 0, sizeof(token));
+
+    if (scriptp >= scriptend)
+        return false;
+
+    while (*scriptp <= 32)
+    {
+        if (scriptp >= scriptend)
+            return false;
+
+        if (*scriptp++ == '\n')
+            scriptline++;
+    }
+
+    if (scriptp >= scriptend)
+        return false;
+
+    if (*scriptp == ';' || *scriptp == '#')
+    {
+        while (*scriptp++ != '\n')
+        {
+            if (scriptp >= scriptend)
+                return false;
+        }
+    }
+
+    i = 0;
+    while (*scriptp > 32 && scriptp < scriptend && i < 63)
+    {
+        token[i] = *scriptp++;
+        i++;
+    }
+
+    return true;
+}
+
+boolean TokenAvailable()
+{
+    char* searchp;
+
+    searchp = scriptp;
+
+    if (searchp >= scriptend)
+        return false;
+
+    while (*searchp <= 32)
+    {
+        if (searchp >= scriptend)
+            return false;
+
+        if (*searchp++ == '\n')
+            return false;
+    }
+
+    if (searchp >= scriptend)
+        return false;
+
+    if (*searchp == ';' || *searchp == '#')
+    {
+        return false;
+    }
+
+    return true;
+}
