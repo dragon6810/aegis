@@ -1,6 +1,8 @@
+#include "defs.h"
+
 typedef struct
 {
-    char b, g, r;
+    unsigned char b, g, r;
 } rgb8_t;
 
 typedef struct
@@ -11,3 +13,4 @@ typedef struct
 } bitmap_t;
 
 bitmap_t* LoadBitmap(char* path);
+boolean WriteBitmap(char* path, bitmap_t* bm);
