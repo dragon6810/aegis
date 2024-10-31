@@ -78,7 +78,7 @@ boolean NextToken()
     if (scriptp >= scriptend)
         return false;
 
-    if (*scriptp == ';' || *scriptp == '#')
+    if (*scriptp == '/' && *(scriptp+1) == '/')
     {
         while (*scriptp++ != '\n')
         {
@@ -118,7 +118,7 @@ boolean TokenAvailable()
     if (searchp >= scriptend)
         return false;
 
-    if (*searchp == ';' || *searchp == '#')
+    if (*scriptp == '/' && *(scriptp+1) == '/')
     {
         return false;
     }

@@ -138,12 +138,9 @@ boolean WriteBitmap(char* path, bitmap_t* bm)
     for(y=bm->h-1; y>=0; y--)
     {
         for(x=0; x<bm->w; x++)
-        {
-            printf("%d ", bm->data[y * bm->w + x]);
             fwrite(&bm->data[y * bm->w + x], 1, 1, ptr);
-        }
+        
         fwrite(&zero, (4 - (bm->w % 4)) % 4, 1, ptr);
-        printf("\n");  
     }
 
     fclose(ptr);

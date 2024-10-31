@@ -13,7 +13,26 @@ bitmap_t *glyphs[256];
 
 void WriteGlyphs()
 {
-    WriteBitmap("grit/36.bmp", glyphs['a']);
+    int i;
+
+    bitmap_t *curglyf;
+    char* curfilename;
+
+    curfilename = malloc(strlen(cdtexture) + 3 + 4 + 1);
+    
+    for(i=0; i<256; i++)
+    {
+        curglyf = glyphs[i];
+
+        if(!curglyf)
+            continue;
+
+        memset(curfilename, 0, strlen(curfilename));
+        sprintf(curfilename, "%s%d.bmp", cdtexture, i);
+        WriteBitmap(curfilename, curglyf);
+    }
+
+    free(curfilename);
 }
 
 void LoadTexture(char* path)
@@ -38,13 +57,18 @@ void LoadGlyph(char* chars, int w)
 
     bitmap_t *glyf;
 
-    if(curx + w >= bm->w)
+    if(chars[0] == '`')
     {
+        printf("curx: %d\nw:%d\nwidth:%d\n", curx, w, bm->w);
+        printf("Loading glyphs \"%s\" with width %d.\n", chars, w);
+    }
+
+    if(curx + w - 1 > bm->w)
+    {
+        printf("curx: %d\n w:%d\n width:%d\n", curx, w, bm->w);
         printf("No space to load glyph \"%s\" with width %d.\n", chars, w);
         return;
     }
-
-    printf("Loading glyphs \"%s\" with width %d.\n", chars, w);
 
     glyf = malloc(sizeof(bitmap_t));
     for(i=0; i<strlen(chars); i++)

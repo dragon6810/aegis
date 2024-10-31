@@ -57,7 +57,6 @@ $glyphs - 3
 $glyphs _ 5
 $glyphs = 4
 $glyphs + 3
-$glyphs x y
 $glyphs [ 2
 $glyphs ] 2
 $glyphs { 3
