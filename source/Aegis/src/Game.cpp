@@ -15,9 +15,10 @@ void Game::Render()
 {
 	renderer.Clear();
 
+	glEnable(GL_FRONT_FACE);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0,640,0,480,-1,1);
+	glOrtho(0,320,0,240,-1,1);
 	glMatrixMode(GL_MODELVIEW);
 
 	console.Render();

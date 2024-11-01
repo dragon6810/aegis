@@ -4,6 +4,12 @@
 
 #include "Wad.h"
 
+Console::~Console()
+{
+    ResourceManager::AbandonTexture(consback);
+    ResourceManager::AbandonTexture(font.tex);
+}
+
 bool Console::IsDown()
 {
     return isdown;
@@ -39,6 +45,7 @@ void Console::Render()
     if(!isdown)
         return;
 
+    #if 0
     glEnable(GL_TEXTURE_2D);
     if(consback)
         glBindTexture(GL_TEXTURE_2D, consback->name);
@@ -47,14 +54,17 @@ void Console::Render()
     glTexCoord2f(0, 1);
     glVertex2f(0, 0);
     glTexCoord2f(0, 0);
-    glVertex2f(0, 480);
+    glVertex2f(0, 240);
     glTexCoord2f(1, 0);
-    glVertex2f(640, 480);
+    glVertex2f(320, 240);
     glTexCoord2f(1, 1);
-    glVertex2f(640, 0);
+    glVertex2f(320, 0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
+    #endif
+
+    font.DrawText("Aegis Font Test", 0, 0);
 }
 
 void Console::Load()
@@ -63,7 +73,9 @@ void Console::Load()
 
     wad.Open("aegis.wad");
     consback = wad.LoadTexture("CONSBACK");
+    font = wad.LoadFont("grit");
     wad.Unload();
 
     ResourceManager::UseTexture(consback);
+    ResourceManager::UseTexture(font.tex);
 }

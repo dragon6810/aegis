@@ -17,7 +17,7 @@ include_directories(
 )
 
 # Add the executable
-add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/Game.h" "src/World.cpp" "src/World.h" "src/Window.cpp" "src/Window.h" "src/Renderer.cpp" "src/Renderer.h" "src/Command.cpp" "src/ResourceManager.cpp" "src/ResourceManager.h" "src/Input.cpp" "src/Input.h" "src/Wad.cpp" "src/Wad.h" "src/Console.cpp" "src/Console.h")
+add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/Game.h" "src/World.cpp" "src/World.h" "src/Window.cpp" "src/Window.h" "src/Renderer.cpp" "src/Renderer.h" "src/Command.cpp" "src/ResourceManager.cpp" "src/ResourceManager.h" "src/Input.cpp" "src/Input.h" "src/Wad.cpp" "src/Wad.h" "src/Console.cpp" "src/Console.h" "src/RasterFont.cpp" "src/RasterFont.h")
 
 set_target_properties(Aegis PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 

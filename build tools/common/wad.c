@@ -68,7 +68,7 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
 
     for(i=nimages, curfont=fonts; i<nfonts+nimages; i++, curfont++)
     {
-        dataoffsets[i] = datasize;
+        dataoffsets[i] = datasize + 12;
 
         datasizes[i] = 16 + 4 * 256 + 2 + 3 * 256;
         datasizes[i] += curfont->w * curfont->h;
@@ -143,13 +143,13 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
 
     for(i=nimages, curfont=fonts; i<nfonts+nimages; i++, curfont++)
     {
-        ncolors = 1;
+        misc = 1;   
         fwrite(&curfont->w, sizeof(int), 1, ptr);
         fwrite(&curfont->h, sizeof(int), 1, ptr);
-        fwrite(&ncolors, sizeof(int), 1, ptr);
+        fwrite(&misc, sizeof(int), 1, ptr);
         fwrite(&curfont->h, sizeof(int), 1, ptr);
 
-        ncolors = 0;
+        misc = 0;
         for(j=0, k=0; j<256; j++)
         {
             fwrite(&k, sizeof(short), 1, ptr);
@@ -160,7 +160,7 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
                 k += curfont->glyfs[j]->w;
             }
             else
-                fwrite(&ncolors, sizeof(short), 1, ptr);
+                fwrite(&misc, sizeof(short), 1, ptr);
         }
 
         for(k=0; k<curfont->h; k++)
@@ -175,7 +175,6 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
             }
         }
 
-        ncolors = 256;
         fwrite(&ncolors, sizeof(short), 1, ptr);
         for(j=0; j<256; j++)
         {
@@ -185,15 +184,15 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
         }
     }
 
-    ncolors = 0;
+    misc = 0;
     for(i=0, curimg=images; i<nimages; i++, curimg++)
     {
         fwrite(dataoffsets + i, sizeof(int), 1, ptr);
         fwrite(datasizes + i, sizeof(int), 1, ptr);
         fwrite(datasizes + i, sizeof(int), 1, ptr);
         fwrite(&curimg->type, 1, 1, ptr);
-        fwrite(&ncolors, 1, 1, ptr);
-        fwrite(&ncolors, 2, 1, ptr);
+        fwrite(&misc, 1, 1, ptr);
+        fwrite(&misc, 2, 1, ptr);
         fwrite(curimg->name, 1, 16, ptr);
     }
 
@@ -202,11 +201,11 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
         fwrite(dataoffsets + i, sizeof(int), 1, ptr);
         fwrite(datasizes + i, sizeof(int), 1, ptr);
         fwrite(datasizes + i, sizeof(int), 1, ptr);
-        ncolors = 0x46;
-        fwrite(&ncolors, 1, 1, ptr);
-        ncolors = 0;
-        fwrite(&ncolors, 1, 1, ptr);
-        fwrite(&ncolors, 2, 1, ptr);
+        misc = 0x46;
+        fwrite(&misc, 1, 1, ptr);
+        misc = 0;
+        fwrite(&misc, 1, 1, ptr);
+        fwrite(&misc, 2, 1, ptr);
         fwrite(curfont->name, 1, 16, ptr);
     }
 
