@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Command.h"
+#include "Console.h"
 
 void Wad::Open(std::string filename)
 {
@@ -15,7 +16,7 @@ void Wad::Open(std::string filename)
     ptr = fopen(filename.c_str(), "rb");
     if(!ptr)
     {
-        printf("Wad file does not exist \"%s\".\n", filename.c_str());
+        Console::Print("Wad file does not exist \"%s\".\n", filename.c_str());
         ptr = old;
         return;
     }
@@ -23,7 +24,7 @@ void Wad::Open(std::string filename)
     fread(magic, 1, 4, ptr);
     if(magic[0] != 'W' || magic[1] != 'A' || magic[2] != 'D' || magic[3] != '3')
     {
-        printf("Invalid wad file \"%s\".\n", filename.c_str());
+        Console::Print("Invalid wad file \"%s\".\n", filename.c_str());
         fclose(ptr);
         ptr = old;
         return;
@@ -77,7 +78,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         {
             memcpy(errname, texname, sizeof(texname));
             errname[16] = 0;
-            printf("Error in wad: texture name is not null-terminated \"%s\".\n", errname);
+            Console::Print("Error in wad: texture name is not null-terminated \"%s\".\n", errname);
             continue;
         }
 
@@ -89,13 +90,13 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
 
     if(i >= ntextures)
     {
-        printf("Texture not found in wad \"%s\".\n", name.c_str());
+        Console::Print("Texture not found in wad \"%s\".\n", name.c_str());
         return NULL;
     }
 
     if(type != 0x42 && type != 0x43)
     {
-        printf("Unknown wad texture type %d.\n", type);
+        Console::Print("Unknown wad texture type %d.\n", type);
         return NULL;
     }
 
@@ -235,7 +236,7 @@ RasterFont Wad::LoadFont(std::string name)
         {
             memcpy(errname, texname, sizeof(texname));
             errname[16] = 0;
-            printf("Error in wad: texture name is not null-terminated \"%s\".\n", errname);
+            Console::Print("Error in wad: texture name is not null-terminated \"%s\".\n", errname);
             continue;
         }
 
@@ -247,7 +248,7 @@ RasterFont Wad::LoadFont(std::string name)
 
     if(i >= ntextures)
     {
-        printf("Couldn't find font \"%s\" in wad.\n", name.c_str());
+        Console::Print("Couldn't find font \"%s\" in wad.\n", name.c_str());
         return font;
     }
 
@@ -258,7 +259,7 @@ RasterFont Wad::LoadFont(std::string name)
 
     if(nrows != 1)
     {
-        printf("Error in font \"%s\": Aegis currently only supports 1-row fonts.\n", name.c_str());
+        Console::Print("Error in font \"%s\": Aegis currently only supports 1-row fonts.\n", name.c_str());
         return font;
     }
 
@@ -288,7 +289,7 @@ RasterFont Wad::LoadFont(std::string name)
         pixeldata[i] |= r[p] <<  0;
         pixeldata[i] |= g[p] <<  8;
         pixeldata[i] |= b[p] << 16;
-        if(pixeldata[i] == 0x00FF0000)
+        if(pixeldata[i] == 0x00000000)
             pixeldata[i] = 0;
         else
             pixeldata[i] |= 0xFF000000;

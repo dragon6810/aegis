@@ -34,6 +34,7 @@ void Game::Tick()
 bool Game::Loop()
 {
 	long long now;
+	long long delta;
 	
 	// It should be illegal for it to be this hard to get the time
 	now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -51,6 +52,9 @@ bool Game::Loop()
 	}
 
 	Render();
+
+	delta = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - now;
+	deltatime = (float)delta / 1000.0;
 
 	return !window.ShouldClose();
 }
@@ -104,7 +108,7 @@ void Game::AutoExecute()
 	ptr = fopen(Command::autoexec.c_str(), "r");
 	if (!ptr)
 	{
-		printf("autoexec file \"%s\" does not exist.\n", Command::autoexec.c_str());
+		Console::Print("autoexec file \"%s\" does not exist.\n", Command::autoexec.c_str());
 		return;
 	}
 

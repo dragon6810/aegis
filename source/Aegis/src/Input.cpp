@@ -133,7 +133,7 @@ void Input::CharCallback(GLFWwindow* window, unsigned int codepoint)
 {
 	if(codepoint > 128)
 	{
-		printf("Aegis currently only supports ASCII characters!\n");
+		Console::Print("Aegis currently only supports ASCII characters!\n");
 		return;
 	}
 

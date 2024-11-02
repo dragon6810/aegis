@@ -30,6 +30,7 @@ private:
 
 public:
 	float intertick;
+	float deltatime;
 
 	World world;
 	Console console;

@@ -20,7 +20,7 @@ const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
 
 bool Command::CommandMap(std::string val)
 {
-    printf("Load Map \"%s\".\n", val.c_str());
+    Console::Print("Load Map \"%s\".\n", val.c_str());
     Game::GetGame().world.Load(val);
 
     return true;
@@ -49,7 +49,7 @@ bool Command::CommandBind(std::string val)
 
     if (Input::stringkeycodes.find(key) == Input::stringkeycodes.end())
     {
-        printf("Unknown key \"%s\".\n", key.c_str());
+        Console::Print("Unknown key \"%s\".\n", key.c_str());
         return false;
     }
 
@@ -69,13 +69,13 @@ void Command::Run(std::string key, std::string val)
 {
     if (cmdtable.find(key) == cmdtable.end())
     {
-        printf("Command not found \"%s\".\n", key.c_str());
+        Console::Print("Command not found \"%s\".\n", key.c_str());
         return;
     }
 
     if(val != "")
-        printf("Running command \"%s\".\n", (key + " " + val).c_str());
+        Console::Print("Running command \"%s\".\n", (key + " " + val).c_str());
     else
-        printf("Running command \"%s\".\n", key.c_str());
+        Console::Print("Running command \"%s\".\n", key.c_str());
     cmdtable.at(key)(val);
 }
