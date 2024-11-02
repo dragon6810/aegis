@@ -6,6 +6,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define MAX_TEXTURES 1024
+
 class ResourceManager
 {
 public:
@@ -26,5 +28,6 @@ public:
 	static void UseTexture(texture_t* texture);
 	static void AbandonTexture(texture_t* texture);
 private:
-	static std::vector<texture_t> textures;
+	static texture_t textures[MAX_TEXTURES];
+	static int lasttexture;
 };

@@ -50,7 +50,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     char texname[16];
     char errname[17];
     uint32_t w, h;
-    std::vector<int> pixeldata[nmips];
+    std::vector<int> pixeldata[4];
     char r[256];
     char g[256];
     char b[256];

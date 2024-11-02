@@ -23,6 +23,7 @@ bool Renderer::PostWindow(Window* window)
 {
 	this->window = window;
 
+	glewInit();
 	glFrontFace(GL_CW);
 
 	return true;

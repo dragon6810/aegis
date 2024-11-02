@@ -43,4 +43,8 @@ elseif (WIN32)
         ${CMAKE_SOURCE_DIR}/external/SFML/lib/sfml-audio.lib
         opengl32
     )
+
+    add_custom_command(TARGET Aegis POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/external/glew/bin/glew32.dll" $<TARGET_FILE_DIR:Aegis>)
 endif()

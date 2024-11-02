@@ -45,8 +45,8 @@ void Console::Render()
     if(!isdown)
         return;
 
-    #if 0
     glEnable(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
     if(consback)
         glBindTexture(GL_TEXTURE_2D, consback->name);
 
@@ -62,7 +62,6 @@ void Console::Render()
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
-    #endif
 
     font.DrawText("Aegis Font Test\nThis is a new line", 0, 6);
 }

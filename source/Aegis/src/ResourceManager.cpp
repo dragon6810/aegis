@@ -1,13 +1,14 @@
 #include "ResourceManager.h"
 
-std::vector<ResourceManager::texture_t> ResourceManager::textures;
+ResourceManager::texture_t ResourceManager::textures[MAX_TEXTURES]{};
+int ResourceManager::lasttexture = 0;
 
 ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std::string id)
 {
 	int i;
 	texture_t* tex;
 
-	for (i = 0, tex = textures.data(); i < textures.size(); i++, tex++)
+	for (i = 0, tex = textures; i < lasttexture; i++, tex++)
 	{
 		if (source == tex->source && id == tex->id)
 			return tex;
@@ -18,9 +19,18 @@ ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std
 
 ResourceManager::texture_t* ResourceManager::NewTexture()
 {
-	textures.push_back({});
-	glGenTextures(1, &textures[textures.size() - 1].name);
-	return &textures[textures.size() - 1];
+	int i;
+	for (i = 0; i < lasttexture; i++)
+	{
+		if (textures[i].name == -1)
+			break;
+	}
+
+	if (i == lasttexture)
+		lasttexture++;
+
+	glGenTextures(1, &textures[i].name);
+	return &textures[i];
 }
 
 bool ResourceManager::FreeTexture(texture_t* texture)
@@ -30,12 +40,15 @@ bool ResourceManager::FreeTexture(texture_t* texture)
 	if(!texture)
 		return false;
 
-	i = (texture - textures.data()) / sizeof(texture_t);
+	i = (texture - textures) / sizeof(texture_t);
 
-	if (i >= textures.size())
+	if (i >= lasttexture)
 		return false;
 
-	textures.erase(textures.begin() + i);
+	if (i == lasttexture - 1)
+		lasttexture--;
+
+	textures[i].name = -1;
 	return true;
 }
 
