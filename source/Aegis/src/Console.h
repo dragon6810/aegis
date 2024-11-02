@@ -25,7 +25,7 @@ private:
     ResourceManager::texture_t* consback;
     RasterFont font;
     float curoffs = 240;
-    const int lowoffs = 160;
+    const int lowoffs = 161; // So theres not a little nibble of characters at the top
     const int visheight = 240 - lowoffs;
     int state = 0;
 

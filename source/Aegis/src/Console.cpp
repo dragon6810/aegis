@@ -136,7 +136,7 @@ void Console::Render()
         }
 
         std::reverse(curline.begin(), curline.end());
-        font.DrawText(curline, 0, (int) curoffs + (i + 1) * font.tex->height);
+        font.DrawText(curline, 0, (int) curoffs + (i + 2) * font.tex->height);
         i++;
         c--;
     }
