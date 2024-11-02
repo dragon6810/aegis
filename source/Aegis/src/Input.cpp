@@ -99,10 +99,18 @@ void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 	if(Game::GetGame().console.IsDown())
 	{
-		if(key == GLFW_KEY_ESCAPE)
+		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			Game::GetGame().console.Toggle();
-		else if(key == GLFW_KEY_ENTER)
+		else if(key == GLFW_KEY_ENTER && action == GLFW_PRESS)
 			Game::GetGame().console.KeyInput('\n');
+		else if(key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
+			Game::GetGame().console.DecCursor();
+		else if(key == GLFW_KEY_RIGHT && action != GLFW_RELEASE)
+			Game::GetGame().console.IncCursor();
+		else if(key == GLFW_KEY_BACKSPACE && action != GLFW_RELEASE)
+			Game::GetGame().console.Backspace();
+		else if(key == GLFW_KEY_DELETE && action != GLFW_RELEASE)
+			Game::GetGame().console.Delete();
 		
 		return;
 	}

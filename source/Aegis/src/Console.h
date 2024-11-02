@@ -17,10 +17,18 @@ public:
 
     void Toggle();
     void KeyInput(char c);
+    void DecCursor();
+    void IncCursor();
+    void Backspace();
+    void Delete();
 
     bool IsDown();
 private:
     bool isdown;
+
+    std::string input;
+    int cursor;
+    int window;
 
     ResourceManager::texture_t* consback;
     RasterFont font;

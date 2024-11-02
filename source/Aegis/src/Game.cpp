@@ -103,8 +103,7 @@ void Game::AutoExecute()
 
 	uint64_t size;
 	std::string commands;
-
-	commands = std::filesystem::current_path().string();
+	
 	ptr = fopen(Command::autoexec.c_str(), "r");
 	if (!ptr)
 	{

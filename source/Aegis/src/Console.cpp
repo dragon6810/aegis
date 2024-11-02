@@ -40,7 +40,48 @@ void Console::KeyInput(char c)
     if (state != 2)
         return;
 
-    Console::Print("Console input: '%c'.\n", c);
+    if(c == '\n')
+    {
+        Game::GetGame().ParseCommands(input);
+        input.clear();
+        cursor = 0;
+        window = 0;
+        return;
+    }
+
+    if(cursor == input.size())
+        cursor++;
+
+    input.push_back(c);
+}
+
+void Console::DecCursor()
+{
+    if(cursor)
+        cursor--;
+}
+
+void Console::IncCursor()
+{
+    if(cursor < input.size())
+        cursor++;
+}
+
+void Console::Backspace()
+{
+    if(!cursor)
+        return;
+    
+    if(input.size())
+        input.erase(input.begin() + cursor - 1);
+    
+    cursor--;
+}
+
+void Console::Delete()
+{
+    if(cursor < input.size())
+        input.erase(input.begin() + cursor);
 }
 
 void Console::Hide()
@@ -72,6 +113,8 @@ void Console::Render()
     int nrows;
     std::string curline;
     char* c;
+    int cursorw, cursorx;
+    long long now;
 
     if(!state)
         return;
@@ -139,6 +182,31 @@ void Console::Render()
         font.DrawText(curline, 0, (int) curoffs + (i + 2) * font.tex->height);
         i++;
         c--;
+    }
+
+    font.DrawText(input, 0, (int) curoffs);
+
+    if(cursor < input.size())
+        cursorw = font.widths[input[cursor]];
+    else
+        cursorw = 5;
+
+    for(i=0, cursorx=0; i<cursor && i<input.size(); i++)
+        cursorx += font.widths[input[i]];
+
+    if(cursor)
+        cursorx += cursor;
+
+    now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    if((now >> 10) & 1)
+    {
+        glBegin(GL_QUADS);
+        glVertex2f(cursorx, curoffs);
+        glVertex2f(cursorx + cursorw, curoffs);
+        glVertex2f(cursorx + cursorw, curoffs + font.tex->height);
+        glVertex2f(cursorx, curoffs + font.tex->height);
+        glEnd();
     }
 
     glDisable(GL_ALPHA_TEST);
