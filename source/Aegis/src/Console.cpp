@@ -64,7 +64,7 @@ void Console::Render()
     glDisable(GL_TEXTURE_2D);
     #endif
 
-    font.DrawText("Aegis Font Test", 0, 0);
+    font.DrawText("Aegis Font Test\nThis is a new line", 0, 6);
 }
 
 void Console::Load()
