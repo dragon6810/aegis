@@ -74,4 +74,7 @@ private:
 	void LoadSurfs(FILE* ptr);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
+	
+	// Entity Loading
+	void LoadEntities(FILE* ptr);
 };

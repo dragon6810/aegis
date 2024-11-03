@@ -3,6 +3,64 @@
 #include "Command.h"
 #include "Console.h"
 
+void World::LoadEntities(FILE* ptr)
+{
+	int i;
+	char *c;
+
+	std::string buff;
+	std::string curstr;
+	std::vector<std::string> entbundles;
+	std::vector<std::unordered_map<std::string, std::string>> ents;
+
+	int lumpoffs;
+	int lumpsize;
+
+	fseek(ptr, 4 + LUMP_ENTITIES * 8, SEEK_SET);
+	fread(&lumpoffs, sizeof(int), 1, ptr);
+	fread(&lumpsize, sizeof(int), 1, ptr);
+
+	buff.resize(lumpsize);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	fread(buff.data(), 1, lumpsize, ptr);
+
+	for(c=buff.data(); c<buff.data() + buff.size(); c++)
+	{
+		if(*c == '{')
+		{
+			c++;
+			continue;
+		}
+		if(*c == '}')
+		{
+			c++;
+			entbundles.push_back(curstr);
+			curstr.clear();
+			continue;
+		}
+
+		curstr.push_back(*c);
+	}
+
+	ents.resize(entbundles.size());
+	for(i=0; i<entbundles.size(); i++)
+	{
+		curstr.clear();
+		for(c=entbundles[i].data(); c<entbundles[i].data() + entbundles[i].size(); c++)
+		{
+			if(*c == '\n')
+			{
+				c++;
+				Console::Print("Pair \"%s\".\n", curstr.c_str());
+				curstr.clear();
+				continue;
+			}
+
+			curstr.push_back(*c);
+		}
+	}
+}
+
 void World::LoadNodes(FILE* ptr)
 {
 	int i, j;
@@ -279,6 +337,7 @@ bool World::Load(std::string name)
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
+	LoadEntities(ptr);
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
