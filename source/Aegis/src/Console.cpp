@@ -86,14 +86,12 @@ void Console::Delete()
 
 void Console::Hide()
 {
-    Console::Print("Hide console.\n");
     isdown = false;
     state = 3;
 }
 
 void Console::Show()
 {
-    Console::Print("Show console.\n");
     isdown = true;
     state = 1;
 }

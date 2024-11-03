@@ -20,7 +20,6 @@ const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
 
 bool Command::CommandMap(std::string val)
 {
-    Console::Print("Load Map \"%s\".\n", val.c_str());
     Game::GetGame().world.Load(val);
 
     return true;
