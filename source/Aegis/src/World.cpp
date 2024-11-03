@@ -71,8 +71,10 @@ void World::LoadNodes(FILE* ptr)
 	int nnodes;
 
 	int misc;
-	int firstface;
-	int nfaces;
+	unsigned int iplane;
+	short child;
+	unsigned short firstface;
+	unsigned short nfaces;
 
 	fseek(ptr, 4 + LUMP_NODES * 8, SEEK_SET);
 	fread(&lumpoffs, sizeof(int), 1, ptr);
@@ -85,17 +87,18 @@ void World::LoadNodes(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, curnode=nodes.data(); i<nnodes; i++, curnode++)
 	{
-		fread(&misc, sizeof(int), 1, ptr);
-		curnode->pl = &planes[misc];
+		fread(&iplane, sizeof(int), 1, ptr);
+		curnode->pl = &planes[iplane];
 		for(j=0; j<2; j++)
 		{
-			misc = 0;
-			fread(&misc, sizeof(short), 1, ptr);
-			if(misc > 0)
-				curnode->children[j] = &nodes[misc];
+			child = 0;
+			fread(&child, sizeof(short), 1, ptr);
+			if(child >= 0)
+				curnode->children[j] = &nodes[child];
 			else
-				curnode->leaves[j] = &leafs[misc];
+				curnode->leaves[j] = &leafs[~child];
 		}
+
 		for(j=0; j<3; j++)
 		{
 			misc = 0;
@@ -112,8 +115,8 @@ void World::LoadNodes(FILE* ptr)
 		fread(&firstface, sizeof(short), 1, ptr);
 		fread(&nfaces, sizeof(short), 1, ptr);
 		curnode->surfs.resize(nfaces);
-		for(i=0; i<nfaces; i++)
-			curnode->surfs[i] = &surfs[nfaces + firstface];
+		for(j=0; j<nfaces; j++)
+			curnode->surfs[j] = &surfs[j + firstface];
 	}
 }
 
@@ -173,7 +176,7 @@ void World::LoadLeafs(FILE* ptr)
 		}
 
 		fseek(ptr, before, SEEK_SET);
-		fseek(ptr, sizeof(char), SEEK_CUR);
+		fseek(ptr, sizeof(char) * 4, SEEK_CUR);
 	}
 }
 

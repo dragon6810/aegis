@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdarg>
 #include <algorithm>
+#include <chrono>
 
 #include "Wad.h"
 #include "Game.h"
