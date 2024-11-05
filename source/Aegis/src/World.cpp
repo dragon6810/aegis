@@ -3,6 +3,24 @@
 #include "Command.h"
 #include "Console.h"
 
+std::unique_ptr<EntityBase> World::LoadEntity(const std::unordered_map<std::string, std::string>& pairs)
+{
+	std::string classname;
+	std::unique_ptr<EntityBase> ent;
+
+	if (pairs.find("classname") == pairs.end())
+		return NULL;
+
+	classname = pairs.at("classname");
+	if (entityfactory.find(classname) == entityfactory.end())
+		return nullptr;
+
+	ent = entityfactory.at(classname)();
+	ent->Init(pairs);
+
+	return ent;
+}
+
 void World::LoadEntities(FILE* ptr)
 {
 	int i;
@@ -69,6 +87,10 @@ void World::LoadEntities(FILE* ptr)
 			curstr.push_back(*c);
 		}
 	}
+	
+	entities.reserve(ents.size());
+	for (i=0; i<ents.size(); i++)
+		entities.emplace_back(std::move(LoadEntity(ents[i])));
 }
 
 void World::LoadNodes(FILE* ptr)

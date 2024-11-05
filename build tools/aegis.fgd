@@ -1,0 +1,131 @@
+@BaseClass = Angles
+[
+    angles(string) : "Orientation (Pitch Yaw Roll)" : "0 0 0"
+]
+
+@BaseClass = Targetname 
+[ 
+	targetname(target_source) : "Name"
+]
+
+@BaseClass = Target 
+[ 
+	target(target_destination) : "Target"
+]
+
+@BaseClass = RenderModes 
+[
+	rendermode(choices) : "Render Mode" : 0 =
+	[
+		0: "Normal"
+		1: "Glow"
+		2: "Solid"
+		3: "Additive"
+	]
+]
+
+@BaseClass = Light 
+[
+	_light(color255) : "Brightness" : "255 255 255 255"
+      style(Choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		2 : "Slow, strong pulse"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+        10: "Fluorescent flicker"
+        11: "Slow pulse, noblack"
+	]
+]
+
+@BaseClass base(Angles) = Zombie
+[
+    health(integer) : "Spawn Health" : 100   
+]
+
+@SolidClass base(Targetname, Target) = breakable
+[
+    health(integer) : "Health" : 1
+    activatemode(choices) "Activation Mode" : 0 =
+    [
+        0: "Damage Or Logic"
+        1 : "Logic Only"
+        2 : "Damage And Logic"
+    ]
+    material(choices) : "Material" : 0 =
+    [
+        0: "Stone"
+        1: "Concrete"
+        2: "Metal"
+    ]
+    delay(string) : "Delay Before Gibbing" : "0"
+]
+
+@PointClass base(Targetname, Target, Angles) size(-16 -16 0, 16 16 72) color(255 0 255) = zombiesequence : "Monster Scripted Sequence"
+[
+    targetentity(string) : "Target Entity" : ""
+    doneanimation(string) : "Animation When Done" : ""
+    movemethod(choices) : "Movement Method" : 0
+    [
+        0: "Run"
+        1: "Shamble"
+        2: "Teleport"
+        3: "Turn To Face"
+    ]
+]
+
+@PointClass iconsprite("sprites/speaker.spr") base(Targetname) = ambient_generic : "Ambient Generic"
+[
+    wav(sound) : "Audio File"
+    volume(integer) : "Volume (0-10)" : 8
+    pitch(integer) : "Pitch (Percentage)" : 100
+    spawnflags(flags) =
+	[
+		1 : "Global" : 0
+		2 : "Small Radius" : 0
+		4 : "Medium Radius" : 1
+		8 : "Large Radius" : 0
+		16 : "Start Off" : 0
+	]
+]
+
+@PointClass studio("models/camera/camera.mdl") base(Targetname, Angles) size(-16 -16 -16, 16 16 16) = player_camera : "Player Camera" []
+@PointClass studio("models/tank/tank.mdl") base(Angles) size(-16 -16 -16, 16 16 16) = player_tank : "Player Tank" []
+
+@PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = explosion : "Explosion" 
+[
+    damage(integer) : "Damage"
+    spawnflags(flags) =
+    [
+        1: "Invisible" : 0
+        2: "Leave Scorch" : 1
+    ]
+]
+
+@PointClass base(Targetname) = screenshake : "Screen Shake"
+[
+    magnitude(integer) : "Magnitude (0-10)" : 4
+    frequency(integer) : "Frequency (0-255)" : 64
+]
+
+@SolidClass base(RenderFields) = bspmodel : "BSP Model" []
+@SolidClass base(RenderFields) = fakebspmodel : "Fake BSP Model (No Collision)" []
+
+@PointClass decal() base(Targetname, Appearflags) = leveldecal : "Decal"
+[
+	texture(decal)
+    spawnflags(flags) =
+    [
+        1: "Start Visible": 1
+    ]
+]
+
+@PointClass base(Zombie) studio("models/zgrunt/zgrunt.mdl") = zombie_grunt : "Zombie Grunt" []
+
+@PointClass base(Light) = light : "Light" []

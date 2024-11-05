@@ -2,8 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <functional>
 
 #include "Vector.h"
+#include "EntityBase.h"
+#include "EntityCamera.h"
 
 class World
 {
@@ -59,6 +63,8 @@ private:
 		LUMP_MODELS=       14,
 	};
 public:
+	std::vector<std::unique_ptr<EntityBase>> entities;
+
 	std::vector<node_t>   nodes;
 	std::vector<leaf_t>   leafs; // Ehhhh
 	std::vector<surf_t>   surfs;
@@ -67,6 +73,12 @@ public:
 
 	bool Load(std::string name);
 private:
+	// Entity factory, update with new entity classnames
+	std::unordered_map<std::string, std::function<std::unique_ptr<EntityBase>()>> entityfactory =
+	{
+		{"player_camera", []() { return std::make_unique<EntityCamera>(); }},
+	};
+
 	// Loading
 	bool VerifyFile(FILE* ptr);
 	void LoadPlanes(FILE* ptr);
@@ -77,4 +89,5 @@ private:
 	
 	// Entity Loading
 	void LoadEntities(FILE* ptr);
+	std::unique_ptr<EntityBase> LoadEntity(const std::unordered_map<std::string, std::string>& pairs);
 };
