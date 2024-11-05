@@ -64,6 +64,7 @@ private:
 	};
 public:
 	std::vector<std::shared_ptr<EntityBase>> entities;
+	std::shared_ptr<EntityCamera> camera;
 
 	std::vector<node_t>   nodes;
 	std::vector<leaf_t>   leafs; // Ehhhh
@@ -72,11 +73,13 @@ public:
 	std::vector<plane_t> planes; // You broke the 4-letter synergy, man!
 
 	bool Load(std::string name);
+
+	void Render();
 private:
 	// Entity factory, update with new entity classnames
 	std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
 	{
-		{"player_camera", []() { return std::make_unique<EntityCamera>(); }},
+		{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
 	};
 
 	// Loading

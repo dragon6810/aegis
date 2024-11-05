@@ -18,6 +18,9 @@ std::shared_ptr<EntityBase> World::LoadEntity(const std::unordered_map<std::stri
 	ent = entityfactory.at(classname)();
 	ent->Init(pairs);
 
+	if (classname == "player_camera")
+		camera = std::dynamic_pointer_cast<EntityCamera>(ent);
+
 	return ent;
 }
 
@@ -378,4 +381,9 @@ bool World::Load(std::string name)
 
 	fclose(ptr);
 	return true;
+}
+
+void World::Render()
+{
+
 }
