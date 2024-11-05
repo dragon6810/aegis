@@ -13,6 +13,9 @@ void World::LoadEntities(FILE* ptr)
 	std::vector<std::string> entbundles;
 	std::vector<std::unordered_map<std::string, std::string>> ents;
 
+	char key[32];
+	char val[1024];
+
 	int lumpoffs;
 	int lumpsize;
 
@@ -50,9 +53,16 @@ void World::LoadEntities(FILE* ptr)
 		{
 			if(*c == '\n')
 			{
-				c++;
-				Console::Print("Pair \"%s\".\n", curstr.c_str());
+				key[0] = val[0] = 0;
+				if (sscanf(curstr.c_str(), "\"%[^\"]\" \"%[^\"]\"", key, val) != 2)
+				{
+					curstr.clear();
+					continue;
+				}
 				curstr.clear();
+
+				ents[i][std::string(key)] = std::string(val);
+
 				continue;
 			}
 
@@ -79,7 +89,7 @@ void World::LoadNodes(FILE* ptr)
 	fseek(ptr, 4 + LUMP_NODES * 8, SEEK_SET);
 	fread(&lumpoffs, sizeof(int), 1, ptr);
 	fread(&lumpsize, sizeof(int), 1, ptr);
-	nnodes = lumpsize / 20;
+	nnodes = lumpsize / 24;
 	nodes.resize(nnodes);
 
 	Console::Print("Node Count: %d.\n", nnodes);
