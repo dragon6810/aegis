@@ -22,6 +22,7 @@ public:
 	static Quaternion FromEuler(Vector3 r);
 	static Quaternion AxisAngle(Vector3 a, float r);
 
+	void Normalize();
 	Matrix4x4 ToMatrix4();
 
 	Quaternion operator*(Quaternion b);
