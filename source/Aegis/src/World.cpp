@@ -385,5 +385,12 @@ bool World::Load(std::string name)
 
 void World::Render()
 {
+	camera->SetUpGL();
 
+	glBegin(GL_QUADS);
+	glVertex3f(-256, 256, 0);
+	glVertex3f(256, 256, 0);
+	glVertex3f(256, -256, 0);
+	glVertex3f(-256, -256, 0);
+	glEnd();
 }

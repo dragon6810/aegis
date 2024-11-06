@@ -15,11 +15,15 @@ void Game::Render()
 {
 	renderer.Clear();
 
-	glEnable(GL_FRONT_FACE);
+	glEnable(GL_DEPTH_TEST);
+	world.Render();
+
+	glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0,320,0,240,-1,1);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	console.Render();
 
