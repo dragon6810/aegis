@@ -12,6 +12,7 @@
 int main(int argc, char** argv)
 {
     int i;
+    char *mappath;
     
     printf("[========== BRUSHSTROKE v0.1 ==========]\n");
     printf("Brushstroke is under the MIT license.\n\n");
@@ -30,7 +31,8 @@ int main(int argc, char** argv)
         }
     }
     
-    ParseMap(argv[i]);
+    mappath = DefaultExtension(argv[i], ".map");
+    ParseMap(mappath);
     
     return 0;
 }

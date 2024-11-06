@@ -31,8 +31,7 @@ Quaternion Quaternion::FromEuler(Vector3 r)
     y = Vector3(0, 1, 0);
     z = Vector3(0, 0, 1);
 
-    return AxisAngle(z, r.y + M_PI / 2.0) * AxisAngle(x, - r.x);
-    //return AxisAngle(z, r.y - M_PI / 2.0) * AxisAngle(x, 0) * AxisAngle(y, r.z);
+    return AxisAngle(z, r.y + M_PI / 2.0) * AxisAngle(x, - r.x) * AxisAngle(y, r.z);
 }
 
 Quaternion Quaternion::AxisAngle(Vector3 a, float r)

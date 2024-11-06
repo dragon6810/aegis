@@ -125,3 +125,18 @@ boolean TokenAvailable()
 
     return true;
 }
+
+char* DefaultExtension(char* name, char* ext)
+{
+    int i;
+    char *new;
+
+    if(!strcmp(name + strlen(name) - strlen(ext), ext))
+        return name;
+
+    new = malloc(strlen(name) + strlen(ext) + 1);
+    strcpy(new, name);
+    strcat(new, ext);
+    
+    return new;
+}

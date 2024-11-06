@@ -23,4 +23,6 @@ void LoadScript(char* filename);
 boolean NextToken();
 boolean TokenAvailable();
 
+char* DefaultExtension(char* name, char* ext);
+
 #endif /* textfile_h */
