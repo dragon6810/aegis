@@ -8,6 +8,8 @@
 class Wad
 {
 public:
+    ~Wad();
+
     void Open(std::string filename);
     void Unload();
 

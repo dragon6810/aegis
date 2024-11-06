@@ -19,6 +19,11 @@ std::string Vector3::ToString()
     return "(" + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z) + ")";
 }
 
+float Vector3::Dot(Vector3 a, Vector3 b)
+{
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
 Vector3 Vector3::operator*(Matrix4x4 m)
 {
     Vector3 v;

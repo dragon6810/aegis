@@ -13,6 +13,8 @@ public:
     float x, y, z;
     
     std::string ToString();
+
+    static float Dot(Vector3 a, Vector3 b);
     
     Vector3 operator*(Matrix4x4 m);
     float& operator[](int i);

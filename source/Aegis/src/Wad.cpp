@@ -6,6 +6,11 @@
 #include "Command.h"
 #include "Console.h"
 
+Wad::~Wad()
+{
+    Unload();
+}
+
 void Wad::Open(std::string filename)
 {
     FILE* old;
@@ -105,6 +110,9 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         nmips = 4;
 
     fseek(ptr, diroffset, SEEK_SET);
+    if(type == 0x43)
+        fseek(ptr, 16, SEEK_CUR);
+        
     fread(&w, sizeof(w), 1, ptr);
     fread(&h, sizeof(h), 1, ptr);
     if(type == 0x43)
@@ -115,7 +123,9 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     }
     else if(type == 0x42)
         datasize = w * h;
-    fseek(ptr, datasize + 2, SEEK_CUR);
+    fseek(ptr, datasize, SEEK_CUR);
+    short ncolors;
+    fread(&ncolors, 2, 1, ptr);
 
     for(i=0; i<256; i++)
     {

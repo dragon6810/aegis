@@ -99,7 +99,12 @@ void WriteWad(char* path, image_t* images, int nimages, font_t* fonts, int nfont
                     }
                 }
                 fwrite(&ncolors, sizeof(short), 1, ptr);
-                fwrite(curimg->bm->palette, 3, 256, ptr);
+                for(j=0; j<256; j++)
+                {
+                    fwrite(&curimg->bm->palette[j].b, 1, 1, ptr);
+                    fwrite(&curimg->bm->palette[j].g, 1, 1, ptr);
+                    fwrite(&curimg->bm->palette[j].r, 1, 1, ptr);
+                }
                 fwrite(&ncolors, sizeof(short), 1, ptr);
 
                 break;

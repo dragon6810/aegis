@@ -12,6 +12,13 @@ std::shared_ptr<EntityBase> World::LoadEntity(const std::unordered_map<std::stri
 		return NULL;
 
 	classname = pairs.at("classname");
+
+	if(classname == "worldspawn")
+	{
+		if(pairs.find("wad") != pairs.end())
+			wadpath = pairs.at("wad");
+	}
+
 	if (entityfactory.find(classname) == entityfactory.end())
 		return nullptr;
 
@@ -228,6 +235,7 @@ void World::LoadSurfs(FILE* ptr)
 	long long before;
 	int firstedge;
 	short nedges;
+	unsigned short itex;
 
 	fseek(ptr, 4 + LUMP_FACES * 8, SEEK_SET);
 	fread(&lumpoffs, sizeof(int), 1, ptr);
@@ -272,7 +280,103 @@ void World::LoadSurfs(FILE* ptr)
 		}
 
 		fseek(ptr, before, SEEK_SET);
-		fseek(ptr, 10, SEEK_CUR);
+		fread(&itex, sizeof(short), 1, ptr);
+		cursurf->tex = &texinfos[itex];
+
+		fseek(ptr, 8, SEEK_CUR);
+	}
+}
+
+ResourceManager::texture_t* World::LoadTexture(int index, FILE* ptr)
+{
+	long long before;
+
+	int i;
+
+	int lumpoffs;
+
+	uint32_t ntextures;
+	uint32_t textureoffs;
+
+	char name[16];
+	ResourceManager::texture_t *tex;
+
+	before = ftell(ptr);
+
+	fseek(ptr, 4 + LUMP_TEXTURES * 8, SEEK_SET);
+	fread(&lumpoffs, sizeof(int), 1, ptr);
+	fseek(ptr, lumpoffs, SEEK_SET);
+
+	fread(&ntextures, sizeof(int), 1, ptr);
+	fseek(ptr, index * sizeof(int), SEEK_CUR);
+	fread(&textureoffs, sizeof(int), 1, ptr);
+	fseek(ptr, lumpoffs + textureoffs, SEEK_SET);
+
+	fread(name, 1, 16, ptr);
+	fseek(ptr, before, SEEK_SET);
+
+	for(i=0; i<wads.size(); i++)
+	{
+		tex = wads[i].LoadTexture(name);
+		if(tex)
+			return tex;
+	}
+
+	return NULL;
+}
+
+void World::LoadTextures(FILE* ptr)
+{
+	int i;
+	texinfo_t *curtex;
+	
+	char* c;
+	std::string realpath;
+	Wad w;
+
+	int lumpoffs;
+	int lumpsize;
+	int ntexinfo;
+
+	uint32_t tex;
+
+	for(i=0, c=wadpath.data(); i<wadpath.size(); i++, c++)
+	{
+		if(!memcmp(c, Command::datadir.data(), Command::datadir.size()))
+			break;
+	}
+
+	if(i >= wadpath.size())
+	{
+		Console::Print("Wad not in game dir \"%s\".\n", wadpath.c_str());
+		return;
+	}
+
+	realpath.resize(wadpath.size() - i - Command::datadir.size());
+	strcpy(realpath.data(), c + Command::datadir.size());
+	
+	w.Open(realpath.c_str());
+	wads.push_back(w);
+
+	fseek(ptr, 4 + LUMP_TEXINFO * 8, SEEK_SET);
+	fread(&lumpoffs, sizeof(int), 1, ptr);
+	fread(&lumpsize, sizeof(int), 1, ptr);
+	ntexinfo = lumpsize / 40;
+	texinfos.resize(ntexinfo);
+
+	Console::Print("Tex Info Count: %d.\n", ntexinfo);
+
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0, curtex=texinfos.data(); i<ntexinfo; i++, curtex++)
+	{
+		fread(&curtex->s, sizeof(float), 3, ptr);
+		fread(&curtex->sshift, sizeof(float), 1, ptr);
+		fread(&curtex->t, sizeof(float), 3, ptr);
+		fread(&curtex->tshift, sizeof(float), 1, ptr);
+
+		fread(&tex, sizeof(int), 1, ptr);
+		curtex->tex = LoadTexture(tex, ptr);
+		fseek(ptr, sizeof(int), SEEK_CUR);
 	}
 }
 
@@ -370,12 +474,13 @@ bool World::Load(std::string name)
 		return false;
 	}
 
+	LoadEntities(ptr);
 	LoadPlanes(ptr);
 	LoadVerts(ptr);
+	LoadTextures(ptr);
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
-	LoadEntities(ptr);
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
@@ -383,14 +488,35 @@ bool World::Load(std::string name)
 	return true;
 }
 
+void World::RenderSurf(surf_t* surf)
+{
+	int i;
+	Vector3 pos;
+
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	if(surf->tex->tex)
+		glBindTexture(GL_TEXTURE_2D, surf->tex->tex->name);
+	glBegin(GL_POLYGON);
+	for(i=0; i<surf->vertices.size(); i++)
+	{
+		pos = *surf->vertices[i];
+		if(surf->tex->tex)
+			glTexCoord2f(
+				(Vector3::Dot(pos, surf->tex->s) + surf->tex->sshift) / surf->tex->tex->width, 
+				(Vector3::Dot(pos, surf->tex->t) + surf->tex->tshift) / surf->tex->tex->height);
+		glVertex3f(pos.x, pos.y, pos.z);
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 void World::Render()
 {
+	int i;
+
 	camera->SetUpGL();
 
-	glBegin(GL_QUADS);
-	glVertex3f(-256, 256, 0);
-	glVertex3f(256, 256, 0);
-	glVertex3f(256, -256, 0);
-	glVertex3f(-256, -256, 0);
-	glEnd();
+	for(i=0; i<surfs.size(); i++)
+		RenderSurf(&surfs[i]);
 }

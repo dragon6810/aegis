@@ -6,6 +6,8 @@
 #include <functional>
 
 #include "Vector.h"
+#include "ResourceManager.h"
+#include "Wad.h"
 #include "EntityBase.h"
 #include "EntityCamera.h"
 
@@ -18,13 +20,19 @@ public:
 		float d;
 	};
 
+	struct texinfo_t
+	{
+		ResourceManager::texture_t *tex;
+		Vector3 s, t;
+		float sshift, tshift;
+	};
+
 	struct surf_t
 	{
 		plane_t *pl;
 		bool reverse;
 		std::vector<Vector3*> vertices;
-		Vector3 s, t;
-		float sshift, tshift;
+		texinfo_t *tex;
 	};
 
 	struct leaf_t
@@ -71,6 +79,9 @@ public:
 	std::vector<surf_t>   surfs;
 	std::vector<Vector3>  verts;
 	std::vector<plane_t> planes; // You broke the 4-letter synergy, man!
+	std::vector<texinfo_t> texinfos;
+
+	std::vector<ResourceManager::texture_t*> textures;
 
 	bool Load(std::string name);
 
@@ -82,10 +93,15 @@ private:
 		{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
 	};
 
+	std::string wadpath;
+	std::vector<Wad> wads;
+
 	// Loading
 	bool VerifyFile(FILE* ptr);
 	void LoadPlanes(FILE* ptr);
 	void LoadVerts(FILE* ptr);
+	void LoadTextures(FILE* ptr);
+	ResourceManager::texture_t* LoadTexture(int index, FILE* ptr);
 	void LoadSurfs(FILE* ptr);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
@@ -93,4 +109,7 @@ private:
 	// Entity Loading
 	void LoadEntities(FILE* ptr);
 	std::shared_ptr<EntityBase> LoadEntity(const std::unordered_map<std::string, std::string>& pairs);
+
+	// Rendering
+	void RenderSurf(surf_t* surf);
 };
