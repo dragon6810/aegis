@@ -257,7 +257,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
     
     if(sameside) // Polygon is fully on one side of the plane
     {
-        if((firstsign > 0 && side == 0) || (firstsign < 0 && side == 1))
+        if(firstsign > 0)
         {
             for(node=poly->first;; node=next)
             {

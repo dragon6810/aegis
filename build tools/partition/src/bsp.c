@@ -6,6 +6,7 @@
 //
 
 #include "map.h"
+#include "portal.h"
 
 int curhull;
 
@@ -177,6 +178,11 @@ void ProcessWorld()
         {
             rootnode[j][curhull] = MakeSplitNode(set->brushet->firstsurf);
             CutWorld_r(&rootnode[j][curhull]);
+
+            if (curhull)
+                continue;
+
+            Portalize(&rootnode[j][curhull]);
         }
     }
 }
@@ -854,65 +860,4 @@ surf_t* CopySurf(surf_t* surf)
     return newsurf;
 }
 
-void SurfBB(surf_t* surf, vec3_t* outmin, vec3_t* outmax)
-{
-    int i;
-    
-    vnode_t *v;
-    
-    if(!outmin || !outmax)
-        return;
-    
-    for(v=surf->geo.first;; v=v->next)
-    {
-        if(v==surf->geo.first)
-        {
-            VectorCopy(*outmin, v->val);
-            VectorCopy(*outmax, v->val);
-        }
-        else
-        {
-            for(i=0; i<3; i++)
-            {
-                if(v->val[i] < (*outmin)[i])
-                    (*outmin)[i] = v->val[i];
-                
-                if(v->val[i] > (*outmax)[i])
-                    (*outmin)[i] = v->val[i];
-            }
-        }
-        
-        if(v->next == surf->geo.first)
-            return;
-    }
-}
 
-void SurfListBB(surfnode_t* surfs, vec3_t* outmin, vec3_t* outmax)
-{
-    int i;
-    
-    surfnode_t *surf;
-    vec3_t min, max;
-    
-    for(surf=surfs; surf; surf=surf->next)
-    {
-        SurfBB(surf->surf, &min, &max);
-        
-        if(surf == surfs)
-        {
-            VectorCopy(*outmin, min);
-            VectorCopy(*outmax, max);
-        }
-        else
-        {
-            for(i=0; i<3; i++)
-            {
-                if(min[i] < (*outmin)[i])
-                    (*outmin)[i] = min[i];
-                
-                if(max[i] > (*outmax)[i])
-                    (*outmax)[i] = max[i];
-            }
-        }
-    }
-}
