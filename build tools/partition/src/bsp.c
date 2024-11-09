@@ -34,15 +34,11 @@ void LoadBrushSets(char* file)
     
     filename = file;
     
-    newfile = malloc(strlen(file) + 3);
-    memset(newfile, 0, strlen(file) + 3);
-    memcpy(newfile, file, strlen(file));
-    newfile[strlen(file) + 0] = '.';
-    newfile[strlen(file) + 1] = 'g';
+    newfile = malloc(strlen(file) + 4);
+    strcpy(newfile, file);
+    strcat(newfile, ".g");
     for(i=0; i<NHULLS; i++)
     {
-        newlist = 0;
-
         newfile[strlen(file) + 2] = '0' + i;
         newfile[strlen(file) + 3] = 0;
         gfiles[i] = fopen(newfile, "r");
@@ -59,8 +55,8 @@ void LoadBrushSets(char* file)
             if(fscanf(gfiles[i], " *%d\n", &modelnum))
             {
                 nmodels++;
-                newset = (brushset_t*) malloc(sizeof(brushset_t));
-                newsetnode = (brushsetnode_t*) malloc(sizeof(brushsetnode_t));
+                newset = (brushset_t*) calloc(1, sizeof(brushset_t));
+                newsetnode = (brushsetnode_t*) calloc(1, sizeof(brushsetnode_t));
                 newsetnode->brushet = newset;
                 if(lastsetnode)
                 {
@@ -77,14 +73,13 @@ void LoadBrushSets(char* file)
                 int k = 0;
                 while(j != 0)
                 {
-                    lastv = firstv = prevnode = 0;
+                    lastv = firstv = 0;
 
-                    newsurf = malloc(sizeof(surf_t));
-                    memset(newsurf, 0, sizeof(surf_t));
+                    newsurf = calloc(1, sizeof(surf_t));
                     j = lastv = 0;
                     while(fscanf(gfiles[i], "( %f %f %f )", &val[0], &val[1], &val[2]) == 3)
                     {
-                        newv = malloc(sizeof(vnode_t));
+                        newv = AllocVert();
                         VectorCopy(newv->val, val);
                         if(lastv)
                         {
@@ -116,7 +111,7 @@ void LoadBrushSets(char* file)
                     fscanf(gfiles[i], "[ %f %f %f %d ] ", &newsurf->t[0], &newsurf->t[1], &newsurf->t[2], &newsurf->tshift);
                     fscanf(gfiles[i], "%s\n", newsurf->texname);
                     
-                    newsurfnode = (surfnode_t*) malloc(sizeof(surfnode_t));
+                    newsurfnode = (surfnode_t*) calloc(1, sizeof(surfnode_t));
                     if(lastsurfnode)
                     {
                         lastsurfnode->next = newsurfnode;
@@ -133,11 +128,10 @@ void LoadBrushSets(char* file)
             }
             else
             {
+                free(newfile);
                 return;
             }
         }
-
-        brushsets[i] = newlist;
     }
     
     free(newfile);
@@ -150,12 +144,8 @@ void LoadEnts(char* file)
     char* newfile;
     
     newfile = malloc(strlen(file) + 1 + 4);
-    memset(newfile, 0, strlen(file) + 1 + 4);
-    memcpy(newfile, file, strlen(file));
-    newfile[strlen(file) + 0] = '.';
-    newfile[strlen(file) + 1] = 'e';
-    newfile[strlen(file) + 2] = 'n';
-    newfile[strlen(file) + 3] = 't';
+    strcpy(newfile, file);
+    strcat(newfile, ".ent");
     
     ptr = fopen(newfile, "r");
     if(!ptr)
@@ -169,7 +159,7 @@ void LoadEnts(char* file)
     len = ftell(ptr);
     rewind(ptr);
     
-    bspfile.entitydata = malloc(len + 1);
+    bspfile.entitydata = calloc(len + 1, 1);
     fread(bspfile.entitydata, len, 1, ptr);
     
     free(newfile);
@@ -200,10 +190,7 @@ void WriteFile()
     if(!outfile)
         return;
     strcpy(outfile, filename);
-    outfile[strlen(outfile)] = '.';
-    outfile[strlen(outfile)] = 'b';
-    outfile[strlen(outfile)] = 's';
-    outfile[strlen(outfile)] = 'p';
+    strcat(outfile, ".bsp");
     WriteBspFile(&bspfile, outfile);
     free(outfile);
 }
@@ -575,7 +562,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
         else
             sign = GetSurfSide(curnode->surf, newplane.n, newplane.d);
         
-        newnode = (surfnode_t*) malloc(sizeof(surfnode_t));
+        newnode = (surfnode_t*) calloc(1, sizeof(surfnode_t));
         memcpy(newnode, curnode, sizeof(surfnode_t));
         newnode->next = newnode->last = 0;
         
@@ -622,7 +609,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
         else if(sign == 2)
         {
             backsurf = newnode;
-            frontsurf = (surfnode_t*) malloc(sizeof(surfnode_t));
+            frontsurf = (surfnode_t*) calloc(1, sizeof(surfnode_t));
             memcpy(frontsurf, backsurf, sizeof(surfnode_t));
             frontsurf->surf = CopySurf(backsurf->surf);
             
@@ -686,11 +673,11 @@ void CutWorld_r(splitplane_t* parent)
             continue;
         }
         
-        newplane = (splitplane_t*) malloc(sizeof(splitplane_t));
+        newplane = (splitplane_t*) calloc(1, sizeof(splitplane_t));
         lastunionsurf = unionsurfs = 0;
         for(_cursurf = parent->surfs; _cursurf; _cursurf=_cursurf->next)
         {
-            newsurf = malloc(sizeof(surfnode_t));
+            newsurf = calloc(1, sizeof(surfnode_t));
             newsurf->surf = _cursurf->surf;
             newsurf->last = newsurf->next = 0;
             if(lastunionsurf)
@@ -707,7 +694,7 @@ void CutWorld_r(splitplane_t* parent)
         }
         for(_cursurf = parent->childsurfs[i]; _cursurf; _cursurf=_cursurf->next)
         {
-            newsurf = malloc(sizeof(surfnode_t));
+            newsurf = calloc(1, sizeof(surfnode_t));
             newsurf->surf = _cursurf->surf;
             newsurf->last = newsurf->next = 0;
             if(lastunionsurf)
@@ -845,7 +832,7 @@ surf_t* CopySurf(surf_t* surf)
         if(i>1)
             break;
         
-        newv = (vnode_t*) malloc(sizeof(vnode_t));
+        newv = AllocVert();
         memcpy(newv, curv, sizeof(vnode_t));
         
         if(lastv)

@@ -15,12 +15,12 @@
 
 vnode_t* AllocVert()
 {
-    return (vnode_t*) malloc(sizeof(vnode_t));
+    return (vnode_t*) calloc(1, sizeof(vnode_t));
 }
 
 polynode_t* AllocPoly()
 {
-    return (polynode_t*) malloc(sizeof(polynode_t));
+    return (polynode_t*) calloc(1, sizeof(polynode_t));
 }
 
 void HungryPoly(polynode_t* poly, vec3_t n, float d)
@@ -114,7 +114,7 @@ void HungryPoly(polynode_t* poly, vec3_t n, float d)
     first = last = 0;
     for(i=0; i<npoints; i++)
     {
-        cur = malloc(sizeof(vnode_t));
+        cur = AllocVert();
         VectorCopy(cur->val, points[i]);
         
         if(!first)
@@ -170,7 +170,7 @@ void WindPoly(polynode_t* poly)
     }
     VectorDivide(center, center, (float) npoints);
     
-    vnode_t** nodes = (vnode_t*)malloc(npoints * sizeof(vnode_t*));
+    vnode_t** nodes = (vnode_t*)calloc(npoints, sizeof(vnode_t*));
     for(nfirst=0, npoints=0, node=poly->first; nfirst<2; node=next, npoints++)
     {
         if(node == poly->first)
@@ -178,7 +178,7 @@ void WindPoly(polynode_t* poly)
         if(nfirst>1)
             break;
         
-        nodes[npoints] = (vnode_t*) malloc(sizeof(vnode_t));
+        nodes[npoints] = AllocVert();
         
         next=node->next;
         VectorSubtract(p, node->val, center);
@@ -286,7 +286,7 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side)
 
     if(fin == fout)
     {
-        new = (vnode_t*) malloc(sizeof(vnode_t));
+        new = AllocVert();
         VectorCopy(new->val, fout->val);
         new->next = fout->next;
         new->last = fout;
@@ -427,7 +427,7 @@ polynode_t *CopyPoly(polynode_t* p)
     polynode_t *new;
     vnode_t *v, *curv;
     
-    new = (polynode_t*) malloc(sizeof(polynode_t));
+    new = AllocPoly();
     memcpy(new, p, sizeof(polynode_t));
     
     for(i=0, nfirst=0, v=p->first, curv=0;; i++, v=v->next)
@@ -439,12 +439,12 @@ polynode_t *CopyPoly(polynode_t* p)
         
         if(curv)
         {
-            curv->next = (vnode_t*) malloc(sizeof(vnode_t));
+            curv->next = AllocVert();
             curv->next->last = curv;
             curv = curv->next;
         }
         else
-            new->first = curv = (vnode_t*) malloc(sizeof(vnode_t));
+            new->first = curv = AllocVert();
         
         VectorCopy(curv->val, v->val);
     }
