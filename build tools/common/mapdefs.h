@@ -40,6 +40,7 @@ typedef struct brushsetnode_t brushsetnode_t;
 typedef struct brush_t brush_t;
 typedef struct surf_t surf_t;
 typedef struct surfnode_t surfnode_t;
+typedef struct leaf_t leaf_t;
 typedef struct splitplane_t splitplane_t;
 typedef struct bspnode_t bspnode_t;
 typedef struct bspleaf_t bspleaf_t;
@@ -103,15 +104,22 @@ struct surfnode_t
     surfnode_t* last, * next;
 };
 
+struct leaf_t
+{
+    int ileaf;
+    int contents;
+    surfnode_t* surfs;
+};
+
 struct splitplane_t
 {
     vec3_t n;
     float d;
+    leaf_t* leaf; // If not null, node is a leaf
     surfnode_t* surfs;
+    surfnode_t* mainsurf;
     surfnode_t* childsurfs[2];
     splitplane_t* children[2];
-    int childcontents[2];
-    surfnode_t* mainsurf;
     portalnode_t* portals;
 };
 

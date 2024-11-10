@@ -19,6 +19,7 @@ extern FILE* gfiles[NHULLS];
 extern brushsetnode_t *brushsets[NHULLS];
 extern splitplane_t rootnode[MAX_MAP_MODELS][NHULLS];
 extern int nmodels;
+extern int nleaves;
 extern bspffile_t bspfile;
 
 void LoadBrushSets(char* file);
@@ -36,7 +37,7 @@ surf_t* CopySurf(surf_t* surf);
 void LoadNodes_r(splitplane_t *node, boolean rendertree);
 int LoadSurfs(surfnode_t* surf);
 void LoadFace(surf_t* face);
-int LoadLeaf(splitplane_t* parent, int which);
+int LoadLeaf(leaf_t* leaf);
 int FindEdge(int v1, int v2);
 int FindVertex(vec3_t v);
 int FindTexinfo(bspftexinfo_t* texinfo);

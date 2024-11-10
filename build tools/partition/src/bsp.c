@@ -15,6 +15,7 @@ FILE* gfiles[NHULLS];
 brushsetnode_t *brushsets[NHULLS];
 splitplane_t rootnode[MAX_MAP_MODELS][NHULLS];
 int nmodels = 0;
+int nleaves = 0;
 bspffile_t bspfile;
 
 void LoadBrushSets(char* file)
@@ -55,7 +56,9 @@ void LoadBrushSets(char* file)
         {
             if(fscanf(gfiles[i], " *%d\n", &modelnum))
             {
-                nmodels++;
+                if(modelnum > nmodels)
+                    nmodels++;
+
                 newset = (brushset_t*) calloc(1, sizeof(brushset_t));
                 newsetnode = (brushsetnode_t*) calloc(1, sizeof(brushsetnode_t));
                 newsetnode->brushet = newset;
@@ -257,35 +260,27 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
     clipindex = bspfile.nclipnodes;
     bspfile.clipnodes[bspfile.nclipnodes++] = bspclipnode;
     
-    if(node->children[0])
+    for (i = 0; i < 2; i++)
     {
-        if(rendertree)
-            bspfile.nodes[nodeindex].children[0] = bspfile.nnodes;
-        bspfile.clipnodes[clipindex].children[1] = bspfile.nclipnodes;
-        LoadNodes_r(node->children[0], rendertree);
-    }
-    else
-    {
-        if(rendertree)
-            bspfile.nodes[nodeindex].children[0] = ~LoadLeaf(node, 0);
-        bspfile.clipnodes[clipindex].children[1] = node->childcontents[0];
-    }
-    if(node->children[1])
-    {
-        if(rendertree)
-            bspfile.nodes[nodeindex].children[1] = bspfile.nnodes;
-        bspfile.clipnodes[clipindex].children[0] = bspfile.nclipnodes;
-        LoadNodes_r(node->children[1], rendertree);
-    }
-    else
-    {
-        if(rendertree)
-            bspfile.nodes[nodeindex].children[1] = ~LoadLeaf(node, 1);
-        bspfile.clipnodes[clipindex].children[0] = node->childcontents[1];
+        if (!node->children[i]->leaf)
+        {
+            if (rendertree)
+                bspfile.nodes[nodeindex].children[i] = bspfile.nnodes;
+
+            bspfile.clipnodes[clipindex].children[!i] = bspfile.nclipnodes;
+            LoadNodes_r(node->children[i], rendertree);
+        }
+        else
+        {
+            if (rendertree)
+                bspfile.nodes[nodeindex].children[i] = ~LoadLeaf(node->children[i]->leaf);
+
+            bspfile.clipnodes[clipindex].children[!i] = node->children[i]->leaf->contents;
+        }
     }
 }
 
-int LoadLeaf(splitplane_t* parent, int which)
+int LoadLeaf(leaf_t* leaf)
 {
     int i;
     
@@ -293,22 +288,19 @@ int LoadLeaf(splitplane_t* parent, int which)
     bspfface_t face;
     vec3_t mins, maxs;
     
-    bspfleaf_t leaf;
+    bspfleaf_t fleaf;
     
-    if(which != 0 && which != 1)
-        return -1;
-    
-    leaf.contents = parent->childcontents[which];
-    SurfListBB(parent->childsurfs[which], &mins, &maxs);
+    fleaf.contents = leaf->contents;
+    SurfListBB(leaf->surfs, &mins, &maxs);
     for(i=0; i<3; i++)
     {
-        leaf.mins[i] = (int16_t) floorf(mins[i]);
-        leaf.maxs[i] = (int16_t) floorf(maxs[i]);
+        fleaf.mins[i] = (int16_t) floorf(mins[i]);
+        fleaf.maxs[i] = (int16_t) floorf(maxs[i]);
     }
     
-    leaf.firstmarksurf = bspfile.nmarksurfs;
-    leaf.nmarksurfs = 0;
-    for(surfnode=parent->childsurfs[which]; surfnode; surfnode=surfnode->next)
+    fleaf.firstmarksurf = bspfile.nmarksurfs;
+    fleaf.nmarksurfs = 0;
+    for(surfnode=leaf->surfs; surfnode; surfnode=surfnode->next)
     {
         LoadFace(surfnode->surf);
         face = bspfile.faces[bspfile.nfaces - 1];
@@ -316,10 +308,10 @@ int LoadLeaf(splitplane_t* parent, int which)
         bspfile.nfaces--;
         
         bspfile.marksurfs[bspfile.nmarksurfs++] = FindFace(&face);
-        leaf.nmarksurfs++;
+        fleaf.nmarksurfs++;
     }
     
-    bspfile.leaves[bspfile.nleaves] = leaf;
+    bspfile.leaves[bspfile.nleaves] = fleaf;
     return bspfile.nleaves++;
 }
 
@@ -616,9 +608,8 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
         {
             backsurf = newnode;
             frontsurf = (surfnode_t*) calloc(1, sizeof(surfnode_t));
-            memcpy(frontsurf, backsurf, sizeof(surfnode_t));
             frontsurf->surf = CopySurf(backsurf->surf);
-            
+
             ClipPoly(&backsurf->surf->geo, newplane.n, newplane.d, 0);
             ClipPoly(&frontsurf->surf->geo, newplane.n, newplane.d, 1);
             
@@ -663,6 +654,8 @@ void CutWorld_r(splitplane_t* parent)
     
     for(i=0; i<2; i++)
     {
+        newplane = (splitplane_t*)calloc(1, sizeof(splitplane_t));
+
         for(cursurf=parent->childsurfs[i], alldone = true; cursurf; cursurf=cursurf->next)
         {
             if(!cursurf->surf->onplane)
@@ -672,14 +665,19 @@ void CutWorld_r(splitplane_t* parent)
         // All surfs on this side have been divided so its ok
         if(alldone)
         {
+            newplane->leaf = calloc(1, sizeof(leaf_t));
+            newplane->leaf->ileaf = nleaves++;
+            newplane->leaf->surfs = parent->childsurfs[i];
+
             if(i==0) // Back
-                parent->childcontents[i] = CONTENTS_SOLID;
-            else // Front
-                parent->childcontents[i] = CONTENTS_EMPTY;
+                newplane->leaf->contents = CONTENTS_SOLID;
+            else     // Front
+                newplane->leaf->contents = CONTENTS_EMPTY;
+
+            parent->children[i] = newplane;
             continue;
         }
         
-        newplane = (splitplane_t*) calloc(1, sizeof(splitplane_t));
         lastunionsurf = unionsurfs = 0;
         for(_cursurf = parent->surfs; _cursurf; _cursurf=_cursurf->next)
         {
@@ -698,6 +696,7 @@ void CutWorld_r(splitplane_t* parent)
             
             lastunionsurf = newsurf;
         }
+
         for(_cursurf = parent->childsurfs[i]; _cursurf; _cursurf=_cursurf->next)
         {
             newsurf = calloc(1, sizeof(surfnode_t));
@@ -715,12 +714,14 @@ void CutWorld_r(splitplane_t* parent)
             
             lastunionsurf = newsurf;
         }
+
         *newplane = MakeSplitNode(unionsurfs);
         for(_cursurf=unionsurfs; _cursurf; _cursurf=newsurf)
         {
             newsurf = _cursurf->next;
             free(_cursurf);
         }
+
         parent->children[i] = newplane;
         CutWorld_r(parent->children[i]);
     }
@@ -804,6 +805,9 @@ int GetSurfSide(surf_t* surf, vec3_t n, float d)
             break;
         
         sign = VectorDot(n, curv->val) - d;
+        if (fabsf(sign) < 0.01)
+            sign = 0;
+
         if(cursign == 0)
         {
             if(sign<0)

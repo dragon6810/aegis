@@ -33,9 +33,25 @@ void AddPortalToNode(splitplane_t* node, portal_t* p)
     pn->last = curprt;
 }
 
+portalnode_t* CutPortals(portalnode_t* portals, int side)
+{
+    
+}
+
 void Portalize_r(splitplane_t* curnode)
 {
+    portalnode_t* curprt;
 
+    portal_t* p;
+
+    p = AllocPortal();
+    p->poly = AllocPoly();
+    HungryPoly(p->poly, curnode->n, curnode->d);
+
+    for (curprt = curnode->portals; curprt; curprt = curprt->next)
+        ClipPoly(p->poly, curprt->p->n, curprt->p->d, 1);
+
+    AddPortalToNode(curnode, p);
 }
 
 void HeadnodePortals(splitplane_t* head)
