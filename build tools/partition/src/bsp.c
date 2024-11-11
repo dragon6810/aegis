@@ -163,6 +163,7 @@ void ProcessWorld()
                 FillWorld(&rootnode[j][curhull], positions[k]);
 
             FreeTree(&rootnode[j][curhull]);
+            set->brushet->firstsurf = PruneSurfs(set->brushet->firstsurf);
 
             rootnode[j][curhull] = MakeSplitNode(set->brushet->firstsurf);
             CutWorld_r(&rootnode[j][curhull]);
@@ -852,7 +853,7 @@ void FreeSurfnodes(surfnode_t* list)
     for(; list; list=nextnode)
     {
         nextnode = list->next;
-        list->surf->onplane = list->surf->marked = false;
+        list->surf->onplane = false;
         free(list);
     }
 }

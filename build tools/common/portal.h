@@ -28,5 +28,6 @@ void AddPortalToNode(splitplane_t* node, portal_t* p);
 
 void Portalize(splitplane_t* head);
 void FillWorld(splitplane_t* head, vec3_t pos);
+surfnode_t* PruneSurfs(surfnode_t* list);
 
 #endif // !_PORTAL_H

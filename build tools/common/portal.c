@@ -233,3 +233,40 @@ void FillWorld(splitplane_t* head, vec3_t pos)
     leaf = PosToLeaf(pos, head);
     FillWorld_r(leaf);
 }
+
+surfnode_t* PruneSurfs(surfnode_t* list)
+{
+    surfnode_t* cur;
+    surfnode_t* next;
+    vnode_t* curv, *nextv;
+
+    for(cur=list; cur; cur=next)
+    {
+        next = cur->next;
+        if(cur->surf->marked)
+            continue;
+        
+        if(cur == list)
+            list = next;
+        
+        for(curv=cur->surf->geo.first;; curv=nextv)
+        {
+            nextv = curv->next;
+
+            free(curv);
+
+            if(nextv == cur->surf->geo.first)
+                break;
+        }
+        free(cur->surf);
+
+        if(cur->last)
+            cur->last->next = cur->next;
+        if(cur->next)
+            cur->next->last = cur->last;
+
+        free(cur);
+    }
+
+    return list;
+}
