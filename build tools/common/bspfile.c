@@ -133,16 +133,16 @@ void WriteBspFile(bspffile_t* bsp, char* file)
     fclose(ptr);
 }
 
-leaf_t* PosToLeaf(vec3_t pos, splitplane_t* headnode)
+splitplane_t* PosToLeaf(vec3_t pos, splitplane_t* headnode)
 {
     float d;
 
     if (headnode->leaf)
-        return headnode->leaf;
+        return headnode;
 
     d = VectorDot(headnode->n, pos) - headnode->d;
 
-    if (d > 0)
+    if (d >= 0)
         return PosToLeaf(pos, headnode->children[1]);
     
     return PosToLeaf(pos, headnode->children[0]);

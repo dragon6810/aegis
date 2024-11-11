@@ -132,7 +132,7 @@ struct bspleaf_t
     int contents;
 };
 
-leaf_t* PosToLeaf(vec3_t pos, splitplane_t* headnode);
+splitplane_t* PosToLeaf(vec3_t pos, splitplane_t* headnode);
 
 void SurfBB(surf_t* surf, vec3_t* outmin, vec3_t* outmax);
 void SurfListBB(surfnode_t* surfs, vec3_t* outmin, vec3_t* outmax);

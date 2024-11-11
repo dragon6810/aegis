@@ -401,6 +401,37 @@ boolean SlicePoly(polynode_t* poly, vec3_t n, float d)
     return true;
 }
 
+int PolyPlaneSide(polynode_t* poly, vec3_t n, float d)
+{
+    int nfirst;
+    vnode_t *v;
+
+    float dist;
+    float firstsign = 0;
+    
+    for(nfirst=0, v=poly->first;; v=v->next)
+    {
+        if(v==poly->first)
+            nfirst++;
+        if(nfirst>1)
+            break;
+
+        dist = VectorDot(v->val, n) - d;
+        if(fabsf(firstsign) < 0.01)
+            firstsign = dist;
+        else if(dist * firstsign < 0.01)
+            return 2;
+    }
+    
+    if(fabsf(firstsign) < 0.01)
+        return 0;
+    
+    if(firstsign > 0)
+        return 1;
+
+    return 0;
+}
+
 boolean PolyInsidePlane(polynode_t* poly, vec3_t n, float d)
 {
     int nfirst;

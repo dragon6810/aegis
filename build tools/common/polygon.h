@@ -61,6 +61,8 @@ void ClipPoly(polynode_t* poly, vec3_t n, float d, int side);
 // Slices a cc-wound convex polygon into to along a plane
 boolean SlicePoly(polynode_t* poly, vec3_t n, float d);
 
+// -1 is behind, 0 on, 1 in front, 2 crosses
+int PolyPlaneSide(polynode_t* poly, vec3_t n, float d);
 boolean PolyInsidePlane(polynode_t* poly, vec3_t n, float d);
 
 polynode_t *CopyPoly(polynode_t* p);

@@ -39,6 +39,7 @@ void Portalize_r(splitplane_t* curnode)
     portalnode_t* curprt;
 
     portal_t* p;
+    int side;
 
     if (curnode->leaf)
     {
@@ -62,18 +63,48 @@ void Portalize_r(splitplane_t* curnode)
     {
         for (curprt = curnode->portals; curprt; curprt = curprt->next)
         {
-            p = AllocPortal();
-            p->poly = CopyPoly(curprt->p->poly);
-            ClipPoly(p->poly, curnode->n, curnode->d, i);
-            if (!p->poly->first)
-            {
-                free(p->poly);
-                free(p);
+            side = PolyPlaneSide(curprt->p->poly, curnode->n, curnode->d);
+
+            if(side == -1 && i)
                 continue;
+            if(side == 1 && !i)
+                continue;
+
+            if(side == 2)
+            {
+                p = AllocPortal();
+                p->poly = CopyPoly(curprt->p->poly);
+                ClipPoly(p->poly, curnode->n, curnode->d, i);
+                if (!p->poly->first)
+                {
+                    free(p->poly);
+                    free(p);
+                    continue;
+                }
+            }
+            else
+                p = curprt->p;
+
+            if(curprt->p->nodes[0] == curnode)
+            {
+                p->nodes[0] = curnode->children[i];
+                p->nodes[1] = curprt->p->nodes[1];
+            }
+            else if(curprt->p->nodes[1] == curnode)
+            {
+                p->nodes[0] = curprt->p->nodes[0];
+                p->nodes[1] = curnode->children[i];
+            }
+            else // Should be curnodes portal
+            {
+                p->nodes[0] = curprt->p->nodes[0];
+                p->nodes[1] = curprt->p->nodes[1];
             }
 
             AddPortalToNode(curnode->children[i], p);
         }
+
+        Portalize_r(curnode->children[i]);
     }
 }
 
@@ -151,9 +182,34 @@ void Portalize(splitplane_t* head)
     Portalize_r(head);
 }
 
+void FillWorld_r(splitplane_t* leaf)
+{
+    portalnode_t* p;
+    int i;
+
+    if(leaf == &outsidenode)
+        return;
+
+    if(leaf->leaf->marked || leaf->leaf->contents == CONTENTS_SOLID)
+        return;
+    
+    leaf->leaf->marked = true;
+
+    for(p=leaf->leaf->portals; p; p=p->next)
+    {
+        if(p->p->nodes[0] == leaf)
+            i = 1;
+        else
+            i = 0;
+
+        FillWorld_r(p->p->nodes[i]);
+    }
+}
+
 void FillWorld(splitplane_t* head, vec3_t pos)
 {
-    leaf_t* leaf;
+    splitplane_t* leaf;
 
     leaf = PosToLeaf(pos, head);
+    FillWorld_r(leaf);
 }
