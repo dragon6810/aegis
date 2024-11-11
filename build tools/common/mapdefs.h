@@ -96,6 +96,7 @@ struct surf_t
     vec3_t n;
     float d;
     boolean onplane;
+    boolean marked;
 };
 
 struct surfnode_t
@@ -110,6 +111,7 @@ struct leaf_t
     int contents;
     surfnode_t* surfs;
     portalnode_t* portals;
+    boolean marked;
 };
 
 struct splitplane_t
@@ -129,6 +131,8 @@ struct bspleaf_t
     surfnode_t* surfs;
     int contents;
 };
+
+leaf_t* PosToLeaf(vec3_t pos, splitplane_t* headnode);
 
 void SurfBB(surf_t* surf, vec3_t* outmin, vec3_t* outmax);
 void SurfListBB(surfnode_t* surfs, vec3_t* outmin, vec3_t* outmax);
