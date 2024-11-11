@@ -30,6 +30,7 @@ void ProcessWorld();
 splitplane_t MakeSplitNode(surfnode_t *surfs);
 void CutWorld_r(splitplane_t* parent);
 surfnode_t* FindIdealSplitSurf(surfnode_t *surfs);
+void FreeTree(splitplane_t* headnode);
 void WriteFile();
 
 // -1 for back, 0 for on, 1 for front, 2 for both

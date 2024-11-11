@@ -33,12 +33,27 @@ void AddPortalToNode(splitplane_t* node, portal_t* p)
     pn->last = curprt;
 }
 
+portalnode_t* FindPortalInNode(splitplane_t* node, portal_t* p)
+{
+    portalnode_t* curp;
+
+    for(curp=node->portals; curp; curp=curp->next)
+    {
+        if(p == curp->p)
+            return curp;
+    }
+
+    return NULL;
+}
+
 void Portalize_r(splitplane_t* curnode)
 {
     int i;
     portalnode_t* curprt;
+    splitplane_t* node;
 
     portal_t* p;
+    portalnode_t* newp;
     int side;
 
     if (curnode->leaf)
@@ -75,15 +90,18 @@ void Portalize_r(splitplane_t* curnode)
                 p = AllocPortal();
                 p->poly = CopyPoly(curprt->p->poly);
                 ClipPoly(p->poly, curnode->n, curnode->d, i);
-                if (!p->poly->first)
-                {
-                    free(p->poly);
-                    free(p);
-                    continue;
-                }
+                ClipPoly(curprt->p->poly, curnode->n, curnode->d, !i);
+                
+                newp = calloc(1, sizeof(portalnode_t));
+                newp->p = p;
+
+                for(node=curnode; node && FindPortalInNode(node, curprt->p); node=node->parent)
+                    AddPortalToNode(node, p);
             }
             else
                 p = curprt->p;
+
+            AddPortalToNode(curnode->children[i], p);
 
             if(curprt->p->nodes[0] == curnode)
             {
@@ -100,8 +118,6 @@ void Portalize_r(splitplane_t* curnode)
                 p->nodes[0] = curprt->p->nodes[0];
                 p->nodes[1] = curprt->p->nodes[1];
             }
-
-            AddPortalToNode(curnode->children[i], p);
         }
 
         Portalize_r(curnode->children[i]);
@@ -184,7 +200,9 @@ void Portalize(splitplane_t* head)
 
 void FillWorld_r(splitplane_t* leaf)
 {
+    surfnode_t* surf;
     portalnode_t* p;
+
     int i;
 
     if(leaf == &outsidenode)
@@ -194,6 +212,8 @@ void FillWorld_r(splitplane_t* leaf)
         return;
     
     leaf->leaf->marked = true;
+    for(surf=leaf->leaf->surfs; surf; surf=surf->next)
+        surf->surf->marked = true;
 
     for(p=leaf->leaf->portals; p; p=p->next)
     {

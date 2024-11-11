@@ -419,7 +419,7 @@ int PolyPlaneSide(polynode_t* poly, vec3_t n, float d)
         dist = VectorDot(v->val, n) - d;
         if(fabsf(firstsign) < 0.01)
             firstsign = dist;
-        else if(dist * firstsign < 0.01)
+        else if(dist * firstsign < -0.01)
             return 2;
     }
     

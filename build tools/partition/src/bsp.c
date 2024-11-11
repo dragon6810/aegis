@@ -161,6 +161,11 @@ void ProcessWorld()
 
             for(k=0; k<npositions; k++)
                 FillWorld(&rootnode[j][curhull], positions[k]);
+
+            FreeTree(&rootnode[j][curhull]);
+
+            rootnode[j][curhull] = MakeSplitNode(set->brushet->firstsurf);
+            CutWorld_r(&rootnode[j][curhull]);
         }
     }
 }
@@ -691,6 +696,7 @@ void CutWorld_r(splitplane_t* parent)
         }
 
         *newplane = MakeSplitNode(unionsurfs);
+        newplane->parent = parent;
         for(_cursurf=unionsurfs; _cursurf; _cursurf=newsurf)
         {
             newsurf = _cursurf->next;
@@ -839,4 +845,80 @@ surf_t* CopySurf(surf_t* surf)
     return newsurf;
 }
 
+void FreeSurfnodes(surfnode_t* list)
+{
+    surfnode_t* nextnode;
 
+    for(; list; list=nextnode)
+    {
+        nextnode = list->next;
+        list->surf->onplane = list->surf->marked = false;
+        free(list);
+    }
+}
+
+void FreeTree_r(splitplane_t* headnode, void*** freedportals, int* nfreedportals, int depth)
+{
+    int i;
+    portalnode_t* p;
+    portalnode_t* nextp;
+
+    portal_t* prt;
+
+    if(headnode->leaf)
+    {
+        for(p=headnode->portals; p; p=nextp)
+        {
+            nextp = p->next;
+            free(p);
+        }
+
+        free(headnode->leaf);
+        free(headnode);
+        return;
+    }
+
+    for(i=0; i<2; i++)
+        FreeTree_r(headnode->children[i], freedportals, nfreedportals, depth + 1);
+
+    // DON'T free mainsurf because it lives in surfs
+    FreeSurfnodes(headnode->surfs);
+    for(i=0; i<2; i++)
+        FreeSurfnodes(headnode->childsurfs[i]);
+
+    for(p=headnode->portals; p; p=nextp)
+    {
+        nextp = p->next;
+        prt = p->p;
+        free(p);
+
+        for(i=0; i<(*nfreedportals); i++)
+        {
+            if((*freedportals)[i] == (void*) prt)
+                break;
+        }
+
+        if(i < (*nfreedportals))
+            continue;
+
+        if(!(*nfreedportals))
+            (*freedportals) = malloc(sizeof(void*) * (*nfreedportals + 1));
+        else
+            (*freedportals) = realloc((*freedportals), sizeof(void*) * (*nfreedportals + 1));
+
+        (*freedportals)[(*nfreedportals)++] = prt;
+        free(prt);
+    }
+
+    if(depth)
+        free(headnode);
+}
+
+void FreeTree(splitplane_t* headnode)
+{
+    int nfreedportals = 0;
+    void** freedportals = 0;
+
+    FreeTree_r(headnode, &freedportals, &nfreedportals, 0);
+    free(freedportals);
+}

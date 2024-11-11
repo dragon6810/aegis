@@ -118,6 +118,7 @@ struct splitplane_t
 {
     vec3_t n;
     float d;
+    splitplane_t* parent;
     leaf_t* leaf; // If not null, node is a leaf
     surfnode_t* surfs;
     surfnode_t* mainsurf;
