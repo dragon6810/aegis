@@ -151,7 +151,7 @@ void Portalize(splitplane_t* head)
     Portalize_r(head);
 }
 
-void FillWorld(splitplane_t* head, surfnode_t* surfs, vec3_t pos)
+void FillWorld(splitplane_t* head, vec3_t pos)
 {
     leaf_t* leaf;
 

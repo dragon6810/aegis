@@ -27,6 +27,6 @@ extern splitplane_t outsidenode;
 void AddPortalToNode(splitplane_t* node, portal_t* p);
 
 void Portalize(splitplane_t* head);
-void FillWorld(splitplane_t* head, surfnode_t* surfs, vec3_t pos);
+void FillWorld(splitplane_t* head, vec3_t pos);
 
 #endif // !_PORTAL_H

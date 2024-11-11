@@ -80,7 +80,8 @@ void LoadBrushSets(char* file)
                     lastv = firstv = 0;
 
                     newsurf = calloc(1, sizeof(surf_t));
-                    j = lastv = 0;
+                    lastv = 0;
+                    j = 0;
                     while(fscanf(gfiles[i], "( %f %f %f )", &val[0], &val[1], &val[2]) == 3)
                     {
                         newv = AllocVert();
@@ -141,38 +142,9 @@ void LoadBrushSets(char* file)
     free(newfile);
 }
 
-void LoadEnts(char* file)
-{
-    FILE *ptr;
-    uint32_t len;
-    char* newfile;
-    
-    newfile = malloc(strlen(file) + 1 + 4);
-    strcpy(newfile, file);
-    strcat(newfile, ".ent");
-    
-    ptr = fopen(newfile, "r");
-    if(!ptr)
-    {
-        printf("Failed to open entity file \"%s\"\n", newfile);
-        free(newfile);
-        return;
-    }
-    
-    fseek(ptr, 0, SEEK_END);
-    len = ftell(ptr);
-    rewind(ptr);
-    
-    bspfile.entitydata = calloc(len + 1, 1);
-    fread(bspfile.entitydata, len, 1, ptr);
-    
-    free(newfile);
-    fclose(ptr);
-}
-
 void ProcessWorld()
 {
-    int i, j;
+    int i, j, k;
     brushsetnode_t *set;
     
     for(curhull=0; curhull<NHULLS; curhull++)
@@ -186,6 +158,9 @@ void ProcessWorld()
                 continue;
 
             Portalize(&rootnode[j][curhull]);
+
+            for(k=0; k<npositions; k++)
+                FillWorld(&rootnode[j][curhull], positions[k]);
         }
     }
 }
@@ -835,7 +810,7 @@ surf_t* CopySurf(surf_t* surf)
     newsurf = malloc(sizeof(surf_t));
     memcpy(newsurf, surf, sizeof(surf_t));
     
-    for(curv=surf->geo.first, i=lastv=0;; curv=curv->next)
+    for(curv=surf->geo.first, i=0, lastv=0;; curv=curv->next)
     {
         if(curv==surf->geo.first)
             i++;

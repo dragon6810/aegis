@@ -3,6 +3,30 @@
 #include "Command.h"
 #include "Console.h"
 
+void World::TraceDir_R(node_t* curnode, traceresult_t* trace)
+{
+	Vector3 start, end;
+	float d1, d2;
+
+	start = trace->start;
+	end = trace->end;
+
+	d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
+	d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
+
+
+}
+
+World::traceresult_t World::TraceDir(node_t* headnode, Vector3 start, Vector3 end)
+{
+	traceresult_t trace;
+
+	trace.start = start;
+	trace.end = end;
+	TraceDir_R(headnode, &trace);
+	return trace;
+}
+
 std::shared_ptr<EntityBase> World::LoadEntity(const std::unordered_map<std::string, std::string>& pairs)
 {
 	std::string classname;
@@ -454,6 +478,7 @@ bool World::Load(std::string name)
 {
 	FILE* ptr;
 	std::string realpath;
+	traceresult_t trace;
 
 	realpath = Command::datadir + "maps/" + name;
 	if(strcmp(&realpath[realpath.size() - 4], ".bsp"))
@@ -483,6 +508,8 @@ bool World::Load(std::string name)
 	LoadNodes(ptr);
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
+
+	trace = TraceDir(&nodes[0], Vector3(0, 0, 128), Vector3(0, 0, -128));
 
 	fclose(ptr);
 	return true;

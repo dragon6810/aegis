@@ -51,6 +51,15 @@ public:
 		Vector3 min, max;
 		std::vector<surf_t*> surfs;
 	};
+
+	struct traceresult_t
+	{
+		bool didhit;
+		Vector3 n;
+		Vector3 hit;
+		Vector3 start;
+		Vector3 end;
+	};
 private:
 	enum bsplumps_e
 	{
@@ -86,6 +95,8 @@ public:
 	bool Load(std::string name);
 
 	void Render();
+
+	traceresult_t TraceDir(node_t* headnode, Vector3 start, Vector3 end);
 private:
 	// Entity factory, update with new entity classnames
 	std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
@@ -112,4 +123,7 @@ private:
 
 	// Rendering
 	void RenderSurf(surf_t* surf);
+
+	// Collision
+	void TraceDir_R(node_t* curnode, traceresult_t* trace);
 };

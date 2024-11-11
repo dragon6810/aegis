@@ -21,6 +21,8 @@ extern splitplane_t rootnode[MAX_MAP_MODELS][NHULLS];
 extern int nmodels;
 extern int nleaves;
 extern bspffile_t bspfile;
+extern vec3_t* positions;
+extern int npositions;
 
 void LoadBrushSets(char* file);
 void LoadEnts(char* file);
