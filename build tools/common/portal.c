@@ -33,16 +33,18 @@ void AddPortalToNode(splitplane_t* node, portal_t* p)
     pn->last = curprt;
 }
 
-portalnode_t* CutPortals(portalnode_t* portals, int side)
-{
-    
-}
-
 void Portalize_r(splitplane_t* curnode)
 {
+    int i;
     portalnode_t* curprt;
 
     portal_t* p;
+
+    if (curnode->leaf)
+    {
+        curnode->leaf->portals = curnode->portals;
+        return;
+    }
 
     p = AllocPortal();
     p->poly = AllocPoly();
@@ -51,7 +53,28 @@ void Portalize_r(splitplane_t* curnode)
     for (curprt = curnode->portals; curprt; curprt = curprt->next)
         ClipPoly(p->poly, curprt->p->n, curprt->p->d, 1);
 
+    p->nodes[0] = curnode->children[0];
+    p->nodes[1] = curnode->children[1];
+
     AddPortalToNode(curnode, p);
+
+    for (i = 0; i < 2; i++)
+    {
+        for (curprt = curnode->portals; curprt; curprt = curprt->next)
+        {
+            p = AllocPortal();
+            p->poly = CopyPoly(curprt->p->poly);
+            ClipPoly(p->poly, curnode->n, curnode->d, i);
+            if (!p->poly->first)
+            {
+                free(p->poly);
+                free(p);
+                continue;
+            }
+
+            AddPortalToNode(curnode->children[i], p);
+        }
+    }
 }
 
 void HeadnodePortals(splitplane_t* head)
@@ -126,4 +149,9 @@ void Portalize(splitplane_t* head)
 {
 	HeadnodePortals(head);
     Portalize_r(head);
+}
+
+void FillWorld(splitplane_t* head, surfnode_t* surfs)
+{
+
 }

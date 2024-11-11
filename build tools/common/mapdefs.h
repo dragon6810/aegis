@@ -109,6 +109,7 @@ struct leaf_t
     int ileaf;
     int contents;
     surfnode_t* surfs;
+    portalnode_t* portals;
 };
 
 struct splitplane_t
