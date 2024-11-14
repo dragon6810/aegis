@@ -56,6 +56,7 @@ void LoadBrushSets(char* file)
         {
             if(fscanf(gfiles[i], " *%d\n", &modelnum))
             {
+                modelnum++;
                 if(modelnum > nmodels)
                     nmodels++;
 
@@ -162,11 +163,18 @@ void ProcessWorld()
             for(k=0; k<npositions; k++)
                 FillWorld(&rootnode[j][curhull], positions[k]);
 
+            set->brushet->firstsurf = SurfListFromTree(&rootnode[j][curhull]);
+
             FreeTree(&rootnode[j][curhull]);
             set->brushet->firstsurf = PruneSurfs(set->brushet->firstsurf);
 
             rootnode[j][curhull] = MakeSplitNode(set->brushet->firstsurf);
             CutWorld_r(&rootnode[j][curhull]);
+
+            Portalize(&rootnode[j][curhull]);
+
+            for(k=0; k<npositions; k++)
+                FillWorld(&rootnode[j][curhull], positions[k]);
         }
     }
 }
@@ -542,8 +550,7 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             sign = GetSurfSide(curnode->surf, newplane.n, newplane.d);
         
         newnode = (surfnode_t*) calloc(1, sizeof(surfnode_t));
-        memcpy(newnode, curnode, sizeof(surfnode_t));
-        newnode->next = newnode->last = 0;
+        newnode->surf= curnode->surf;
         
         if(sign == -1)
         {
@@ -574,6 +581,11 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
         else if(sign == 0)
         {
             newnode->surf->onplane = true;
+            frontsurf = malloc(sizeof(surfnode_t));
+            backsurf = malloc(sizeof(surfnode_t));
+            frontsurf->surf = newnode->surf;
+            backsurf->surf = newnode->surf;
+
             if(laston)
             {
                 laston->next = newnode;
@@ -584,41 +596,60 @@ splitplane_t MakeSplitNode(surfnode_t *surfs)
             {
                 laston = newplane.surfs = newnode;
             }
+
+            if(lastback)
+            {
+                lastback->next = backsurf;
+                backsurf->last = lastback;
+                lastback = backsurf;
+            }
+            else
+            {
+                lastback = newplane.childsurfs[0] = backsurf;
+            }
+
+            if(lastfront)
+            {
+                lastfront->next = frontsurf;
+                frontsurf->last = lastfront;
+                lastfront = frontsurf;
+            }
+            else
+            {
+                lastfront = newplane.childsurfs[1] = frontsurf;
+            }
         }
         else if(sign == 2)
         {
             backsurf = newnode;
-            frontsurf = (surfnode_t*) calloc(1, sizeof(surfnode_t));
-            frontsurf->surf = CopySurf(backsurf->surf);
+            frontsurf = (surfnode_t*) malloc(sizeof(surfnode_t));
+            backsurf->surf = CopySurf(newnode->surf);
+            frontsurf->surf = CopySurf(newnode->surf);
 
             ClipPoly(&backsurf->surf->geo, newplane.n, newplane.d, 0);
             ClipPoly(&frontsurf->surf->geo, newplane.n, newplane.d, 1);
             
             if(lastback)
             {
-                lastback->next = newnode;
-                newnode->last = lastback;
-                lastback = newnode;
+                lastback->next = backsurf;
+                backsurf->last = lastback;
+                lastback = backsurf;
             }
             else
             {
-                lastback = newplane.childsurfs[0] = newnode;
+                lastback = newplane.childsurfs[0] = backsurf;
             }
-            newnode = frontsurf;
+
             if(lastfront)
             {
-                lastfront->next = newnode;
-                newnode->last = lastfront;
-                lastfront = newnode;
+                lastfront->next = frontsurf;
+                frontsurf->last = lastfront;
+                lastfront = frontsurf;
             }
             else
             {
-                lastfront = newplane.childsurfs[1] = newnode;
+                lastfront = newplane.childsurfs[1] = frontsurf;
             }
-        }
-        else
-        {
-            // Huh?
         }
     }
     
@@ -640,7 +671,10 @@ void CutWorld_r(splitplane_t* parent)
         for(cursurf=parent->childsurfs[i], alldone = true; cursurf; cursurf=cursurf->next)
         {
             if(!cursurf->surf->onplane)
+            {
                 alldone = false;
+                break;
+            }
         }
         
         // All surfs on this side have been divided so its ok
@@ -658,51 +692,9 @@ void CutWorld_r(splitplane_t* parent)
             parent->children[i] = newplane;
             continue;
         }
-        
-        lastunionsurf = unionsurfs = 0;
-        for(_cursurf = parent->surfs; _cursurf; _cursurf=_cursurf->next)
-        {
-            newsurf = calloc(1, sizeof(surfnode_t));
-            newsurf->surf = _cursurf->surf;
-            newsurf->last = newsurf->next = 0;
-            if(lastunionsurf)
-            {
-                lastunionsurf->next = newsurf;
-                newsurf->last = lastunionsurf;
-            }
-            else
-            {
-                unionsurfs = newsurf;
-            }
-            
-            lastunionsurf = newsurf;
-        }
 
-        for(_cursurf = parent->childsurfs[i]; _cursurf; _cursurf=_cursurf->next)
-        {
-            newsurf = calloc(1, sizeof(surfnode_t));
-            newsurf->surf = _cursurf->surf;
-            newsurf->last = newsurf->next = 0;
-            if(lastunionsurf)
-            {
-                lastunionsurf->next = newsurf;
-                newsurf->last = lastunionsurf;
-            }
-            else
-            {
-                unionsurfs = newsurf;
-            }
-            
-            lastunionsurf = newsurf;
-        }
-
-        *newplane = MakeSplitNode(unionsurfs);
+        *newplane = MakeSplitNode(parent->childsurfs[i]);
         newplane->parent = parent;
-        for(_cursurf=unionsurfs; _cursurf; _cursurf=newsurf)
-        {
-            newsurf = _cursurf->next;
-            free(_cursurf);
-        }
 
         parent->children[i] = newplane;
         CutWorld_r(parent->children[i]);
@@ -774,37 +766,8 @@ surfnode_t* FindIdealSplitSurf(surfnode_t *surfs)
 }
 
 int GetSurfSide(surf_t* surf, vec3_t n, float d)
-{
-    int cursign, nfirst;
-    float sign;
-    vnode_t *curv;
-    
-    for(curv=surf->geo.first, nfirst=0, cursign=0;; curv=curv->next)
-    {
-        if(curv == surf->geo.first)
-            nfirst++;
-        if(nfirst > 1)
-            break;
-        
-        sign = VectorDot(n, curv->val) - d;
-        if (fabsf(sign) < 0.01)
-            sign = 0;
-
-        if(cursign == 0)
-        {
-            if(sign<0)
-                cursign = -1;
-            else if(sign>0)
-                cursign = 1;
-        }
-        else if(sign * cursign < 0)
-        {
-            cursign = 2;
-            return cursign;
-        }
-    }
-    
-    return cursign;
+{    
+    return PolyPlaneSide(&surf->geo, n, d);
 }
 
 surf_t* CopySurf(surf_t* surf)
@@ -922,4 +885,78 @@ void FreeTree(splitplane_t* headnode)
 
     FreeTree_r(headnode, &freedportals, &nfreedportals, 0);
     free(freedportals);
+}
+
+int test = 0;
+surfnode_t* SurfListFromTree_r(splitplane_t* node, surf_t*** seensurfs, int* nseensurfs)
+{
+    int i;
+    surfnode_t* sn;
+
+    surfnode_t* first, *last, *new;
+    portalnode_t* nextp;
+
+    if(!node->surfs)
+        return 0;
+
+    test++;
+
+    first = last = 0;
+    for(sn=node->surfs; sn; sn=sn->next)
+    {
+        for(i=0; i<(*nseensurfs); i++)
+        {
+            if((*seensurfs)[i] == sn->surf)
+                break;
+        }
+
+        if(i < (*nseensurfs))
+            continue;
+
+        if(!(*nseensurfs))
+            (*seensurfs) = malloc(sizeof(void*) * (*nseensurfs + 1));
+        else
+            (*seensurfs) = realloc((*seensurfs), sizeof(void*) * (*nseensurfs + 1));
+
+        (*seensurfs)[(*nseensurfs)++] = sn->surf;
+        new = calloc(1, sizeof(surfnode_t));
+        new->surf = sn->surf;
+
+        if(first)
+        {
+            last->next = new;
+            new->last = last;
+        }
+        else
+            first = new;
+
+        last = new;
+    }
+
+    for(i=0; i<2; i++)
+    {
+        if(node->children[i]->leaf)
+            continue;
+
+        last->next = SurfListFromTree_r(node->children[i], seensurfs, nseensurfs);
+        if(last->next)
+            last->next->last = last;
+
+        while(last->next)
+            last = last->next;
+    }
+
+    return first;
+}
+
+surfnode_t* SurfListFromTree(splitplane_t* headnode)
+{
+    int nseensurfs = 0;
+    surf_t** seensurfs = 0;
+    surfnode_t* surfs;
+
+    surfs = SurfListFromTree_r(headnode, &seensurfs, &nseensurfs);
+    free(seensurfs);
+
+    return surfs;
 }

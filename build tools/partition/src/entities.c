@@ -7,14 +7,14 @@ void LoadPositions(char* ents)
 {
     char buff[1060];
     char* line;
-    int pos[3];
+    float pos[3];
 
     line = ents;
     while(sscanf(line, "%1059[^\n]", buff) && line < ents + strlen(ents))
     {
         line += strlen(buff) + 1;
         
-        if(sscanf(buff, "\"origin\" \"%d %d %d\"\n", &pos[0], &pos[1], &pos[2]) != 3)
+        if(sscanf(buff, "\"origin\" \"%f %f %f\"\n", &pos[0], &pos[1], &pos[2]) != 3)
             continue;
 
         if(positions)

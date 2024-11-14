@@ -64,15 +64,21 @@ void Portalize_r(splitplane_t* curnode)
 
     p = AllocPortal();
     p->poly = AllocPoly();
+    VectorCopy(p->n, curnode->n);
+    p->d = curnode->d;
     HungryPoly(p->poly, curnode->n, curnode->d);
 
     for (curprt = curnode->portals; curprt; curprt = curprt->next)
-        ClipPoly(p->poly, curprt->p->n, curprt->p->d, 1);
-
-    p->nodes[0] = curnode->children[0];
-    p->nodes[1] = curnode->children[1];
+    {
+        if(curprt->p->nodes[0] == curnode)
+            ClipPoly(p->poly, curprt->p->n, curprt->p->d, 0);
+        else if(curprt->p->nodes[1] == curnode)
+            ClipPoly(p->poly, curprt->p->n, curprt->p->d, 1);
+    }
 
     AddPortalToNode(curnode, p);
+    p->nodes[0] = curnode->children[0];
+    p->nodes[1] = curnode->children[1];
 
     for (i = 0; i < 2; i++)
     {
@@ -80,20 +86,19 @@ void Portalize_r(splitplane_t* curnode)
         {
             side = PolyPlaneSide(curprt->p->poly, curnode->n, curnode->d);
 
-            if(side == -1 && i)
+            if((side == -1) && i)
                 continue;
-            if(side == 1 && !i)
+            if((side == 1) && !i)
                 continue;
 
             if(side == 2)
             {
                 p = AllocPortal();
+                VectorCopy(p->n, curprt->p->n);
+                p->d = curprt->p->d;
                 p->poly = CopyPoly(curprt->p->poly);
                 ClipPoly(p->poly, curnode->n, curnode->d, i);
                 ClipPoly(curprt->p->poly, curnode->n, curnode->d, !i);
-                
-                newp = calloc(1, sizeof(portalnode_t));
-                newp->p = p;
 
                 for(node=curnode; node && FindPortalInNode(node, curprt->p); node=node->parent)
                     AddPortalToNode(node, p);
@@ -112,11 +117,6 @@ void Portalize_r(splitplane_t* curnode)
             {
                 p->nodes[0] = curprt->p->nodes[0];
                 p->nodes[1] = curnode->children[i];
-            }
-            else // Should be curnodes portal
-            {
-                p->nodes[0] = curprt->p->nodes[0];
-                p->nodes[1] = curprt->p->nodes[1];
             }
         }
 
@@ -140,7 +140,7 @@ void HeadnodePortals(splitplane_t* head)
 
     for (i = 0; i < 3; i++)
     {
-        min[i] = mins[0][i] < mins[1][i] && mins[0][i] < mins[2][i] ? mins[0][i] : mins[1][i] < mins[2][i] ? mins[1][i] : mins[2][i]; // what the fuck
+        min[i] = mins[0][i] < mins[1][i] && mins[0][i] < mins[2][i] ? mins[0][i] : mins[1][i] < mins[2][i] ? mins[1][i] : mins[2][i];
         max[i] = maxs[0][i] > maxs[1][i] && maxs[0][i] > maxs[2][i] ? maxs[0][i] : maxs[1][i] > maxs[2][i] ? maxs[1][i] : maxs[2][i];
 
         min[i] -= 24;
@@ -198,12 +198,29 @@ void Portalize(splitplane_t* head)
     Portalize_r(head);
 }
 
-void FillWorld_r(splitplane_t* leaf)
+void PrintLeafStack(vec3_t* stack, int depth)
 {
+    int i, j, k;
+    surfnode_t* surf;
+    vnode_t* v;
+
+    vec3_t center, _center;
+
+    printf("***** LEAK DETECTED *****\n");
+
+    for(i=0; i<depth; i++)
+        printf("(%f %f %f)\n", stack[i][0], stack[i][1], stack[i][2]);
+}
+
+void FillWorld_r(splitplane_t* leaf, vec3_t* stack, int depth)
+{
+    int i, j, k;
+    vnode_t* v;
+
     surfnode_t* surf;
     portalnode_t* p;
 
-    int i;
+    vec3_t center, _center;
 
     if(leaf == &outsidenode)
         return;
@@ -215,23 +232,71 @@ void FillWorld_r(splitplane_t* leaf)
     for(surf=leaf->leaf->surfs; surf; surf=surf->next)
         surf->surf->marked = true;
 
+    VectorCopy(center, vec3_origin);
+    for(p=leaf->leaf->portals, j=0; p; p=p->next, j++)
+    {
+        VectorCopy(_center, vec3_origin);
+        for(v=p->p->poly->first, k=0;; v=v->next, k++)
+        {
+            VectorAdd(_center, _center, v->val);
+
+            if(v->next == p->p->poly->first)
+                break;
+        }
+        VectorDivide(_center, _center, (float) k);
+        VectorAdd(center, center, _center);
+    }
+    VectorDivide(center, center, (float) j);
+    VectorCopy(stack[depth++], center);
+
     for(p=leaf->leaf->portals; p; p=p->next)
     {
         if(p->p->nodes[0] == leaf)
             i = 1;
-        else
+        else if(p->p->nodes[1] == leaf)
             i = 0;
+        else
+            continue;
 
-        FillWorld_r(p->p->nodes[i]);
+        if(p->p->nodes[i] == &outsidenode)
+        {
+            PrintLeafStack(stack, depth);
+            return;
+        }
+
+        FillWorld_r(p->p->nodes[i], stack, depth);
+    }
+}
+
+void MarkFaces_r(splitplane_t* node)
+{
+    surfnode_t* cursurf;
+
+    if(!node->leaf)
+    {
+        MarkFaces_r(node->children[0]);
+        MarkFaces_r(node->children[1]);
+        return;
+    }
+
+    for(cursurf=node->leaf->surfs; cursurf; cursurf=cursurf->next)
+    {
+        cursurf->surf->marked = true;
     }
 }
 
 void FillWorld(splitplane_t* head, vec3_t pos)
 {
     splitplane_t* leaf;
+    vec3_t stack[1024];
 
+    #if 0
+    MarkFaces_r(head);
+    #else
     leaf = PosToLeaf(pos, head);
-    FillWorld_r(leaf);
+    VectorCopy(stack[0], pos);
+    FillWorld_r(leaf, stack, 1);
+    #endif
 }
 
 surfnode_t* PruneSurfs(surfnode_t* list)

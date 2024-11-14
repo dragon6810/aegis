@@ -429,6 +429,9 @@ int PolyPlaneSide(polynode_t* poly, vec3_t n, float d)
     if(firstsign > 0)
         return 1;
 
+    if(firstsign < 0)
+        return -1;
+
     return 0;
 }
 

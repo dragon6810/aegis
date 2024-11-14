@@ -24,7 +24,8 @@ bool Renderer::PostWindow(Window* window)
 	this->window = window;
 
 	glewInit();
-	glFrontFace(GL_CW);
+	//glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
 
 	return true;
 }

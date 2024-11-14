@@ -11,8 +11,8 @@ void World::TraceDir_R(node_t* curnode, traceresult_t* trace)
 	start = trace->start;
 	end = trace->end;
 
-	d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
-	d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
+	//d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
+	//d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
 
 
 }
@@ -545,5 +545,12 @@ void World::Render()
 	camera->SetUpGL();
 
 	for(i=0; i<surfs.size(); i++)
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		glColor3f(1, 1, 1);
 		RenderSurf(&surfs[i]);
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		glColor3f(1, 0, 0);
+		RenderSurf(&surfs[i]);
+	}
 }

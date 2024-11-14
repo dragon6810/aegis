@@ -1,7 +1,7 @@
 {
 "model" "*0"
 "_generator" "J.A.C.K. 1.1.3773 (vpHalfLife)"
-"wad" "aegis.wad"
+"wad" "/Users/henrydunn/Documents/GitHub/aegis/source/Aegis/deadbird/aegis.wad"
 "mapversion" "220"
 "classname" "worldspawn"
 }

@@ -142,7 +142,7 @@ splitplane_t* PosToLeaf(vec3_t pos, splitplane_t* headnode)
 
     d = VectorDot(headnode->n, pos) - headnode->d;
 
-    if (d >= 0)
+    if (d >= -0.001)
         return PosToLeaf(pos, headnode->children[1]);
     
     return PosToLeaf(pos, headnode->children[0]);
