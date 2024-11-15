@@ -143,6 +143,18 @@ void LoadBrushSets(char* file)
     free(newfile);
 }
 
+void FreeSurfnodes(surfnode_t* list)
+{
+    surfnode_t* nextnode;
+
+    for(; list; list=nextnode)
+    {
+        nextnode = list->next;
+        list->surf->onplane = false;
+        free(list);
+    }
+}
+
 void ProcessWorld()
 {
     int i, j, k;
@@ -163,6 +175,7 @@ void ProcessWorld()
             for(k=0; k<npositions; k++)
                 FillWorld(&rootnode[j][curhull], positions[k]);
 
+            FreeSurfnodes(set->brushet->firstsurf);
             set->brushet->firstsurf = SurfListFromTree(&rootnode[j][curhull]);
 
             FreeTree(&rootnode[j][curhull]);
@@ -807,18 +820,6 @@ surf_t* CopySurf(surf_t* surf)
     }
     
     return newsurf;
-}
-
-void FreeSurfnodes(surfnode_t* list)
-{
-    surfnode_t* nextnode;
-
-    for(; list; list=nextnode)
-    {
-        nextnode = list->next;
-        list->surf->onplane = false;
-        free(list);
-    }
 }
 
 void FreeTree_r(splitplane_t* headnode, void*** freedportals, int* nfreedportals, int depth)

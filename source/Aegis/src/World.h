@@ -52,6 +52,12 @@ public:
 		std::vector<surf_t*> surfs;
 	};
 
+	struct hullnode_t
+	{
+		plane_t* pl;
+		int children[2];
+	};
+
 	struct traceresult_t
 	{
 		bool didhit;
@@ -83,12 +89,13 @@ public:
 	std::vector<std::shared_ptr<EntityBase>> entities;
 	std::shared_ptr<EntityCamera> camera;
 
-	std::vector<node_t>   nodes;
-	std::vector<leaf_t>   leafs; // Ehhhh
-	std::vector<surf_t>   surfs;
-	std::vector<Vector3>  verts;
-	std::vector<plane_t> planes; // You broke the 4-letter synergy, man!
-	std::vector<texinfo_t> texinfos;
+	std::vector<hullnode_t> clipnodes;
+	std::vector<node_t> 		nodes;
+	std::vector<leaf_t>   		leafs; // Ehhhh
+	std::vector<surf_t>   		surfs;
+	std::vector<Vector3>  		verts;
+	std::vector<plane_t> 	   planes; // You broke the 4-letter synergy, man!
+	std::vector<texinfo_t> 	 texinfos;
 
 	std::vector<ResourceManager::texture_t*> textures;
 
@@ -116,6 +123,7 @@ private:
 	void LoadSurfs(FILE* ptr);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
+	void LoadClipnodes(FILE* ptr);
 	
 	// Entity Loading
 	void LoadEntities(FILE* ptr);

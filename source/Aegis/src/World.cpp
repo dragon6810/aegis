@@ -11,10 +11,8 @@ void World::TraceDir_R(node_t* curnode, traceresult_t* trace)
 	start = trace->start;
 	end = trace->end;
 
-	//d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
-	//d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
-
-
+	d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
+	d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
 }
 
 World::traceresult_t World::TraceDir(node_t* headnode, Vector3 start, Vector3 end)
@@ -125,6 +123,30 @@ void World::LoadEntities(FILE* ptr)
 	entities.resize(ents.size());
 	for (i=0; i<ents.size(); i++)
 		entities[i] = LoadEntity(ents[i]);
+}
+
+void World::LoadClipnodes(FILE* ptr)
+{
+	int i, j;
+	node_t *curnode;
+
+	int lumpoffs;
+	int lumpsize;
+	int nclipnodes;
+
+	int misc;
+	unsigned int iplane;
+	short child;
+	unsigned short firstface;
+	unsigned short nfaces;
+
+	fseek(ptr, 4 + LUMP_NODES * 8, SEEK_SET);
+	fread(&lumpoffs, sizeof(int), 1, ptr);
+	fread(&lumpsize, sizeof(int), 1, ptr);
+	nclipnodes = lumpsize / 24;
+	clipnodes.resize(nclipnodes);
+
+	Console::Print("Clipnode Count: %d.\n", nclipnodes);
 }
 
 void World::LoadNodes(FILE* ptr)
@@ -506,6 +528,7 @@ bool World::Load(std::string name)
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
+	LoadClipnodes(ptr);
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
@@ -545,12 +568,5 @@ void World::Render()
 	camera->SetUpGL();
 
 	for(i=0; i<surfs.size(); i++)
-	{
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		glColor3f(1, 1, 1);
 		RenderSurf(&surfs[i]);
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glColor3f(1, 0, 0);
-		RenderSurf(&surfs[i]);
-	}
 }

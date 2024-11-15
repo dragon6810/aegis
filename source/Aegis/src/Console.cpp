@@ -148,14 +148,14 @@ void Console::Render()
         glBindTexture(GL_TEXTURE_2D, consback->name);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0, 1);
-    glVertex2f(0, 0 + (int)curoffs);
-    glTexCoord2f(0, 0);
-    glVertex2f(0, 240 + (int)curoffs);
-    glTexCoord2f(1, 0);
-    glVertex2f(320, 240 + (int)curoffs);
     glTexCoord2f(1, 1);
     glVertex2f(320, 0 + (int)curoffs);
+    glTexCoord2f(1, 0);
+    glVertex2f(320, 240 + (int)curoffs);
+    glTexCoord2f(0, 0);
+    glVertex2f(0, 240 + (int)curoffs);
+    glTexCoord2f(0, 1);
+    glVertex2f(0, 0 + (int)curoffs);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
