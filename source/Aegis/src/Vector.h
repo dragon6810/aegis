@@ -15,6 +15,7 @@ public:
     std::string ToString();
 
     static float Dot(Vector3 a, Vector3 b);
+    static Vector3 Lerp(Vector3 a, Vector3 b, float t);
     
     Vector3 operator*(Matrix4x4 m);
     float& operator[](int i);

@@ -74,7 +74,7 @@ void WriteBspFile(bspffile_t* bsp, char* file)
     edgeoffs = marksurfoffs + marksurflen;
     surfedgeoffs = edgeoffs + edgelen;
     modeloffs = surfedgeoffs + surfedgelen;
-    
+
     fwrite(&version, sizeof(version), 1, ptr);
     
     fwrite(&entoffs, sizeof(int), 1, ptr);

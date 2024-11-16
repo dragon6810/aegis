@@ -238,7 +238,7 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
     bspclipnode.plane = bspfile.nplanes++;
     if(rendertree)
     {
-        bspnode.plane = bspfile.nplanes;
+        bspnode.plane = bspclipnode.plane;
         bspnode.firstface = bspfile.nfaces;
         bspnode.nfaces = LoadSurfs(node->surfs);
         
@@ -269,7 +269,7 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
             if (rendertree)
                 bspfile.nodes[nodeindex].children[i] = bspfile.nnodes;
 
-            bspfile.clipnodes[clipindex].children[!i] = bspfile.nclipnodes;
+            bspfile.clipnodes[clipindex].children[i] = bspfile.nclipnodes;
             LoadNodes_r(node->children[i], rendertree);
         }
         else
@@ -277,7 +277,7 @@ void LoadNodes_r(splitplane_t *node, boolean rendertree)
             if (rendertree)
                 bspfile.nodes[nodeindex].children[i] = ~LoadLeaf(node->children[i]->leaf);
 
-            bspfile.clipnodes[clipindex].children[!i] = node->children[i]->leaf->contents;
+            bspfile.clipnodes[clipindex].children[i] = node->children[i]->leaf->contents;
         }
     }
 }

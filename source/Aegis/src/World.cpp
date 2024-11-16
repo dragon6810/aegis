@@ -3,25 +3,66 @@
 #include "Command.h"
 #include "Console.h"
 
-void World::TraceDir_R(node_t* curnode, traceresult_t* trace)
+bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
 {
-	Vector3 start, end;
-	float d1, d2;
+	const float epsilon = 0.01;
 
-	start = trace->start;
-	end = trace->end;
+	hullnode_t* curnode;
+	Vector3 cross;
+	float d1, d2, t;
+	int first;
+
+	if(icurnode < 0)
+	{
+		if(icurnode == CONTENTS_SOLID)
+		{
+			trace->hit = start;
+			trace->n = n;
+			return true;
+		}
+
+		return false;
+	}
+
+	curnode = &clipnodes[icurnode];
 
 	d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
 	d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
+
+	if(fabsf(d1) < epsilon && fabsf(d2) < epsilon)
+	{
+		if(TraceDir_R(curnode->children[0], trace, start, end, curnode->pl->n))
+			return true;
+		
+		return TraceDir_R(curnode->children[1], trace, start, end, curnode->pl->n);
+	}
+
+	if(d1 * d2 > 0)
+	{
+		if(d1 > 0)
+			return TraceDir_R(curnode->children[1], trace, start, end, curnode->pl->n);
+
+		return TraceDir_R(curnode->children[0], trace, start, end, curnode->pl->n);
+	}
+
+	t = d1 / (d1 - d2);
+	cross = Vector3::Lerp(start, end, t);
+
+	first = d1 > 0;
+
+	if(TraceDir_R(curnode->children[first], trace, start, cross, curnode->pl->n))
+		return true;
+	
+	return TraceDir_R(curnode->children[!first], trace, cross, end, curnode->pl->n);
 }
 
-World::traceresult_t World::TraceDir(node_t* headnode, Vector3 start, Vector3 end)
+World::traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 {
 	traceresult_t trace;
 
 	trace.start = start;
 	trace.end = end;
-	TraceDir_R(headnode, &trace);
+	trace.didhit = TraceDir_R(headnode, &trace, start, end, Vector3());
 	return trace;
 }
 
@@ -128,25 +169,32 @@ void World::LoadEntities(FILE* ptr)
 void World::LoadClipnodes(FILE* ptr)
 {
 	int i, j;
-	node_t *curnode;
+	hullnode_t *curnode;
 
 	int lumpoffs;
 	int lumpsize;
 	int nclipnodes;
 
-	int misc;
 	unsigned int iplane;
-	short child;
-	unsigned short firstface;
-	unsigned short nfaces;
+	short children[2];
 
-	fseek(ptr, 4 + LUMP_NODES * 8, SEEK_SET);
+	fseek(ptr, 4 + LUMP_CLIPNODES * 8, SEEK_SET);
 	fread(&lumpoffs, sizeof(int), 1, ptr);
 	fread(&lumpsize, sizeof(int), 1, ptr);
 	nclipnodes = lumpsize / 24;
 	clipnodes.resize(nclipnodes);
 
 	Console::Print("Clipnode Count: %d.\n", nclipnodes);
+
+	fseek(ptr, lumpoffs, SEEK_SET);
+	clipnodes.resize(nclipnodes);
+	for(i=0, curnode=clipnodes.data(); i<nclipnodes; i++, curnode++)
+	{
+		fread(&iplane, sizeof(int), 1, ptr);
+		fread(curnode->children, sizeof(short), 2, ptr);
+
+		curnode->pl = &planes[iplane];
+	}
 }
 
 void World::LoadNodes(FILE* ptr)
@@ -532,7 +580,7 @@ bool World::Load(std::string name)
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
-	trace = TraceDir(&nodes[0], Vector3(0, 0, 128), Vector3(0, 0, -128));
+	trace = TraceDir(0, Vector3(0, 0, 128), Vector3(0, 0, -128));
 
 	fclose(ptr);
 	return true;

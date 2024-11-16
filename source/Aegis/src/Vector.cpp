@@ -24,6 +24,18 @@ float Vector3::Dot(Vector3 a, Vector3 b)
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
+Vector3 Vector3::Lerp(Vector3 a, Vector3 b, float t)
+{
+    int i;
+
+    Vector3 v;
+
+    for(i=0; i<3; i++)
+        v[i] = (b[i] - a[i]) * t + a[i];
+
+    return v;
+}
+
 Vector3 Vector3::operator*(Matrix4x4 m)
 {
     Vector3 v;

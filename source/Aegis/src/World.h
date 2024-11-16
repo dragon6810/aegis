@@ -11,6 +11,9 @@
 #include "EntityBase.h"
 #include "EntityCamera.h"
 
+#define CONTENTS_EMPTY -1
+#define CONTENTS_SOLID -2
+
 class World
 {
 public:
@@ -55,7 +58,7 @@ public:
 	struct hullnode_t
 	{
 		plane_t* pl;
-		int children[2];
+		short children[2];
 	};
 
 	struct traceresult_t
@@ -103,7 +106,7 @@ public:
 
 	void Render();
 
-	traceresult_t TraceDir(node_t* headnode, Vector3 start, Vector3 end);
+	traceresult_t TraceDir(int headnode, Vector3 start, Vector3 end);
 private:
 	// Entity factory, update with new entity classnames
 	std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
@@ -133,5 +136,5 @@ private:
 	void RenderSurf(surf_t* surf);
 
 	// Collision
-	void TraceDir_R(node_t* curnode, traceresult_t* trace);
+	bool TraceDir_R(int icurnode, traceresult_t* trac, Vector3 start, Vector3 end, Vector3 n);
 };
