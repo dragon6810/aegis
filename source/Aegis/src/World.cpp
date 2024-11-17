@@ -1,5 +1,8 @@
 #include "World.h"
 
+#include <c_math.h>
+#include <c_string.h>
+
 #include "Command.h"
 #include "Console.h"
 
