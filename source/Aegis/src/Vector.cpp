@@ -36,16 +36,36 @@ Vector3 Vector3::Lerp(Vector3 a, Vector3 b, float t)
     return v;
 }
 
-Vector3 Vector3::operator*(Matrix4x4 m)
+float Vector3::SqrLength()
 {
-    Vector3 v;
-
-    v[0] = x * m[0][0] + y * m[0][1] + z * m[0][2] + m[0][3];
-    v[1] = x * m[1][0] + y * m[1][1] + z * m[1][2] + m[1][3];
-    v[2] = x * m[2][0] + y * m[2][1] + z * m[2][2] + m[2][3];
-
-    return v;
+    return x * x + y * y + z * z;
 }
+
+float Vector3::Length()
+{
+    return sqrtf(SqrLength());
+}
+
+void Vector3::Normalize()
+{
+    float len;
+
+    len = 1 / Length();
+    x *= len;
+    y *= len;
+    z *= len;
+}
+
+Vector3 Vector3::operator+(Vector3 v)
+{
+    return Vector3(x + v.x, y + v.y, z + v.z);
+}
+
+Vector3 Vector3::operator-(Vector3 v)
+{
+    return Vector3(x - v.x, y - v.y, z - v.z);
+}
+
 
 float& Vector3::operator[](int i)
 {

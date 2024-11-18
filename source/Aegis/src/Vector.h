@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Matrix.h"
+class Matrix4x4;
 
 class Vector3
 {
@@ -16,8 +16,14 @@ public:
 
     static float Dot(Vector3 a, Vector3 b);
     static Vector3 Lerp(Vector3 a, Vector3 b, float t);
+
+    float SqrLength();
+    float Length();
+    void Normalize();
     
-    Vector3 operator*(Matrix4x4 m);
+    Vector3 operator+(Vector3 v);
+    Vector3 operator-(Vector3 v);
+
     float& operator[](int i);
 private:
     

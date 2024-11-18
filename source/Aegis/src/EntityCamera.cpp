@@ -2,7 +2,6 @@
 
 #include "Console.h"
 #include "Matrix.h"
-#include "Quaternion.h"
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -16,6 +15,33 @@ void EntityCamera::Init(const std::unordered_map <std::string, std::string>& pai
 	Console::Print("Camera Rotation: %s.\n", rot.ToString().c_str());
 }
 
+void EntityCamera::UpdateMouse(float x, float y)
+{
+    Quaternion q;
+    Matrix4x4 mat;
+
+    float planew, planeh;
+    float hfov;
+    Vector3 realpoint;
+
+    hfov = vfov * aspect;
+
+    planew = sin(hfov / 2.0);
+    planeh = sin(vfov / 2.0);
+
+    realpoint.x = planew * (x-0.5);
+    realpoint.z = -planeh * (y-0.5);
+    realpoint.y = 1;
+
+    q = Quaternion::FromEuler(Quaternion::ToRadians(rot));
+    mat = q.ToMatrix4();
+
+    realpoint = mat * realpoint;
+    realpoint.Normalize();
+
+    mousedir = realpoint;
+}
+
 void EntityCamera::SetUpGL()
 {
     Quaternion q;
@@ -27,8 +53,8 @@ void EntityCamera::SetUpGL()
     q = Quaternion::FromEuler(Quaternion::ToRadians(rot));
     mat = q.ToMatrix4();
 
-    forward = forward * mat;
-    up = up * mat;
+    forward = mat * forward;
+    up = mat * up;
 
     glm::vec3 cameraPos(pos.x, pos.y, pos.z);
     glm::vec3 cameraTarget = cameraPos + glm::vec3(forward.x, forward.y, forward.z);
@@ -36,7 +62,7 @@ void EntityCamera::SetUpGL()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glm::mat4 projection = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 1.0f, 10000.0f);
+    glm::mat4 projection = glm::perspective(vfov, aspect, 1.0f, 10000.0f);
     glLoadMatrixf(&projection[0][0]);
 
     glMatrixMode(GL_MODELVIEW);

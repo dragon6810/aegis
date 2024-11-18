@@ -25,6 +25,7 @@ bool Window::MakeWindow(int w, int h, std::string name)
 
 	glfwSetKeyCallback(win, Input::KeyCallback);
 	glfwSetCharCallback(win, Input::CharCallback);
+	glfwSetCursorPosCallback(win, Input::CursorPosCallback);
 
 	return win;
 }

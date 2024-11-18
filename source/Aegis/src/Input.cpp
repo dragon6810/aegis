@@ -150,3 +150,15 @@ void Input::CharCallback(GLFWwindow* window, unsigned int codepoint)
 
 	Game::GetGame().console.KeyInput((char) codepoint);
 }
+
+void Input::CursorPosCallback(GLFWwindow* window, double x, double y)
+{
+	if(!Game::GetGame().world.camera.get())
+		return;
+
+	x /= (float) Game::GetGame().windoww;
+	y /= (float) Game::GetGame().windowh;
+	printf("Cursor pos: %f, %f\n", x, y);
+
+	Game::GetGame().world.camera->UpdateMouse(x, y);
+}

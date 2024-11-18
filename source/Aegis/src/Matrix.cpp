@@ -28,6 +28,18 @@ Matrix4x4 Matrix4x4::operator*(Matrix4x4 a)
     return result;
 }
 
+Vector3 Matrix4x4::operator*(Vector3 v)
+{
+    int i;
+
+    Vector3 n;
+
+    for(i=0; i<3; i++)
+        n[i] = v[0] * m[i][0] + v[1] * m[i][1] + v[2] * m[i][2] + m[i][3];
+
+    return n;
+}
+
 float* Matrix4x4::operator[](int i)
 {
 	return m[i];

@@ -35,6 +35,8 @@ public:
 	World world;
 	Console console;
 
+	int windoww, windowh;
+
 	void Run(); // Start the game
 
 	bool ParseCommands(std::string cmd);

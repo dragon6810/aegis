@@ -43,6 +43,10 @@ bool Game::Loop()
 	// It should be illegal for it to be this hard to get the time
 	now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
+	window.GetSize();
+	windoww = window.w;
+	windowh = window.h;
+
 	if (!lasttick)
 	{
 		lasttick = now;
