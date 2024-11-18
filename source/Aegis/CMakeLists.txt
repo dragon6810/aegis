@@ -1,5 +1,13 @@
+# fuck cmake. I'd be using makefiles if it werent for the visual studio integration.
+# cmake is a fragile piece of shit that never works.
+# fuck cmake.
+
 # TO COMPILE ON MAC:
 # brew install glew glfw sfml
+
+# TO COMPILE ON DEBIAN:
+# sudo apt update
+# sudo apt install libglew-dev libglfw3-dev libsfml-dev libglu1-mesa-dev
 
 cmake_minimum_required(VERSION 3.10)
 project(Aegis)
@@ -7,13 +15,14 @@ project(Aegis)
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 # Include directories for all the libraries
 include_directories(
     external/glew/include
-    external/glfw/include
     external/glm
     external/SFML/include
+    clib
 )
 
 # Add the executable
@@ -47,4 +56,24 @@ elseif (WIN32)
     add_custom_command(TARGET Aegis POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/external/glew/bin/glew32.dll" $<TARGET_FILE_DIR:Aegis>)
+elseif (UNIX)
+    find_package(OpenGL REQUIRED)
+    find_package(GLEW REQUIRED)
+    find_package(SFML COMPONENTS system audio REQUIRED)
+
+    # Use pkg-config to find GLFW
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GLFW3 REQUIRED glfw3)
+
+    include_directories(${GLFW3_INCLUDE_DIRS})
+    link_directories(${GLFW3_LIBRARY_DIRS})
+    add_definitions(${GLFW3_CFLAGS_OTHER})
+
+    target_link_libraries(Aegis PRIVATE
+        OpenGL::GL
+        GLEW::GLEW
+        ${GLFW3_LIBRARIES}
+        sfml-system
+        sfml-audio
+    )
 endif()

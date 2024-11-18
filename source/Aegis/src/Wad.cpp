@@ -1,5 +1,7 @@
 #include "Wad.h"
 
+#include <c_string.h>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -43,6 +45,8 @@ void Wad::Unload()
 {
     if(ptr)
         fclose(ptr);
+
+    ptr = 0;
 }
 
 ResourceManager::texture_t* Wad::LoadTexture(std::string name)
