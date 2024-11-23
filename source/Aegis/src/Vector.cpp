@@ -1,5 +1,7 @@
 #include "Vector.h"
 
+#include <c_math.h>
+
 #include "Console.h"
 
 Vector3::Vector3()
