@@ -27,9 +27,8 @@ void EntityCamera::UpdateMouse(float x, float y)
     float a;
 
     // The dimensions of the camera plane one unit forward
-    hfov = vfov * aspect;
-    planew = 2.0 * tan(hfov * 0.5);
     planeh = 2.0 * tan(vfov * 0.5);
+    planew = planeh * aspect;
 
     // The direction if the camera was looking down +y
     realpoint.x =  planew * (x-0.5);

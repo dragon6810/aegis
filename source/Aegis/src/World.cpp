@@ -617,7 +617,7 @@ void World::Render()
 	int i;
 	Vector3 p;
 
-	ramera->SetUpGL();
+	camera->SetUpGL();
     
     glPointSize(15.0);
 	p = camera->mousedir;
