@@ -618,9 +618,9 @@ void World::Render()
 	Vector3 p;
 
 	camera->SetUpGL();
-
+    
+    glPointSize(15.0);
 	p = camera->mousedir;
-	p = p * 10.0;
     glColor3f(0, 0, 1);
 	glBegin(GL_POINTS);
 	p = p + camera->pos;

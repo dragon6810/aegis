@@ -23,21 +23,29 @@ void EntityCamera::UpdateMouse(float x, float y)
     float planew, planeh;
     float hfov;
     Vector3 realpoint;
+    Vector3 forward(0, 1, 0);
+    float a;
 
+    // The dimensions of the camera plane one unit forward
     hfov = vfov * aspect;
+    planew = 2.0 * tan(hfov * 0.5);
+    planeh = 2.0 * tan(vfov * 0.5);
 
-    planew = sin(hfov / 2.0);
-    planeh = sin(vfov / 2.0);
-
-    realpoint.x = planew * (x-0.5);
+    // The direction if the camera was looking down +y
+    realpoint.x =  planew * (x-0.5);
     realpoint.z = -planeh * (y-0.5);
     realpoint.y = 1;
-
+   
+    // Rotate direction by camera quaternion
     q = Quaternion::FromEuler(Quaternion::ToRadians(rot));
     mat = q.ToMatrix4();
 
     realpoint = mat * realpoint;
+    forward = mat * forward;
     realpoint.Normalize();
+
+    a = acos(Vector3::Dot(realpoint, forward));
+    Console::Print("X angle: %f\n", a * RAD2DEG);
 
     mousedir = realpoint;
 }

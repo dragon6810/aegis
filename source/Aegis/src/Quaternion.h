@@ -5,7 +5,7 @@
 
 #define PI 3.141596
 #define DEG2RAD 2.0 * PI / 360.0
-#define RAD2DEG 360.0 / 2.0 * PI
+#define RAD2DEG 360.0 / (2.0 * PI)
 
 class Quaternion
 {
