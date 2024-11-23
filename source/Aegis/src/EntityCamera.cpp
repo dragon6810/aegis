@@ -62,7 +62,7 @@ void EntityCamera::SetUpGL()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glm::mat4 projection = glm::perspective(vfov, aspect, 1.0f, 10000.0f);
+    glm::mat4 projection = glm::perspective(vfov, aspect, 0.1f, 10000.0f);
     glLoadMatrixf(&projection[0][0]);
 
     glMatrixMode(GL_MODELVIEW);

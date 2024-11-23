@@ -58,6 +58,16 @@ void Vector3::Normalize()
     z *= len;
 }
 
+Vector3 Vector3::operator*(float s)
+{
+    return Vector3(x * s, y * s, z * s);
+}
+
+Vector3 Vector3::operator/(float s)
+{
+    return *this * (1.0 / s);
+}
+
 Vector3 Vector3::operator+(Vector3 v)
 {
     return Vector3(x + v.x, y + v.y, z + v.z);

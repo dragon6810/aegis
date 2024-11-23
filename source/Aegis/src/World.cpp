@@ -620,7 +620,8 @@ void World::Render()
 	camera->SetUpGL();
 
 	p = camera->mousedir;
-	glColor3f(0, 0, 1);
+	p = p * 10.0;
+    glColor3f(0, 0, 1);
 	glBegin(GL_POINTS);
 	p = p + camera->pos;
 	glVertex3f(p.x, p.y, p.z);

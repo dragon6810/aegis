@@ -20,7 +20,10 @@ public:
     float SqrLength();
     float Length();
     void Normalize();
-    
+
+
+    Vector3 operator*(float s);
+    Vector3 operator/(float s);
     Vector3 operator+(Vector3 v);
     Vector3 operator-(Vector3 v);
 
