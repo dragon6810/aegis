@@ -10,9 +10,6 @@ void EntityCamera::Init(const std::unordered_map <std::string, std::string>& pai
 {
 	pos = LoadVector3(pairs, "origin", Vector3(0, 0, 0));
 	rot = LoadVector3(pairs, "angles", Vector3(0, 0, 0));
-
-	Console::Print("Camera Position: %s.\n", pos.ToString().c_str());
-	Console::Print("Camera Rotation: %s.\n", rot.ToString().c_str());
 }
 
 void EntityCamera::UpdateMouse(float x, float y)
@@ -24,7 +21,6 @@ void EntityCamera::UpdateMouse(float x, float y)
     float hfov;
     Vector3 realpoint;
     Vector3 forward(0, 1, 0);
-    float a;
 
     // The dimensions of the camera plane one unit forward
     planeh = 2.0 * tan(vfov * 0.5);
@@ -42,9 +38,6 @@ void EntityCamera::UpdateMouse(float x, float y)
     realpoint = mat * realpoint;
     forward = mat * forward;
     realpoint.Normalize();
-
-    a = acos(Vector3::Dot(realpoint, forward));
-    Console::Print("X angle: %f\n", a * RAD2DEG);
 
     mousedir = realpoint;
 }

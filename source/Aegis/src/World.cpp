@@ -615,15 +615,16 @@ void World::RenderSurf(surf_t* surf)
 void World::Render()
 {
 	int i;
-	Vector3 p;
+	Vector3 d, p;
 
 	camera->SetUpGL();
     
     glPointSize(15.0);
-	p = camera->mousedir;
-    glColor3f(0, 0, 1);
+	d = camera->mousedir * 4096.0;
+	p = TraceDir(0, camera->pos, d + camera->pos).hit;
+
+    glColor3f(1, 0, 0);
 	glBegin(GL_POINTS);
-	p = p + camera->pos;
 	glVertex3f(p.x, p.y, p.z);
 	glEnd();
 	glColor3f(1, 1, 1);

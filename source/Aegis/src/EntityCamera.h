@@ -3,6 +3,7 @@
 #include "EntityBase.h"
 
 #include "Quaternion.h"
+
 class EntityCamera : public EntityBase
 {
 public:
