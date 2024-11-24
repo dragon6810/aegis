@@ -8,7 +8,7 @@
 #include "Console.h"
 
 #define ENGINE_TICKRATE 50
-#define ENGINE_TICKDUR_MS 1000 / ENGINE_TICKRATE
+#define ENGINE_TICKDUR_MS (1000 / ENGINE_TICKRATE)
 #define ENGINE_TICKDUR 1f / (float) ENGINE_TICKRATE
 
 class Game
@@ -31,6 +31,7 @@ private:
 public:
 	float intertick;
 	float deltatime;
+    std::vector<void*> tickprops;
 
 	World world;
 	Console console;

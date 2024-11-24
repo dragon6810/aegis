@@ -10,6 +10,9 @@
 #include <filesystem>
 
 #include "Command.h"
+#include "TickProperty.h"
+
+TickProperty<float> testprop = 0.0f;
 
 void Game::Render()
 {
@@ -32,7 +35,12 @@ void Game::Render()
 
 void Game::Tick()
 {
-	// TODO: Tick
+    int i;
+
+    testprop += 1.0f;
+
+    for(i=0; i<tickprops.size(); i++)
+        ((TickPropertyBase*) tickprops[i])->push();
 }
 
 bool Game::Loop()
@@ -46,8 +54,8 @@ bool Game::Loop()
 	window.GetSize();
 	windoww = window.w;
 	windowh = window.h;
-
-	if (!lasttick)
+	
+    if (!lasttick)
 	{
 		lasttick = now;
 		Tick();
@@ -58,6 +66,8 @@ bool Game::Loop()
 		lasttick += ENGINE_TICKDUR_MS;
 		Tick();
 	}
+
+    intertick = (float) (now - lasttick) / (float) ENGINE_TICKDUR_MS;
 
 	Render();
 
