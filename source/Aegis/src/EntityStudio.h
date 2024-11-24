@@ -2,6 +2,8 @@
 
 #include "EntityBase.h"
 
+#include <vector>
+
 class EntityStudio : public EntityBase
 {
 public:
@@ -13,8 +15,21 @@ public:
     Vector3 rot;
 
 protected:
-    typedef struct bone_t bone_t;
+    typedef struct bone_s
+    {
+        std::string name;
+        struct bone_s* parent;
+        std::vector<struct bone_s*> children;
 
+        Vector3 defpos;
+        Vector3 defrot;
+        Vector3 scalepos;
+        Vector3 scalerot;
+        Vector3 curpos;
+        Vector3 currot;
+    } bone_t;
+
+protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
 
@@ -25,19 +40,4 @@ private:
 
     void LoadHeader(FILE* ptr);
     void LoadBones(FILE* ptr);
-
-protected:
-    struct bone_t
-    {
-        std::string name;
-        bone_t* parent;
-        std::vector<bone_t*> children;
-
-        Vector3 defpos;
-        Vector3 defrot;
-        Vector3 scalepos;
-        Vector3 scalerot;
-        Vector3 curpos;
-        Vector3 currot;
-    };
 };

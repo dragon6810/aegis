@@ -1,5 +1,7 @@
 #include "EntityStudio.h"
 
+#include <c_string.h>
+
 #include "Console.h"
 #include "Command.h"
 
