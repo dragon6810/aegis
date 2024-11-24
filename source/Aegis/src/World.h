@@ -9,11 +9,12 @@
 #include "ResourceManager.h"
 #include "Wad.h"
 #include "EntityBase.h"
-#include "EntityCamera.h"
-#include "EntityStudio.h"
 
 #define CONTENTS_EMPTY -1
 #define CONTENTS_SOLID -2
+
+class EntityCamera;
+class EntityStudio;
 
 class World
 {
@@ -109,13 +110,6 @@ public:
 
 	traceresult_t TraceDir(int headnode, Vector3 start, Vector3 end);
 private:
-	// Entity factory, update with new entity classnames
-	std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
-	{
-		{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
-		{"player_tank", []() { return std::make_shared<EntityStudio>(); }},
-	};
-
 	std::string wadpath;
 	std::vector<Wad> wads;
 

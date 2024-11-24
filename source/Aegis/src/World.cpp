@@ -6,6 +6,16 @@
 #include "Command.h"
 #include "Console.h"
 
+#include "EntityCamera.h"
+#include "EntityStudio.h"
+
+// Entity factory, update with new entity classnames
+std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
+{
+	{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
+	{"player_tank", []() { return std::make_shared<EntityStudio>(); }},
+};
+
 bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
 {
 	const float epsilon = 0.01;

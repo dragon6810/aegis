@@ -60,6 +60,9 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "format": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "*.tpp": "cpp",
+        "cstdarg": "cpp",
+        "system_error": "cpp"
     }
 }

@@ -2,6 +2,8 @@
 
 #include "Game.h"
 
+#include "EntityCamera.h"
+
 std::unordered_map<int, std::string> Input::keycommands;
 
 const std::unordered_map<std::string, int> Input::stringkeycodes =

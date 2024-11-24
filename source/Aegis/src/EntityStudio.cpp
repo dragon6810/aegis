@@ -5,6 +5,8 @@
 #include "Console.h"
 #include "Command.h"
 
+#define VERBOSE_STUDIO_LOGGING 0
+
 void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pairs)
 {
     pos = LoadVector3(pairs, "origin", Vector3(0,0,0));
@@ -16,6 +18,57 @@ void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pai
 std::string EntityStudio::GetModelName()
 {
     return "models/tank.mdl";
+}
+
+void EntityStudio::LoadControllers(FILE* ptr)
+{
+    int i, j;
+    bone_t *curbone;
+
+    uint32_t lumpsize, lumpoffs;
+
+    char name[33];
+    int iparent;
+
+    fseek(ptr, 148, SEEK_SET);
+
+    fread(&lumpsize, sizeof(uint32_t), 1, ptr);
+    fread(&lumpoffs, sizeof(uint32_t), 1, ptr);
+
+    Console::Print("Controller count: %d\n", lumpsize);
+
+    fseek(ptr, lumpoffs, SEEK_SET);
+    bones.resize(lumpsize);
+    for(i=0, curbone=bones.data(); i<lumpsize; i++, curbone++)
+    {
+        fread(name, 1, 32, ptr); name[32] = 0;
+        fread(&iparent, sizeof(int), 1, ptr);
+        fseek(ptr, 4 + 24, SEEK_CUR);
+
+        for(j=0; j<3; j++)
+            fread(&curbone->defpos[j], sizeof(float), 1, ptr);
+        for(j=0; j<3; j++)
+            fread(&curbone->defrot[j], sizeof(float), 1, ptr);
+        
+        for(j=0; j<3; j++)
+            fread(&curbone->scalepos[j], sizeof(float), 1, ptr);
+        for(j=0; j<3; j++)
+            fread(&curbone->scalerot[j], sizeof(float), 1, ptr);
+        
+        curbone->name = std::string(name);
+        if(i) // Bone 0 has no parent
+        {
+            curbone->parent = &bones[iparent];
+            curbone->parent->children.push_back(curbone);
+        }
+        curbone->curpos = curbone->defpos;
+        curbone->currot = curbone->defrot;
+#if 1
+        Console::Print("Controller %d:\n", i);
+        Console::Print("    Name: \"%s\".\n", curbone->name.c_str());
+        Console::Print("    Parent: %d.\n", iparent);
+#endif
+    }
 }
 
 void EntityStudio::LoadBones(FILE* ptr)
@@ -61,7 +114,7 @@ void EntityStudio::LoadBones(FILE* ptr)
         }
         curbone->curpos = curbone->defpos;
         curbone->currot = curbone->defrot;
-#if 0
+#if VERBOSE_STUDIO_LOGGING
         Console::Print("Bone %d:\n", i);
         Console::Print("    Name: \"%s\".\n", curbone->name.c_str());
         Console::Print("    Parent: %d.\n", iparent);
@@ -126,6 +179,7 @@ void EntityStudio::LoadModel()
 
     LoadHeader(ptr);
     LoadBones(ptr);
+    LoadControllers(ptr);
 
     fclose(ptr);
 }
