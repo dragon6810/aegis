@@ -22,33 +22,39 @@ std::string EntityStudio::GetModelName()
 
 EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)
 {
-    int b, i, j, k;
+    int f, i, j, k;
 
     anim_t anim;
     uint64_t before;
     short offsets[6];
     short val;
+    uint8_t total, valid;
 
     before = ftell(ptr);
-
-    for(b=0; b<1; b++)
+    
+    anim.nframes = nframes;
+    anim.data.resize(bones.size());
+    for(i=0; i<bones.size(); i++)
     {
-        anim.nframes = nframes;
-        anim.data.resize(bones.size());
-        for(i=0; i<bones.size(); i++)
+        anim.data[i].nframes = nframes;
+        anim.data[i].pos.resize(nframes);
+        anim.data[i].rot.resize(nframes);
+        fseek(ptr, offset + (i + bones.size() * 0) * 12, SEEK_SET);
+        fread(offsets, sizeof(short), 6, ptr);
+   
+        for(j=0; j<3; j++)
         {
-            anim.data[i].nframes = nframes;
-            anim.data[i].pos.resize(nframes);
-            anim.data[i].rot.resize(nframes);
-            fseek(ptr, offset + (i + bones.size() * b) * 12, SEEK_SET);
-            fread(offsets, sizeof(short), 6, ptr);
-
-            for(j=0; j<3; j++)
+            for(f=0; f<nframes; f++)
             {
+                anim.data[i].pos[f][j] = bones[i].defpos[j];
+                if(!offsets[j])
+                    break;            
                 
                 fseek(ptr, offset + offsets[j], SEEK_SET);
                 fread(&val, sizeof(short), 1, ptr);
-                Console::Print("anim val: %hd\n", val);
+                total = val & 0xFF;
+                valid = (val >> 8) & 0xFF;
+                Console::Print("anim val: %u, %u, %hd\n", total, valid, val);
             }
         }
     }
