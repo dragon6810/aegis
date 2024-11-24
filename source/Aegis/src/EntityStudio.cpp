@@ -20,15 +20,108 @@ std::string EntityStudio::GetModelName()
     return "models/tank.mdl";
 }
 
-void EntityStudio::LoadControllers(FILE* ptr)
+EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)
+{
+    int b, i, j, k;
+
+    anim_t anim;
+    uint64_t before;
+    short offsets[6];
+    short val;
+
+    before = ftell(ptr);
+
+    for(b=0; b<1; b++)
+    {
+        anim.nframes = nframes;
+        anim.data.resize(bones.size());
+        for(i=0; i<bones.size(); i++)
+        {
+            anim.data[i].nframes = nframes;
+            anim.data[i].pos.resize(nframes);
+            anim.data[i].rot.resize(nframes);
+            fseek(ptr, offset + (i + bones.size() * b) * 12, SEEK_SET);
+            fread(offsets, sizeof(short), 6, ptr);
+
+            for(j=0; j<3; j++)
+            {
+                
+                fseek(ptr, offset + offsets[j], SEEK_SET);
+                fread(&val, sizeof(short), 1, ptr);
+                Console::Print("anim val: %hd\n", val);
+            }
+        }
+    }
+
+    fseek(ptr, before, SEEK_SET);
+
+    return anim;
+}
+
+void EntityStudio::LoadSequences(FILE* ptr)
 {
     int i, j;
-    bone_t *curbone;
+    seqdesc_t *curseq;
+
+    uint32_t lumpsize, lumpoffs, groupoffs;
+
+    char name[33];
+    int ibone, ianim;
+
+    fseek(ptr, 164, SEEK_SET);
+
+    fread(&lumpsize, sizeof(uint32_t), 1, ptr);
+    fread(&lumpoffs, sizeof(uint32_t), 1, ptr);
+
+    Console::Print("Sequence count: %d\n", lumpsize);
+
+    fseek(ptr, lumpoffs, SEEK_SET);
+    sequences.resize(lumpsize);
+    for(i=0, curseq=sequences.data(); i<lumpsize; i++, curseq++)
+    {
+        fseek(ptr, lumpoffs + i * 176, SEEK_SET);
+
+        fread(name, 1, 32, ptr);
+        fread(&curseq->fps, sizeof(float), 1, ptr);
+        fseek(ptr, sizeof(int), SEEK_CUR);
+        fread(&curseq->activity, sizeof(int), 1, ptr);
+        fread(&curseq->weight, sizeof(float), 1, ptr);
+        fseek(ptr, sizeof(int) * 2, SEEK_CUR);
+        fread(&curseq->nframes, sizeof(int), 1, ptr);
+        fseek(ptr, sizeof(int) * 3, SEEK_CUR);
+        fread(&ibone, sizeof(int), 1, ptr);
+        for(j=0; j<3; j++)
+            fread(&curseq->displacement[j], sizeof(float), 1, ptr);
+        fseek(ptr, sizeof(int) * 2, SEEK_CUR);
+        fseek(ptr, sizeof(float) * 3 * 2, SEEK_CUR);
+        fseek(ptr, sizeof(int), SEEK_CUR);
+        fread(&ianim, sizeof(int), 1, ptr);
+        fseek(ptr, 28, SEEK_CUR); // Skip over blends for now
+        fseek(ptr, sizeof(int), SEEK_CUR);
+        fseek(ptr, sizeof(int) * 4, SEEK_CUR); // Skip over transition graph for now
+
+        name[32] = 0;
+        curseq->name = std::string(name);
+        curseq->rootbone = &bones[ibone];
+        curseq->anim = LoadAnimation(ptr, ianim, curseq->nframes, 1);
+#if VERBOSE_STUDIO_LOGGING
+        Console::Print("Sequence %d:\n", i);
+        Console::Print("    Name: %s\n", curseq->name.c_str());
+        Console::Print("    FPS: %f\n", curseq->fps);
+        Console::Print("    Frame Count: %d\n", curseq->nframes);
+#endif
+    }
+}
+
+void EntityStudio::LoadControllers(FILE* ptr)
+{
+    int i;
+    controller_t *curctl;
 
     uint32_t lumpsize, lumpoffs;
 
-    char name[33];
-    int iparent;
+    int ibone;
+    int index;
 
     fseek(ptr, 148, SEEK_SET);
 
@@ -38,35 +131,22 @@ void EntityStudio::LoadControllers(FILE* ptr)
     Console::Print("Controller count: %d\n", lumpsize);
 
     fseek(ptr, lumpoffs, SEEK_SET);
-    bones.resize(lumpsize);
-    for(i=0, curbone=bones.data(); i<lumpsize; i++, curbone++)
+    controllers.resize(lumpsize);
+    for(i=0, curctl=controllers.data(); i<lumpsize; i++, curctl++)
     {
-        fread(name, 1, 32, ptr); name[32] = 0;
-        fread(&iparent, sizeof(int), 1, ptr);
-        fseek(ptr, 4 + 24, SEEK_CUR);
+        fread(&ibone, sizeof(int), 1, ptr);
+        fread(&curctl->type, sizeof(int), 1, ptr);
+        fread(&curctl->min, sizeof(float), 1, ptr);
+        fread(&curctl->max, sizeof(float), 1, ptr);
+        fread(&curctl->def, sizeof(float), 1, ptr);
+        fread(&index, sizeof(int), 1, ptr);
 
-        for(j=0; j<3; j++)
-            fread(&curbone->defpos[j], sizeof(float), 1, ptr);
-        for(j=0; j<3; j++)
-            fread(&curbone->defrot[j], sizeof(float), 1, ptr);
-        
-        for(j=0; j<3; j++)
-            fread(&curbone->scalepos[j], sizeof(float), 1, ptr);
-        for(j=0; j<3; j++)
-            fread(&curbone->scalerot[j], sizeof(float), 1, ptr);
-        
-        curbone->name = std::string(name);
-        if(i) // Bone 0 has no parent
-        {
-            curbone->parent = &bones[iparent];
-            curbone->parent->children.push_back(curbone);
-        }
-        curbone->curpos = curbone->defpos;
-        curbone->currot = curbone->defrot;
-#if 1
+        curctl->bone = &bones[ibone];
+        ctlindices[index] = curctl;
+#if VERBOSE_STUDIO_LOGGING
         Console::Print("Controller %d:\n", i);
-        Console::Print("    Name: \"%s\".\n", curbone->name.c_str());
-        Console::Print("    Parent: %d.\n", iparent);
+        Console::Print("    Bone index: %d\n", ibone);
+        Console::Print("    Controller index: %d\n", index);
 #endif
     }
 }
@@ -180,6 +260,7 @@ void EntityStudio::LoadModel()
     LoadHeader(ptr);
     LoadBones(ptr);
     LoadControllers(ptr);
+    LoadSequences(ptr);
 
     fclose(ptr);
 }

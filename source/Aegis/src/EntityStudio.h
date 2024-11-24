@@ -53,17 +53,54 @@ protected:
         float cur;
     } controller_t;
 
+    // Decompressed animation for 1 bone
+    typedef struct boneanim_s
+    {
+        int nframes;
+        bone_t* bone;
+        std::vector<Vector3> pos;
+        std::vector<Vector3> rot;
+    } boneanim_t;
+
+    typedef struct anim_s
+    {
+        int nframes;
+        std::vector<boneanim_t> data;
+    } anim_t;
+
+    typedef struct seqdesc_s
+    {
+        std::string name;
+        float fps;
+        int nframes;
+        int activity;
+        float weight;
+
+        // TODO: Events
+
+        bone_t* rootbone;
+        Vector3 displacement; // Displacement of rootbone
+
+        // TODO: Blends
+
+        anim_t anim;
+    } seqdesc_t;
+
 protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
 
     std::vector<bone_t> bones;
-    std::unordered_map<int, controller_t*> controllerindices;
+    std::unordered_map<int, controller_t*> ctlindices;
     std::vector<controller_t> controllers;
+    std::vector<seqdesc_t> sequences;
 private:
     void LoadModel();
 
     void LoadHeader(FILE* ptr);
     void LoadBones(FILE* ptr);
     void LoadControllers(FILE* ptr);
+    void LoadSequences(FILE* ptr);
+
+    anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
 };
