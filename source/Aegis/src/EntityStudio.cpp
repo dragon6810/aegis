@@ -17,7 +17,7 @@ void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pai
 
 std::string EntityStudio::GetModelName()
 {
-    return "models/tank.mdl";
+    return "models/agrunt.mdl";
 }
 
 EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)
@@ -54,7 +54,7 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
                 fread(&val, sizeof(short), 1, ptr);
                 total = val & 0xFF;
                 valid = (val >> 8) & 0xFF;
-                Console::Print("anim val: %u, %u, %hd\n", total, valid, val);
+                //Console::Print("anim val: %u, %u, %hd\n", total, valid, val);
             }
         }
     }
@@ -64,15 +64,48 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     return anim;
 }
 
-void EntityStudio::LoadSequences(FILE* ptr)
+EntityStudio::seqdesc_t EntityStudio::LoadSequence(FILE* ptr)
 {
-    int i, j;
-    seqdesc_t *curseq;
+    int i;
 
-    uint32_t lumpsize, lumpoffs, groupoffs;
+    seqdesc_t seq;
 
     char name[33];
     int ibone, ianim;
+
+    fread(name, 1, 32, ptr);
+    fread(&seq.fps, sizeof(float), 1, ptr);
+    fseek(ptr, sizeof(int), SEEK_CUR);
+    fread(&seq.activity, sizeof(int), 1, ptr);
+    fread(&seq.weight, sizeof(float), 1, ptr);
+    fseek(ptr, sizeof(int) * 2, SEEK_CUR);
+    fread(&seq.nframes, sizeof(int), 1, ptr);
+    fseek(ptr, sizeof(int) * 3, SEEK_CUR);
+    fread(&ibone, sizeof(int), 1, ptr);
+    for(i=0; i<3; i++)
+        fread(&seq.displacement[i], sizeof(float), 1, ptr);
+    fseek(ptr, sizeof(int) * 2, SEEK_CUR);
+    fseek(ptr, sizeof(float) * 3 * 2, SEEK_CUR);
+    fseek(ptr, sizeof(int), SEEK_CUR);
+    fread(&ianim, sizeof(int), 1, ptr);
+    fseek(ptr, 28, SEEK_CUR); // Skip over blends for now
+    fseek(ptr, sizeof(int), SEEK_CUR);
+    fseek(ptr, sizeof(int) * 4, SEEK_CUR); // Skip over transition graph for now
+
+    name[32] = 0;
+    seq.name = std::string(name);
+    seq.rootbone = &bones[ibone];
+    seq.anim = LoadAnimation(ptr, ianim, seq.nframes, 1);
+
+    return seq;
+}
+
+void EntityStudio::LoadSequences(FILE* ptr)
+{
+    int i;
+    seqdesc_t *curseq;
+
+    uint32_t lumpsize, lumpoffs;
 
     fseek(ptr, 164, SEEK_SET);
 
@@ -85,31 +118,10 @@ void EntityStudio::LoadSequences(FILE* ptr)
     sequences.resize(lumpsize);
     for(i=0, curseq=sequences.data(); i<lumpsize; i++, curseq++)
     {
+
         fseek(ptr, lumpoffs + i * 176, SEEK_SET);
 
-        fread(name, 1, 32, ptr);
-        fread(&curseq->fps, sizeof(float), 1, ptr);
-        fseek(ptr, sizeof(int), SEEK_CUR);
-        fread(&curseq->activity, sizeof(int), 1, ptr);
-        fread(&curseq->weight, sizeof(float), 1, ptr);
-        fseek(ptr, sizeof(int) * 2, SEEK_CUR);
-        fread(&curseq->nframes, sizeof(int), 1, ptr);
-        fseek(ptr, sizeof(int) * 3, SEEK_CUR);
-        fread(&ibone, sizeof(int), 1, ptr);
-        for(j=0; j<3; j++)
-            fread(&curseq->displacement[j], sizeof(float), 1, ptr);
-        fseek(ptr, sizeof(int) * 2, SEEK_CUR);
-        fseek(ptr, sizeof(float) * 3 * 2, SEEK_CUR);
-        fseek(ptr, sizeof(int), SEEK_CUR);
-        fread(&ianim, sizeof(int), 1, ptr);
-        fseek(ptr, 28, SEEK_CUR); // Skip over blends for now
-        fseek(ptr, sizeof(int), SEEK_CUR);
-        fseek(ptr, sizeof(int) * 4, SEEK_CUR); // Skip over transition graph for now
-
-        name[32] = 0;
-        curseq->name = std::string(name);
-        curseq->rootbone = &bones[ibone];
-        curseq->anim = LoadAnimation(ptr, ianim, curseq->nframes, 1);
+        *curseq = LoadSequence(ptr);
 #if VERBOSE_STUDIO_LOGGING
         Console::Print("Sequence %d:\n", i);
         Console::Print("    Name: %s\n", curseq->name.c_str());

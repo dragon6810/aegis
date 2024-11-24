@@ -3,7 +3,6 @@
 #include "EntityBase.h"
 
 #include <vector>
-//include <unordered_map>
 
 #include "Matrix.h"
 #include "TickProperty.h"
@@ -102,5 +101,6 @@ private:
     void LoadControllers(FILE* ptr);
     void LoadSequences(FILE* ptr);
 
+    seqdesc_t LoadSequence(FILE* ptr);
     anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
 };
