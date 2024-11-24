@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "Matrix.h"
+
 class EntityStudio : public EntityBase
 {
 public:
@@ -27,6 +29,8 @@ protected:
         Vector3 scalerot;
         Vector3 curpos;
         Vector3 currot;
+
+        Matrix4x4 transform;
     } bone_t;
 
 protected:

@@ -20,7 +20,13 @@ std::string EntityStudio::GetModelName()
 
 void EntityStudio::LoadBones(FILE* ptr)
 {
+    int i, j;
+    bone_t *curbone;
+
     uint32_t lumpsize, lumpoffs;
+
+    char name[33];
+    int iparent;
 
     fseek(ptr, 140, SEEK_SET);
 
@@ -30,6 +36,37 @@ void EntityStudio::LoadBones(FILE* ptr)
     Console::Print("Bone count: %d\n", lumpsize);
 
     fseek(ptr, lumpoffs, SEEK_SET);
+    bones.resize(lumpsize);
+    for(i=0, curbone=bones.data(); i<lumpsize; i++, curbone++)
+    {
+        fread(name, 1, 32, ptr); name[32] = 0;
+        fread(&iparent, sizeof(int), 1, ptr);
+        fseek(ptr, 4 + 24, SEEK_CUR);
+
+        for(j=0; j<3; j++)
+            fread(&curbone->defpos[j], sizeof(float), 1, ptr);
+        for(j=0; j<3; j++)
+            fread(&curbone->defrot[j], sizeof(float), 1, ptr);
+        
+        for(j=0; j<3; j++)
+            fread(&curbone->scalepos[j], sizeof(float), 1, ptr);
+        for(j=0; j<3; j++)
+            fread(&curbone->scalerot[j], sizeof(float), 1, ptr);
+        
+        curbone->name = std::string(name);
+        if(i) // Bone 0 has no parent
+        {
+            curbone->parent = &bones[iparent];
+            curbone->parent->children.push_back(curbone);
+        }
+        curbone->curpos = curbone->defpos;
+        curbone->currot = curbone->defrot;
+#if 0
+        Console::Print("Bone %d:\n", i);
+        Console::Print("    Name: \"%s\".\n", curbone->name.c_str());
+        Console::Print("    Parent: %d.\n", iparent);
+#endif
+    }
 }
 
 void EntityStudio::LoadHeader(FILE* ptr)
