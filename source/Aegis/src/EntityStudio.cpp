@@ -4,8 +4,9 @@
 
 #include "Console.h"
 #include "Command.h"
+#include "Quaternion.h"
 
-#define VERBOSE_STUDIO_LOGGING 0
+#define VERBOSE_STUDIO_LOGGING 1
 
 void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pairs)
 {
@@ -15,9 +16,68 @@ void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pai
     LoadModel();
 }
 
+void EntityStudio::Render(void)
+{
+    UpdateBones();
+    DrawSkeleton();
+}
+
 std::string EntityStudio::GetModelName()
 {
-    return "models/agrunt.mdl";
+    return "models/barney.mdl";
+}
+
+void EntityStudio::UpdateBoneMatrix(bone_t* bone)
+{
+    Quaternion q;
+
+    q = Quaternion::FromEuler(bone->currot);
+
+    bone->transform = q.ToMatrix4();
+    bone->transform[0][3] = bone->curpos[0];
+    bone->transform[1][3] = bone->curpos[1];
+    bone->transform[2][3] = bone->curpos[2];
+}
+
+void EntityStudio::UpdateBones(void)
+{
+    int i;
+
+    for(i=0; i<bones.size(); i++)
+        UpdateBoneMatrix(&bones[i]);
+
+    for(i=0; i<bones.size(); i++)
+    {
+        if(!bones[i].parent)
+            continue;
+
+        bones[i].transform = bones[i].parent->transform * bones[i].transform; 
+    }
+}
+
+void EntityStudio::DrawSkeleton(void)
+{
+    Vector3 zero(0, 0, 0);
+
+    int i, j;
+    Vector3 root, cur;
+
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINES);
+
+    for(i=0; i<bones.size(); i++)
+    {
+        root = bones[i].transform * zero * 5.0f;
+        for(j=0; j<bones[i].children.size(); j++)
+        {
+            cur = bones[i].children[j]->transform * zero * 5.0f;
+            glVertex3f(root[0], root[1], root[2]);
+            glVertex3f(cur[0], cur[1], cur[2]);
+        }
+    }
+
+    glEnd();
+    glColor3f(1, 1, 1);
 }
 
 EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)

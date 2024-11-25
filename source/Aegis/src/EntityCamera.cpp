@@ -12,6 +12,11 @@ void EntityCamera::Init(const std::unordered_map <std::string, std::string>& pai
 	rot = LoadVector3(pairs, "angles", Vector3(0, 0, 0));
 }
 
+void EntityCamera::Render(void)
+{
+    // Nothing
+}
+
 void EntityCamera::UpdateMouse(float x, float y)
 {
     Quaternion q;
@@ -47,10 +52,14 @@ void EntityCamera::SetUpGL()
     Quaternion q;
     Matrix4x4 mat;
 
-    Vector3 forward(0, 1, 0);
+    Vector3 forward(-1, 0, 0);
     Vector3 up(0, 0, 1);
-
-    q = Quaternion::FromEuler(Quaternion::ToRadians(rot));
+    Vector3 corrected;
+    
+    corrected.x = rot.z;
+    corrected.y = rot.x;
+    corrected.z = rot.y;
+    q = Quaternion::FromEuler(Quaternion::ToRadians(corrected));
     mat = q.ToMatrix4();
 
     forward = mat * forward;

@@ -11,6 +11,7 @@ class EntityStudio : public EntityBase
 {
 public:
     void Init(const std::unordered_map <std::string, std::string>& pairs) override;
+    void Render(void) override;
 
     std::string GetModelName();
 
@@ -103,4 +104,8 @@ private:
 
     seqdesc_t LoadSequence(FILE* ptr);
     anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
+
+    void UpdateBones(void);
+    void UpdateBoneMatrix(bone_t* bone);
+    void DrawSkeleton(void);
 };

@@ -18,7 +18,7 @@ public:
 	// w, x, y, z
 	float q[4];
 
-	// Rotation is expected to be in (Pitch Yaw Roll)
+	// Rotation is expected to be in (Roll Pitch Yaw) 
 	static Quaternion FromEuler(Vector3 r);
 	static Quaternion AxisAngle(Vector3 a, float r);
 

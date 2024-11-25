@@ -641,4 +641,10 @@ void World::Render()
 
 	for(i=0; i<surfs.size(); i++)
 		RenderSurf(&surfs[i]);
+
+    for(i=0; i<entities.size(); i++)
+    {
+        if(entities[i])
+            entities[i]->Render();
+    }
 }
