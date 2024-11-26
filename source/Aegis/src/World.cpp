@@ -622,7 +622,7 @@ void World::RenderSurf(surf_t* surf)
 	glDisable(GL_TEXTURE_2D);
 }
 
-void World::Render()
+void World::Render(void)
 {
 	int i;
 	Vector3 d, p;

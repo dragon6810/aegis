@@ -12,10 +12,10 @@ public:
 
 	bool MakeWindow(int w, int h, std::string name);
 
-	void GetSize();
-	bool ShouldClose();
+	void GetSize(void);
+	bool ShouldClose(void);
 
-	void Present();
+	void Present(void);
 private:
 	GLFWwindow* win;
 };

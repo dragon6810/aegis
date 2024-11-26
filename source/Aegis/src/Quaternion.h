@@ -12,7 +12,7 @@ class Quaternion
 public:
 	static Vector3 ToRadians(Vector3 a);
 
-	Quaternion();
+	Quaternion(void);
 	Quaternion(float w, float x, float y, float z);
 
 	// w, x, y, z
@@ -22,8 +22,8 @@ public:
 	static Quaternion FromEuler(Vector3 r);
 	static Quaternion AxisAngle(Vector3 a, float r);
 
-	void Normalize();
-	Matrix4x4 ToMatrix4();
+	void Normalize(void);
+	Matrix4x4 ToMatrix4(void);
 
 	Quaternion operator*(Quaternion b);
 	float& operator[](int i);

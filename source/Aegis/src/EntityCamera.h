@@ -12,7 +12,7 @@ public:
 
 	void UpdateMouse(float x, float y);
 
-	void SetUpGL();
+	void SetUpGL(void);
 
 	Vector3 pos;
 	Vector3 rot;

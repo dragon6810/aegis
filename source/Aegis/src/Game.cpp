@@ -14,7 +14,7 @@
 
 TickProperty<float> testprop = 0.0f;
 
-void Game::Render()
+void Game::Render(void)
 {
 	renderer.Clear();
 
@@ -33,7 +33,7 @@ void Game::Render()
 	renderer.Submit();
 }
 
-void Game::Tick()
+void Game::Tick(void)
 {
     int i;
 
@@ -43,7 +43,7 @@ void Game::Tick()
         ((TickPropertyBase*) tickprops[i])->push();
 }
 
-bool Game::Loop()
+bool Game::Loop(void)
 {
 	long long now;
 	long long delta;
@@ -115,7 +115,7 @@ bool Game::ParseCommands(std::string cmd)
 }
 
 
-void Game::AutoExecute()
+void Game::AutoExecute(void)
 {
 	FILE* ptr;
 
@@ -141,7 +141,7 @@ void Game::AutoExecute()
 	fclose(ptr);
 }
 
-void Game::Run()
+void Game::Run(void)
 {
 	renderer.PreWindow();
 	window.MakeWindow(800, 600, "Aegis");

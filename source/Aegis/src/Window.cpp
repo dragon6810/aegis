@@ -2,18 +2,18 @@
 
 #include "Input.h"
 
-void Window::Present()
+void Window::Present(void)
 {
 	glfwSwapBuffers(win);
 	glfwPollEvents();
 }
 
-bool Window::ShouldClose()
+bool Window::ShouldClose(void)
 {
 	return glfwWindowShouldClose(win);
 }
 
-void Window::GetSize()
+void Window::GetSize(void)
 {
 	glfwGetWindowSize(win, &w, &h);
 }

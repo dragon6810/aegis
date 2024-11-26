@@ -4,7 +4,7 @@
 
 #include "Console.h"
 
-Vector2::Vector2()
+Vector2::Vector2(void)
 {
     x = y = 0;
 }
@@ -15,7 +15,7 @@ Vector2::Vector2(float x, float y)
     this->y = y;
 }
 
-std::string Vector2::ToString()
+std::string Vector2::ToString(void)
 {
     return "(" + std::to_string(x) + " " + std::to_string(y)  + ")";
 }
@@ -37,17 +37,17 @@ Vector2 Vector2::Lerp(Vector2 a, Vector2 b, float t)
     return v;
 }
 
-float Vector2::SqrLength()
+float Vector2::SqrLength(void)
 {
     return x * x + y * y;
 }
 
-float Vector2::Length()
+float Vector2::Length(void)
 {
     return sqrtf(SqrLength());
 }
 
-void Vector2::Normalize()
+void Vector2::Normalize(void)
 {
     float len;
 
@@ -95,7 +95,7 @@ float& Vector2::operator[](int i)
     }
 }
 
-Vector3::Vector3()
+Vector3::Vector3(void)
 {
     x = y = z = 0;
 }
@@ -107,7 +107,7 @@ Vector3::Vector3(float x, float y, float z)
     this->z = z;
 }
 
-std::string Vector3::ToString()
+std::string Vector3::ToString(void)
 {
     return "(" + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z) + ")";
 }
@@ -129,17 +129,17 @@ Vector3 Vector3::Lerp(Vector3 a, Vector3 b, float t)
     return v;
 }
 
-float Vector3::SqrLength()
+float Vector3::SqrLength(void)
 {
     return x * x + y * y + z * z;
 }
 
-float Vector3::Length()
+float Vector3::Length(void)
 {
     return sqrtf(SqrLength());
 }
 
-void Vector3::Normalize()
+void Vector3::Normalize(void)
 {
     float len;
 
@@ -191,7 +191,7 @@ float& Vector3::operator[](int i)
     }
 }
 
-Vector4::Vector4()
+Vector4::Vector4(void)
 {
     x = y = z = w = 0;
 }
@@ -204,7 +204,7 @@ Vector4::Vector4(float x, float y, float z, float w)
     this->w = w;
 }
 
-std::string Vector4::ToString()
+std::string Vector4::ToString(void)
 {
     return "(" + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z) +  + " " + std::to_string(w) + ")";
 }

@@ -25,13 +25,13 @@ void Console::Print(const char* format, ...)
     Game::GetGame().console.output.append(buffer);
 }
 
-Console::~Console()
+Console::~Console(void)
 {
     ResourceManager::AbandonTexture(consback);
     ResourceManager::AbandonTexture(font.tex);
 }
 
-bool Console::IsDown()
+bool Console::IsDown(void)
 {
     return isdown;
 }
@@ -56,19 +56,19 @@ void Console::KeyInput(char c)
     input.push_back(c);
 }
 
-void Console::DecCursor()
+void Console::DecCursor(void)
 {
     if(cursor)
         cursor--;
 }
 
-void Console::IncCursor()
+void Console::IncCursor(void)
 {
     if(cursor < input.size())
         cursor++;
 }
 
-void Console::Backspace()
+void Console::Backspace(void)
 {
     if(!cursor)
         return;
@@ -79,25 +79,25 @@ void Console::Backspace()
     cursor--;
 }
 
-void Console::Delete()
+void Console::Delete(void)
 {
     if(cursor < input.size())
         input.erase(input.begin() + cursor);
 }
 
-void Console::Hide()
+void Console::Hide(void)
 {
     isdown = false;
     state = 3;
 }
 
-void Console::Show()
+void Console::Show(void)
 {
     isdown = true;
     state = 1;
 }
 
-void Console::Toggle()
+void Console::Toggle(void)
 {
     if(IsDown())
         Hide();
@@ -105,7 +105,7 @@ void Console::Toggle()
         Show();
 }
 
-void Console::Render()
+void Console::Render(void)
 {
     int i;
 
@@ -211,7 +211,7 @@ void Console::Render()
     glDisable(GL_ALPHA_TEST);
 }
 
-void Console::Load()
+void Console::Load(void)
 {
     Wad wad;
 

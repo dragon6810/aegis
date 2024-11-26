@@ -1,11 +1,11 @@
 #include "Renderer.h"
 
-void Renderer::Submit()
+void Renderer::Submit(void)
 {
 	window->Present();
 }
 
-void Renderer::Clear()
+void Renderer::Clear(void)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -30,7 +30,7 @@ bool Renderer::PostWindow(Window* window)
 	return true;
 }
 
-bool Renderer::PreWindow()
+bool Renderer::PreWindow(void)
 {
 	if (!glfwInit())
 		return false;

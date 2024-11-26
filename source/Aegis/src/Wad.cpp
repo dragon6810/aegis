@@ -8,7 +8,7 @@
 #include "Command.h"
 #include "Console.h"
 
-Wad::~Wad()
+Wad::~Wad(void)
 {
     Unload();
 }
@@ -41,7 +41,7 @@ void Wad::Open(std::string filename)
         fclose(old);
 }
 
-void Wad::Unload()
+void Wad::Unload(void)
 {
     if(ptr)
         fclose(ptr);

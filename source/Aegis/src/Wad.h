@@ -8,10 +8,10 @@
 class Wad
 {
 public:
-    ~Wad();
+    ~Wad(void);
 
     void Open(std::string filename);
-    void Unload();
+    void Unload(void);
 
     ResourceManager::texture_t* LoadTexture(std::string name);
     RasterFont LoadFont(std::string name);

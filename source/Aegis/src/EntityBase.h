@@ -8,7 +8,7 @@
 class EntityBase
 {
 public:
-	virtual ~EntityBase() = default;
+	virtual ~EntityBase(void) = default;
 	virtual void Init(const std::unordered_map <std::string, std::string>& pairs) = 0;
     virtual void Render(void) = 0;
 protected:

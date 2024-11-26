@@ -23,7 +23,7 @@ public:
 	} texture_t;
 
 	static texture_t* FindTexture(std::string source, std::string id);
-	static texture_t* NewTexture();
+	static texture_t* NewTexture(void);
 	static bool FreeTexture(texture_t* texture);
 	static void UseTexture(texture_t* texture);
 	static void AbandonTexture(texture_t* texture);

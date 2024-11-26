@@ -19,7 +19,7 @@ ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std
 	return NULL;
 }
 
-ResourceManager::texture_t* ResourceManager::NewTexture()
+ResourceManager::texture_t* ResourceManager::NewTexture(void)
 {
 	int i;
 	

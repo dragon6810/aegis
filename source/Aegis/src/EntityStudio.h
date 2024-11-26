@@ -14,7 +14,7 @@ public:
     void Init(const std::unordered_map <std::string, std::string>& pairs) override;
     void Render(void) override;
 
-    std::string GetModelName();
+    std::string GetModelName(void);
 
     Vector3 pos;
     Vector3 rot;
@@ -121,7 +121,7 @@ protected:
     std::vector<ResourceManager::texture_t*> textures;
     std::vector<model_t> models;
 private:
-    void LoadModel();
+    void LoadModel(void);
 
     void LoadHeader(FILE* ptr);
     void LoadBones(FILE* ptr);
@@ -138,4 +138,5 @@ private:
     void UpdateBones(void);
     void UpdateBoneMatrix(bone_t* bone);
     void DrawSkeleton(void);
+    void DrawModel(void);
 };

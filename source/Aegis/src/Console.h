@@ -6,23 +6,23 @@
 class Console
 {
 public:
-    ~Console();
+    ~Console(void);
 
     std::string output;
 
     static void Print(const char* format, ...);
 
-    void Load();
-    void Render();
+    void Load(void);
+    void Render(void);
 
-    void Toggle();
+    void Toggle(void);
     void KeyInput(char c);
-    void DecCursor();
-    void IncCursor();
-    void Backspace();
-    void Delete();
+    void DecCursor(void);
+    void IncCursor(void);
+    void Backspace(void);
+    void Delete(void);
 
-    bool IsDown();
+    bool IsDown(void);
 private:
     bool isdown;
 
@@ -37,6 +37,6 @@ private:
     const int visheight = 240 - lowoffs;
     int state = 0;
 
-    void Hide();
-    void Show();
+    void Hide(void);
+    void Show(void);
 };

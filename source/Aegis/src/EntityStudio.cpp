@@ -22,7 +22,7 @@ void EntityStudio::Render(void)
     DrawSkeleton();
 }
 
-std::string EntityStudio::GetModelName()
+std::string EntityStudio::GetModelName(void)
 {
     return "models/barney";
 }
@@ -90,6 +90,16 @@ void EntityStudio::DrawSkeleton(void)
     glColor3f(1, 1, 1);
 }
 
+void EntityStudio::DrawModel(void)
+{
+
+}
+
+// This function is a mess and I don't like it
+// In the future could we make LoadMesh it's own function?
+// I don't know why I say we I'm the only programmer :(
+// I might make a style guide soon just to force myself to write better code...
+// I don't think a function deserves to be more than 80 lines or so
 EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 {   
     int i, j;

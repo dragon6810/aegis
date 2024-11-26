@@ -9,7 +9,7 @@ Vector3 Quaternion::ToRadians(Vector3 a)
     return Vector3(a[0] * DEG2RAD, a[1] * DEG2RAD, a[2] * DEG2RAD);
 }
 
-Quaternion::Quaternion()
+Quaternion::Quaternion(void)
 {
     q[1] = q[2] = q[3] = 0;
     q[0] = 1;
@@ -48,7 +48,7 @@ Quaternion Quaternion::AxisAngle(Vector3 a, float r)
     return _q;
 }
 
-void Quaternion::Normalize()
+void Quaternion::Normalize(void)
 {
     float len;
 
@@ -59,7 +59,7 @@ void Quaternion::Normalize()
     q[3] /= len;
 }
 
-Matrix4x4 Quaternion::ToMatrix4()
+Matrix4x4 Quaternion::ToMatrix4(void)
 {
     Matrix4x4 m;
     float len;

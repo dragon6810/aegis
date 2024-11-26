@@ -5,11 +5,11 @@
 class Renderer
 {
 public:
-	bool PreWindow();
+	bool PreWindow(void);
 	bool PostWindow(Window* window);
 
-	void Clear();
-	void Submit();
+	void Clear(void);
+	void Submit(void);
 private:
 	Window* window;
 };

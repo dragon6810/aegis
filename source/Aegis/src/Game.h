@@ -15,13 +15,13 @@ class Game
 {
 // https://stackoverflow.com/questions/1008019/how-do-you-implement-the-singleton-design-pattern
 public:
-	static Game& GetGame()
+	static Game& GetGame(void)
 	{
 		static Game instance;
 		return instance;
 	}
 private:
-	Game() {}
+	Game(void) {}
 
 	Game(Game const&);
 	void operator=(Game const&);
@@ -38,7 +38,7 @@ public:
 
 	int windoww, windowh;
 
-	void Run(); // Start the game
+	void Run(void); // Start the game
 
 	bool ParseCommands(std::string cmd);
 private:
@@ -48,10 +48,10 @@ private:
 	long long lasttick;
 
 	// Startup
-	void AutoExecute(); // Run userdata/autoexec.cfg on startup (config)
+	void AutoExecute(void); // Run userdata/autoexec.cfg on startup (config)
 
 	// Heartbeat
-	bool Loop();        // Run as fast as possible
-	void Tick();        // Run ENGINE_TICKRATE times per second
-	void Render();      // Run as fast as possible OR as fast as vsync allows
+	bool Loop(void);        // Run as fast as possible
+	void Tick(void);        // Run ENGINE_TICKRATE times per second
+	void Render(void);      // Run as fast as possible OR as fast as vsync allows
 };

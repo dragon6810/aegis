@@ -1,6 +1,6 @@
 #include "Matrix.h"
 
-Matrix4x4::Matrix4x4()
+Matrix4x4::Matrix4x4(void)
 {
     m[0][1] = m[0][2] = m[0][3] = 0;
     m[1][0] = m[1][2] = m[1][3] = 0;
