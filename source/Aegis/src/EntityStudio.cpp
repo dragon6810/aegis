@@ -62,6 +62,16 @@ void EntityStudio::DrawSkeleton(void)
     int i, j;
     Vector3 root, cur;
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textures[1]->name);
+    glBegin(GL_QUADS);
+    glTexCoord2f(1, 1); glVertex3f( 128,  128, 0);
+    glTexCoord2f(0, 1); glVertex3f(-128,  128, 0);
+    glTexCoord2f(0, 0); glVertex3f(-128, -128, 0);
+    glTexCoord2f(1, 0); glVertex3f( 128, -128, 0);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+
     glColor3f(1, 0, 0);
     glBegin(GL_LINES);
 
@@ -82,10 +92,19 @@ void EntityStudio::DrawSkeleton(void)
 
 ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
 {
+    int i;
+
     ResourceManager::texture_t *tex;
 
     char name[65];
     int w, h;
+    int offs;
+
+    unsigned char c;
+    char r[256];
+    char g[256];
+    char b[256];
+    std::vector<int> pdata;
 
     fread(name, 1, 64, ptr);
 
@@ -98,12 +117,52 @@ ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
     fseek(ptr, sizeof(int), SEEK_CUR);
     fread(&w, sizeof(int), 1, ptr);
     fread(&h, sizeof(int), 1, ptr);
-   
+    fread(&offs, sizeof(int), 1, ptr);
+
+    fseek(ptr, offs + w * h, SEEK_SET);
+    for(i=0; i<256; i++)
+    {
+        fread(&r[i], 1, 1, ptr);
+        fread(&g[i], 1, 1, ptr);
+        fread(&b[i], 1, 1, ptr);
+    }
+
+    fseek(ptr, offs, SEEK_SET);
+    pdata.resize(w * h);
+    for(i=0; i<w*h; i++)
+    {
+        fread(&c, 1, 1, ptr);
+        pdata[i] = 0xFF000000;
+        pdata[i] |= ((int) r[c]) <<  0;
+        pdata[i] |= ((int) g[c]) <<  8;
+        pdata[i] |= ((int) b[c]) << 16;
+    }
+
     tex = ResourceManager::NewTexture();
     tex->id = name;
     tex->source = GetModelName();
     tex->width = w;
     tex->height = h;
+
+    glBindTexture(GL_TEXTURE_2D, tex->name);
+        
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        
+    if(Command::filtertextures)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+        
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pdata.data());
 
     ResourceManager::UseTexture(tex);
     return tex;
