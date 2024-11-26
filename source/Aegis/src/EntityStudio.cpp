@@ -20,6 +20,7 @@ void EntityStudio::Render(void)
 {
     UpdateBones();
     DrawSkeleton();
+    DrawModel();
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -90,9 +91,51 @@ void EntityStudio::DrawSkeleton(void)
     glColor3f(1, 1, 1);
 }
 
+void EntityStudio::DrawMesh(mesh_t* m)
+{
+    int i;
+
+    Vector3 p, n;
+
+    if(m->type == MESH_FAN)
+        glBegin(GL_TRIANGLE_FAN);
+    else if(m->type == MESH_STRIP)
+        glBegin(GL_TRIANGLE_STRIP);
+    else
+    {
+        Console::Print("Error: unknown mesh type %d.\n", m->type);
+        return;
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, m->tex->name);
+
+    for(i=0; i<m->verts.size(); i++)
+    {
+        p = m->verts[i];
+        n = m->verts[i];
+
+        p = m->bones[i]->transform * p;
+        n = m->bones[i]->transform * n;
+        n = n - m->bones[i]->curpos;
+
+        glTexCoord2f(m->coords[i].x, m->coords[i].y);
+        glVertex3f(p.x, p.y, p.z);
+    }
+
+    glDisable(GL_TEXTURE_2D);
+    glEnd();
+}
+
 void EntityStudio::DrawModel(void)
 {
+    int m, i;
 
+    for(m=0; m<models.size(); m++)
+    {
+        for(i=0; i<models[m].meshes.size(); i++)
+            DrawMesh(&models[m].meshes[i]);
+    }
 }
 
 // This function is a mess and I don't like it
@@ -187,6 +230,7 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
         curmesh->verts.resize(ntriverts);
         curmesh->normals.resize(ntriverts);
         curmesh->coords.resize(ntriverts);
+        curmesh->bones.resize(ntriverts);
         for(j=0; j<ntriverts; j++)
         {
             fseek(ptr, itriverts + j * 8, SEEK_SET);

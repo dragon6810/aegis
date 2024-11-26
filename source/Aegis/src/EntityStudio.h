@@ -139,4 +139,5 @@ private:
     void UpdateBoneMatrix(bone_t* bone);
     void DrawSkeleton(void);
     void DrawModel(void);
+    void DrawMesh(mesh_t* m);
 };
