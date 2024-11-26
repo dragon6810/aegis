@@ -63,7 +63,7 @@ void EntityStudio::DrawSkeleton(void)
     Vector3 root, cur;
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[1]->name);
+    glBindTexture(GL_TEXTURE_2D, textures[10]->name);
     glBegin(GL_QUADS);
     glTexCoord2f(1, 1); glVertex3f( 128,  128, 0);
     glTexCoord2f(0, 1); glVertex3f(-128,  128, 0);
@@ -101,9 +101,9 @@ ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
     int offs;
 
     unsigned char c;
-    char r[256];
-    char g[256];
-    char b[256];
+    unsigned char r[256];
+    unsigned char g[256];
+    unsigned char b[256];
     std::vector<int> pdata;
 
     fread(name, 1, 64, ptr);
@@ -132,10 +132,12 @@ ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
     for(i=0; i<w*h; i++)
     {
         fread(&c, 1, 1, ptr);
-        pdata[i] = 0xFF000000;
+        pdata[i] = 0;
         pdata[i] |= ((int) r[c]) <<  0;
         pdata[i] |= ((int) g[c]) <<  8;
         pdata[i] |= ((int) b[c]) << 16;
+        if(pdata[i] != 0x00FF0000)
+            pdata[i] |= 0xFF000000;
     }
 
     tex = ResourceManager::NewTexture();
