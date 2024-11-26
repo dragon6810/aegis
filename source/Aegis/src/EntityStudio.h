@@ -87,13 +87,20 @@ protected:
         anim_t anim;
     } seqdesc_t;
 
+    typedef enum
+    {
+        MESH_STRIP,
+        MESH_FAN,
+    } meshtype_e;
+
     typedef struct mesh_s
     {
-        int type;
+        meshtype_e type;
         std::vector<Vector3> verts;
         std::vector<Vector3> normals;
         std::vector<Vector2> coords;
-        ResourceManager::texture_t tex;
+        std::vector<bone_t*> bones;
+        ResourceManager::texture_t* tex;
     } mesh_t;
 
     typedef struct model_s

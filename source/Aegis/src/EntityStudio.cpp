@@ -92,23 +92,115 @@ void EntityStudio::DrawSkeleton(void)
 
 EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 {   
+    int i, j;
+    mesh_t *curmesh;
+
     model_t mdl;
 
     char name[65];
-    int nmeshes;
+    int nmeshes, imesh;
+    int nverts, iverts, ivertinfo;
+    int nnorms, inorms, inorminfo;
+
+    std::vector<int> vertinfo;
+    std::vector<int> norminfo;
+    std::vector<Vector3> verts;
+    std::vector<Vector3> norms;
+
+    int ntriverts, itriverts;
+    int itex;
+    short ivert, inorm, s, t;
 
     fread(name, 1, 64, ptr);
     fseek(ptr, sizeof(int) + sizeof(float), SEEK_CUR);
+
     fread(&nmeshes, sizeof(int), 1, ptr);
+    fread(&imesh, sizeof(int), 1, ptr);
+
+    fread(&nverts, sizeof(int), 1, ptr);
+    fread(&ivertinfo, sizeof(int), 1, ptr);
+    fread(&iverts, sizeof(int), 1, ptr);
+
+    fread(&nnorms, sizeof(int), 1, ptr);
+    fread(&inorminfo, sizeof(int), 1, ptr);
+    fread(&inorms, sizeof(int), 1, ptr);
+
+    vertinfo.resize(nverts);
+    fseek(ptr, ivertinfo, SEEK_SET);
+    fread(vertinfo.data(), sizeof(int), vertinfo.size(), ptr);
+
+    norminfo.resize(nnorms);
+    fseek(ptr, inorminfo, SEEK_SET);
+    fread(norminfo.data(), sizeof(int), norminfo.size(), ptr);
+
+    verts.resize(nverts);
+    fseek(ptr, iverts, SEEK_SET);
+    for(i=0; i<nverts; i++)
+    {
+        for(j=0; j<3; j++)
+            fread(&verts[i][j], sizeof(float), 1, ptr);
+    }
+
+    norms.resize(nnorms);
+    fseek(ptr, inorms, SEEK_SET);
+    for(i=0; i<nnorms; i++)
+    {
+        for(j=0; j<3; j++)
+            fread(&norms[i][j], sizeof(float), 1, ptr);
+    }
+
+    verts.resize(nverts);
+    fseek(ptr, iverts, SEEK_SET);
+    for(i=0; i<nverts; i++)
+    {
+        for(j=0; j<3; j++)
+            fread(&verts[i][j], sizeof(float), 1, ptr);
+    }
+
+    mdl.meshes.resize(nmeshes);
+    for(i=0, curmesh=mdl.meshes.data(); i<nmeshes; i++, curmesh++)
+    {
+        fseek(ptr, imesh + i * 20, SEEK_SET);
+        fread(&ntriverts, sizeof(int), 1, ptr);
+        fread(&itriverts, sizeof(int), 1, ptr);
+        fread(&itex, sizeof(int), 1, ptr);
+
+        curmesh->type = MESH_STRIP;
+        if(ntriverts < 0)
+        {
+            curmesh->type = MESH_FAN;
+            ntriverts = -ntriverts;
+        }
+
+        curmesh->tex = textures[itex];
+
+        curmesh->verts.resize(ntriverts);
+        curmesh->normals.resize(ntriverts);
+        curmesh->coords.resize(ntriverts);
+        for(j=0; j<ntriverts; j++)
+        {
+            fseek(ptr, itriverts + j * 8, SEEK_SET);
+            fread(&ivert, sizeof(short), 1, ptr);
+            fread(&inorm, sizeof(short), 1, ptr);
+            fread(&s, sizeof(short), 1, ptr);
+            fread(&t, sizeof(short), 1, ptr);
+
+            curmesh->bones[j] = &bones[vertinfo[ivert]];
+            curmesh->verts[j] = verts[ivert];
+            curmesh->verts[j] = verts[inorm];
+            curmesh->coords[j][0] = ((float) s) / ((float) curmesh->tex->width);
+            curmesh->coords[j][1] = ((float) t) / ((float) curmesh->tex->height);
+        }
+    }
 
     name[64] = 0;
     mdl.name = name;
-    mdl.meshes.resize(nmeshes);
 
 #if VERBOSE_STUDIO_LOGGING
     Console::Print("    Model:\n");
     Console::Print("        Name: \"%s\".\n", mdl.name.c_str());
     Console::Print("        Number of meshes: %d.\n", mdl.meshes.size());
+    Console::Print("        Number of vertices: %d.\n", nverts);
 #endif
 
     return mdl;
