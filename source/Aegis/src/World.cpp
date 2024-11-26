@@ -638,10 +638,10 @@ void World::Render()
 	glVertex3f(p.x, p.y, p.z);
 	glEnd();
 	glColor3f(1, 1, 1);
-
+#if 0
 	for(i=0; i<surfs.size(); i++)
 		RenderSurf(&surfs[i]);
-
+#endif
     for(i=0; i<entities.size(); i++)
     {
         if(entities[i])

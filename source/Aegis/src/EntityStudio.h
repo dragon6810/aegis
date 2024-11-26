@@ -6,6 +6,7 @@
 
 #include "Matrix.h"
 #include "TickProperty.h"
+#include "ResourceManager.h"
 
 class EntityStudio : public EntityBase
 {
@@ -94,6 +95,7 @@ protected:
     std::unordered_map<int, controller_t*> ctlindices;
     std::vector<controller_t> controllers;
     std::vector<seqdesc_t> sequences;
+    std::vector<ResourceManager::texture_t*> textures;
 private:
     void LoadModel();
 
@@ -101,9 +103,11 @@ private:
     void LoadBones(FILE* ptr);
     void LoadControllers(FILE* ptr);
     void LoadSequences(FILE* ptr);
+    void LoadTextures(FILE* ptr);
 
     seqdesc_t LoadSequence(FILE* ptr);
     anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
+    ResourceManager::texture_t* LoadTexture(FILE* ptr);
 
     void UpdateBones(void);
     void UpdateBoneMatrix(bone_t* bone);

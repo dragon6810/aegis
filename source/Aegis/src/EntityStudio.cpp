@@ -24,7 +24,7 @@ void EntityStudio::Render(void)
 
 std::string EntityStudio::GetModelName()
 {
-    return "models/barney.mdl";
+    return "models/barney";
 }
 
 void EntityStudio::UpdateBoneMatrix(bone_t* bone)
@@ -78,6 +78,86 @@ void EntityStudio::DrawSkeleton(void)
 
     glEnd();
     glColor3f(1, 1, 1);
+}
+
+ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
+{
+    ResourceManager::texture_t *tex;
+
+    char name[65];
+    int w, h;
+
+    fread(name, 1, 64, ptr);
+
+    name[64] = 0;
+
+    tex = ResourceManager::FindTexture(GetModelName(), name);
+    if(tex)
+        return tex;
+
+    fseek(ptr, sizeof(int), SEEK_CUR);
+    fread(&w, sizeof(int), 1, ptr);
+    fread(&h, sizeof(int), 1, ptr);
+   
+    tex = ResourceManager::NewTexture();
+    tex->id = name;
+    tex->source = GetModelName();
+    tex->width = w;
+    tex->height = h;
+
+    ResourceManager::UseTexture(tex);
+    return tex;
+}
+
+void EntityStudio::LoadTextures(FILE* ptr)
+{
+    int i;
+    ResourceManager::texture_t **curtex;
+   
+    FILE* tptr;
+    std::string tname; 
+    uint32_t lumpsize, lumpoffs;
+
+    fseek(ptr, 180, SEEK_SET);
+
+    fread(&lumpsize, sizeof(uint32_t), 1, ptr);
+    fread(&lumpoffs, sizeof(uint32_t), 1, ptr);
+
+    if(!lumpsize)
+    {
+        Console::Print("Model has no stored textures, looking for external texture model...\n");
+        tname = Command::datadir + GetModelName() + "t.mdl";
+        tptr = fopen(tname.c_str(), "rb");
+        if(!tptr)
+        {
+            Console::Print("Couldn't find external texture model \"%s\".\n", tname.c_str());
+            return;
+        }
+
+        Console::Print("Found external texture model \"%s\".\n", tname.c_str());
+        LoadTextures(tptr);
+
+        fclose(tptr);
+        return;
+    }
+
+    Console::Print("Texture count: %d\n", lumpsize);
+
+    fseek(ptr, lumpoffs, SEEK_SET);
+    textures.resize(lumpsize);
+    for(i=0, curtex=textures.data(); i<lumpsize; i++, curtex++)
+    {
+
+        fseek(ptr, lumpoffs + i * 80, SEEK_SET);
+        textures[i] = LoadTexture(ptr);
+
+#if VERBOSE_STUDIO_LOGGING
+        Console::Print("Texture %d:\n", i);
+        Console::Print("    Name: %s\n", textures[i]->id.c_str());
+        Console::Print("    Dimensions: %d x %d\n", textures[i]->width, textures[i]->height);
+#endif
+    }
+
 }
 
 EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)
@@ -309,7 +389,7 @@ void EntityStudio::LoadModel()
     char id[5];
     int version;
 
-    path = Command::datadir + GetModelName();
+    path = Command::datadir + GetModelName() + ".mdl";
     
     ptr = fopen(path.c_str(), "rb");
     if(!ptr)
@@ -339,6 +419,7 @@ void EntityStudio::LoadModel()
     LoadBones(ptr);
     LoadControllers(ptr);
     LoadSequences(ptr);
+    LoadTextures(ptr);
 
     fclose(ptr);
 }

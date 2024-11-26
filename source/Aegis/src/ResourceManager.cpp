@@ -1,5 +1,7 @@
 #include "ResourceManager.h"
 
+#include <c_string.h>
+
 ResourceManager::texture_t ResourceManager::textures[MAX_TEXTURES]{};
 int ResourceManager::lasttexture = 0;
 
@@ -20,7 +22,8 @@ ResourceManager::texture_t* ResourceManager::FindTexture(std::string source, std
 ResourceManager::texture_t* ResourceManager::NewTexture()
 {
 	int i;
-	for (i = 0; i < lasttexture; i++)
+	
+    for (i = 0; i < lasttexture; i++)
 	{
 		if (textures[i].name == -1)
 			break;
