@@ -90,6 +90,75 @@ void EntityStudio::DrawSkeleton(void)
     glColor3f(1, 1, 1);
 }
 
+EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
+{   
+    model_t mdl;
+
+    char name[65];
+    int nmeshes;
+
+    fread(name, 1, 64, ptr);
+    fseek(ptr, sizeof(int) + sizeof(float), SEEK_CUR);
+    fread(&nmeshes, sizeof(int), 1, ptr);
+
+    name[64] = 0;
+    mdl.name = name;
+    mdl.meshes.resize(nmeshes);
+
+#if VERBOSE_STUDIO_LOGGING
+    Console::Print("    Model:\n");
+    Console::Print("        Name: \"%s\".\n", mdl.name.c_str());
+    Console::Print("        Number of meshes: %d.\n", mdl.meshes.size());
+#endif
+
+    return mdl;
+}
+
+void EntityStudio::LoadBodyParts(FILE* ptr, int body)
+{
+    int i;
+   
+    uint32_t lumpsize, lumpoffs;
+
+    char name[65];
+    int nmodels;
+    int base;
+    int offs;
+    int index;
+
+    fseek(ptr, 204, SEEK_SET);
+
+    fread(&lumpsize, sizeof(uint32_t), 1, ptr);
+    fread(&lumpoffs, sizeof(uint32_t), 1, ptr);
+
+    Console::Print("Body part count: %d\n", lumpsize);
+
+    models.resize(lumpsize);
+    for(i=0; i<lumpsize; i++)
+    {
+        fseek(ptr, lumpoffs + i * 80, SEEK_SET);
+
+        fread(name, 1, 64, ptr);
+        fread(&nmodels, sizeof(int), 1, ptr);
+        fread(&base, sizeof(int), 1, ptr);
+        fread(&offs, sizeof(int), 1, ptr);
+
+        index = body / base;
+        index = index % nmodels;
+
+        fseek(ptr, offs + index * 112, SEEK_SET);
+
+#if VERBOSE_STUDIO_LOGGING
+        name[64] = 0;
+        Console::Print("Body Part %d:\n", i);
+        Console::Print("    Name: \"%s\".\n", name);
+        Console::Print("    Number of models: %d.\n", nmodels);
+#endif
+
+        models[i] = LoadModel(ptr);
+    }
+}
+
 ResourceManager::texture_t* EntityStudio::LoadTexture(FILE* ptr)
 {
     int i;
@@ -218,7 +287,6 @@ void EntityStudio::LoadTextures(FILE* ptr)
         Console::Print("    Dimensions: %d x %d\n", textures[i]->width, textures[i]->height);
 #endif
     }
-
 }
 
 EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends)
@@ -481,6 +549,7 @@ void EntityStudio::LoadModel()
     LoadControllers(ptr);
     LoadSequences(ptr);
     LoadTextures(ptr);
+    LoadBodyParts(ptr, 0);
 
     fclose(ptr);
 }

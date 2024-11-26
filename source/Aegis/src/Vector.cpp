@@ -4,6 +4,97 @@
 
 #include "Console.h"
 
+Vector2::Vector2()
+{
+    x = y = 0;
+}
+
+Vector2::Vector2(float x, float y)
+{
+    this->x = x;
+    this->y = y;
+}
+
+std::string Vector2::ToString()
+{
+    return "(" + std::to_string(x) + " " + std::to_string(y)  + ")";
+}
+
+float Vector2::Dot(Vector2 a, Vector2 b)
+{
+    return a[0] * b[0] + a[1] * b[1];
+}
+
+Vector2 Vector2::Lerp(Vector2 a, Vector2 b, float t)
+{
+    int i;
+
+    Vector2 v;
+
+    for(i=0; i<2; i++)
+        v[i] = (b[i] - a[i]) * t + a[i];
+
+    return v;
+}
+
+float Vector2::SqrLength()
+{
+    return x * x + y * y;
+}
+
+float Vector2::Length()
+{
+    return sqrtf(SqrLength());
+}
+
+void Vector2::Normalize()
+{
+    float len;
+
+    len = 1 / Length();
+    x *= len;
+    y *= len;
+}
+
+Vector2 Vector2::operator*(float s)
+{
+    return Vector2(x * s, y * s);
+}
+
+Vector2 Vector2::operator/(float s)
+{
+    return *this * (1.0 / s);
+}
+
+Vector2 Vector2::operator+(Vector2 v)
+{
+    return Vector2(x + v.x, y + v.y);
+}
+
+Vector2 Vector2::operator-(Vector2 v)
+{
+    return Vector2(x - v.x, y - v.y);
+}
+
+
+float& Vector2::operator[](int i)
+{
+    static float err = 0;
+
+    switch(i)
+    {
+        case 0:
+            return x;
+            break;
+        case 1:
+            return y;
+            break;
+        default:
+            Console::Print("Vector2 index out of bounds %d.\n", i);
+            return err;
+    }
+}
+
 Vector3::Vector3()
 {
     x = y = z = 0;

@@ -4,6 +4,33 @@
 
 class Matrix4x4;
 
+class Vector2
+{
+    public:
+    Vector2();
+    Vector2(float x, float y);
+
+    float x, y, z;
+    
+    std::string ToString();
+
+    static float Dot(Vector2 a, Vector2 b);
+    static Vector2 Lerp(Vector2 a, Vector2 b, float t);
+
+    float SqrLength();
+    float Length();
+    void Normalize();
+
+    Vector2 operator*(float s);
+    Vector2 operator/(float s);
+    Vector2 operator+(Vector2 v);
+    Vector2 operator-(Vector2 v);
+
+    float& operator[](int i);
+private:
+    
+};
+
 class Vector3
 {
 public:
@@ -20,7 +47,6 @@ public:
     float SqrLength();
     float Length();
     void Normalize();
-
 
     Vector3 operator*(float s);
     Vector3 operator/(float s);

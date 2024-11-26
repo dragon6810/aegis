@@ -87,6 +87,22 @@ protected:
         anim_t anim;
     } seqdesc_t;
 
+    typedef struct mesh_s
+    {
+        int type;
+        std::vector<Vector3> verts;
+        std::vector<Vector3> normals;
+        std::vector<Vector2> coords;
+        ResourceManager::texture_t tex;
+    } mesh_t;
+
+    typedef struct model_s
+    {
+        std::string name;
+
+        std::vector<mesh_t> meshes;
+    } model_t;
+
 protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
@@ -96,6 +112,7 @@ protected:
     std::vector<controller_t> controllers;
     std::vector<seqdesc_t> sequences;
     std::vector<ResourceManager::texture_t*> textures;
+    std::vector<model_t> models;
 private:
     void LoadModel();
 
@@ -104,10 +121,12 @@ private:
     void LoadControllers(FILE* ptr);
     void LoadSequences(FILE* ptr);
     void LoadTextures(FILE* ptr);
+    void LoadBodyParts(FILE* ptr, int body);
 
     seqdesc_t LoadSequence(FILE* ptr);
     anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
     ResourceManager::texture_t* LoadTexture(FILE* ptr);
+    model_t LoadModel(FILE* ptr);
 
     void UpdateBones(void);
     void UpdateBoneMatrix(bone_t* bone);
