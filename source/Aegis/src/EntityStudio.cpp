@@ -20,7 +20,7 @@ void EntityStudio::Render(void)
 {
     UpdateBones();
     DrawSkeleton();
-    DrawModel();
+    // DrawModel();
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -45,14 +45,12 @@ void EntityStudio::UpdateBones(void)
     int i;
 
     for(i=0; i<bones.size(); i++)
-        UpdateBoneMatrix(&bones[i]);
-
-    for(i=0; i<bones.size(); i++)
     {
+        UpdateBoneMatrix(&bones[i]);
         if(!bones[i].parent)
             continue;
 
-        bones[i].transform = bones[i].parent->transform * bones[i].transform; 
+        bones[i].transform = bones[i].parent->transform * bones[i].transform;
     }
 }
 
@@ -62,16 +60,6 @@ void EntityStudio::DrawSkeleton(void)
 
     int i, j;
     Vector3 root, cur;
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[10]->name);
-    glBegin(GL_QUADS);
-    glTexCoord2f(1, 1); glVertex3f( 128,  128, 0);
-    glTexCoord2f(0, 1); glVertex3f(-128,  128, 0);
-    glTexCoord2f(0, 0); glVertex3f(-128, -128, 0);
-    glTexCoord2f(1, 0); glVertex3f( 128, -128, 0);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     glColor3f(1, 0, 0);
     glBegin(GL_LINES);
@@ -96,7 +84,7 @@ void EntityStudio::DrawMesh(mesh_t* m)
     int i;
 
     Vector3 p, n;
-    
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, m->tex->name);
 
