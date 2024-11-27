@@ -155,8 +155,8 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
     int nverts, iverts, ivertinfo;
     int nnorms, inorms, inorminfo;
 
-    std::vector<int> vertinfo;
-    std::vector<int> norminfo;
+    std::vector<uint8_t> vertinfo;
+    std::vector<uint8_t> norminfo;
     std::vector<Vector3> verts;
     std::vector<Vector3> norms;
 
@@ -180,11 +180,11 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 
     vertinfo.resize(nverts);
     fseek(ptr, ivertinfo, SEEK_SET);
-    fread(vertinfo.data(), sizeof(int), vertinfo.size(), ptr);
+    fread(vertinfo.data(), sizeof(uint8_t), nverts, ptr);
 
     norminfo.resize(nnorms);
     fseek(ptr, inorminfo, SEEK_SET);
-    fread(norminfo.data(), sizeof(int), norminfo.size(), ptr);
+    fread(norminfo.data(), sizeof(uint8_t), norminfo.size(), ptr);
 
     verts.resize(nverts);
     fseek(ptr, iverts, SEEK_SET);
@@ -280,7 +280,7 @@ void EntityStudio::LoadBodyParts(FILE* ptr, int body)
     Console::Print("Body part count: %d\n", lumpsize);
 
     models.resize(lumpsize);
-    for(i=0; i<lumpsize; i++)
+    for(i=0; i<1; i++)
     {
         fseek(ptr, lumpoffs + i * 80, SEEK_SET);
 
