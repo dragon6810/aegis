@@ -20,7 +20,7 @@ void EntityStudio::Render(void)
 {
     UpdateBones();
     DrawSkeleton();
-    // DrawModel();
+    DrawModel();
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -103,10 +103,12 @@ void EntityStudio::DrawMesh(mesh_t* m)
     {
         p = m->verts[i];
         n = m->normals[i];
-
+        
         p = m->bones[i]->transform * p * 5.0;
         n = m->bones[i]->transform * n;
-        n = n - m->bones[i]->curpos;
+        n[0] -= m->bones[i]->transform[0][3];
+        n[1] -= m->bones[i]->transform[1][3];
+        n[2] -= m->bones[i]->transform[2][3];
 
         glTexCoord2f(m->coords[i].x, m->coords[i].y);
         glVertex3f(p.x, p.y, p.z);
