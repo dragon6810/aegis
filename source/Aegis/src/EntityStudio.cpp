@@ -96,6 +96,9 @@ void EntityStudio::DrawMesh(mesh_t* m)
     int i;
 
     Vector3 p, n;
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, m->tex->name);
 
     if(m->type == MESH_FAN)
         glBegin(GL_TRIANGLE_FAN);
@@ -104,18 +107,16 @@ void EntityStudio::DrawMesh(mesh_t* m)
     else
     {
         Console::Print("Error: unknown mesh type %d.\n", m->type);
+        glDisable(GL_TEXTURE_2D);
         return;
     }
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, m->tex->name);
 
     for(i=0; i<m->verts.size(); i++)
     {
         p = m->verts[i];
-        n = m->verts[i];
+        n = m->normals[i];
 
-        p = m->bones[i]->transform * p;
+        p = m->bones[i]->transform * p * 5.0;
         n = m->bones[i]->transform * n;
         n = n - m->bones[i]->curpos;
 
@@ -123,8 +124,8 @@ void EntityStudio::DrawMesh(mesh_t* m)
         glVertex3f(p.x, p.y, p.z);
     }
 
-    glDisable(GL_TEXTURE_2D);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void EntityStudio::DrawModel(void)
@@ -241,7 +242,7 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 
             curmesh->bones[j] = &bones[vertinfo[ivert]];
             curmesh->verts[j] = verts[ivert];
-            curmesh->verts[j] = verts[inorm];
+            curmesh->normals[j] = norms[inorm];
             curmesh->coords[j][0] = ((float) s) / ((float) curmesh->tex->width);
             curmesh->coords[j][1] = ((float) t) / ((float) curmesh->tex->height);
         }

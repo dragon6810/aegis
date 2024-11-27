@@ -10,7 +10,7 @@ class Vector2
     Vector2(void);
     Vector2(float x, float y);
 
-    float x, y, z;
+    float x, y;
     
     std::string ToString(void);
 
