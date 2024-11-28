@@ -122,6 +122,7 @@ protected:
     std::vector<model_t> models;
 private:
     void LoadModel(void);
+    std::vector<FILE*> GetSeqFiles(FILE* ptr);
 
     void LoadHeader(FILE* ptr);
     void LoadBones(FILE* ptr);

@@ -85,6 +85,10 @@ void EntityStudio::DrawMesh(mesh_t* m)
 
     Vector3 p, n;
 
+    // Model is wound clockwise
+    // In the future patch the winding during load time
+    glDisable(GL_CULL_FACE);
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, m->tex->name);
 
@@ -231,30 +235,6 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
                 curmesh->normals[k] = norms[inorm];
                 curmesh->coords[k][0] = ((float) s) / ((float) curmesh->tex->width);
                 curmesh->coords[k][1] = ((float) t) / ((float) curmesh->tex->height);
-            }
-
-            // Geometry is stored clockwise, we want counter-clockwise.
-            // For fans, reverse all but the first one
-            // For strips, reverse everything
-            if(curmesh->type == MESH_STRIP)
-            {
-                for(j=0; j<ntriverts-2; j+=2)
-                {
-                    std::swap(curmesh->verts[j+1], curmesh->verts[j+2]);
-                    std::swap(curmesh->normals[j+1], curmesh->normals[j+2]);
-                    std::swap(curmesh->coords[j+1], curmesh->coords[j+2]);
-                    std::swap(curmesh->bones[j+1], curmesh->bones[j+2]);
-                }
-            }
-            if(curmesh->type == MESH_FAN)
-            {
-                for(j=1, k=ntriverts-1; j<k; j++, k--)
-                {
-                    std::swap(curmesh->verts[j], curmesh->verts[k]);
-                    std::swap(curmesh->normals[j], curmesh->normals[k]);
-                    std::swap(curmesh->coords[j], curmesh->coords[k]);
-                    std::swap(curmesh->bones[j], curmesh->bones[k]);
-                }
             }
         }
         while(ntriverts);
@@ -650,9 +630,7 @@ void EntityStudio::LoadBones(FILE* ptr)
 
 void EntityStudio::LoadHeader(FILE* ptr)
 {
-    fseek(ptr, 0, SEEK_SET);
-
-    fseek(ptr, 76, SEEK_CUR);
+    fseek(ptr, 76, SEEK_SET);
 
     fread(&eyepos.x, sizeof(float), 1, ptr);
     fread(&eyepos.y, sizeof(float), 1, ptr);
@@ -669,9 +647,63 @@ void EntityStudio::LoadHeader(FILE* ptr)
     fread(&bbmax.z, sizeof(float), 1, ptr);
 }
 
+std::vector<FILE*> EntityStudio::GetSeqFiles(FILE* ptr)
+{
+    int i;
+
+    int lumpsize;
+    std::vector<FILE*> seqfiles;
+    std::string name;
+    FILE* cur;
+
+    fseek(ptr, 172, SEEK_SET);
+    fread(&lumpsize, sizeof(int), 1, ptr);
+
+    Console::Print("%d Sequence groups.\n", lumpsize);
+   
+    if(!lumpsize) 
+        return {};
+
+    seqfiles.push_back(ptr);
+    if(lumpsize == 1)
+    {
+        Console::Print("All sequences stored locally.\n");
+        return seqfiles;
+    }
+
+    if(lumpsize > 100)
+    {
+        Console::Print("Error in model: maximum of 100 sequence groups allowed.\n");
+        return {};
+    }
+
+    Console::Print("Sequences stored externally, attempting to locate sequence files.\n");
+    for(i=1; i<lumpsize; i++)
+    {
+        name = Command::datadir + GetModelName();
+        name.push_back('0' + i / 10);
+        name.push_back('0' + i % 10);
+        name.append(".mdl");
+        Console::Print("Loading sequence file \"%s\".\n", name.c_str());
+    
+        cur = fopen(name.c_str(), "rb");
+        if(!cur)
+        {
+            Console::Print("Warning: failed to find sequence file \"%s\".\n", name.c_str());
+            continue;
+        }
+        seqfiles.push_back(cur);
+    }
+
+    return seqfiles;
+}
+
 void EntityStudio::LoadModel()
 {
+    int i;
+
     FILE* ptr;
+    std::vector<FILE*> seqfiles;
     std::string path;
 
     char id[5];
@@ -703,6 +735,8 @@ void EntityStudio::LoadModel()
         return;
     }
 
+    seqfiles = GetSeqFiles(ptr);
+    
     LoadHeader(ptr);
     LoadBones(ptr);
     LoadControllers(ptr);
@@ -710,5 +744,12 @@ void EntityStudio::LoadModel()
     LoadTextures(ptr);
     LoadBodyParts(ptr, 0);
 
+    for(i=0; i<seqfiles.size(); i++)
+    {
+        if(seqfiles[i] == ptr)
+            continue;
+
+        fclose(seqfiles[i]);
+    }
     fclose(ptr);
 }
