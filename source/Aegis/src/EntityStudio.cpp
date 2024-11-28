@@ -136,7 +136,7 @@ void EntityStudio::DrawModel(void)
 // I don't think a function deserves to be more than 80 lines or so
 EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 {   
-    int i, j;
+    int i, j, k;
     mesh_t *curmesh;
 
     model_t mdl;
@@ -151,9 +151,9 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
     std::vector<Vector3> verts;
     std::vector<Vector3> norms;
 
-    int ntriverts, itriverts;
+    int itriverts, nsequences;
     int itex;
-    short ivert, inorm, s, t;
+    short ntriverts, ivert, inorm, s, t;
 
     fread(name, 1, 64, ptr);
     fseek(ptr, sizeof(int) + sizeof(float), SEEK_CUR);
@@ -175,7 +175,7 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 
     norminfo.resize(nnorms);
     fseek(ptr, inorminfo, SEEK_SET);
-    fread(norminfo.data(), sizeof(uint8_t), norminfo.size(), ptr);
+    fread(norminfo.data(), sizeof(uint8_t), nnorms, ptr);
 
     verts.resize(nverts);
     fseek(ptr, iverts, SEEK_SET);
@@ -193,48 +193,45 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
             fread(&norms[i][j], sizeof(float), 1, ptr);
     }
 
-    verts.resize(nverts);
-    fseek(ptr, iverts, SEEK_SET);
-    for(i=0; i<nverts; i++)
-    {
-        for(j=0; j<3; j++)
-            fread(&verts[i][j], sizeof(float), 1, ptr);
-    }
-
-    mdl.meshes.resize(nmeshes);
-    for(i=0, curmesh=mdl.meshes.data(); i<nmeshes; i++, curmesh++)
+    for(i=0; i<nmeshes; i++)
     {
         fseek(ptr, imesh + i * 20, SEEK_SET);
-        fread(&ntriverts, sizeof(int), 1, ptr);
+        fread(&nsequences, sizeof(int), 1, ptr);
         fread(&itriverts, sizeof(int), 1, ptr);
         fread(&itex, sizeof(int), 1, ptr);
 
-        curmesh->type = MESH_STRIP;
-        if(ntriverts < 0)
+        fseek(ptr, itriverts, SEEK_SET);
+        for(j=0; j<nsequences; j++)
         {
-            curmesh->type = MESH_FAN;
-            ntriverts = -ntriverts;
-        }
+            mdl.meshes.push_back({});
+            curmesh = &mdl.meshes[mdl.meshes.size() - 1];
 
-        curmesh->tex = textures[itex];
+            fread(&ntriverts, sizeof(short), 1, ptr);
+            curmesh->type = MESH_STRIP;
+            if(ntriverts < 0)
+            {
+                curmesh->type = MESH_FAN;
+                ntriverts = -ntriverts;
+            }
 
-        curmesh->verts.resize(ntriverts);
-        curmesh->normals.resize(ntriverts);
-        curmesh->coords.resize(ntriverts);
-        curmesh->bones.resize(ntriverts);
-        for(j=0; j<ntriverts; j++)
-        {
-            fseek(ptr, itriverts + j * 8, SEEK_SET);
-            fread(&ivert, sizeof(short), 1, ptr);
-            fread(&inorm, sizeof(short), 1, ptr);
-            fread(&s, sizeof(short), 1, ptr);
-            fread(&t, sizeof(short), 1, ptr);
+            curmesh->tex = textures[itex];
+            curmesh->verts.resize(ntriverts);
+            curmesh->normals.resize(ntriverts);
+            curmesh->coords.resize(ntriverts);
+            curmesh->bones.resize(ntriverts);
+            for(k=0; k<ntriverts; k++, j++)
+            {
+                fread(&ivert, sizeof(short), 1, ptr);
+                fread(&inorm, sizeof(short), 1, ptr);
+                fread(&s, sizeof(short), 1, ptr);
+                fread(&t, sizeof(short), 1, ptr);
 
-            curmesh->bones[j] = &bones[vertinfo[ivert]];
-            curmesh->verts[j] = verts[ivert];
-            curmesh->normals[j] = norms[inorm];
-            curmesh->coords[j][0] = ((float) s) / ((float) curmesh->tex->width);
-            curmesh->coords[j][1] = ((float) t) / ((float) curmesh->tex->height);
+                curmesh->bones[k] = &bones[vertinfo[ivert]];
+                curmesh->verts[k] = verts[ivert];
+                curmesh->normals[k] = norms[inorm];
+                curmesh->coords[k][0] = ((float) s) / ((float) curmesh->tex->width);
+                curmesh->coords[k][1] = ((float) t) / ((float) curmesh->tex->height);
+            }
         }
     }
 
