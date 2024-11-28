@@ -435,7 +435,7 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     anim_t anim;
     uint64_t before;
     short offsets[6];
-    unsigned short val;
+    short val;
     uint8_t total, valid;
 
     before = ftell(ptr);
@@ -449,7 +449,8 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
         anim.data[i].rot.resize(nframes);
         fseek(ptr, offset + (i + bones.size() * 0) * 12, SEEK_SET);
         fread(offsets, sizeof(short), 6, ptr);
-   
+  
+        // Load positions 
         for(j=0; j<3; j++)
         {
             for(f=0; f<nframes; f++)
@@ -472,6 +473,56 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
                 }
                 while(k >= total);
 
+                // This frame is run length encoded, use the last valid value.
+                if(k >= valid)
+                    k = valid - 1;
+                
+                if(k < valid)
+                {
+                    fseek(ptr, k * 2 + 2, SEEK_CUR);
+                    fread(&val, 2, 1, ptr);
+
+                    anim.data[i].pos[f][j] += ((float) val) * bones[i].scalepos[j];
+                    continue;
+                }
+            }
+        }
+
+        // Load rotations
+        for(j=0; j<3; j++)
+        {
+            for(f=0; f<nframes; f++)
+            {
+                anim.data[i].rot[f][j] = bones[i].defrot[j];
+                if(!offsets[j+3])
+                    break;            
+                
+                // Find the current span we're in and set k to our
+                // location within the span    
+                k = f;
+                fseek(ptr, offset + offsets[j+3], SEEK_SET);
+                total = valid = 0;
+                do
+                {
+                    k -= total;
+                    fread(&valid, 1, 1, ptr);
+                    fread(&total, 1, 1, ptr);
+                    fseek(ptr, valid * 2 + 2, SEEK_CUR);
+                }
+                while(k >= total);
+
+                // This frame is run length encoded, use the last valid value.
+                if(k >= valid)
+                    k = valid - 1;
+                
+                if(k < valid)
+                {
+                    fseek(ptr, k * 2 + 2, SEEK_CUR);
+                    fread(&val, 2, 1, ptr);
+
+                    anim.data[i].rot[f][j] += ((float) val) * bones[i].scalerot[j];
+                    continue;
+                }
             }
         }
     }
