@@ -435,7 +435,7 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     anim_t anim;
     uint64_t before;
     short offsets[6];
-    short val;
+    unsigned short val;
     uint8_t total, valid;
 
     before = ftell(ptr);
@@ -458,11 +458,20 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
                 if(!offsets[j])
                     break;            
                 
+                // Find the current span we're in and set k to our
+                // location within the span    
+                k = f;
                 fseek(ptr, offset + offsets[j], SEEK_SET);
-                fread(&val, sizeof(short), 1, ptr);
-                total = val & 0xFF;
-                valid = (val >> 8) & 0xFF;
-                //Console::Print("anim val: %u, %u, %hd\n", total, valid, val);
+                total = valid = 0;
+                do
+                {
+                    k -= total;
+                    fread(&valid, 1, 1, ptr);
+                    fread(&total, 1, 1, ptr);
+                    fseek(ptr, valid * 2 + 2, SEEK_CUR);
+                }
+                while(k >= total);
+
             }
         }
     }
@@ -472,14 +481,16 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     return anim;
 }
 
-EntityStudio::seqdesc_t EntityStudio::LoadSequence(FILE* ptr)
+EntityStudio::seqdesc_t EntityStudio::LoadSequence(FILE* ptr, std::vector<FILE*> ptrs)
 {
     int i;
 
     seqdesc_t seq;
 
     char name[33];
-    int ibone, ianim;
+    int ibone, ianim, igroup;
+
+    FILE* panim;
 
     fread(name, 1, 32, ptr);
     fread(&seq.fps, sizeof(float), 1, ptr);
@@ -497,18 +508,18 @@ EntityStudio::seqdesc_t EntityStudio::LoadSequence(FILE* ptr)
     fseek(ptr, sizeof(int), SEEK_CUR);
     fread(&ianim, sizeof(int), 1, ptr);
     fseek(ptr, 28, SEEK_CUR); // Skip over blends for now
-    fseek(ptr, sizeof(int), SEEK_CUR);
+    fread(&igroup, sizeof(int), 1, ptr);
     fseek(ptr, sizeof(int) * 4, SEEK_CUR); // Skip over transition graph for now
 
     name[32] = 0;
     seq.name = std::string(name);
     seq.rootbone = &bones[ibone];
-    seq.anim = LoadAnimation(ptr, ianim, seq.nframes, 1);
+    seq.anim = LoadAnimation(ptrs[igroup], ianim, seq.nframes, 1);
 
     return seq;
 }
 
-void EntityStudio::LoadSequences(FILE* ptr)
+void EntityStudio::LoadSequences(FILE* ptr, std::vector<FILE*> ptrs)
 {
     int i;
     seqdesc_t *curseq;
@@ -523,13 +534,14 @@ void EntityStudio::LoadSequences(FILE* ptr)
     Console::Print("Sequence count: %d\n", lumpsize);
 
     fseek(ptr, lumpoffs, SEEK_SET);
-    sequences.resize(lumpsize);
-    for(i=0, curseq=sequences.data(); i<lumpsize; i++, curseq++)
+    for(i=0; i<lumpsize; i++)
     {
+        sequences.push_back({});
+        curseq = &sequences[sequences.size() - 1];
 
         fseek(ptr, lumpoffs + i * 176, SEEK_SET);
 
-        *curseq = LoadSequence(ptr);
+        *curseq = LoadSequence(ptr, ptrs);
 #if VERBOSE_STUDIO_LOGGING
         Console::Print("Sequence %d:\n", i);
         Console::Print("    Name: %s\n", curseq->name.c_str());
@@ -740,7 +752,7 @@ void EntityStudio::LoadModel()
     LoadHeader(ptr);
     LoadBones(ptr);
     LoadControllers(ptr);
-    LoadSequences(ptr);
+    LoadSequences(ptr, seqfiles);
     LoadTextures(ptr);
     LoadBodyParts(ptr, 0);
 

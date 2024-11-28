@@ -127,11 +127,11 @@ private:
     void LoadHeader(FILE* ptr);
     void LoadBones(FILE* ptr);
     void LoadControllers(FILE* ptr);
-    void LoadSequences(FILE* ptr);
+    void LoadSequences(FILE* ptr, std::vector<FILE*> ptrs);
     void LoadTextures(FILE* ptr);
     void LoadBodyParts(FILE* ptr, int body);
 
-    seqdesc_t LoadSequence(FILE* ptr);
+    seqdesc_t LoadSequence(FILE* ptr, std::vector<FILE*> ptrs);
     anim_t LoadAnimation(FILE* ptr, uint32_t offset, int nframes, int nblends);
     ResourceManager::texture_t* LoadTexture(FILE* ptr);
     model_t LoadModel(FILE* ptr);
