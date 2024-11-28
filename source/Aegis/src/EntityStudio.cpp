@@ -23,6 +23,11 @@ void EntityStudio::Render(void)
     DrawModel();
 }
 
+void EntityStudio::Tick(void)
+{
+    curframe += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
+}
+
 std::string EntityStudio::GetModelName(void)
 {
     return "models/barney";

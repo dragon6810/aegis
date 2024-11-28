@@ -13,6 +13,7 @@ class EntityStudio : public EntityBase
 public:
     void Init(const std::unordered_map <std::string, std::string>& pairs) override;
     void Render(void) override;
+    void Tick(void) override;
 
     std::string GetModelName(void);
 
@@ -113,6 +114,8 @@ protected:
 protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
+    int curseq = 0;
+    TickProperty<float> frame;
 
     std::vector<bone_t> bones;
     std::unordered_map<int, controller_t*> ctlindices;
