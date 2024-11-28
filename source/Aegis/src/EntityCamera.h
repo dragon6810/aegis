@@ -9,6 +9,7 @@ class EntityCamera : public EntityBase
 public:
 	void Init(const std::unordered_map <std::string, std::string>& pairs) override;
     void Render(void) override;
+    void Tick(void) override;
 
 	void UpdateMouse(float x, float y);
 

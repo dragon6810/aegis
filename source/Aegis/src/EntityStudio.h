@@ -7,6 +7,7 @@
 #include "Matrix.h"
 #include "TickProperty.h"
 #include "ResourceManager.h"
+#include "Quaternion.h"
 
 class EntityStudio : public EntityBase
 {
@@ -32,7 +33,7 @@ protected:
         Vector3 scalepos;
         Vector3 scalerot;
         Vector3 curpos;
-        Vector3 currot;
+        Quaternion currot;
 
         Matrix4x4 transform;
     } bone_t;

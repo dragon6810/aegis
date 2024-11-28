@@ -107,6 +107,7 @@ public:
 	bool Load(std::string name);
 
 	void Render(void);
+    void Tick(void);
 
 	traceresult_t TraceDir(int headnode, Vector3 start, Vector3 end);
 private:

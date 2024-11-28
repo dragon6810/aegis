@@ -12,8 +12,6 @@
 #include "Command.h"
 #include "TickProperty.h"
 
-TickProperty<float> testprop = 0.0f;
-
 void Game::Render(void)
 {
 	renderer.Clear();
@@ -37,10 +35,10 @@ void Game::Tick(void)
 {
     int i;
 
-    testprop += 1.0f;
-
     for(i=0; i<tickprops.size(); i++)
         ((TickPropertyBase*) tickprops[i])->push();
+
+    world.Tick();
 }
 
 bool Game::Loop(void)

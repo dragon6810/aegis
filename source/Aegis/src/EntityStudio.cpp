@@ -4,7 +4,6 @@
 
 #include "Console.h"
 #include "Command.h"
-#include "Quaternion.h"
 
 #define VERBOSE_STUDIO_LOGGING 1
 
@@ -18,6 +17,9 @@ void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pai
 
 void EntityStudio::Render(void)
 {
+    while(frame >= sequences[curseq].nframes)
+        frame.snap(frame - sequences[curseq].nframes);
+    
     UpdateBones();
     DrawSkeleton();
     DrawModel();
@@ -25,7 +27,7 @@ void EntityStudio::Render(void)
 
 void EntityStudio::Tick(void)
 {
-    curframe += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
+    frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE); 
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -37,7 +39,25 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 {
     Quaternion q;
 
-    q = Quaternion::FromEuler(bone->currot);
+    int f, n;
+    float t;
+    Vector3 curpos, nextpos;
+    Quaternion currot, nextrot;
+
+    f = (int) frame;
+    n = (f + 1) % sequences[curseq].nframes;
+    t = frame - f;
+
+    curpos  = sequences[curseq].anim.data[bone - bones.data()].pos[f];
+    nextpos = sequences[curseq].anim.data[bone - bones.data()].pos[n];
+
+    currot  = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[f]);
+    nextrot = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[n]);
+
+    bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f];
+    bone->currot = Quaternion::Slerp(currot, nextrot, t);
+    
+    q = bone->currot;
 
     bone->transform = q.ToMatrix4();
     bone->transform[0][3] = bone->curpos[0];
@@ -447,12 +467,12 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     
     anim.nframes = nframes;
     anim.data.resize(bones.size());
-    for(i=0; i<bones.size(); i++)
+    for(i=0; i<bones.size(); i++, offset += 12)
     {
         anim.data[i].nframes = nframes;
         anim.data[i].pos.resize(nframes);
         anim.data[i].rot.resize(nframes);
-        fseek(ptr, offset + (i + bones.size() * 0) * 12, SEEK_SET);
+        fseek(ptr, offset, SEEK_SET);
         fread(offsets, sizeof(short), 6, ptr);
   
         // Load positions 
@@ -462,34 +482,29 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
             {
                 anim.data[i].pos[f][j] = bones[i].defpos[j];
                 if(!offsets[j])
-                    break;            
+                    continue;            
                 
                 // Find the current span we're in and set k to our
                 // location within the span    
                 k = f;
-                fseek(ptr, offset + offsets[j], SEEK_SET);
                 total = valid = 0;
-                do
+                fseek(ptr, offset + offsets[j], SEEK_SET);
+                while(k >= total)
                 {
                     k -= total;
+                    fseek(ptr, valid * sizeof(short), SEEK_CUR);
                     fread(&valid, 1, 1, ptr);
                     fread(&total, 1, 1, ptr);
-                    fseek(ptr, valid * 2 + 2, SEEK_CUR);
                 }
-                while(k >= total);
 
                 // This frame is run length encoded, use the last valid value.
                 if(k >= valid)
                     k = valid - 1;
                 
-                if(k < valid)
-                {
-                    fseek(ptr, k * 2 + 2, SEEK_CUR);
-                    fread(&val, 2, 1, ptr);
+                fseek(ptr, k * sizeof(short), SEEK_CUR);
+                fread(&val, sizeof(short), 1, ptr);
 
-                    anim.data[i].pos[f][j] += ((float) val) * bones[i].scalepos[j];
-                    continue;
-                }
+                anim.data[i].pos[f][j] += ((float) val) * bones[i].scalepos[j];
             }
         }
 
@@ -500,21 +515,20 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
             {
                 anim.data[i].rot[f][j] = bones[i].defrot[j];
                 if(!offsets[j+3])
-                    break;            
+                    continue;            
                 
                 // Find the current span we're in and set k to our
                 // location within the span    
                 k = f;
+                total = valid = 0; 
                 fseek(ptr, offset + offsets[j+3], SEEK_SET);
-                total = valid = 0;
-                do
+                while(k >= total)
                 {
                     k -= total;
+                    fseek(ptr, valid * sizeof(short), SEEK_CUR);
                     fread(&valid, 1, 1, ptr);
                     fread(&total, 1, 1, ptr);
-                    fseek(ptr, valid * 2 + 2, SEEK_CUR);
                 }
-                while(k >= total);
 
                 // This frame is run length encoded, use the last valid value.
                 if(k >= valid)
@@ -522,8 +536,8 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
                 
                 if(k < valid)
                 {
-                    fseek(ptr, k * 2 + 2, SEEK_CUR);
-                    fread(&val, 2, 1, ptr);
+                    fseek(ptr, k * sizeof(short), SEEK_CUR);
+                    fread(&val, sizeof(short), 1, ptr);
 
                     anim.data[i].rot[f][j] += ((float) val) * bones[i].scalerot[j];
                     continue;
@@ -687,7 +701,7 @@ void EntityStudio::LoadBones(FILE* ptr)
             curbone->parent->children.push_back(curbone);
         }
         curbone->curpos = curbone->defpos;
-        curbone->currot = curbone->defrot;
+        curbone->currot = Quaternion::FromEuler(curbone->defrot);
 #if VERBOSE_STUDIO_LOGGING
         Console::Print("Bone %d:\n", i);
         Console::Print("    Name: \"%s\".\n", curbone->name.c_str());

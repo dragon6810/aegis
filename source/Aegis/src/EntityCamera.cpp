@@ -17,6 +17,11 @@ void EntityCamera::Render(void)
     // Nothing
 }
 
+void EntityCamera::Tick(void)
+{
+    // Nothing
+}
+
 void EntityCamera::UpdateMouse(float x, float y)
 {
     Quaternion q;

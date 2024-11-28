@@ -48,6 +48,48 @@ Quaternion Quaternion::AxisAngle(Vector3 a, float r)
     return _q;
 }
 
+Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
+{
+    int i;
+
+    Quaternion nq;
+
+    float c;
+    float theta, s;
+    float w1, w2;
+
+    for(i=0, c=0; i<4; i++)
+        c += a[i] * b[i];
+
+    if(c > 0.9995)
+    {
+        for(i=0; i<4; i++)
+            nq[i] = a[i] + (b[i] - a[i]) * t;
+
+        nq.Normalize();
+        return nq;
+    }
+
+    if(c < 0)
+    {
+        for(i=0; i<4; i++)
+            b[i] = -b[i];
+
+        c = -c;
+    }
+
+    theta = acos(c);
+    s = sqrtf(1 - c * c);
+
+    w1 = sin((1 - t) * theta) / s;
+    w2 = sin(t * theta) / s;
+
+    for(i=0; i<4; i++)
+        nq[i] = w1 * a[i] + w2 * b[i];
+
+    return nq;
+}
+
 void Quaternion::Normalize(void)
 {
     float len;

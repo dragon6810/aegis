@@ -648,3 +648,14 @@ void World::Render(void)
             entities[i]->Render();
     }
 }
+
+void World::Tick(void)
+{
+    int i;
+
+    for(i=0; i<entities.size(); i++)
+    {
+        if(entities[i])
+            entities[i]->Tick();
+    }
+}

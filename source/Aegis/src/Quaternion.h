@@ -21,6 +21,7 @@ public:
 	// Rotation is expected to be in (Roll Pitch Yaw) 
 	static Quaternion FromEuler(Vector3 r);
 	static Quaternion AxisAngle(Vector3 a, float r);
+    static Quaternion Slerp(Quaternion a, Quaternion b, float t);
 
 	void Normalize(void);
 	Matrix4x4 ToMatrix4(void);
