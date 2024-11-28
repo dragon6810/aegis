@@ -201,7 +201,7 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
         fread(&itex, sizeof(int), 1, ptr);
 
         fseek(ptr, itriverts, SEEK_SET);
-        for(j=0; j<nsequences; j++)
+        do 
         {
             mdl.meshes.push_back({});
             curmesh = &mdl.meshes[mdl.meshes.size() - 1];
@@ -213,13 +213,13 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
                 curmesh->type = MESH_FAN;
                 ntriverts = -ntriverts;
             }
-
+            
             curmesh->tex = textures[itex];
             curmesh->verts.resize(ntriverts);
             curmesh->normals.resize(ntriverts);
             curmesh->coords.resize(ntriverts);
             curmesh->bones.resize(ntriverts);
-            for(k=0; k<ntriverts; k++, j++)
+            for(k=0; k<ntriverts; k++)
             {
                 fread(&ivert, sizeof(short), 1, ptr);
                 fread(&inorm, sizeof(short), 1, ptr);
@@ -232,7 +232,32 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
                 curmesh->coords[k][0] = ((float) s) / ((float) curmesh->tex->width);
                 curmesh->coords[k][1] = ((float) t) / ((float) curmesh->tex->height);
             }
+
+            // Geometry is stored clockwise, we want counter-clockwise.
+            // For fans, reverse all but the first one
+            // For strips, reverse everything
+            if(curmesh->type == MESH_STRIP)
+            {
+                for(j=0; j<ntriverts-2; j+=2)
+                {
+                    std::swap(curmesh->verts[j+1], curmesh->verts[j+2]);
+                    std::swap(curmesh->normals[j+1], curmesh->normals[j+2]);
+                    std::swap(curmesh->coords[j+1], curmesh->coords[j+2]);
+                    std::swap(curmesh->bones[j+1], curmesh->bones[j+2]);
+                }
+            }
+            if(curmesh->type == MESH_FAN)
+            {
+                for(j=1, k=ntriverts-1; j<k; j++, k--)
+                {
+                    std::swap(curmesh->verts[j], curmesh->verts[k]);
+                    std::swap(curmesh->normals[j], curmesh->normals[k]);
+                    std::swap(curmesh->coords[j], curmesh->coords[k]);
+                    std::swap(curmesh->bones[j], curmesh->bones[k]);
+                }
+            }
         }
+        while(ntriverts);
     }
 
     name[64] = 0;
