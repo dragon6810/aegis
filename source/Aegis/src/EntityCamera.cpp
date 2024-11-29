@@ -62,7 +62,7 @@ void EntityCamera::SetUpGL()
     Vector3 corrected;
     
     corrected.x = rot.z;
-    corrected.y = rot.x;
+    corrected.y = -rot.x;
     corrected.z = rot.y;
     q = Quaternion::FromEuler(Quaternion::ToRadians(corrected));
     mat = q.ToMatrix4();

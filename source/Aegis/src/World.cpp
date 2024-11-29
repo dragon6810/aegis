@@ -638,7 +638,7 @@ void World::Render(void)
 	glVertex3f(p.x, p.y, p.z);
 	glEnd();
 	glColor3f(1, 1, 1);
-#if 0
+#if 1
 	for(i=0; i<surfs.size(); i++)
 		RenderSurf(&surfs[i]);
 #endif

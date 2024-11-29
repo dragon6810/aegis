@@ -25,13 +25,22 @@ Quaternion::Quaternion(float w, float x, float y, float z)
 
 Quaternion Quaternion::FromEuler(Vector3 r)
 {
-    Vector3 x, y, z;
+    Quaternion nq;
+    float cr, sr, cp, sp, cy, sy;
 
-    x = Vector3(1, 0, 0);
-    y = Vector3(0, 1, 0);
-    z = Vector3(0, 0, 1);
+    cr = cos(r[0] * 0.5);
+    sr = sin(r[0] * 0.5);
+    cp = cos(r[1] * 0.5);
+    sp = sin(r[1] * 0.5);
+    cy = cos(r[2] * 0.5);
+    sy = sin(r[2] * 0.5);
 
-    return AxisAngle(x, r.x) * AxisAngle(y, - r.y) * AxisAngle(z, r.z);
+    nq[0] = cr * cp * cy + sr * sp * sy;
+    nq[1] = sr * cp * cy - cr * sp * sy;
+    nq[2] = cr * sp * cy + sr * cp * sy;
+    nq[3] = cr * cp * sy - sr * sp * cy;
+
+    return nq;
 }
 
 Quaternion Quaternion::AxisAngle(Vector3 a, float r)
@@ -39,9 +48,9 @@ Quaternion Quaternion::AxisAngle(Vector3 a, float r)
     Quaternion _q;
 
     _q[0] = cosf(r / 2.0);
-    _q[1] = sinf(r / 2.0) * a[0];
-    _q[2] = sinf(r / 2.0) * a[1];
-    _q[3] = sinf(r / 2.0) * a[2];
+    _q[1] = sinf(r / 2.0) * cosf(a[0]);
+    _q[2] = sinf(r / 2.0) * cosf(a[1]);
+    _q[3] = sinf(r / 2.0) * cosf(a[2]);
 
     _q.Normalize();
 
@@ -109,15 +118,15 @@ Matrix4x4 Quaternion::ToMatrix4(void)
     len = sqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 
     m[0][0] = 1.0 - 2.0 * q[2] * q[2] - 2.0 * q[3] * q[3];
-    m[0][1] = 2.0 * q[1] * q[2] - 2.0 * q[3] * q[0];
-    m[0][2] = 2.0 * q[1] * q[3] + 2.0 * q[2] * q[0];
+    m[0][1] =       2.0 * q[1] * q[2] - 2.0 * q[3] * q[0];
+    m[0][2] =       2.0 * q[1] * q[3] + 2.0 * q[2] * q[0];
 
-    m[1][0] = 2.0 * q[1] * q[2] + 2.0 * q[3] * q[0];
+    m[1][0] =       2.0 * q[1] * q[2] + 2.0 * q[3] * q[0];
     m[1][1] = 1.0 - 2.0 * q[1] * q[1] - 2.0 * q[3] * q[3];
-    m[1][2] = 2.0 * q[2] * q[3] - 2.0 * q[1] * q[0];
+    m[1][2] =       2.0 * q[2] * q[3] - 2.0 * q[1] * q[0];
 
-    m[2][0] = 2.0 * q[1] * q[3] - 2.0 * q[2] * q[0];
-    m[2][1] = 2.0 * q[2] * q[3] + 2.0 * q[1] * q[0];
+    m[2][0] =       2.0 * q[1] * q[3] - 2.0 * q[2] * q[0];
+    m[2][1] =       2.0 * q[2] * q[3] + 2.0 * q[1] * q[0];
     m[2][2] = 1.0 - 2.0 * q[1] * q[1] - 2.0 * q[2] * q[2];
 
     return m;
@@ -126,15 +135,13 @@ Matrix4x4 Quaternion::ToMatrix4(void)
 Quaternion Quaternion::operator*(Quaternion b)
 {
     Quaternion _q;
-    float len;
+    float a1, a2;
 
     _q[0] = q[0] * b[0] - q[1] * b[1] - q[2] * b[2] - q[3] * b[3];
     _q[1] = q[0] * b[1] + q[1] * b[0] + q[2] * b[3] - q[3] * b[2];
     _q[2] = q[0] * b[2] - q[1] * b[3] + q[2] * b[0] + q[3] * b[1];
     _q[3] = q[0] * b[3] + q[1] * b[2] - q[2] * b[1] + q[3] * b[0];
     
-    _q.Normalize();
-
     return _q;
 }
 

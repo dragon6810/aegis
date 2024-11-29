@@ -37,8 +37,6 @@ std::string EntityStudio::GetModelName(void)
 
 void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 {
-    Quaternion q;
-
     int f, n;
     float t;
     Vector3 curpos, nextpos;
@@ -57,9 +55,7 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
     bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f];
     bone->currot = Quaternion::Slerp(currot, nextrot, t);
     
-    q = bone->currot;
-
-    bone->transform = q.ToMatrix4();
+    bone->transform = bone->currot.ToMatrix4();
     bone->transform[0][3] = bone->curpos[0];
     bone->transform[1][3] = bone->curpos[1];
     bone->transform[2][3] = bone->curpos[2];
@@ -132,7 +128,7 @@ void EntityStudio::DrawMesh(mesh_t* m)
     {
         p = m->verts[i];
         n = m->normals[i];
-        
+
         p = m->bones[i]->transform * p * 5.0;
         n = m->bones[i]->transform * n;
         n[0] -= m->bones[i]->transform[0][3];
@@ -458,13 +454,10 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
     int f, i, j, k;
 
     anim_t anim;
-    uint64_t before;
     short offsets[6];
     short val;
     uint8_t total, valid;
 
-    before = ftell(ptr);
-    
     anim.nframes = nframes;
     anim.data.resize(bones.size());
     for(i=0; i<bones.size(); i++, offset += 12)
@@ -474,11 +467,11 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
         anim.data[i].rot.resize(nframes);
         fseek(ptr, offset, SEEK_SET);
         fread(offsets, sizeof(short), 6, ptr);
-  
-        // Load positions 
-        for(j=0; j<3; j++)
-        {
-            for(f=0; f<nframes; f++)
+
+        for(f=0; f<nframes; f++)
+        {  
+            // Load positions 
+            for(j=0; j<3; j++)
             {
                 anim.data[i].pos[f][j] = bones[i].defpos[j];
                 if(!offsets[j])
@@ -506,12 +499,9 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
 
                 anim.data[i].pos[f][j] += ((float) val) * bones[i].scalepos[j];
             }
-        }
 
-        // Load rotations
-        for(j=0; j<3; j++)
-        {
-            for(f=0; f<nframes; f++)
+            // Load rotations
+            for(j=0; j<3; j++)
             {
                 anim.data[i].rot[f][j] = bones[i].defrot[j];
                 if(!offsets[j+3])
@@ -545,8 +535,6 @@ EntityStudio::anim_t EntityStudio::LoadAnimation(FILE* ptr, uint32_t offset, int
             }
         }
     }
-
-    fseek(ptr, before, SEEK_SET);
 
     return anim;
 }
@@ -727,6 +715,11 @@ void EntityStudio::LoadHeader(FILE* ptr)
     fread(&bbmax.x, sizeof(float), 1, ptr);
     fread(&bbmax.y, sizeof(float), 1, ptr);
     fread(&bbmax.z, sizeof(float), 1, ptr);
+
+#ifdef VERBOSE_STUDIO_LOGGING
+    Console::Print("Model header:\n");
+    Console::Print("    Eye position: %s.\n", eyepos.ToString().c_str());
+#endif
 }
 
 std::vector<FILE*> EntityStudio::GetSeqFiles(FILE* ptr)

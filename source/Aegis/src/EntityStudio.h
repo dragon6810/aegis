@@ -115,7 +115,7 @@ protected:
 protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
-    int curseq = 0;
+    int curseq = 2;
     TickProperty<float> frame;
 
     std::vector<bone_t> bones;
