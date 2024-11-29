@@ -32,7 +32,7 @@ void EntityStudio::Tick(void)
 
 std::string EntityStudio::GetModelName(void)
 {
-    return "models/barney";
+    return "models/agrunt";
 }
 
 void EntityStudio::UpdateBoneMatrix(bone_t* bone)
@@ -87,10 +87,10 @@ void EntityStudio::DrawSkeleton(void)
 
     for(i=0; i<bones.size(); i++)
     {
-        root = bones[i].transform * zero * 5.0f;
+        root = bones[i].transform * zero;
         for(j=0; j<bones[i].children.size(); j++)
         {
-            cur = bones[i].children[j]->transform * zero * 5.0f;
+            cur = bones[i].children[j]->transform * zero;
             glVertex3f(root[0], root[1], root[2]);
             glVertex3f(cur[0], cur[1], cur[2]);
         }
@@ -129,7 +129,7 @@ void EntityStudio::DrawMesh(mesh_t* m)
         p = m->verts[i];
         n = m->normals[i];
 
-        p = m->bones[i]->transform * p * 5.0;
+        p = m->bones[i]->transform * p;
         n = m->bones[i]->transform * n;
         n[0] -= m->bones[i]->transform[0][3];
         n[1] -= m->bones[i]->transform[1][3];
@@ -294,7 +294,7 @@ void EntityStudio::LoadBodyParts(FILE* ptr, int body)
     Console::Print("Body part count: %d\n", lumpsize);
 
     models.resize(lumpsize);
-    for(i=0; i<1; i++)
+    for(i=0; i<lumpsize; i++)
     {
         fseek(ptr, lumpoffs + i * 80, SEEK_SET);
 
