@@ -23,11 +23,13 @@ void EntityStudio::Render(void)
     UpdateBones();
     DrawSkeleton();
     DrawModel();
+    XRender();
 }
 
 void EntityStudio::Tick(void)
 {
-    frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE); 
+    frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
+    XTick(); 
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -37,10 +39,12 @@ std::string EntityStudio::GetModelName(void)
 
 void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 {
+    int i, j;
+
     int f, n;
     float t;
-    Vector3 curpos, nextpos;
-    Quaternion currot, nextrot;
+    Vector3 curpos, nextpos, addpos;
+    Quaternion currot, nextrot, addrot;
 
     f = (int) frame;
     n = (f + 1) % sequences[curseq].nframes;
@@ -52,8 +56,35 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
     currot  = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[f]);
     nextrot = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[n]);
 
-    bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f];
-    bone->currot = Quaternion::Slerp(currot, nextrot, t);
+    if(bone->controller)
+    {
+        switch(bone->controller->type & 0x7FFF)
+        {
+            case MOTION_X:
+                addpos[0] = bone->controller->cur;
+                break;
+            case MOTION_Y:
+                addpos[1] = bone->controller->cur;
+                break;
+            case MOTION_Z:
+                addpos[2] = bone->controller->cur;
+                break;
+            case MOTION_XR:
+                addrot = Quaternion::FromEuler(Vector3(bone->controller->cur * DEG2RAD, 0, 0));
+                break;
+            case MOTION_YR:
+                addrot = Quaternion::FromEuler(Vector3(0, bone->controller->cur * DEG2RAD, 0));
+                break;
+            case MOTION_ZR:
+                addrot = Quaternion::FromEuler(Vector3(0, 0, bone->controller->cur * DEG2RAD));
+                break;
+            default:
+                break;
+        }
+    }
+
+    bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f] + addpos;
+    bone->currot = Quaternion::Slerp(currot, nextrot, t) * addrot;
     
     bone->transform = bone->currot.ToMatrix4();
     bone->transform[0][3] = bone->curpos[0];
@@ -639,6 +670,7 @@ void EntityStudio::LoadControllers(FILE* ptr)
 
         curctl->bone = &bones[ibone];
         ctlindices[index] = curctl;
+        curctl->bone->controller = (EntityStudio::controller_s*) curctl;
 #if VERBOSE_STUDIO_LOGGING
         Console::Print("Controller %d:\n", i);
         Console::Print("    Bone index: %d\n", ibone);

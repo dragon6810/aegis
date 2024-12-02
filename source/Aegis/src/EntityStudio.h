@@ -16,16 +16,29 @@ public:
     void Render(void) override;
     void Tick(void) override;
 
+    virtual void XRender(void) = 0;
+    virtual void XTick(void) = 0;
+
     virtual std::string GetModelName(void);
 
     Vector3 pos;
     Vector3 rot;
 
 protected:
+    // Forward declarations
+    struct bone_s;
+    struct controller_s;
+    struct boneanim_s;
+    struct anim_s;
+    struct seqdesc_s;
+    struct mesh_s;
+    struct model_s;
+
     typedef struct bone_s
     {
         std::string name;
         struct bone_s* parent;
+        struct controller_s* controller;
         std::vector<struct bone_s*> children;
 
         Vector3 defpos;
@@ -40,18 +53,18 @@ protected:
 
     typedef enum
     {
-        MOTION_X,
-        MOTION_Y,
-        MOTION_Z,
-        MOTION_XR,
-        MOTION_YR,
-        MOTION_ZR,
-    } motiontype_e;
+        MOTION_X=0x0001,
+        MOTION_Y=0x0002,
+        MOTION_Z=0x0004,
+        MOTION_XR=0x0008,
+        MOTION_YR=0x0010,
+        MOTION_ZR=0x0020,
+    } motionflags_e;
 
     typedef struct controller_s
     {
         bone_t* bone;
-        motiontype_e type;
+        int type;
         float min, max, def;
         float cur;
     } controller_t;
@@ -115,7 +128,7 @@ protected:
 protected:
     Vector3 eyepos;
     Vector3 bbmin, bbmax;
-    int curseq = 2;
+    int curseq = 0;
     TickProperty<float> frame;
 
     std::vector<bone_t> bones;

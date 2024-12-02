@@ -7,13 +7,13 @@
 #include "Console.h"
 
 #include "EntityCamera.h"
-#include "EntityStudio.h"
+#include "EntityPlayer.h"
 
 // Entity factory, update with new entity classnames
 std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
 {
 	{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
-	{"player_tank", []() { return std::make_shared<EntityStudio>(); }},
+	{"player_tank", []() { return std::make_shared<EntityPlayer>(); }},
 };
 
 bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
@@ -638,10 +638,10 @@ void World::Render(void)
 	glVertex3f(p.x, p.y, p.z);
 	glEnd();
 	glColor3f(1, 1, 1);
-#if 1
+
 	for(i=0; i<surfs.size(); i++)
 		RenderSurf(&surfs[i]);
-#endif
+
     for(i=0; i<entities.size(); i++)
     {
         if(entities[i])
