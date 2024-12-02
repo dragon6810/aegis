@@ -48,6 +48,7 @@ protected:
         Vector3 curpos;
         Quaternion currot;
 
+        Matrix4x4 noctl;
         Matrix4x4 transform;
     } bone_t;
 
@@ -66,7 +67,7 @@ protected:
         bone_t* bone;
         int type;
         float min, max, def;
-        float cur;
+        TickProperty<float> cur;
     } controller_t;
 
     // Decompressed animation for 1 bone

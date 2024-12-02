@@ -43,8 +43,8 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 
     int f, n;
     float t;
-    Vector3 curpos, nextpos, addpos;
-    Quaternion currot, nextrot, addrot;
+    Vector3 curpos, nextpos, addpos, realpos;
+    Quaternion currot, nextrot, addrot, realrot;
 
     f = (int) frame;
     n = (f + 1) % sequences[curseq].nframes;
@@ -55,6 +55,9 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 
     currot  = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[f]);
     nextrot = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[n]);
+
+    realpos = sequences[curseq].anim.data[bone - bones.data()].pos[f];
+    realrot = Quaternion::Slerp(currot, nextrot, t);
 
     if(bone->controller)
     {
@@ -90,6 +93,11 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
     bone->transform[0][3] = bone->curpos[0];
     bone->transform[1][3] = bone->curpos[1];
     bone->transform[2][3] = bone->curpos[2];
+
+    bone->noctl = realrot.ToMatrix4();
+    bone->noctl[0][3] = realpos[0];
+    bone->noctl[1][3] = realpos[1];
+    bone->noctl[2][3] = realpos[2];
 }
 
 void EntityStudio::UpdateBones(void)
@@ -103,6 +111,7 @@ void EntityStudio::UpdateBones(void)
             continue;
 
         bones[i].transform = bones[i].parent->transform * bones[i].transform;
+        bones[i].noctl = bones[i].parent->noctl * bones[i].noctl;
     }
 }
 
