@@ -9,68 +9,70 @@
 #include "ResourceManager.h"
 #include "Wad.h"
 #include "EntityBase.h"
+#include "Nav.h"
 
 #define CONTENTS_EMPTY -1
 #define CONTENTS_SOLID -2
 
+// forward declarations
 class EntityCamera;
 class EntityStudio;
 
+struct plane_t
+{
+	Vector3 n;
+	float d;
+};
+
+struct texinfo_t
+{
+	ResourceManager::texture_t *tex;
+	Vector3 s, t;
+	float sshift, tshift;
+};
+
+struct surf_t
+{
+	plane_t *pl;
+	bool reverse;
+	std::vector<Vector3*> vertices;
+	texinfo_t *tex;
+};
+
+struct leaf_t
+{
+	int contents;
+	Vector3 min, max;
+	std::vector<surf_t*> surfs;
+};
+
+struct node_t
+{
+	plane_t *pl;
+	node_t *children[2];
+	leaf_t *leaves[2];
+	node_t *parent;
+	Vector3 min, max;
+	std::vector<surf_t*> surfs;
+};
+
+struct hullnode_t
+{
+	plane_t* pl;
+	short children[2];
+};
+
+struct traceresult_t
+{
+	bool didhit;
+	Vector3 n;
+	Vector3 hit;
+	Vector3 start;
+	Vector3 end;
+};
+
 class World
 {
-public:
-	struct plane_t
-	{
-		Vector3 n;
-		float d;
-	};
-
-	struct texinfo_t
-	{
-		ResourceManager::texture_t *tex;
-		Vector3 s, t;
-		float sshift, tshift;
-	};
-
-	struct surf_t
-	{
-		plane_t *pl;
-		bool reverse;
-		std::vector<Vector3*> vertices;
-		texinfo_t *tex;
-	};
-
-	struct leaf_t
-	{
-		int contents;
-		Vector3 min, max;
-		std::vector<surf_t*> surfs;
-	};
-
-	struct node_t
-	{
-		plane_t *pl;
-		node_t *children[2];
-		leaf_t *leaves[2];
-		node_t *parent;
-		Vector3 min, max;
-		std::vector<surf_t*> surfs;
-	};
-
-	struct hullnode_t
-	{
-		plane_t* pl;
-		short children[2];
-	};
-
-	struct traceresult_t
-	{
-		bool didhit;
-		Vector3 n;
-		Vector3 hit;
-		Vector3 start;
-		Vector3 end;
-	};
 private:
 	enum bsplumps_e
 	{
@@ -103,6 +105,8 @@ public:
 	std::vector<texinfo_t> 	 texinfos;
 
 	std::vector<ResourceManager::texture_t*> textures;
+
+	Nav nav;
 
 	bool Load(std::string name);
 

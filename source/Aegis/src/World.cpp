@@ -69,7 +69,7 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 	return TraceDir_R(curnode->children[!first], trace, cross, end, curnode->pl->n);
 }
 
-World::traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
+traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 {
 	traceresult_t trace;
 
@@ -591,6 +591,8 @@ bool World::Load(std::string name)
 	LoadNodes(ptr);
 	LoadClipnodes(ptr);
 
+	nav.Initialize(this);
+
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
 	trace = TraceDir(0, Vector3(0, 0, 128), Vector3(0, 0, -128));
@@ -647,6 +649,8 @@ void World::Render(void)
         if(entities[i])
             entities[i]->Render();
     }
+
+	nav.Render();
 }
 
 void World::Tick(void)
