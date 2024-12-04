@@ -12,6 +12,8 @@ template <typename T>
 class TickProperty : public TickPropertyBase
 {
 public:
+    T cur, last, lastlast;
+
     TickProperty(void);
     TickProperty(const T& val);
     ~TickProperty(void);
@@ -29,7 +31,6 @@ public:
     void push(void) override;
 
 private:
-    T cur, last, lastlast;
     bool initialized = false;
 
     void set(const T& val);

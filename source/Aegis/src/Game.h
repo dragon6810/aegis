@@ -9,7 +9,7 @@
 
 #define ENGINE_TICKRATE 50
 #define ENGINE_TICKDUR_MS (1000 / ENGINE_TICKRATE)
-#define ENGINE_TICKDUR 1f / (float) ENGINE_TICKRATE
+#define ENGINE_TICKDUR (1.0 / (float) ENGINE_TICKRATE)
 
 class Game
 {

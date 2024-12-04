@@ -159,12 +159,12 @@ Vector3 Vector3::operator/(float s)
     return *this * (1.0 / s);
 }
 
-Vector3 Vector3::operator+(Vector3 v)
+Vector3 Vector3::operator+(const Vector3 v)
 {
     return Vector3(x + v.x, y + v.y, z + v.z);
 }
 
-Vector3 Vector3::operator-(Vector3 v)
+Vector3 Vector3::operator-(const Vector3 v)
 {
     return Vector3(x - v.x, y - v.y, z - v.z);
 }

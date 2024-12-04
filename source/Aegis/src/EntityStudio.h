@@ -67,7 +67,11 @@ protected:
         bone_t* bone;
         int type;
         float min, max, def;
-        TickProperty<float> cur;
+        float cur;
+        Quaternion lastrot;
+        Quaternion lastlastrot;
+        Quaternion rot;
+        Vector3 pos;
     } controller_t;
 
     // Decompressed animation for 1 bone

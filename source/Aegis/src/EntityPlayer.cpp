@@ -39,7 +39,7 @@ void EntityPlayer::SetTargetAngle(void)
     x = Vector3::Dot(right, p);
     y = Vector3::Dot(forward, p);
 
-    ctlindices[0]->cur = atan2f(y, x) * RAD2DEG;
+    yawtarget = atan2f(y, x) * RAD2DEG + 180;
 }
 
 void EntityPlayer::XRender(void)
@@ -49,9 +49,41 @@ void EntityPlayer::XRender(void)
 
 void EntityPlayer::XTick(void)
 {
-    
+    float accel;
 
     SetTargetAngle();
+
+    if(yawtarget - yaw > 180)
+        yawtarget -= 360;
+
+    if(yaw - yawtarget > 180)
+        yawtarget += 360;
+
+    Console::Print("Yaw: %f\n", yaw);
+
+    yawvel -= 1.0 - friction;
+
+    accel = (yawtarget - yaw) - yawvel;
+    if(accel < -maxaccel)
+        accel = -maxaccel;
+    if(accel > maxaccel)
+        accel = maxaccel;
+
+    yawvel += accel;
+
+    if(yawvel < -maxvel)
+        yawvel = -maxvel;
+    if(yawvel > maxvel)
+        yawvel = maxvel;
+
+    yaw += yawvel;
+
+    while(yaw > 360)
+        yaw -= 360;
+    while(yaw < 0)
+        yaw += 360;
+
+    ctlindices[0]->cur = yaw + 180;
 }
 
 std::string EntityPlayer::GetModelName(void)

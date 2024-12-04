@@ -28,6 +28,14 @@ void EntityStudio::Render(void)
 
 void EntityStudio::Tick(void)
 {
+    int i;
+    
+    for(i=0; i<controllers.size(); i++)
+    {
+        controllers[i].lastlastrot = controllers[i].lastrot;
+        controllers[i].lastrot = controllers[i].rot;
+    }
+
     frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
     XTick(); 
 }
@@ -84,6 +92,9 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
             default:
                 break;
         }
+        bone->controller->pos = addpos;
+        bone->controller->rot = addrot;
+        addrot = Quaternion::Slerp(bone->controller->lastlastrot, bone->controller->lastrot, Game::GetGame().intertick);
     }
 
     bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f] + addpos;
