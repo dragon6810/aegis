@@ -59,8 +59,6 @@ void EntityPlayer::XTick(void)
     if(yaw - yawtarget > 180)
         yawtarget += 360;
 
-    Console::Print("Yaw: %f\n", yaw);
-
     yawvel -= 1.0 - friction;
 
     accel = (yawtarget - yaw) - yawvel;
