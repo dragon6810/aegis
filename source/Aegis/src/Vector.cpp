@@ -169,6 +169,12 @@ Vector3 Vector3::operator-(const Vector3 v)
     return Vector3(x - v.x, y - v.y, z - v.z);
 }
 
+bool Vector3::operator==(const Vector3 v)
+{
+    int i;
+
+    return (x == v.x) && (y == v.y) && (z == v.z);
+}
 
 float& Vector3::operator[](int i)
 {

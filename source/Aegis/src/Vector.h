@@ -52,6 +52,7 @@ public:
     Vector3 operator/(float s);
     Vector3 operator+(const Vector3 v);
     Vector3 operator-(const Vector3 v);
+    bool operator==(const Vector3 v);
 
     float& operator[](int i);
 private:

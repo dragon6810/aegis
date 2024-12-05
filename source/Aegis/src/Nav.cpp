@@ -10,7 +10,7 @@ void Nav::DrawSurf(navnode_t* surf)
     Vector3 cur, next;
 
     glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(-1.0f, -0.1f);
+	glPolygonOffset(-1.0f, -1.0f);
     glColor4f(0.5, 0.8, 1, 0.5);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -26,30 +26,75 @@ void Nav::DrawSurf(navnode_t* surf)
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glColor3f(0, 0, 0);
     glLineWidth(3);
-    glPolygonOffset(-2.0f, -0.3f);
+    glPolygonOffset(-2.0f, -1.0f);
     glEnable(GL_POLYGON_OFFSET_LINE);
 
-#if 0
-    glBegin(GL_LINES);
-    for(i=0; i<surf->points.size(); i++)
-    {
-        cur = surf->points[i];
-        next = surf->points[(i+1)%surf->points.size()];
-        glVertex3f(cur.x, cur.y, cur.z);
-        glVertex3f(next.x, next.y, next.z);
-    }
-    glEnd();
-#else
     glBegin(GL_POLYGON);
     for(i=0; i<surf->points.size(); i++)
         glVertex3f(surf->points[i].x, surf->points[i].y, surf->points[i].z);
     glEnd();
-#endif
+
+    glColor3f(0.7, 0, 0);
+    glBegin(GL_POLYGON);
+    for(i=0; i<surf->edges.size(); i++)
+    {
+        cur = surf->center;
+        next = surf->edges[i]->center;
+
+        glVertex3f(cur[0], cur[1], cur[2]);
+        glVertex3f(next[0], next[1], next[2]);
+    }
+    glEnd();
 
     glDisable(GL_POLYGON_OFFSET_LINE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glColor3f(1, 1, 1);
+}
+
+std::pair<Vector3, Vector3> Nav::MakeEdge(Vector3 a, Vector3 b)
+{
+    return std::tie(a.x, a.y, a.z) < std::tie(b.x, b.y, b.z) ? std::make_pair(a, b) : std::make_pair(b, a);
+}
+
+bool Nav::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
+{
+    if((v1 == v3) && (v2 == v4))
+        return true;
+
+    if((v1 == v4) && (v2 == v3))
+        return true;
+
+    return false;
+}
+
+// Please update use this to use a hashmap this is super slow
+void Nav::FindEdges(void)
+{
+    int i, j, cur, next, _cur, _next;
+
+    for(i=0; i<surfs.size(); i++)
+    {
+        for(cur=0; cur<surfs[i].points.size(); cur++)
+        {
+            next = (cur + 1) % surfs[i].points.size();
+            for(j=0; j<surfs.size(); j++)
+            {
+                if(i == j)
+                    continue;
+
+                for(_cur=0; _cur<surfs[j].points.size(); _cur++)
+                {
+                    _next = (_cur + 1) % surfs[j].points.size();
+
+                    if(!SameEdge(surfs[i].points[cur], surfs[i].points[next], surfs[j].points[_cur], surfs[j].points[_next]))
+                        continue;
+
+                    surfs[i].edges.push_back(&surfs[j]);
+                }
+            }
+        }
+    }
 }
 
 std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
@@ -119,6 +164,10 @@ void Nav::NavSurfsFromSurf(struct surf_t* surf)
         node.points[1] = tris[i][1];
         node.points[2] = tris[i][2];
         node.normal = surf->pl->n;
+        
+        for(j=0; j<3; j++)
+            node.center[j] = (node.points[0][j] + node.points[1][j] + node.points[2][j]) / 3.0;
+
         surfs.push_back(node);
     }
 }
@@ -149,4 +198,5 @@ void Nav::Initialize(World* world)
     this->world = world;
 
     FindSurfs();
+    FindEdges();
 }
