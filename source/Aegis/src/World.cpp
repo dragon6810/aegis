@@ -16,12 +16,14 @@ std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> en
 	{"player_tank", []() { return std::make_shared<EntityPlayer>(); }},
 };
 
-std::array<std::pair<Vector3, Vector3>, 4> World::hulls =
+std::array<std::array<Vector3, 2>, 4> World::hulls =
 {
-    std::pair<Vector3, Vector3>( Vector3(  0,   0,   0), Vector3(  0,   0,   0) ),
-    std::pair<Vector3, Vector3>( Vector3(-16, -16, -36), Vector3( 16,  16,  36) ),
-    std::pair<Vector3, Vector3>( Vector3(-32, -32, -32), Vector3( 32,  32,  32) ),
-    std::pair<Vector3, Vector3>( Vector3(-16, -16, -18), Vector3( 16,  16,  18) ),
+    {
+        { Vector3(  0,   0,   0), Vector3(  0,   0,   0) },
+        { Vector3(-16, -16, -36), Vector3( 16,  16,  36) },
+        { Vector3(-32, -32, -32), Vector3( 32,  32,  32) },
+        { Vector3(-16, -16, -18), Vector3( 16,  16,  18) },
+    }
 };
 
 bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
@@ -366,6 +368,7 @@ void World::LoadSurfs(FILE* ptr)
 		misc = 0;
 		fread(&misc, sizeof(short), 1, ptr);
 		cursurf->pl = &planes[misc];
+        cursurf->ipl = misc;
 		fread(&misc, sizeof(short), 1, ptr);
 		cursurf->reverse = misc;
 		fread(&firstedge, sizeof(int), 1, ptr);
@@ -373,7 +376,8 @@ void World::LoadSurfs(FILE* ptr)
 
 		before = ftell(ptr);
 		cursurf->vertices.resize(nedges);
-		for(j=0; j<nedges; j++)
+		cursurf->ivertices.resize(nedges);
+        for(j=0; j<nedges; j++)
 		{
 			fseek(ptr, 4 + LUMP_SURFEDGES * 8, SEEK_SET);
 			fread(&lumpoffs, sizeof(int), 1, ptr);
@@ -392,7 +396,8 @@ void World::LoadSurfs(FILE* ptr)
 			fread(&misc, sizeof(short), 1, ptr);
 
 			cursurf->vertices[j] = &verts[misc];
-		}
+		    cursurf->ivertices[j] = misc;
+        }
 
 		fseek(ptr, before, SEEK_SET);
 		fread(&itex, sizeof(short), 1, ptr);

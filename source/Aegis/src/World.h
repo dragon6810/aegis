@@ -36,9 +36,11 @@ struct texinfo_t
 struct surf_t
 {
 	plane_t *pl;
-	bool reverse;
+	int ipl;
+    bool reverse;
 	std::vector<Vector3*> vertices;
-	texinfo_t *tex;
+    std::vector<int> ivertices;
+    texinfo_t *tex;
 };
 
 struct leaf_t
@@ -95,7 +97,7 @@ private:
 		LUMP_MODELS=       14,
 	};
 public:
-    static std::array<std::pair<Vector3, Vector3>, 4> hulls;
+    static std::array<std::array<Vector3, 2>, 4> hulls;
     
     std::vector<std::shared_ptr<EntityBase>> entities;
 	std::shared_ptr<EntityCamera> camera;
