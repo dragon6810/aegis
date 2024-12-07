@@ -2,6 +2,8 @@
 
 #include "World.h"
 
+#include <math.h>
+
 #include "Console.h"
 
 void Nav::DrawSurf(navnode_t* surf)
@@ -33,21 +35,21 @@ void Nav::DrawSurf(navnode_t* surf)
     for(i=0; i<surf->points.size(); i++)
         glVertex3f(surf->points[i].x, surf->points[i].y, surf->points[i].z);
     glEnd();
-
+    
+    glDisable(GL_POLYGON_OFFSET_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor3f(0.7, 0, 0);
-    glBegin(GL_POLYGON);
+    
+    glBegin(GL_LINES);
     for(i=0; i<surf->edges.size(); i++)
     {
-        cur = surf->center;
-        next = surf->edges[i]->center;
+        cur = surf->center + surf->normal * 2;
+        next = surf->edges[i]->center + surf->normal * 2;
 
         glVertex3f(cur[0], cur[1], cur[2]);
         glVertex3f(next[0], next[1], next[2]);
     }
     glEnd();
-
-    glDisable(GL_POLYGON_OFFSET_LINE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glColor3f(1, 1, 1);
 }

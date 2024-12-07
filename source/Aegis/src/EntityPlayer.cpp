@@ -1,5 +1,7 @@
 #include "EntityPlayer.h"
 
+#include <math.h>
+
 #include "EntityCamera.h"
 
 void EntityPlayer::SetTargetAngle(void)
