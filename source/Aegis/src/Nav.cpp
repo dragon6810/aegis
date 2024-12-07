@@ -72,16 +72,17 @@ bool Nav::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 void Nav::FindEdges(void)
 {
     int i, j, cur, next, _cur, _next;
+    bool found;
 
     for(i=0; i<surfs.size(); i++)
     {
-        for(cur=0; cur<surfs[i].points.size(); cur++)
+        for(j=i+1; j<surfs.size(); j++)
         {
-            next = (cur + 1) % surfs[i].points.size();
-            for(j=0; j<surfs.size(); j++)
+            found = false;
+
+            for(cur=0; cur<surfs[i].points.size(); cur++)
             {
-                if(i == j)
-                    continue;
+                next = (cur + 1) % surfs[i].points.size();
 
                 for(_cur=0; _cur<surfs[j].points.size(); _cur++)
                 {
@@ -91,7 +92,14 @@ void Nav::FindEdges(void)
                         continue;
 
                     surfs[i].edges.push_back(&surfs[j]);
+                    surfs[j].edges.push_back(&surfs[i]);
+
+                    found = true;
+                    break;
                 }
+
+                if(found)
+                    break;
             }
         }
     }
@@ -110,7 +118,7 @@ std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
         return {};
     }
 
-    while(poly.size() > 3)
+    while(poly.size() >= 3)
     {
         cur = 0;
         last = poly.size() - 1;
@@ -123,11 +131,6 @@ std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
         tris.push_back(tri);
         poly.erase(poly.begin()); // Remove cur
     }
-
-    tri[0] = poly[0];
-    tri[1] = poly[1];
-    tri[2] = poly[2];
-    tris.push_back(tri);
 
     return tris;
 }

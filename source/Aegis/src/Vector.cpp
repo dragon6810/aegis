@@ -173,7 +173,18 @@ bool Vector3::operator==(const Vector3 v)
 {
     int i;
 
-    return (x == v.x) && (y == v.y) && (z == v.z);
+    const float epsilon = 0.01;
+
+    if(fabsf(x - v.x) > epsilon)
+        return false;
+
+    if(fabsf(y - v.y) > epsilon)
+        return false;
+
+    if(fabsf(z - v.z) > epsilon)
+        return false;
+
+    return true;
 }
 
 float& Vector3::operator[](int i)

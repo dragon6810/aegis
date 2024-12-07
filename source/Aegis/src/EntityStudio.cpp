@@ -21,8 +21,8 @@ void EntityStudio::Render(void)
         frame.snap(frame - sequences[curseq].nframes);
     
     UpdateBones();
-    DrawSkeleton();
-    DrawModel();
+    //DrawSkeleton();
+    //DrawModel();
     XRender();
 }
 
