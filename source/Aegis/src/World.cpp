@@ -16,6 +16,14 @@ std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> en
 	{"player_tank", []() { return std::make_shared<EntityPlayer>(); }},
 };
 
+std::array<std::pair<Vector3, Vector3>, 4> World::hulls =
+{
+    std::pair<Vector3, Vector3>( Vector3(  0,   0,   0), Vector3(  0,   0,   0) ),
+    std::pair<Vector3, Vector3>( Vector3(-16, -16, -36), Vector3( 16,  16,  36) ),
+    std::pair<Vector3, Vector3>( Vector3(-32, -32, -32), Vector3( 32,  32,  32) ),
+    std::pair<Vector3, Vector3>( Vector3(-16, -16, -18), Vector3( 16,  16,  18) ),
+};
+
 bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
 {
 	const float epsilon = 0.01;

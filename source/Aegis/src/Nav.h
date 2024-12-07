@@ -32,15 +32,15 @@ public:
 private:
     World* world;
 
-    std::vector<navnode_t> surfs;
+    std::vector<navnode_t> surfs[4];
 
     const float maxslope = 0.45;
 
-    void FindSurfs(void);
-    void FindEdges(void);
+    void FindSurfs(int hull);
+    void FindEdges(int hull);
 
-    void NavSurfsFromSurf(struct surf_t* surf);
-    bool SurfQualifies(struct surf_t* surf);
+    std::vector<navnode_t> Expand(int hull);
+    bool SurfQualifies(navnode_t* surf);
     void DrawSurf(navnode_t* surf);
     bool SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4);
 

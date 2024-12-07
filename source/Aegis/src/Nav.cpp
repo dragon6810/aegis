@@ -71,30 +71,30 @@ bool Nav::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 }
 
 // Please update use this to use a hashmap this is super slow
-void Nav::FindEdges(void)
+void Nav::FindEdges(int hull)
 {
     int i, j, cur, next, _cur, _next;
     bool found;
 
-    for(i=0; i<surfs.size(); i++)
+    for(i=0; i<surfs[hull].size(); i++)
     {
-        for(j=i+1; j<surfs.size(); j++)
+        for(j=i+1; j<surfs[hull].size(); j++)
         {
             found = false;
 
-            for(cur=0; cur<surfs[i].points.size(); cur++)
+            for(cur=0; cur<surfs[hull][i].points.size(); cur++)
             {
-                next = (cur + 1) % surfs[i].points.size();
+                next = (cur + 1) % surfs[hull][i].points.size();
 
-                for(_cur=0; _cur<surfs[j].points.size(); _cur++)
+                for(_cur=0; _cur<surfs[hull][j].points.size(); _cur++)
                 {
-                    _next = (_cur + 1) % surfs[j].points.size();
+                    _next = (_cur + 1) % surfs[hull][j].points.size();
 
-                    if(!SameEdge(surfs[i].points[cur], surfs[i].points[next], surfs[j].points[_cur], surfs[j].points[_next]))
+                    if(!SameEdge(surfs[hull][i].points[cur], surfs[hull][i].points[next], surfs[hull][j].points[_cur], surfs[hull][j].points[_next]))
                         continue;
 
-                    surfs[i].edges.push_back(&surfs[j]);
-                    surfs[j].edges.push_back(&surfs[i]);
+                    surfs[hull][i].edges.push_back(&surfs[hull][j]);
+                    surfs[hull][j].edges.push_back(&surfs[hull][i]);
 
                     found = true;
                     break;
@@ -137,71 +137,81 @@ std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
     return tris;
 }
 
-bool Nav::SurfQualifies(struct surf_t* surf)
+bool Nav::SurfQualifies(navnode_t* node)
 {
     float maxangle, maxcos;
 
     maxangle = atanf(maxslope);
     maxcos = cosf(maxangle);
 
-    return Vector3::Dot(surf->pl->n, Vector3(0, 0, 1)) > maxcos;
+    return Vector3::Dot(node->normal, Vector3(0, 0, 1)) > maxcos;
 }
 
-void Nav::NavSurfsFromSurf(struct surf_t* surf)
+std::vector<navnode_t> Nav::Expand(int hull)
 {
-    int i, j;
+    int i, j, k;
+    navnode_t curnode;
 
+    std::vector<navnode_t> nodes;
+    std::vector<navnode_t> realnodes;
     std::vector<Vector3> vertices;
     std::vector<std::array<Vector3, 3>> tris;
 
-    navnode_t node;
-
-    vertices.resize(surf->vertices.size());
-    for(i=0; i<surf->vertices.size(); i++)
-        vertices[i] = *surf->vertices[i];
-
-    tris = EarClip(vertices);
-
-    for(i=0; i<tris.size(); i++)
+    vertices = world->verts;
+    nodes.resize(world->surfs.size());
+    for(i=0; i<world->surfs.size(); i++)
     {
-        node.points.resize(3);
-        node.points[0] = tris[i][0];
-        node.points[1] = tris[i][1];
-        node.points[2] = tris[i][2];
-        node.normal = surf->pl->n;
-        
-        for(j=0; j<3; j++)
-            node.center[j] = (node.points[0][j] + node.points[1][j] + node.points[2][j]) / 3.0;
-
-        surfs.push_back(node);
+        nodes[i].points.resize(world->surfs[i].vertices.size());
+        for(j=0; j<nodes[i].points.size(); j++)
+            nodes[i].points[j] = *world->surfs[i].vertices[j];
+        nodes[i].normal = world->surfs[i].pl->n;
     }
+
+    for(i=0; i<nodes.size(); i++)
+    {
+        if(!SurfQualifies(&nodes[i]))
+            continue;
+
+        tris = EarClip(nodes[i].points);
+        for(j=0; j<tris.size(); j++)
+        {
+            curnode.normal = nodes[i].normal;
+            curnode.edges.clear();
+
+            curnode.center = Vector3(0, 0, 0);
+            curnode.points.resize(3);
+            for(k=0; k<3; k++)
+            {
+                curnode.points[k] = tris[j][k];
+                curnode.center = curnode.center + tris[j][k];
+            }
+            curnode.center = curnode.center / 3.0;
+            realnodes.push_back(curnode);
+        }
+    }
+
+    return realnodes;
 }
 
-void Nav::FindSurfs(void)
+void Nav::FindSurfs(int hull)
 {
     int i;
 
-    for(i=0; i<world->surfs.size(); i++)
-    {
-        if(!SurfQualifies(&world->surfs[i]))
-            continue;
-
-        NavSurfsFromSurf(&world->surfs[i]);
-    }
+    surfs[hull] = Expand(hull);
 }
 
 void Nav::Render(void)
 {
     int i;
 
-    for(i=0; i<surfs.size(); i++)
-        DrawSurf(&surfs[i]);
+    for(i=0; i<surfs[0].size(); i++)
+        DrawSurf(&surfs[0][i]);
 }
 
 void Nav::Initialize(World* world)
 {
     this->world = world;
 
-    FindSurfs();
-    FindEdges();
+    FindSurfs(0);
+    FindEdges(0);
 }

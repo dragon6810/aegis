@@ -11,6 +11,8 @@
 #include "EntityBase.h"
 #include "Nav.h"
 
+#define NHULLS 4
+
 #define CONTENTS_EMPTY -1
 #define CONTENTS_SOLID -2
 
@@ -93,7 +95,9 @@ private:
 		LUMP_MODELS=       14,
 	};
 public:
-	std::vector<std::shared_ptr<EntityBase>> entities;
+    static std::array<std::pair<Vector3, Vector3>, 4> hulls;
+    
+    std::vector<std::shared_ptr<EntityBase>> entities;
 	std::shared_ptr<EntityCamera> camera;
 
 	std::vector<hullnode_t> clipnodes;
