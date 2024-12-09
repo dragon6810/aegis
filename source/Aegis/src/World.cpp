@@ -189,6 +189,119 @@ void World::LoadEntities(FILE* ptr)
 		entities[i] = LoadEntity(ents[i]);
 }
 
+std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side)
+{
+    int i;
+    
+    int firstout, firstin;
+    float d1, d2;
+
+    if(side)
+    {
+        n = n * -1;
+        d = -d;
+    }
+
+    for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
+        d2 = Vector3::Dot(points[i], n) - d;
+    }
+
+    return {};
+}
+
+std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
+{
+    const float maxrange = 8192;
+
+    int i;
+
+    int axis;
+    float curaxis, maxaxis;
+    Vector3 up, right;
+    bool rev;
+
+    axis = -1;
+    maxaxis = 0;
+    for(i=0; i<3; i++)
+    {
+        curaxis = fabsf(n[i]);
+        if(curaxis > maxaxis)
+        {
+            axis = i;
+            maxaxis = curaxis;
+            rev = n[i] < 0;
+        }
+    }
+    if(axis < 0)
+        return {};
+
+    up = right = Vector3();
+    switch(axis)
+    {
+    case 0:
+        up[2] = 1;
+        right[1] = -1;
+        break;
+    case 1:
+        up[2] = 1;
+        right[0] = 1;
+        break;
+    case 2:
+        up[0] = 1;
+        right[1] = 1;
+        break;
+    default:
+        break;
+    }
+
+    if(rev)
+        right = right * -1;
+
+    return
+    {
+        up *  maxrange + right *  maxrange,
+        up *  maxrange + right * -maxrange, 
+        up * -maxrange + right * -maxrange,
+        up * -maxrange + right *  maxrange
+    };
+}
+
+void World::LoadSurfs_r(std::vector<hullnode_t*> parents, hullnode_t* curnode)
+{
+    int i;
+
+    surf_t newsurf;
+
+    parents.push_back(curnode);    
+    for(i=0; i<2; i++)
+    {
+        if(curnode->children[i] < 0)
+            continue;
+        
+        LoadSurfs_r(parents, &clipnodes[curnode->children[i]]);
+    }
+}
+
+void World::LoadHullSurfs(FILE* ptr)
+{
+    int i;
+
+    int lumpoffs, lumpsize;
+    int index;
+
+    fseek(ptr, 4 + LUMP_MODELS * 8, SEEK_SET);
+    fread(&lumpoffs, sizeof(int), 1, ptr);
+    fread(&lumpsize, sizeof(int), 1, ptr);
+    fseek(ptr, lumpoffs + 36 + sizeof(int), SEEK_SET);
+    for(i=1; i<NHULLS; i++)
+    {
+        fread(&index, sizeof(int), 1, ptr);
+        LoadSurfs_r({}, &clipnodes[index]);
+    }
+}
+
 void World::LoadClipnodes(FILE* ptr)
 {
 	int i, j;
@@ -215,6 +328,9 @@ void World::LoadClipnodes(FILE* ptr)
 	{
 		fread(&iplane, sizeof(int), 1, ptr);
 		fread(curnode->children, sizeof(short), 2, ptr);
+
+        if(curnode->children[0] == 30305 || curnode->children[1] == 30305)
+            Console::Print("uh oh\n");
 
 		curnode->pl = &planes[iplane];
 	}
@@ -275,7 +391,7 @@ void World::LoadNodes(FILE* ptr)
 		fread(&nfaces, sizeof(short), 1, ptr);
 		curnode->surfs.resize(nfaces);
 		for(j=0; j<nfaces; j++)
-			curnode->surfs[j] = &surfs[j + firstface];
+			curnode->surfs[j] = &surfs[0][j + firstface];
 	}
 }
 
@@ -331,7 +447,7 @@ void World::LoadLeafs(FILE* ptr)
 			fseek(ptr, lumpoffs + (j + firstmsurf) * sizeof(short), SEEK_SET);
 
 			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->surfs[j] = &surfs[misc];
+			curleaf->surfs[j] = &surfs[0][misc];
 		}
 
 		fseek(ptr, before, SEEK_SET);
@@ -358,17 +474,16 @@ void World::LoadSurfs(FILE* ptr)
 	fread(&lumpoffs, sizeof(int), 1, ptr);
 	fread(&lumpsize, sizeof(int), 1, ptr);
 	nsurfs = lumpsize / 20;
-	surfs.resize(nsurfs);
+	surfs[0].resize(nsurfs);
 
 	Console::Print("Surf Count: %d.\n", nsurfs);
 
 	fseek(ptr, lumpoffs, SEEK_SET);
-	for(i=0, cursurf=surfs.data(); i<nsurfs; i++, cursurf++)
+	for(i=0, cursurf=surfs[0].data(); i<nsurfs; i++, cursurf++)
 	{
 		misc = 0;
 		fread(&misc, sizeof(short), 1, ptr);
 		cursurf->pl = &planes[misc];
-        cursurf->ipl = misc;
 		fread(&misc, sizeof(short), 1, ptr);
 		cursurf->reverse = misc;
 		fread(&firstedge, sizeof(int), 1, ptr);
@@ -376,7 +491,6 @@ void World::LoadSurfs(FILE* ptr)
 
 		before = ftell(ptr);
 		cursurf->vertices.resize(nedges);
-		cursurf->ivertices.resize(nedges);
         for(j=0; j<nedges; j++)
 		{
 			fseek(ptr, 4 + LUMP_SURFEDGES * 8, SEEK_SET);
@@ -396,7 +510,6 @@ void World::LoadSurfs(FILE* ptr)
 			fread(&misc, sizeof(short), 1, ptr);
 
 			cursurf->vertices[j] = &verts[misc];
-		    cursurf->ivertices[j] = misc;
         }
 
 		fseek(ptr, before, SEEK_SET);
@@ -603,6 +716,7 @@ bool World::Load(std::string name)
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
 	LoadClipnodes(ptr);
+    LoadHullSurfs(ptr);
 
 	nav.Initialize(this);
 
@@ -654,8 +768,8 @@ void World::Render(void)
 	glEnd();
 	glColor3f(1, 1, 1);
 
-	for(i=0; i<surfs.size(); i++)
-		RenderSurf(&surfs[i]);
+	for(i=0; i<surfs[0].size(); i++)
+		RenderSurf(&surfs[0][i]);
 
     for(i=0; i<entities.size(); i++)
     {

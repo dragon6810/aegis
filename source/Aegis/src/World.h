@@ -36,10 +36,8 @@ struct texinfo_t
 struct surf_t
 {
 	plane_t *pl;
-	int ipl;
     bool reverse;
 	std::vector<Vector3*> vertices;
-    std::vector<int> ivertices;
     texinfo_t *tex;
 };
 
@@ -105,7 +103,7 @@ public:
 	std::vector<hullnode_t> clipnodes;
 	std::vector<node_t> 		nodes;
 	std::vector<leaf_t>   		leafs; // Ehhhh
-	std::vector<surf_t>   		surfs;
+	std::vector<surf_t>   		surfs[4];
 	std::vector<Vector3>  		verts;
 	std::vector<plane_t> 	   planes; // You broke the 4-letter synergy, man!
 	std::vector<texinfo_t> 	 texinfos;
@@ -134,8 +132,13 @@ private:
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
 	void LoadClipnodes(FILE* ptr);
+    void LoadHullSurfs(FILE* ptr);
+
+    void LoadSurfs_r(std::vector<hullnode_t*> parents, hullnode_t* curnode);
+    std::vector<Vector3> BaseWindingForPlane(Vector3 n, float d);
+	std::vector<Vector3> ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side);
 	
-	// Entity Loading
+    // Entity Loading
 	void LoadEntities(FILE* ptr);
 	std::shared_ptr<EntityBase> LoadEntity(const std::unordered_map<std::string, std::string>& pairs);
 

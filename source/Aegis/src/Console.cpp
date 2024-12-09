@@ -14,10 +14,11 @@
 void Console::Print(const char* format, ...)
 {
     va_list args;
-    char buffer[1024];
+    char buffer[8192];
+    int len;
 
     va_start(args, format);
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    len = vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
 
     printf("%s", buffer);

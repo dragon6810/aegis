@@ -154,56 +154,16 @@ std::vector<navnode_t> Nav::Expand(int hull)
 
     std::vector<navnode_t> nodes;
     std::vector<navnode_t> realnodes;
-    std::vector<Vector3> vertices;
-    std::vector<plane_t> planes;
-    std::vector<surf_t> surfs;
     std::vector<std::array<Vector3, 3>> tris;
-    std::vector<std::vector<bool>> vplanes;
-    Vector3 offset;
 
-    vertices = world->verts;
-    surfs = world->surfs;
-    planes = world->planes;
-    vplanes.resize(vertices.size());
-    for(i=0; i<vplanes.size(); i++)
-        vplanes[i].resize(planes.size());
-    for(i=0; i<surfs.size(); i++)
-    {
-        offset = Vector3();
-        for(j=0; j<3; j++)
-        {
-            if(planes[surfs[i].ipl].n[j] == 0)
-                continue;
-
-            if(planes[surfs[i].ipl].n[j] < 0)
-                k = 0;
-            if(planes[surfs[i].ipl].n[j] > 0)
-                k = 1;
-
-            offset[j] = World::hulls[hull][k][j];
-        }
-
-        for(j=0; j<surfs[i].ivertices.size(); j++)
-        {
-            if(vplanes[surfs[i].ivertices[j]][surfs[i].ipl])
-                continue;
-            vplanes[surfs[i].ivertices[j]][surfs[i].ipl] = true;
-
-            vertices[surfs[i].ivertices[j]] = vertices[surfs[i].ivertices[j]] + planes[surfs[i].ipl].n * Vector3::Dot(offset, planes[surfs[i].ipl].n);
-        }
-    }
-
-    nodes.resize(surfs.size());
-    for(i=0; i<surfs.size(); i++)
-    {
-        nodes[i].points.resize(surfs[i].vertices.size());
-        for(j=0; j<nodes[i].points.size(); j++)
-            nodes[i].points[j] = vertices[surfs[i].ivertices[j]];
-        nodes[i].normal = planes[surfs[i].ipl].n;
-    }
-
+    nodes.resize(world->surfs[hull].size());
     for(i=0; i<nodes.size(); i++)
     {
+        nodes[i].points.resize(world->surfs[hull][i].vertices.size());
+        for(j=0; j<nodes[i].points.size(); j++)
+            nodes[i].points[j] = *world->surfs[hull][i].vertices[j];
+        nodes[i].normal = world->surfs[hull][i].pl->n;
+        
         if(!SurfQualifies(&nodes[i]))
             continue;
 
@@ -239,14 +199,14 @@ void Nav::Render(void)
 {
     int i;
 
-    for(i=0; i<surfs[1].size(); i++)
-        DrawSurf(&surfs[1][i]);
+    for(i=0; i<surfs[0].size(); i++)
+        DrawSurf(&surfs[0][i]);
 }
 
 void Nav::Initialize(World* world)
 {
     this->world = world;
 
-    FindSurfs(1);
-    FindEdges(1);
+    FindSurfs(0);
+    FindEdges(0);
 }
