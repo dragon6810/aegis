@@ -2,6 +2,7 @@
 
 #include <c_math.h>
 #include <c_string.h>
+#include <cassert>
 
 #include "Command.h"
 #include "Console.h"
@@ -269,11 +270,9 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
 	cur = firstout;
 	d1 = Vector3::Dot(points[last], n) - d;
 	d2 = Vector3::Dot(points[cur], n) - d;
-	if(d1 - d2 == 0)
-	{
-		Console::Print("World::ClipToPlane: firstout describes segment which is parallel to plane.\n");
-		abort();
-	}
+	
+	assert(d1 - d2 != 0);
+
 	t = -d1 / (d2 - d1);
 	points[cur] = Vector3::Lerp(points[last], points[cur], t);
 
@@ -281,11 +280,9 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
 	last = firstin;
 	d1 = Vector3::Dot(points[last], n) - d;
 	d2 = Vector3::Dot(points[cur], n) - d;
-	if(d1 - d2 == 0)
-	{
-		Console::Print("World::ClipToPlane: firstin describes segment which is parallel to plane.\n");
-		abort();
-	}
+	
+	assert(d1 - d2 != 0);
+	
 	t = -d1 / (d2 - d1);
 	points[cur] = Vector3::Lerp(points[last], points[cur], t);
 
@@ -312,12 +309,14 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
 std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
 {
     const float maxrange = 8192;
+	const float epsilon = 0.01;
 
     int i;
 
     int axis;
     float curaxis, maxaxis;
     Vector3 up, right, origin;
+	std::vector<Vector3> winding;
     bool rev;
 
     axis = -1;
@@ -354,21 +353,30 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
         break;
     }
 
+	up = up - n * Vector3::Dot(up, n);
+    up.Normalize();
+    right = right - n * Vector3::Dot(right, n);
+    right.Normalize();
+
     if(rev)
         right = right * -1;
 
 	origin = n * d;
 
-    return
-    {
-        up *  maxrange + right *  maxrange + origin,
-        up *  maxrange + right * -maxrange + origin, 
-        up * -maxrange + right * -maxrange + origin,
-        up * -maxrange + right *  maxrange + origin,
-    };
+	winding.resize(4);
+	winding[0] = up *  maxrange + right *  maxrange + origin;
+    winding[1] = up *  maxrange + right * -maxrange + origin;
+    winding[2] = up * -maxrange + right * -maxrange + origin;
+    winding[3] = up * -maxrange + right *  maxrange + origin;
+
+	assert(fabsf(Vector3::Dot(winding[0], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[1], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[2], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[3], n) - d) < epsilon);
+
+	return winding;
 }
 
-int testcount = 0;
 void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull)
 {
     int i, j;
@@ -381,7 +389,8 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	float d;
     hullsurf_t newsurf;
 
-	testcount++;
+	if(icurnode == CONTENTS_SOLID)
+		return;
 
 	for(i=0; i<parents.size()-1; i++)
 	{
@@ -402,9 +411,6 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 
 	if(icurnode < 0)
 	{
-		if(icurnode == CONTENTS_SOLID)
-			return;
-
 		for(i=0; i<parents.size(); i++)
 			hullsurfs[ihull].push_back(parents[i]);
 
@@ -415,9 +421,6 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	newsurf.points = BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
 	newsurf.node = curnode;
 
-	if(testcount == 62)
-		printf("break here\n");
-
 	for(i=0; i<parents.size(); i++)
 	{
 		n = parents[i].node->pl->n;
@@ -426,8 +429,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		newsurf.points = ClipToPlane(newsurf.points, n, d, parents[i].flip);
 	}
 
-	if(!newsurf.points.size())
-		printf("problem at %d.\n", testcount);
+	assert(newsurf.points.size() != 0);
 
 	newsurf.flip = false;
     parents.push_back(newsurf);
@@ -436,6 +438,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		// Clip to front instead
 		if(i)
 			parents[parents.size() - 1].flip = true;
+
         LoadSurfs_r(parents, curnode->children[i], ihull);
     }
 }
@@ -921,8 +924,8 @@ void World::Render(void)
 	glEnd();
 	glColor3f(1, 1, 1);
 
-	for(i=0; i<surfs.size(); i++)
-		RenderSurf(&surfs[i]);
+	//for(i=0; i<surfs.size(); i++)
+	//	RenderSurf(&surfs[i]);
 
     for(i=0; i<entities.size(); i++)
     {
