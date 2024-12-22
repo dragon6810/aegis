@@ -90,6 +90,23 @@ traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 	return trace;
 }
 
+int World::GetContents(Vector3 pos, int node)
+{
+	float d;
+	hullnode_t *curnode;
+
+	if(node < 0)
+		return node;
+
+	curnode = &clipnodes[node];
+	d = Vector3::Dot(pos, curnode->pl->n) - curnode->pl->d;
+
+	if(d > 0)
+		return GetContents(pos, curnode->children[1]);
+
+	return GetContents(pos, curnode->children[0]);
+}
+
 std::shared_ptr<EntityBase> World::LoadEntity(const std::unordered_map<std::string, std::string>& pairs)
 {
 	std::string classname;
@@ -383,9 +400,8 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	Vector3 a, b, n;
 	float d;
     hullsurf_t newsurf;
-
-	if(icurnode == CONTENTS_SOLID)
-		return;
+	int contents[2];
+	Vector3 center;
 
 	for(i=0; i<parents.size()-1; i++)
 	{
@@ -407,7 +423,25 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	if(icurnode < 0)
 	{
 		for(i=0; i<parents.size(); i++)
+		{
+			// This code for checking if its a boundary portal is stupid and hacky and slow and bad.
+			// Please replace with a better solution later, probably while constructing a graph reperesentation of the
+			// space which is useful anyway.
+
+			center = Vector3();
+
+			for(j=0; j<parents[i].points.size(); j++)
+				center = center + parents[i].points[j];
+			center = center / parents[i].points.size();
+
+			contents[0] = GetContents(center - parents[i].node->pl->n, headnodes[ihull]);
+			contents[1] = GetContents(center + parents[i].node->pl->n, headnodes[ihull]);
+
+			if(contents[0] == contents[1])
+				continue;
+
 			hullsurfs[ihull].push_back(parents[i]);
+		}
 
 		return;
 	}
@@ -448,10 +482,11 @@ void World::LoadHullSurfs(FILE* ptr)
     fseek(ptr, 4 + LUMP_MODELS * 8, SEEK_SET);
     fread(&lumpoffs, sizeof(int), 1, ptr);
     fread(&lumpsize, sizeof(int), 1, ptr);
-    fseek(ptr, lumpoffs + 36 + sizeof(int), SEEK_SET);
+    fseek(ptr, lumpoffs + 36, SEEK_SET);
     for(i=0; i<NHULLS; i++)
     {
         fread(&index, sizeof(int), 1, ptr);
+		headnodes[i] = index;
         LoadSurfs_r({}, index, i);
     }
 }
@@ -919,8 +954,8 @@ void World::Render(void)
 	glEnd();
 	glColor3f(1, 1, 1);
 
-	//for(i=0; i<surfs.size(); i++)
-	//	RenderSurf(&surfs[i]);
+	for(i=0; i<surfs.size(); i++)
+		RenderSurf(&surfs[i]);
 
     for(i=0; i<entities.size(); i++)
     {

@@ -107,6 +107,8 @@ public:
     std::vector<std::shared_ptr<EntityBase>> entities;
 	std::shared_ptr<EntityCamera> camera;
 
+	int headnodes[4];
+
 	std::vector<hullnode_t> clipnodes;
 	std::vector<node_t> 		nodes;
 	std::vector<leaf_t>   		leafs; // Ehhhh
@@ -126,6 +128,7 @@ public:
     void Tick(void);
 
 	traceresult_t TraceDir(int headnode, Vector3 start, Vector3 end);
+	int GetContents(Vector3 pos, int node);
 private:
 	std::string wadpath;
 	std::vector<Wad> wads;
