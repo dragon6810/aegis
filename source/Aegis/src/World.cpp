@@ -214,16 +214,16 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
     {
         d1 = Vector3::Dot(points[i], n) - d;
 		
-		if(side == 0)
+		if(firstside == 0)
 		{
 			if(d1 < -epsilon)
-				side = -1;
+				firstside = -1;
 			if(d1 > epsilon)
-				side = 1;
+				firstside = 1;
 
 			continue;
 		}
-		if(d1 * side < -epsilon)
+		if(d1 * firstside < -epsilon)
 		{
 			sameside = false;
 			break;
@@ -232,7 +232,7 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
 
 	if(sameside)
 	{
-		if(side < 1)
+		if(firstside < 1)
 			return points;
 
 		return {};
@@ -244,20 +244,9 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
         d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
         d2 = Vector3::Dot(points[i], n) - d;
 
-		// d1 lies on plane, but we know polygon crosses
-		if((d1 < epsilon) && (d1 > -epsilon))
-		{
-			if(d2 > epsilon)
-				firstout = i;
-			if(d2 < -epsilon)
-				firstin =  i;
-
-			continue;
-		}
-
-		if((d1 < -epsilon) && (d2 > epsilon))
+		if((d1 < epsilon) && (d2 > epsilon))
 			firstout = i;
-		if((d2 < -epsilon) && (d1 > epsilon))
+		if((d2 < epsilon) && (d1 > epsilon))
 			firstin = i;
     }
 
@@ -300,10 +289,19 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
 	t = -d1 / (d2 - d1);
 	points[cur] = Vector3::Lerp(points[last], points[cur], t);
 
+	firstin = (firstin - 1 + points.size()) % points.size();
 	for(i=0; i<points.size(); i++)
 	{
-		if(i < firstin && i > firstout)
-			continue;
+		if(firstout < firstin)
+		{
+			if((i < firstin) && (i > firstout))
+				continue;
+		}
+		if(firstin < firstout)
+		{
+			if((i < firstin) || (i > firstout))
+				continue;
+		}
 
 		newpoints.push_back(points[i]);
 	}
@@ -319,7 +317,7 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
 
     int axis;
     float curaxis, maxaxis;
-    Vector3 up, right;
+    Vector3 up, right, origin;
     bool rev;
 
     axis = -1;
@@ -359,15 +357,18 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
     if(rev)
         right = right * -1;
 
+	origin = n * d;
+
     return
     {
-        up *  maxrange + right *  maxrange ,
-        up *  maxrange + right * -maxrange, 
-        up * -maxrange + right * -maxrange,
-        up * -maxrange + right *  maxrange
+        up *  maxrange + right *  maxrange + origin,
+        up *  maxrange + right * -maxrange + origin, 
+        up * -maxrange + right * -maxrange + origin,
+        up * -maxrange + right *  maxrange + origin,
     };
 }
 
+int testcount = 0;
 void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull)
 {
     int i, j;
@@ -380,6 +381,8 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	float d;
     hullsurf_t newsurf;
 
+	testcount++;
+
 	for(i=0; i<parents.size()-1; i++)
 	{
 		if(!parents.size())
@@ -387,13 +390,14 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 
 		n = parents[parents.size()-1].node->pl->n;
 		d = parents[parents.size()-1].node->pl->d;
-		if(parents[parents.size()-1].flip)
-		{
-			n = n * -1;
-			d = -d;
-		}
 
-		parents[i].points = ClipToPlane(parents[i].points, n, d, 0);
+		parents[i].points = ClipToPlane(parents[i].points, n, d, parents[parents.size()-1].flip);
+
+		if(parents[i].points.size())
+			continue;
+
+		parents.erase(parents.begin() + i);
+		i--;
 	}
 
 	if(icurnode < 0)
@@ -402,12 +406,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 			return;
 
 		for(i=0; i<parents.size(); i++)
-		{
-			if(!parents[i].points.size())
-				continue;
-
 			hullsurfs[ihull].push_back(parents[i]);
-		}
 
 		return;
 	}
@@ -416,44 +415,28 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	newsurf.points = BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
 	newsurf.node = curnode;
 
-	for(i=0; i<parents.size(); i++)
-	{
-		if(!parents[i].points.size())
-			continue;
-
-		n = parents[i].node->pl->n;
-		d = parents[i].node->pl->d;
-		if(parents[i].flip)
-		{
-			n = n * -1;
-			d = -d;
-		}
-
-		newsurf.points = ClipToPlane(newsurf.points, n, d, 0);
-	}
+	if(testcount == 62)
+		printf("break here\n");
 
 	for(i=0; i<parents.size(); i++)
 	{
 		n = parents[i].node->pl->n;
 		d = parents[i].node->pl->d;
-		if(parents[i].flip)
-		{
-			n = n * -1;
-			d = -d;
-		}
 
-		parents[i].points = ClipToPlane(parents[i].points, n, d, 0);
+		newsurf.points = ClipToPlane(newsurf.points, n, d, parents[i].flip);
 	}
 
-	newsurfs = parents;
+	if(!newsurf.points.size())
+		printf("problem at %d.\n", testcount);
+
 	newsurf.flip = false;
-    newsurfs.push_back(newsurf);
+    parents.push_back(newsurf);
     for(i=0; i<2; i++)
     {   
 		// Clip to front instead
 		if(i)
-			newsurfs[newsurfs.size() - 1].flip = true;
-        LoadSurfs_r(newsurfs, curnode->children[i], ihull);
+			parents[parents.size() - 1].flip = true;
+        LoadSurfs_r(parents, curnode->children[i], ihull);
     }
 }
 
