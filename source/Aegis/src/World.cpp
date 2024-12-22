@@ -317,7 +317,6 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
     float curaxis, maxaxis;
     Vector3 up, right, origin;
 	std::vector<Vector3> winding;
-    bool rev;
 
     axis = -1;
     maxaxis = 0;
@@ -328,7 +327,6 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
         {
             axis = i;
             maxaxis = curaxis;
-            rev = n[i] < 0;
         }
     }
     if(axis < 0)
@@ -339,15 +337,12 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
     {
     case 0:
         up[2] = 1;
-        right[1] = -1;
         break;
     case 1:
         up[2] = 1;
-        right[0] = 1;
         break;
     case 2:
         up[0] = 1;
-        right[1] = 1;
         break;
     default:
         break;
@@ -355,19 +350,19 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
 
 	up = up - n * Vector3::Dot(up, n);
     up.Normalize();
-    right = right - n * Vector3::Dot(right, n);
-    right.Normalize();
+	assert(up != n);
 
-    if(rev)
-        right = right * -1;
+    right = Vector3::Cross(up, n);
 
 	origin = n * d;
+	up = up * maxrange;
+	right = right * maxrange;
 
 	winding.resize(4);
-	winding[0] = up *  maxrange + right *  maxrange + origin;
-    winding[1] = up *  maxrange + right * -maxrange + origin;
-    winding[2] = up * -maxrange + right * -maxrange + origin;
-    winding[3] = up * -maxrange + right *  maxrange + origin;
+	winding[0] = origin + up + right;
+	winding[1] = origin + up - right;
+	winding[2] = origin - up - right;
+	winding[3] = origin - up + right;
 
 	assert(fabsf(Vector3::Dot(winding[0], n) - d) < epsilon);
 	assert(fabsf(Vector3::Dot(winding[1], n) - d) < epsilon);
