@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Aegis)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -31,7 +31,19 @@ add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/World.cpp" "s
 
 set_target_properties(Aegis PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
+find_program(CPPCHECK cppcheck)
+if(CPPCHECK)
+    add_custom_target(run-cppcheck
+        COMMAND ${CPPCHECK} --enable=all --inconclusive --quiet ${CMAKE_SOURCE_DIR}
+        COMMENT "Running static analysis with Cppcheck"
+        VERBATIM)
+endif()
+
 if (APPLE)
+    if (DEBUG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    endif()
+
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
     find_package(SFML COMPONENTS system audio REQUIRED)

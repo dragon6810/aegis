@@ -31,13 +31,13 @@ bool Command::CommandBind(std::string val)
     std::string key, cmd;
 
     i = 0;
-    while (val[i] > 32 && i < val.size())
+    while (i < val.size() && val[i] > 32)
     {
         key.push_back(val[i]);
         i++;
     }
 
-    while (val[i] <= 32 && i < val.size())
+    while (i < val.size() && val[i] <= 32)
         i++;
 
     while (i < val.size())

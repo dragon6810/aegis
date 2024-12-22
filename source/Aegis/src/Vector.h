@@ -42,6 +42,7 @@ public:
     std::string ToString(void);
 
     static float Dot(Vector3 a, Vector3 b);
+    static Vector3 Cross(Vector3 a, Vector3 b);
     static Vector3 Lerp(Vector3 a, Vector3 b, float t);
 
     float SqrLength(void);

@@ -64,6 +64,13 @@ struct hullnode_t
 	short children[2];
 };
 
+struct hullsurf_t
+{
+	std::vector<Vector3> points;
+	hullnode_t *node;
+	bool flip;
+};
+
 struct traceresult_t
 {
 	bool didhit;
@@ -103,7 +110,8 @@ public:
 	std::vector<hullnode_t> clipnodes;
 	std::vector<node_t> 		nodes;
 	std::vector<leaf_t>   		leafs; // Ehhhh
-	std::vector<surf_t>   		surfs[4];
+	std::vector<surf_t>   		surfs;
+	std::vector<hullsurf_t> hullsurfs[4];
 	std::vector<Vector3>  		verts;
 	std::vector<plane_t> 	   planes; // You broke the 4-letter synergy, man!
 	std::vector<texinfo_t> 	 texinfos;
@@ -134,7 +142,7 @@ private:
 	void LoadClipnodes(FILE* ptr);
     void LoadHullSurfs(FILE* ptr);
 
-    void LoadSurfs_r(std::vector<hullnode_t*> parents, hullnode_t* curnode);
+    void LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull);
     std::vector<Vector3> BaseWindingForPlane(Vector3 n, float d);
 	std::vector<Vector3> ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side);
 	

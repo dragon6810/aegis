@@ -167,7 +167,8 @@ void World::LoadEntities(FILE* ptr)
 		{
 			if(*c == '\n')
 			{
-				key[0] = val[0] = 0;
+				memset(key, 0, sizeof(key));
+				memset(val, 0, sizeof(val));
 				if (sscanf(curstr.c_str(), "\"%[^\"]\" \"%[^\"]\"", key, val) != 2)
 				{
 					curstr.clear();
@@ -191,10 +192,15 @@ void World::LoadEntities(FILE* ptr)
 
 std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side)
 {
+	const float epsilon = 0.01;
+
     int i;
     
-    int firstout, firstin;
-    float d1, d2;
+    int firstout, firstin, firstside;
+	int last, cur;
+	bool sameside;
+    float d1, d2, t;
+	std::vector<Vector3> newpoints;
 
     if(side)
     {
@@ -202,13 +208,107 @@ std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, 
         d = -d;
     }
 
+	firstside = 0;
+	sameside = true;
+	for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[i], n) - d;
+		
+		if(side == 0)
+		{
+			if(d1 < -epsilon)
+				side = -1;
+			if(d1 > epsilon)
+				side = 1;
+
+			continue;
+		}
+		if(d1 * side < -epsilon)
+		{
+			sameside = false;
+			break;
+		}
+    }
+
+	if(sameside)
+	{
+		if(side < 1)
+			return points;
+
+		return {};
+	}
+
+	firstout = firstin = -1;
     for(i=0; i<points.size(); i++)
     {
         d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
         d2 = Vector3::Dot(points[i], n) - d;
+
+		// d1 lies on plane, but we know polygon crosses
+		if((d1 < epsilon) && (d1 > -epsilon))
+		{
+			if(d2 > epsilon)
+				firstout = i;
+			if(d2 < -epsilon)
+				firstin =  i;
+
+			continue;
+		}
+
+		if((d1 < -epsilon) && (d2 > epsilon))
+			firstout = i;
+		if((d2 < -epsilon) && (d1 > epsilon))
+			firstin = i;
     }
 
-    return {};
+	if(firstout == -1 || firstin == -1)
+	{
+		Console::Print("World::ClipToPlane: can't find either firstin or firstout (or both).\n");
+		abort();
+	}
+
+	if(firstout == ((firstin - 1 + points.size()) % points.size()))
+	{
+		points.insert(points.begin() + firstout, points[firstout]);
+		
+		// No need to mod since the array has grown
+		if(firstin > firstout)
+			firstin++;
+	}
+
+	last = (firstout - 1 + points.size()) % points.size();
+	cur = firstout;
+	d1 = Vector3::Dot(points[last], n) - d;
+	d2 = Vector3::Dot(points[cur], n) - d;
+	if(d1 - d2 == 0)
+	{
+		Console::Print("World::ClipToPlane: firstout describes segment which is parallel to plane.\n");
+		abort();
+	}
+	t = -d1 / (d2 - d1);
+	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+
+	cur = (firstin - 1 + points.size()) % points.size();
+	last = firstin;
+	d1 = Vector3::Dot(points[last], n) - d;
+	d2 = Vector3::Dot(points[cur], n) - d;
+	if(d1 - d2 == 0)
+	{
+		Console::Print("World::ClipToPlane: firstin describes segment which is parallel to plane.\n");
+		abort();
+	}
+	t = -d1 / (d2 - d1);
+	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+
+	for(i=0; i<points.size(); i++)
+	{
+		if(i < firstin && i > firstout)
+			continue;
+
+		newpoints.push_back(points[i]);
+	}
+
+    return newpoints;
 }
 
 std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
@@ -261,26 +361,99 @@ std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
 
     return
     {
-        up *  maxrange + right *  maxrange,
+        up *  maxrange + right *  maxrange ,
         up *  maxrange + right * -maxrange, 
         up * -maxrange + right * -maxrange,
         up * -maxrange + right *  maxrange
     };
 }
 
-void World::LoadSurfs_r(std::vector<hullnode_t*> parents, hullnode_t* curnode)
+void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull)
 {
-    int i;
+    int i, j;
 
-    surf_t newsurf;
+	std::vector<hullsurf_t> newverts;
+	std::vector<hullsurf_t> newsurfs;
+	hullsurf_t curverts, curnewverts;
+	hullnode_t *curnode;
+	Vector3 a, b, n;
+	float d;
+    hullsurf_t newsurf;
 
-    parents.push_back(curnode);    
+	for(i=0; i<parents.size()-1; i++)
+	{
+		if(!parents.size())
+			break;
+
+		n = parents[parents.size()-1].node->pl->n;
+		d = parents[parents.size()-1].node->pl->d;
+		if(parents[parents.size()-1].flip)
+		{
+			n = n * -1;
+			d = -d;
+		}
+
+		parents[i].points = ClipToPlane(parents[i].points, n, d, 0);
+	}
+
+	if(icurnode < 0)
+	{
+		if(icurnode == CONTENTS_SOLID)
+			return;
+
+		for(i=0; i<parents.size(); i++)
+		{
+			if(!parents[i].points.size())
+				continue;
+
+			hullsurfs[ihull].push_back(parents[i]);
+		}
+
+		return;
+	}
+
+	curnode = &clipnodes[icurnode];
+	newsurf.points = BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
+	newsurf.node = curnode;
+
+	for(i=0; i<parents.size(); i++)
+	{
+		if(!parents[i].points.size())
+			continue;
+
+		n = parents[i].node->pl->n;
+		d = parents[i].node->pl->d;
+		if(parents[i].flip)
+		{
+			n = n * -1;
+			d = -d;
+		}
+
+		newsurf.points = ClipToPlane(newsurf.points, n, d, 0);
+	}
+
+	for(i=0; i<parents.size(); i++)
+	{
+		n = parents[i].node->pl->n;
+		d = parents[i].node->pl->d;
+		if(parents[i].flip)
+		{
+			n = n * -1;
+			d = -d;
+		}
+
+		parents[i].points = ClipToPlane(parents[i].points, n, d, 0);
+	}
+
+	newsurfs = parents;
+	newsurf.flip = false;
+    newsurfs.push_back(newsurf);
     for(i=0; i<2; i++)
-    {
-        if(curnode->children[i] < 0)
-            continue;
-        
-        LoadSurfs_r(parents, &clipnodes[curnode->children[i]]);
+    {   
+		// Clip to front instead
+		if(i)
+			newsurfs[newsurfs.size() - 1].flip = true;
+        LoadSurfs_r(newsurfs, curnode->children[i], ihull);
     }
 }
 
@@ -295,10 +468,10 @@ void World::LoadHullSurfs(FILE* ptr)
     fread(&lumpoffs, sizeof(int), 1, ptr);
     fread(&lumpsize, sizeof(int), 1, ptr);
     fseek(ptr, lumpoffs + 36 + sizeof(int), SEEK_SET);
-    for(i=1; i<NHULLS; i++)
+    for(i=0; i<NHULLS; i++)
     {
         fread(&index, sizeof(int), 1, ptr);
-        LoadSurfs_r({}, &clipnodes[index]);
+        LoadSurfs_r({}, index, i);
     }
 }
 
@@ -317,7 +490,7 @@ void World::LoadClipnodes(FILE* ptr)
 	fseek(ptr, 4 + LUMP_CLIPNODES * 8, SEEK_SET);
 	fread(&lumpoffs, sizeof(int), 1, ptr);
 	fread(&lumpsize, sizeof(int), 1, ptr);
-	nclipnodes = lumpsize / 24;
+	nclipnodes = lumpsize / 8;
 	clipnodes.resize(nclipnodes);
 
 	Console::Print("Clipnode Count: %d.\n", nclipnodes);
@@ -328,9 +501,6 @@ void World::LoadClipnodes(FILE* ptr)
 	{
 		fread(&iplane, sizeof(int), 1, ptr);
 		fread(curnode->children, sizeof(short), 2, ptr);
-
-        if(curnode->children[0] == 30305 || curnode->children[1] == 30305)
-            Console::Print("uh oh\n");
 
 		curnode->pl = &planes[iplane];
 	}
@@ -391,7 +561,7 @@ void World::LoadNodes(FILE* ptr)
 		fread(&nfaces, sizeof(short), 1, ptr);
 		curnode->surfs.resize(nfaces);
 		for(j=0; j<nfaces; j++)
-			curnode->surfs[j] = &surfs[0][j + firstface];
+			curnode->surfs[j] = &surfs[j + firstface];
 	}
 }
 
@@ -447,7 +617,7 @@ void World::LoadLeafs(FILE* ptr)
 			fseek(ptr, lumpoffs + (j + firstmsurf) * sizeof(short), SEEK_SET);
 
 			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->surfs[j] = &surfs[0][misc];
+			curleaf->surfs[j] = &surfs[misc];
 		}
 
 		fseek(ptr, before, SEEK_SET);
@@ -474,12 +644,12 @@ void World::LoadSurfs(FILE* ptr)
 	fread(&lumpoffs, sizeof(int), 1, ptr);
 	fread(&lumpsize, sizeof(int), 1, ptr);
 	nsurfs = lumpsize / 20;
-	surfs[0].resize(nsurfs);
+	surfs.resize(nsurfs);
 
 	Console::Print("Surf Count: %d.\n", nsurfs);
 
 	fseek(ptr, lumpoffs, SEEK_SET);
-	for(i=0, cursurf=surfs[0].data(); i<nsurfs; i++, cursurf++)
+	for(i=0, cursurf=surfs.data(); i<nsurfs; i++, cursurf++)
 	{
 		misc = 0;
 		fread(&misc, sizeof(short), 1, ptr);
@@ -588,7 +758,7 @@ void World::LoadTextures(FILE* ptr)
 	realpath.resize(wadpath.size() - i - Command::datadir.size());
 	strcpy(realpath.data(), c + Command::datadir.size());
 	
-	w.Open(realpath.c_str());
+	w.Open(realpath);
 	wads.push_back(w);
 
 	fseek(ptr, 4 + LUMP_TEXINFO * 8, SEEK_SET);
@@ -768,8 +938,8 @@ void World::Render(void)
 	glEnd();
 	glColor3f(1, 1, 1);
 
-	for(i=0; i<surfs[0].size(); i++)
-		RenderSurf(&surfs[0][i]);
+	for(i=0; i<surfs.size(); i++)
+		RenderSurf(&surfs[i]);
 
     for(i=0; i<entities.size(); i++)
     {

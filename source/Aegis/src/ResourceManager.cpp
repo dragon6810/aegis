@@ -70,6 +70,6 @@ void ResourceManager::AbandonTexture(texture_t* texture)
 	
 	texture->users--;
 
-	if (texture->users <= 0)
+	if (!texture->users)
 		FreeTexture(texture);
 }

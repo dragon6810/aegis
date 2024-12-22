@@ -39,7 +39,7 @@ int RasterFont::DrawText(std::string name, int x, int y)
     int peakx;
     char* curc;
 
-    for(curc = &name[0], curx = peakx = x, cury = y; curc < &name[name.size()]; curc++)
+    for(curc = &name[0], curx = peakx = x, cury = y; curc < name.data() + name.size(); curc++)
     {
         if (curx > peakx)
             peakx = curx;

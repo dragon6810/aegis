@@ -156,13 +156,11 @@ std::vector<navnode_t> Nav::Expand(int hull)
     std::vector<navnode_t> realnodes;
     std::vector<std::array<Vector3, 3>> tris;
 
-    nodes.resize(world->surfs[hull].size());
+    nodes.resize(world->hullsurfs[hull].size());
     for(i=0; i<nodes.size(); i++)
     {
-        nodes[i].points.resize(world->surfs[hull][i].vertices.size());
-        for(j=0; j<nodes[i].points.size(); j++)
-            nodes[i].points[j] = *world->surfs[hull][i].vertices[j];
-        nodes[i].normal = world->surfs[hull][i].pl->n;
+        nodes[i].points = world->hullsurfs[hull][i].points;
+        nodes[i].normal = world->hullsurfs[hull][i].node->pl->n;
         
         if(!SurfQualifies(&nodes[i]))
             continue;

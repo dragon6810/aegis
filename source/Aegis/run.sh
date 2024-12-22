@@ -1,12 +1,10 @@
 #!bin/bash
 
 cd build
-if make
-then
+if make; then
 	cd ..
 	./build/Aegis
 else
-	echo ERROR: Failed to build project
 	exit 1
 fi
 

@@ -228,7 +228,7 @@ RasterFont Wad::LoadFont(std::string name)
     std::vector<int> pixeldata;
 
     if (!ptr)
-        return font;
+        return RasterFont();
 
     fseek(ptr, 4, SEEK_SET);
     fread(&ntextures, sizeof(ntextures), 1, ptr);
@@ -263,7 +263,7 @@ RasterFont Wad::LoadFont(std::string name)
     if(i >= ntextures)
     {
         Console::Print("Couldn't find font \"%s\" in wad.\n", name.c_str());
-        return font;
+        return RasterFont();
     }
 
     fseek(ptr, diroffset, SEEK_SET);
@@ -303,9 +303,9 @@ RasterFont Wad::LoadFont(std::string name)
         pixeldata[i] |= r[p] <<  0;
         pixeldata[i] |= g[p] <<  8;
         pixeldata[i] |= b[p] << 16;
-        if(pixeldata[i] == 0x00000000)
-            pixeldata[i] = 0;
-        else
+        
+        // Not black
+        if(pixeldata[i])
             pixeldata[i] |= 0xFF000000;
     }
 

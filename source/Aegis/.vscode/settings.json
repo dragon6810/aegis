@@ -63,6 +63,14 @@
         "cinttypes": "cpp",
         "*.tpp": "cpp",
         "cstdarg": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "__tree": "cpp",
+        "deque": "cpp",
+        "map": "cpp",
+        "regex": "cpp",
+        "set": "cpp",
+        "span": "cpp",
+        "stack": "cpp",
+        "unordered_set": "cpp"
     }
 }

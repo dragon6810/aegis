@@ -117,6 +117,17 @@ float Vector3::Dot(Vector3 a, Vector3 b)
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
+Vector3 Vector3::Cross(Vector3 a, Vector3 b)
+{
+    Vector3 v;
+
+    v[0] = a[1] * b[2] - b[1] * a[2];
+    v[1] = a[0] * b[2] - b[0] * a[2];
+    v[2] = a[0] * b[1] - b[0] * a[1];
+
+    return v;
+}
+
 Vector3 Vector3::Lerp(Vector3 a, Vector3 b, float t)
 {
     int i;
