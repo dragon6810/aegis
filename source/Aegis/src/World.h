@@ -115,7 +115,7 @@ public:
 	std::vector<surf_t>   		surfs;
 	std::vector<hullsurf_t> hullsurfs[4];
 	std::vector<Vector3>  		verts;
-	std::vector<plane_t> 	   planes; // You broke the 4-letter synergy, man!
+	std::vector<plane_t> 	   planes; // You broke the 5-letter synergy, man!
 	std::vector<texinfo_t> 	 texinfos;
 
 	std::vector<ResourceManager::texture_t*> textures;
@@ -148,6 +148,7 @@ private:
     void LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull);
     std::vector<Vector3> BaseWindingForPlane(Vector3 n, float d);
 	std::vector<Vector3> ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side);
+	bool PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d);
 	
     // Entity Loading
 	void LoadEntities(FILE* ptr);

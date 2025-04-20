@@ -208,6 +208,36 @@ void World::LoadEntities(FILE* ptr)
 		entities[i] = LoadEntity(ents[i]);
 }
 
+bool World::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
+{
+	const float epsilon = 0.01;
+
+	int i;
+
+	int firstside;
+    float d1;
+
+	firstside = 0;
+	for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[i], n) - d;
+		
+		if(firstside == 0)
+		{
+			if(d1 < -epsilon)
+				firstside = -1;
+			if(d1 > epsilon)
+				firstside = 1;
+
+			continue;
+		}
+		if(d1 * firstside < -epsilon)
+			return true;
+    }
+
+	return false;
+}
+
 std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side)
 {
 	const float epsilon = 0.01;
@@ -456,6 +486,12 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		d = parents[i].node->pl->d;
 
 		newsurf.points = ClipToPlane(newsurf.points, n, d, parents[i].flip);
+		if(!PlaneCrosses(parents[i].points, curnode->pl->n, curnode->pl->d))
+			continue;
+
+		parents.insert(parents.begin() + i, parents[i]);
+		parents[  i].points = ClipToPlane(parents[i].points, n, d, 0);
+		parents[++i].points = ClipToPlane(parents[i].points, n, d, 1);
 	}
 
 	assert(newsurf.points.size() != 0);

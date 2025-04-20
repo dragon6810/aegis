@@ -26,7 +26,6 @@ include_directories(
     clib
 )
 
-# Add the executable
 add_executable(Aegis ${SOURCES} "src/main.cpp" "src/Game.cpp" "src/World.cpp" "src/Window.cpp" "src/Renderer.cpp" "src/Command.cpp" "src/ResourceManager.cpp" "src/Input.cpp" "src/Wad.cpp" "src/Console.cpp" "src/RasterFont.cpp" "src/Vector.cpp" "src/EntityBase.cpp" "src/EntityCamera.cpp" "src/Quaternion.cpp" "src/Matrix.cpp" "src/EntityStudio.cpp" "src/EntityPlayer.cpp" "src/Nav.cpp")
 
 set_target_properties(Aegis PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -46,13 +45,13 @@ if (APPLE)
 
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
-    find_package(SFML COMPONENTS system audio REQUIRED)
+    find_package(SFML COMPONENTS System Audio REQUIRED)
     
     target_link_libraries(Aegis PRIVATE
         GLEW::GLEW
         glfw
-        sfml-system
-        sfml-audio
+        SFML::Audio
+        SFML::System
         "-framework OpenGL"
     )
 elseif (WIN32)
