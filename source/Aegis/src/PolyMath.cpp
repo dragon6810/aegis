@@ -1,0 +1,230 @@
+#include "PolyMath.h"
+
+#include <cassert>
+#include <math.h>
+
+#include "Console.h"
+
+std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float maxrange)
+{
+	const float epsilon = 0.01;
+
+    int i;
+
+    int axis;
+    float curaxis, maxaxis;
+    Vector3 up, right, origin;
+	std::vector<Vector3> winding;
+
+    axis = -1;
+    maxaxis = 0;
+    for(i=0; i<3; i++)
+    {
+        curaxis = fabsf(n[i]);
+        if(curaxis > maxaxis)
+        {
+            axis = i;
+            maxaxis = curaxis;
+        }
+    }
+    if(axis < 0)
+        return {};
+
+    up = right = Vector3();
+    switch(axis)
+    {
+    case 0:
+        up[2] = 1;
+        break;
+    case 1:
+        up[2] = 1;
+        break;
+    case 2:
+        up[0] = 1;
+        break;
+    default:
+        break;
+    }
+
+	up = up - n * Vector3::Dot(up, n);
+    up.Normalize();
+	assert(!(up == n));
+
+    right = Vector3::Cross(up, n);
+
+	origin = n * d;
+	up = up * maxrange;
+	right = right * maxrange;
+
+	winding.resize(4);
+	winding[0] = origin + up + right;
+	winding[1] = origin + up - right;
+	winding[2] = origin - up - right;
+	winding[3] = origin - up + right;
+
+	assert(fabsf(Vector3::Dot(winding[0], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[1], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[2], n) - d) < epsilon);
+	assert(fabsf(Vector3::Dot(winding[3], n) - d) < epsilon);
+
+	return winding;
+}
+
+bool PolyMath::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
+{
+	const float epsilon = 0.01;
+
+	int i;
+
+	int firstside;
+    float d1;
+
+	firstside = 0;
+	for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[i], n) - d;
+		
+		if(firstside == 0)
+		{
+			if(d1 < -epsilon)
+				firstside = -1;
+			if(d1 > epsilon)
+				firstside = 1;
+
+			continue;
+		}
+		if(d1 * firstside < -epsilon)
+			return true;
+    }
+
+	return false;
+}
+
+std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, bool front)
+{
+	const float epsilon = 0.01;
+
+    int i;
+    
+    int firstout, firstin, firstside;
+	int last, cur;
+	bool sameside;
+    float d1, d2, t;
+	std::vector<Vector3> newpoints;
+
+    if(front)
+    {
+        n = n * -1;
+        d = -d;
+    }
+
+	firstside = 0;
+	sameside = true;
+	for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[i], n) - d;
+		
+		if(firstside == 0)
+		{
+			if(d1 < -epsilon)
+				firstside = -1;
+			if(d1 > epsilon)
+				firstside = 1;
+
+			continue;
+		}
+		if(d1 * firstside < -epsilon)
+		{
+			sameside = false;
+			break;
+		}
+    }
+
+	if(sameside)
+	{
+		if(firstside < 1)
+			return points;
+
+		return {};
+	}
+
+	firstout = firstin = -1;
+    for(i=0; i<points.size(); i++)
+    {
+        d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
+        d2 = Vector3::Dot(points[i], n) - d;
+
+		if((d1 < epsilon) && (d2 > epsilon))
+			firstout = i;
+		if((d2 < epsilon) && (d1 > epsilon))
+			firstin = i;
+    }
+
+	if(firstout == -1 || firstin == -1)
+	{
+		Console::Print("PolyMath::ClipToPlane: can't find either firstin or firstout (or both).\n");
+		abort();
+	}
+
+	if(firstout == ((firstin - 1 + points.size()) % points.size()))
+	{
+		points.insert(points.begin() + firstout, points[firstout]);
+		
+		// No need to mod since the array has grown
+		if(firstin > firstout)
+			firstin++;
+	}
+
+	last = (firstout - 1 + points.size()) % points.size();
+	cur = firstout;
+	d1 = Vector3::Dot(points[last], n) - d;
+	d2 = Vector3::Dot(points[cur], n) - d;
+	
+	assert(d1 - d2 != 0);
+
+	t = -d1 / (d2 - d1);
+	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+
+	cur = (firstin - 1 + points.size()) % points.size();
+	last = firstin;
+	d1 = Vector3::Dot(points[last], n) - d;
+	d2 = Vector3::Dot(points[cur], n) - d;
+	
+	assert(d1 - d2 != 0);
+	
+	t = -d1 / (d2 - d1);
+	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+
+	firstin = (firstin - 1 + points.size()) % points.size();
+	for(i=0; i<points.size(); i++)
+	{
+		if(firstout < firstin)
+		{
+			if((i < firstin) && (i > firstout))
+				continue;
+		}
+		if(firstin < firstout)
+		{
+			if((i < firstin) || (i > firstout))
+				continue;
+		}
+
+		newpoints.push_back(points[i]);
+	}
+
+    return newpoints;
+}
+
+Vector3 PolyMath::FindCenter(std::vector<Vector3> points)
+{
+    int i;
+
+    Vector3 center;
+
+    center = Vector3(0, 0, 0);
+    for(i=0; i<points.size(); i++)
+        center = center + points[i];
+    center = center / points.size();
+
+    return center;
+}

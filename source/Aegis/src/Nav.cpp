@@ -2,7 +2,10 @@
 
 #include "World.h"
 
+#include <cassert>
 #include <math.h>
+
+#include "PolyMath.h"
 
 #include "Console.h"
 
@@ -137,14 +140,14 @@ std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
     return tris;
 }
 
-bool Nav::SurfQualifies(navnode_t* node)
+bool Nav::SurfQualifies(const navnode_t& node)
 {
     float maxangle, maxcos;
 
     maxangle = atanf(maxslope);
     maxcos = cosf(maxangle);
 
-    return Vector3::Dot(node->normal, Vector3(0, 0, 1)) > maxcos;
+    return Vector3::Dot(node.normal, Vector3(0, 0, 1)) > maxcos;
 }
 
 std::vector<navnode_t> Nav::Expand(int hull)
@@ -153,37 +156,88 @@ std::vector<navnode_t> Nav::Expand(int hull)
     navnode_t curnode;
 
     std::vector<navnode_t> nodes;
-    std::vector<navnode_t> realnodes;
     std::vector<std::array<Vector3, 3>> tris;
 
     nodes.resize(world->hullsurfs[hull].size());
     for(i=0; i<nodes.size(); i++)
     {
+        nodes[i] = {};
         nodes[i].points = world->hullsurfs[hull][i].points;
         nodes[i].normal = world->hullsurfs[hull][i].node->pl->n;
-        
-        if(!SurfQualifies(&nodes[i]))
-            continue;
+        nodes[i].center = PolyMath::FindCenter(nodes[i].points);
+    }
 
-        tris = EarClip(nodes[i].points);
-        for(j=0; j<tris.size(); j++)
+    return nodes;
+}
+
+std::vector<navnode_t> Nav::CutPlanes(const std::vector<navnode_t>& surfs)
+{
+    int i, j;
+
+    std::vector<navnode_t> newsurfs;
+    std::vector<Vector3> front, back;
+    Vector3 n;
+    float d;
+    navnode_t newnode;
+
+    newsurfs = surfs;
+
+    for(i=0; i<newsurfs.size(); i++)
+    {
+        n = newsurfs[i].normal;
+        d = Vector3::Dot(n, newsurfs[i].points[0]);
+        for(j=0; j<newsurfs.size(); j++)
         {
-            curnode.normal = nodes[i].normal;
-            curnode.edges.clear();
+            if(i == j)
+                continue;
 
-            curnode.center = Vector3(0, 0, 0);
-            curnode.points.resize(3);
-            for(k=0; k<3; k++)
-            {
-                curnode.points[k] = tris[j][k];
-                curnode.center = curnode.center + tris[j][k];
-            }
-            curnode.center = curnode.center / 3.0;
-            realnodes.push_back(curnode);
+            if(!PolyMath::PlaneCrosses(newsurfs[j].points, n, d))
+                continue;
+
+            back = PolyMath::ClipToPlane(newsurfs[j].points, n, d, false);
+            front = PolyMath::ClipToPlane(newsurfs[j].points, n, d, true);
+
+            newnode = newsurfs[j];
+            newnode.points = front;
+            newsurfs[j].points = back;
+            newnode.center = PolyMath::FindCenter(newnode.points);
+            newsurfs[j].center = PolyMath::FindCenter(newsurfs[j].points);
+            
+            newsurfs.insert(newsurfs.begin() + j, newnode);
+            if(i > j)
+                i++;
+            j++;
         }
     }
 
-    return realnodes;
+    return newsurfs;
+}
+
+std::vector<navnode_t> Nav::PruneFaces(const std::vector<navnode_t>& surfs)
+{
+    int i, j;
+
+    std::vector<navnode_t> newnodes;
+    std::vector<std::array<Vector3, 3>> nodetris;
+    navnode_t newnode;
+
+    for(i=0; i<surfs.size(); i++)
+    {
+        if(!SurfQualifies(surfs[i]))
+            continue;
+
+        nodetris = EarClip(surfs[i].points);
+        for(j=0; j<nodetris.size(); j++)
+        {
+            newnode = {};
+            newnode.points = std::vector<Vector3>(nodetris[j].begin(), nodetris[j].end());
+            newnode.center = PolyMath::FindCenter(newnode.points);
+            newnode.normal = surfs[i].normal;
+            newnodes.push_back(newnode);
+        }
+    }
+
+    return newnodes;
 }
 
 void Nav::FindSurfs(int hull)
@@ -191,6 +245,8 @@ void Nav::FindSurfs(int hull)
     int i;
 
     surfs[hull] = Expand(hull);
+    surfs[hull] = CutPlanes(surfs[hull]);
+    surfs[hull] = PruneFaces(surfs[hull]);
 }
 
 void Nav::Render(void)
@@ -203,8 +259,13 @@ void Nav::Render(void)
 
 void Nav::Initialize(World* world)
 {
+    int i;
+
     this->world = world;
 
-    FindSurfs(0);
-    FindEdges(0);
+    for(i=0; i<NHULLS/NHULLS; i++)
+    {
+        FindSurfs(i);
+        FindEdges(i);
+    }
 }

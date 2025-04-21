@@ -146,9 +146,6 @@ private:
     void LoadHullSurfs(FILE* ptr);
 
     void LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull);
-    std::vector<Vector3> BaseWindingForPlane(Vector3 n, float d);
-	std::vector<Vector3> ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side);
-	bool PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d);
 	
     // Entity Loading
 	void LoadEntities(FILE* ptr);

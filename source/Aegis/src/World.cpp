@@ -4,6 +4,8 @@
 #include <c_string.h>
 #include <cassert>
 
+#include "PolyMath.h"
+
 #include "Command.h"
 #include "Console.h"
 
@@ -208,217 +210,6 @@ void World::LoadEntities(FILE* ptr)
 		entities[i] = LoadEntity(ents[i]);
 }
 
-bool World::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
-{
-	const float epsilon = 0.01;
-
-	int i;
-
-	int firstside;
-    float d1;
-
-	firstside = 0;
-	for(i=0; i<points.size(); i++)
-    {
-        d1 = Vector3::Dot(points[i], n) - d;
-		
-		if(firstside == 0)
-		{
-			if(d1 < -epsilon)
-				firstside = -1;
-			if(d1 > epsilon)
-				firstside = 1;
-
-			continue;
-		}
-		if(d1 * firstside < -epsilon)
-			return true;
-    }
-
-	return false;
-}
-
-std::vector<Vector3> World::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, int side)
-{
-	const float epsilon = 0.01;
-
-    int i;
-    
-    int firstout, firstin, firstside;
-	int last, cur;
-	bool sameside;
-    float d1, d2, t;
-	std::vector<Vector3> newpoints;
-
-    if(side)
-    {
-        n = n * -1;
-        d = -d;
-    }
-
-	firstside = 0;
-	sameside = true;
-	for(i=0; i<points.size(); i++)
-    {
-        d1 = Vector3::Dot(points[i], n) - d;
-		
-		if(firstside == 0)
-		{
-			if(d1 < -epsilon)
-				firstside = -1;
-			if(d1 > epsilon)
-				firstside = 1;
-
-			continue;
-		}
-		if(d1 * firstside < -epsilon)
-		{
-			sameside = false;
-			break;
-		}
-    }
-
-	if(sameside)
-	{
-		if(firstside < 1)
-			return points;
-
-		return {};
-	}
-
-	firstout = firstin = -1;
-    for(i=0; i<points.size(); i++)
-    {
-        d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
-        d2 = Vector3::Dot(points[i], n) - d;
-
-		if((d1 < epsilon) && (d2 > epsilon))
-			firstout = i;
-		if((d2 < epsilon) && (d1 > epsilon))
-			firstin = i;
-    }
-
-	if(firstout == -1 || firstin == -1)
-	{
-		Console::Print("World::ClipToPlane: can't find either firstin or firstout (or both).\n");
-		abort();
-	}
-
-	if(firstout == ((firstin - 1 + points.size()) % points.size()))
-	{
-		points.insert(points.begin() + firstout, points[firstout]);
-		
-		// No need to mod since the array has grown
-		if(firstin > firstout)
-			firstin++;
-	}
-
-	last = (firstout - 1 + points.size()) % points.size();
-	cur = firstout;
-	d1 = Vector3::Dot(points[last], n) - d;
-	d2 = Vector3::Dot(points[cur], n) - d;
-	
-	assert(d1 - d2 != 0);
-
-	t = -d1 / (d2 - d1);
-	points[cur] = Vector3::Lerp(points[last], points[cur], t);
-
-	cur = (firstin - 1 + points.size()) % points.size();
-	last = firstin;
-	d1 = Vector3::Dot(points[last], n) - d;
-	d2 = Vector3::Dot(points[cur], n) - d;
-	
-	assert(d1 - d2 != 0);
-	
-	t = -d1 / (d2 - d1);
-	points[cur] = Vector3::Lerp(points[last], points[cur], t);
-
-	firstin = (firstin - 1 + points.size()) % points.size();
-	for(i=0; i<points.size(); i++)
-	{
-		if(firstout < firstin)
-		{
-			if((i < firstin) && (i > firstout))
-				continue;
-		}
-		if(firstin < firstout)
-		{
-			if((i < firstin) || (i > firstout))
-				continue;
-		}
-
-		newpoints.push_back(points[i]);
-	}
-
-    return newpoints;
-}
-
-std::vector<Vector3> World::BaseWindingForPlane(Vector3 n, float d)
-{
-    const float maxrange = 8192;
-	const float epsilon = 0.01;
-
-    int i;
-
-    int axis;
-    float curaxis, maxaxis;
-    Vector3 up, right, origin;
-	std::vector<Vector3> winding;
-
-    axis = -1;
-    maxaxis = 0;
-    for(i=0; i<3; i++)
-    {
-        curaxis = fabsf(n[i]);
-        if(curaxis > maxaxis)
-        {
-            axis = i;
-            maxaxis = curaxis;
-        }
-    }
-    if(axis < 0)
-        return {};
-
-    up = right = Vector3();
-    switch(axis)
-    {
-    case 0:
-        up[2] = 1;
-        break;
-    case 1:
-        up[2] = 1;
-        break;
-    case 2:
-        up[0] = 1;
-        break;
-    default:
-        break;
-    }
-
-	up = up - n * Vector3::Dot(up, n);
-    up.Normalize();
-	assert(up != n);
-
-    right = Vector3::Cross(up, n);
-
-	origin = n * d;
-	up = up * maxrange;
-	right = right * maxrange;
-
-	winding.resize(4);
-	winding[0] = origin + up + right;
-	winding[1] = origin + up - right;
-	winding[2] = origin - up - right;
-	winding[3] = origin - up + right;
-
-	assert(fabsf(Vector3::Dot(winding[0], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[1], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[2], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[3], n) - d) < epsilon);
-
-	return winding;
-}
-
 void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull)
 {
     int i, j;
@@ -441,7 +232,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		n = parents[parents.size()-1].node->pl->n;
 		d = parents[parents.size()-1].node->pl->d;
 
-		parents[i].points = ClipToPlane(parents[i].points, n, d, parents[parents.size()-1].flip);
+		parents[i].points = PolyMath::ClipToPlane(parents[i].points, n, d, parents[parents.size()-1].flip);
 
 		if(parents[i].points.size())
 			continue;
@@ -477,7 +268,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	}
 
 	curnode = &clipnodes[icurnode];
-	newsurf.points = BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
+	newsurf.points = PolyMath::BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
 	newsurf.node = curnode;
 
 	for(i=0; i<parents.size(); i++)
@@ -485,13 +276,13 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		n = parents[i].node->pl->n;
 		d = parents[i].node->pl->d;
 
-		newsurf.points = ClipToPlane(newsurf.points, n, d, parents[i].flip);
-		if(!PlaneCrosses(parents[i].points, curnode->pl->n, curnode->pl->d))
+		newsurf.points = PolyMath::ClipToPlane(newsurf.points, n, d, parents[i].flip);
+		if(!PolyMath::PlaneCrosses(parents[i].points, curnode->pl->n, curnode->pl->d))
 			continue;
 
 		parents.insert(parents.begin() + i, parents[i]);
-		parents[  i].points = ClipToPlane(parents[i].points, n, d, 0);
-		parents[++i].points = ClipToPlane(parents[i].points, n, d, 1);
+		parents[  i].points = PolyMath::ClipToPlane(parents[i].points, n, d, false);
+		parents[++i].points = PolyMath::ClipToPlane(parents[i].points, n, d, true);
 	}
 
 	assert(newsurf.points.size() != 0);
@@ -510,7 +301,7 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 
 void World::LoadHullSurfs(FILE* ptr)
 {
-    int i;
+    int i, j, k;
 
     int lumpoffs, lumpsize;
     int index;

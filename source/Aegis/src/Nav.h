@@ -40,7 +40,9 @@ private:
     void FindEdges(int hull);
 
     std::vector<navnode_t> Expand(int hull);
-    bool SurfQualifies(navnode_t* surf);
+    std::vector<navnode_t> CutPlanes(const std::vector<navnode_t>& surfs);
+    std::vector<navnode_t> PruneFaces(const std::vector<navnode_t>& surfs);
+    bool SurfQualifies(const navnode_t& surf);
     void DrawSurf(navnode_t* surf);
     bool SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4);
 
