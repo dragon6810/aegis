@@ -3,6 +3,8 @@
 #include "Game.h"
 #include "Input.h"
 
+#include "EntityStudio.h"
+
 std::string Command::autoexec = "userdata/autoexec.cfg";
 std::string Command::datadir = "deadbird/";
 bool Command::filtertextures = false;
@@ -16,6 +18,8 @@ const std::unordered_map<std::string, bool(*)(std::string)> Command::cmdtable =
     { "-bind", &Command::CommandBind },
     {  "bind", &Command::CommandBind },
     { "toggleconsole", &Command::CommandToggleConsole },
+    { "togglestudio", &Command::CommandToggleStudio },
+    { "togglestudioskeleton", &Command::CommandToggleStudioSkeletons },
 };
 
 bool Command::CommandMap(std::string val)
@@ -61,6 +65,18 @@ bool Command::CommandBind(std::string val)
 bool Command::CommandToggleConsole(std::string val)
 {
     Game::GetGame().console.Toggle();
+    return true;
+}
+
+bool Command::CommandToggleStudio(std::string val)
+{
+    EntityStudio::drawstudio = !EntityStudio::drawstudio;
+    return true;
+}
+
+bool Command::CommandToggleStudioSkeletons(std::string val)
+{
+    EntityStudio::drawskeleton = !EntityStudio::drawskeleton;
     return true;
 }
 

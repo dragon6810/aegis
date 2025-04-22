@@ -44,14 +44,16 @@ void EntityPlayer::SetTargetAngle(void)
     yawtarget = atan2f(y, x) * RAD2DEG + 180;
 }
 
-void EntityPlayer::XRender(void)
+void EntityPlayer::Render(void)
 {
-    // Nothing
+    EntityStudio::Render();
 }
 
-void EntityPlayer::XTick(void)
+void EntityPlayer::Tick(void)
 {
     float accel;
+
+    EntityStudio::Tick();
 
     SetTargetAngle();
 

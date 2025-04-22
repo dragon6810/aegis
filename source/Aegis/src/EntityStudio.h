@@ -13,11 +13,8 @@ class EntityStudio : public EntityBase
 {
 public:
     virtual void Init(const std::unordered_map <std::string, std::string>& pairs) override;
-    void Render(void) override;
-    void Tick(void) override;
-
-    virtual void XRender(void) = 0;
-    virtual void XTick(void) = 0;
+    virtual void Render(void) override;
+    virtual void Tick(void) override;
 
     virtual std::string GetModelName(void);
 
@@ -142,6 +139,9 @@ protected:
     std::vector<seqdesc_t> sequences;
     std::vector<ResourceManager::texture_t*> textures;
     std::vector<model_t> models;
+public:
+    static bool drawstudio;
+    static bool drawskeleton;
 private:
     void LoadModel(void);
     std::vector<FILE*> GetSeqFiles(FILE* ptr);

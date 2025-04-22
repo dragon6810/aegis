@@ -17,4 +17,6 @@ public:
 	static bool CommandMap(std::string val);
 	static bool CommandBind(std::string val);
 	static bool CommandToggleConsole(std::string val);
+	static bool CommandToggleStudio(std::string val);
+	static bool CommandToggleStudioSkeletons(std::string val);
 };

@@ -7,6 +7,9 @@
 
 #define VERBOSE_STUDIO_LOGGING 1
 
+bool EntityStudio::drawstudio = true;
+bool EntityStudio::drawskeleton = false;
+
 void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pairs)
 {
     pos = LoadVector3(pairs, "origin", Vector3(0,0,0));
@@ -21,9 +24,10 @@ void EntityStudio::Render(void)
         frame.snap(frame - sequences[curseq].nframes);
     
     UpdateBones();
-    //DrawSkeleton();
-    //DrawModel();
-    XRender();
+    if(drawskeleton)
+        DrawSkeleton();
+    if(drawstudio)
+        DrawModel();
 }
 
 void EntityStudio::Tick(void)
@@ -37,7 +41,6 @@ void EntityStudio::Tick(void)
     }
 
     frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
-    XTick(); 
 }
 
 std::string EntityStudio::GetModelName(void)
