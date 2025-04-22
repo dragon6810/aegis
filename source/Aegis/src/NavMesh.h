@@ -27,12 +27,12 @@ typedef struct navnode_s
 class NavMesh
 {
 public:
+    std::vector<navnode_t> surfs[4];
+
     void Initialize(World* world);
     void Render(void);
 private:
     World* world;
-
-    std::vector<navnode_t> surfs[4];
 
     const float maxslope = 0.45;
 

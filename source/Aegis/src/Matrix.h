@@ -26,6 +26,8 @@ public:
 	Vector3 v;
 
 	Vector3 SetColumn(Vector3 v, int column);
+	
+	Matrix3x3 const Transpose(void);
 
 	Matrix3x3 operator*(Matrix3x3 a);
 	Vector3 operator*(Vector3 v);

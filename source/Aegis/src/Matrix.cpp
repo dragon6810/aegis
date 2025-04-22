@@ -68,6 +68,19 @@ Vector3 Matrix3x3::SetColumn(Vector3 v, int column)
     return v;
 }
 
+Matrix3x3 const Matrix3x3::Transpose(void)
+{
+    int i, j;
+
+    Matrix3x3 trans;
+
+    for(i=0; i<3; i++)
+        for(j=0; j<3; j++)
+            trans[i][j] = this->m[j][i];
+
+    return trans;
+}
+
 Matrix3x3 Matrix3x3::operator*(Matrix3x3 a)
 {
     int i, j, k;

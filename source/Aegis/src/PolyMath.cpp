@@ -303,6 +303,7 @@ Matrix3x3 PolyMath::PlaneProjection(Vector3 n)
     mat.SetColumn(x, 0);
     mat.SetColumn(y, 1);
     mat.SetColumn(z, 2);
+    mat = mat.Transpose();
 
     return mat;
 }
@@ -310,21 +311,19 @@ Matrix3x3 PolyMath::PlaneProjection(Vector3 n)
 std::optional<Vector3> PolyMath::SegmentPlane(Vector3 n, float d, Vector3 a, Vector3 b)
 {
     std::optional<Vector3> intersect;
-    Vector3 p, o, r;
+    Vector3 r;
     float numer, denom, t, maxt;
 
     intersect = std::optional<Vector3>();
 
-    p = n * d;
-    o = a - p;
     r = b - a;
     maxt = r.Length();
-    r.Normalize();
+    r = r / maxt;
 
     denom = Vector3::Dot(r, n);
     if(denom == 0)
         return intersect;
-    numer = Vector3::Dot(o, n);
+    numer = d - Vector3::Dot(a, n);
     t = numer / denom;
     if(t < 0 || t > maxt)
         return intersect;
@@ -350,12 +349,14 @@ bool PolyMath::PointIn2d(std::vector<Vector2> points, Vector2 p)
         curedge[0] = &points[i];
         curedge[1] = &points[(i+1)%points.size()];
 
+        if(curedge[0]->y == curedge[1]->y)
+            continue;
         if(curedge[0]->x < p.x && curedge[1]->x < p.x)
             continue;
         if((curedge[0]->y - p.y) * (curedge[1]->y - p.y) > 0)
             continue;
         invslope = (curedge[1]->x - curedge[0]->x) / (curedge[1]->y - curedge[0]->y);
-        intersect = *curedge[0] + Vector2(invslope * (curedge[0]->y - p.y), curedge[0]->y - p.y);
+        intersect = *curedge[0] + Vector2(invslope * (p.y - curedge[0]->y), p.y - curedge[0]->y);
         if(intersect.x < p.x)
             continue;
 

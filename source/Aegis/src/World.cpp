@@ -780,6 +780,7 @@ void World::Render(void)
     glColor3f(1, 0, 0);
 	glBegin(GL_POINTS);
 	glVertex3f(p.x, p.y, p.z);
+	glVertex3f(0, 0, 0);
 	glEnd();
 	glColor3f(1, 1, 1);
 

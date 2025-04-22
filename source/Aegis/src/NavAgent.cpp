@@ -2,24 +2,27 @@
 
 #include <GL/glew.h>
 
-void NavAgent::RenderPath(const navpath_t& path)
+void NavAgent::RenderPath()
 {
     int i;
 
     glBegin(GL_POINTS);
     glColor3f(1, 1, 0);
-    for(i=0; i<path.anchors.size(); i++)
-        glVertex3f(path.anchors[i].pos.x, path.anchors[i].pos.y, path.anchors[i].pos.z);
+    for(i=0; i<curpath.anchors.size(); i++)
+        glVertex3f(curpath.anchors[i].pos.x, curpath.anchors[i].pos.y, curpath.anchors[i].pos.z);
     glEnd();
 
-    glBegin(GL_LINES);
-    glColor3f(0, 1, 0);
-    for(i=0; i<path.anchors.size()-1; i++)
+    if(curpath.anchors.size() > 1)
     {
-        glVertex3f(path.anchors[i].pos.x, path.anchors[i].pos.y, path.anchors[i].pos.z);
-        glVertex3f(path.anchors[i+1].pos.x, path.anchors[i+1].pos.y, path.anchors[i+1].pos.z);
+        glBegin(GL_LINES);
+        glColor3f(0, 1, 0);
+        for(i=0; i<curpath.anchors.size()-1; i++)
+        {
+            glVertex3f(curpath.anchors[i].pos.x, curpath.anchors[i].pos.y, curpath.anchors[i].pos.z);
+            glVertex3f(curpath.anchors[i+1].pos.x, curpath.anchors[i+1].pos.y, curpath.anchors[i+1].pos.z);
+        }
+        glEnd();
     }
-    glEnd();
 
     glColor3f(1, 1, 1);
 }
