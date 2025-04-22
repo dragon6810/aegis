@@ -228,3 +228,139 @@ Vector3 PolyMath::FindCenter(std::vector<Vector3> points)
 
     return center;
 }
+
+Vector3 PolyMath::FindNormal(std::vector<Vector3> points)
+{
+    Vector3 a, b, n;
+
+    if(points.size() < 3)
+        return Vector3(0, 0, 0);
+
+    a = points[1] - points[0];
+    b = points[2] - points[0];
+    n = Vector3::Cross(a, b);
+    n.Normalize();
+
+    return n;
+}
+
+std::optional<Vector3> PolyMath::SegmentIntersects(std::vector<Vector3> points, Vector3 a, Vector3 b)
+{
+    int i;
+
+    Vector3 n;
+    std::optional<Vector3> intersect;
+    Matrix3x3 toplane;
+    std::vector<Vector3> polyproj3;
+    std::vector<Vector2> polyproj;
+    std::optional<Vector3> planeinter;
+    Vector3 inter3, interproj3;
+    Vector2 interproj;
+
+    intersect = std::optional<Vector3>();
+    if(points.size() < 3)
+        return intersect;
+
+    n = FindNormal(points);
+    planeinter = SegmentPlane(n, Vector3::Dot(points[0], n), a, b);
+    if(!planeinter.has_value())
+        return intersect;
+
+    inter3 = planeinter.value();
+
+    toplane = PlaneProjection(n);
+    interproj3 = toplane * inter3;
+    interproj.x = interproj3.x;
+    interproj.y = interproj3.y;
+    polyproj3.resize(points.size());
+    polyproj.resize(points.size());
+    for(i=0; i<polyproj3.size(); i++)
+    {
+        polyproj3[i] = toplane * points[i];
+        polyproj[i].x = polyproj3[i].x;
+        polyproj[i].y = polyproj3[i].y;
+    }
+
+    if(!PointIn2d(polyproj, interproj))
+        return intersect;
+    
+    intersect = inter3;
+    return intersect;
+}
+
+Matrix3x3 PolyMath::PlaneProjection(Vector3 n)
+{
+    Vector3 x, y, z;
+    Matrix3x3 mat;
+
+    y = Vector3(0, 0, 1);
+    if(y == n)
+        y = Vector3(0, 1, 0);
+    x = Vector3::Cross(y, n);
+    y = Vector3::Cross(x, n);
+    z = Vector3::Cross(x, y);
+
+    mat.SetColumn(x, 0);
+    mat.SetColumn(y, 1);
+    mat.SetColumn(z, 2);
+
+    return mat;
+}
+
+std::optional<Vector3> PolyMath::SegmentPlane(Vector3 n, float d, Vector3 a, Vector3 b)
+{
+    std::optional<Vector3> intersect;
+    Vector3 p, o, r;
+    float numer, denom, t, maxt;
+
+    intersect = std::optional<Vector3>();
+
+    p = n * d;
+    o = a - p;
+    r = b - a;
+    maxt = r.Length();
+    r.Normalize();
+
+    denom = Vector3::Dot(r, n);
+    if(denom == 0)
+        return intersect;
+    numer = Vector3::Dot(o, n);
+    t = numer / denom;
+    if(t < 0 || t > maxt)
+        return intersect;
+
+    intersect = a + r * t;
+    return intersect;
+}
+
+bool PolyMath::PointIn2d(std::vector<Vector2> points, Vector2 p)
+{
+    int i;
+
+    int nintersects;
+    float invslope;
+    Vector2 *curedge[2];
+    Vector2 intersect;
+
+    if(points.size() < 3)
+        return false;
+
+    for(i=nintersects=0; i<points.size(); i++)
+    {
+        curedge[0] = &points[i];
+        curedge[1] = &points[(i+1)%points.size()];
+
+        if(curedge[0]->x < p.x && curedge[1]->x < p.x)
+            continue;
+        if((curedge[0]->y - p.y) * (curedge[1]->y - p.y) > 0)
+            continue;
+        invslope = (curedge[1]->x - curedge[0]->x) / (curedge[1]->y - curedge[0]->y);
+        intersect = *curedge[0] + Vector2(invslope * (curedge[0]->y - p.y), curedge[0]->y - p.y);
+        if(intersect.x < p.x)
+            continue;
+
+        nintersects++;
+    }
+
+    return nintersects & 1;
+}

@@ -24,7 +24,7 @@ typedef struct navnode_s
     std::vector<struct navnode_s*> edges;
 } navnode_t;
 
-class Nav
+class NavMesh
 {
 public:
     void Initialize(World* world);

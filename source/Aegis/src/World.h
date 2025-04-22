@@ -9,7 +9,7 @@
 #include "ResourceManager.h"
 #include "Wad.h"
 #include "EntityBase.h"
-#include "Nav.h"
+#include "NavMesh.h"
 
 #define NHULLS 4
 
@@ -120,7 +120,7 @@ public:
 
 	std::vector<ResourceManager::texture_t*> textures;
 
-	Nav nav;
+	NavMesh navmesh;
 
 	bool Load(std::string name);
 

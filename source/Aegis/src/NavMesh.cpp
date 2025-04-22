@@ -1,4 +1,4 @@
-#include "Nav.h"
+#include "NavMesh.h"
 
 #include "World.h"
 
@@ -9,7 +9,7 @@
 
 #include "Console.h"
 
-void Nav::DrawSurf(navnode_t* surf)
+void NavMesh::DrawSurf(navnode_t* surf)
 {
     int i;
     Vector3 cur, next;
@@ -57,12 +57,12 @@ void Nav::DrawSurf(navnode_t* surf)
     glColor3f(1, 1, 1);
 }
 
-std::pair<Vector3, Vector3> Nav::MakeEdge(Vector3 a, Vector3 b)
+std::pair<Vector3, Vector3> NavMesh::MakeEdge(Vector3 a, Vector3 b)
 {
     return std::tie(a.x, a.y, a.z) < std::tie(b.x, b.y, b.z) ? std::make_pair(a, b) : std::make_pair(b, a);
 }
 
-bool Nav::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
+bool NavMesh::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 {
     if((v1 == v3) && (v2 == v4))
         return true;
@@ -74,7 +74,7 @@ bool Nav::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 }
 
 // Please update use this to use a hashmap this is super slow
-void Nav::FindEdges(int hull)
+void NavMesh::FindEdges(int hull)
 {
     int i, j, cur, next, _cur, _next;
     bool found;
@@ -110,7 +110,7 @@ void Nav::FindEdges(int hull)
     }
 }
 
-std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
+std::vector<std::array<Vector3, 3>> NavMesh::EarClip(std::vector<Vector3> poly)
 {
     int cur, last, next;
 
@@ -140,7 +140,7 @@ std::vector<std::array<Vector3, 3>> Nav::EarClip(std::vector<Vector3> poly)
     return tris;
 }
 
-bool Nav::SurfQualifies(const navnode_t& node)
+bool NavMesh::SurfQualifies(const navnode_t& node)
 {
     float maxangle, maxcos;
 
@@ -150,7 +150,7 @@ bool Nav::SurfQualifies(const navnode_t& node)
     return Vector3::Dot(node.normal, Vector3(0, 0, 1)) > maxcos;
 }
 
-std::vector<navnode_t> Nav::Expand(int hull)
+std::vector<navnode_t> NavMesh::Expand(int hull)
 {
     int i, j, k;
     navnode_t curnode;
@@ -170,7 +170,7 @@ std::vector<navnode_t> Nav::Expand(int hull)
     return nodes;
 }
 
-std::vector<navnode_t> Nav::CutPlanes(const std::vector<navnode_t>& surfs)
+std::vector<navnode_t> NavMesh::CutPlanes(const std::vector<navnode_t>& surfs)
 {
     int i, j;
 
@@ -213,7 +213,7 @@ std::vector<navnode_t> Nav::CutPlanes(const std::vector<navnode_t>& surfs)
     return newsurfs;
 }
 
-std::vector<navnode_t> Nav::PruneFaces(const std::vector<navnode_t>& surfs)
+std::vector<navnode_t> NavMesh::PruneFaces(const std::vector<navnode_t>& surfs)
 {
     int i, j;
 
@@ -240,7 +240,7 @@ std::vector<navnode_t> Nav::PruneFaces(const std::vector<navnode_t>& surfs)
     return newnodes;
 }
 
-void Nav::FindSurfs(int hull)
+void NavMesh::FindSurfs(int hull)
 {
     int i;
 
@@ -249,7 +249,7 @@ void Nav::FindSurfs(int hull)
     surfs[hull] = PruneFaces(surfs[hull]);
 }
 
-void Nav::Render(void)
+void NavMesh::Render(void)
 {
     int i;
 
@@ -257,13 +257,13 @@ void Nav::Render(void)
         DrawSurf(&surfs[0][i]);
 }
 
-void Nav::Initialize(World* world)
+void NavMesh::Initialize(World* world)
 {
     int i;
 
     this->world = world;
 
-    for(i=0; i<NHULLS/NHULLS; i++)
+    for(i=0; i<NHULLS*0+1; i++)
     {
         FindSurfs(i);
         FindEdges(i);

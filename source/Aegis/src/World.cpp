@@ -731,7 +731,7 @@ bool World::Load(std::string name)
 	LoadClipnodes(ptr);
     LoadHullSurfs(ptr);
 
-	nav.Initialize(this);
+	navmesh.Initialize(this);
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
@@ -790,7 +790,7 @@ void World::Render(void)
             entities[i]->Render();
     }
 
-	nav.Render();
+	navmesh.Render();
 }
 
 void World::Tick(void)
