@@ -20,10 +20,18 @@ void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pai
 
 void EntityStudio::Render(void)
 {
-    while(frame >= sequences[curseq].nframes)
-        frame.snap(frame - sequences[curseq].nframes);
-    
-    UpdateBones();
+    this->transform = Quaternion::FromEuler(this->rot).ToMatrix4();
+    this->transform[0][3] = this->pos[0];
+    this->transform[1][3] = this->pos[1];
+    this->transform[2][3] = this->pos[2];
+
+    if(sequences.size())
+    {
+        while(frame >= sequences[curseq].nframes)
+            frame.snap(frame - sequences[curseq].nframes);
+        
+        UpdateBones();
+    }
     if(drawskeleton)
         DrawSkeleton();
     if(drawstudio)
@@ -40,7 +48,8 @@ void EntityStudio::Tick(void)
         controllers[i].lastrot = controllers[i].rot;
     }
 
-    frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
+    if(sequences.size())
+        frame += ((float) sequences[curseq].fps) / ((float) ENGINE_TICKRATE);
 }
 
 std::string EntityStudio::GetModelName(void)
@@ -183,11 +192,15 @@ void EntityStudio::DrawMesh(mesh_t* m)
         p = m->verts[i];
         n = m->normals[i];
 
-        p = m->bones[i]->transform * p;
+        p = this->transform * m->bones[i]->transform * p;
         n = m->bones[i]->transform * n;
         n[0] -= m->bones[i]->transform[0][3];
         n[1] -= m->bones[i]->transform[1][3];
         n[2] -= m->bones[i]->transform[2][3];
+        n = this->transform * n;
+        n[0] -= this->transform[0][3];
+        n[1] -= this->transform[1][3];
+        n[2] -= this->transform[2][3];
 
         glTexCoord2f(m->coords[i].x, m->coords[i].y);
         glVertex3f(p.x, p.y, p.z);

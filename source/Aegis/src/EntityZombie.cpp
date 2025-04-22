@@ -1,18 +1,16 @@
 #include "EntityZombie.h"
 
-void EntityPlayer::Render(void)
+void EntityZombie::Render(void)
 {
     EntityStudio::Render();
 }
 
-void EntityPlayer::Tick(void)
+void EntityZombie::Tick(void)
 {
     EntityStudio::Tick();
-
-    SetTargetAngle();
 }
 
-std::string EntityPlayer::GetModelName(void)
+std::string EntityZombie::GetModelName(void)
 {
-    return "models/zgrunt.mdl";
+    return "models/zgrunt/zgrunt";
 }

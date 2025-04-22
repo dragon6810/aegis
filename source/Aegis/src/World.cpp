@@ -11,12 +11,14 @@
 
 #include "EntityCamera.h"
 #include "EntityPlayer.h"
+#include "EntityZombie.h"
 
 // Entity factory, update with new entity classnames
 std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> entityfactory =
 {
 	{"player_camera", []() { return std::make_shared<EntityCamera>(); }},
 	{"player_tank", []() { return std::make_shared<EntityPlayer>(); }},
+	{"zombie_grunt", []() { return std::make_shared<EntityZombie>(); }},
 };
 
 std::array<std::array<Vector3, 2>, 4> World::hulls =

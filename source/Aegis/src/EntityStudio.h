@@ -139,6 +139,8 @@ protected:
     std::vector<seqdesc_t> sequences;
     std::vector<ResourceManager::texture_t*> textures;
     std::vector<model_t> models;
+
+    Matrix4x4 transform;
 public:
     static bool drawstudio;
     static bool drawskeleton;
