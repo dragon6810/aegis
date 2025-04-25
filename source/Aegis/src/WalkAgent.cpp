@@ -41,7 +41,10 @@ navnode_t* WalkAgent::NavNodeFromPos(Vector3 pos)
 
 bool WalkAgent::ConstructPath(Vector3 start, Vector3 end)
 {
+    int i;
+
     navnode_t *startnode, *endnode;
+    std::vector<navnode_t*> nodepath;
 
     startnode = NavNodeFromPos(start);
     endnode = NavNodeFromPos(end);
@@ -54,9 +57,19 @@ bool WalkAgent::ConstructPath(Vector3 start, Vector3 end)
         return false;
     }
 
+    nodepath = AStar(&this->world->navmesh, startnode, endnode);
+    this->curpath.anchors.resize(nodepath.size());
+    for(i=0; i<nodepath.size(); i++)
+    {
+        this->curpath.anchors[i].pos = nodepath[i]->center;
+        this->curpath.anchors[i].node = nodepath[i];
+    }
+
+    /*
     this->curpath.anchors.resize(2);
     this->curpath.anchors[0].pos = startnode->center;
     this->curpath.anchors[0].node = startnode;
     this->curpath.anchors[1].pos = endnode->center;
     this->curpath.anchors[1].node = endnode;
+    */
 }

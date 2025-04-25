@@ -22,7 +22,8 @@ public:
 public:
     navpath_t curpath;
 protected:
-    const virtual navnode_t* NavNodeFromPos(Vector3 pos) = 0;
+    virtual navnode_t* NavNodeFromPos(Vector3 pos) = 0;
+    virtual std::vector<navnode_t*> AStar(NavMesh* mesh, navnode_t* start, navnode_t* end);
 public:
     virtual bool ConstructPath(Vector3 start, Vector3 end) = 0;
 

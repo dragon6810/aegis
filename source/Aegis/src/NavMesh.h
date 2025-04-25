@@ -22,6 +22,11 @@ typedef struct navnode_s
     Vector3 normal;
     Vector3 center;
     std::vector<struct navnode_s*> edges;
+
+    // Pathfinding intermediate values
+    struct navnode_s *exploredby;
+    float h, f;
+    bool explored;
 } navnode_t;
 
 class NavMesh

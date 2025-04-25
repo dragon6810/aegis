@@ -75,26 +75,18 @@ bool PolyMath::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
 	const float epsilon = 0.01;
 
 	int i;
+    
+    float d1, d2;
 
-	int firstside;
-    float d1;
-
-	firstside = 0;
 	for(i=0; i<points.size(); i++)
     {
         d1 = Vector3::Dot(points[i], n) - d;
-		
-		if(firstside == 0)
-		{
-			if(d1 < -epsilon)
-				firstside = -1;
-			if(d1 > epsilon)
-				firstside = 1;
+        d2 = Vector3::Dot(points[(i+1)%points.size()], n) - d;
 
-			continue;
-		}
-		if(d1 * firstside < -epsilon)
-			return true;
+        if(d1 > epsilon && d2 < -epsilon)
+            return true;
+        if(d1 < -epsilon && d2 > epsilon)
+            return true;
     }
 
 	return false;

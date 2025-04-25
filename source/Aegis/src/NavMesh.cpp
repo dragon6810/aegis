@@ -64,11 +64,10 @@ std::pair<Vector3, Vector3> NavMesh::MakeEdge(Vector3 a, Vector3 b)
 
 bool NavMesh::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 {
-    if((v1 == v3) && (v2 == v4))
-        return true;
-
-    if((v1 == v4) && (v2 == v3))
-        return true;
+    if(v1 == v3)
+        return v2 == v4;
+    if(v1 == v4)
+        return v2 == v3;
 
     return false;
 }
@@ -77,9 +76,10 @@ bool NavMesh::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 void NavMesh::FindEdges(int hull)
 {
     int i, j, cur, next, _cur, _next;
+    Vector3 *v1, *v2, *v3, *v4;
     bool found;
 
-    for(i=0; i<surfs[hull].size(); i++)
+    for(i=0; i<surfs[hull].size()-1; i++)
     {
         for(j=i+1; j<surfs[hull].size(); j++)
         {
@@ -88,12 +88,16 @@ void NavMesh::FindEdges(int hull)
             for(cur=0; cur<surfs[hull][i].points.size(); cur++)
             {
                 next = (cur + 1) % surfs[hull][i].points.size();
+                v1 = &surfs[hull][i].points[cur];
+                v2 = &surfs[hull][i].points[next];
 
                 for(_cur=0; _cur<surfs[hull][j].points.size(); _cur++)
                 {
                     _next = (_cur + 1) % surfs[hull][j].points.size();
+                    v3 = &surfs[hull][j].points[_cur];
+                    v4 = &surfs[hull][j].points[_next];
 
-                    if(!SameEdge(surfs[hull][i].points[cur], surfs[hull][i].points[next], surfs[hull][j].points[_cur], surfs[hull][j].points[_next]))
+                    if(!SameEdge(*v1, *v2, *v3, *v4))
                         continue;
 
                     surfs[hull][i].edges.push_back(&surfs[hull][j]);
@@ -158,12 +162,16 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
     std::vector<navnode_t> nodes;
     std::vector<std::array<Vector3, 3>> tris;
 
-    nodes.resize(world->hullsurfs[hull].size());
+    nodes.resize(world->surfs.size());
     for(i=0; i<nodes.size(); i++)
     {
         nodes[i] = {};
-        nodes[i].points = world->hullsurfs[hull][i].points;
-        nodes[i].normal = world->hullsurfs[hull][i].node->pl->n;
+        nodes[i].points.resize(world->surfs[i].vertices.size());
+        for(j=0; j<nodes[i].points.size(); j++)
+            nodes[i].points[j] = *world->surfs[i].vertices[j];
+        nodes[i].normal = world->surfs[i].pl->n;
+        if(world->surfs[i].reverse)
+            nodes[i].normal = nodes[i].normal * -1;
         nodes[i].center = PolyMath::FindCenter(nodes[i].points);
     }
 
@@ -245,8 +253,8 @@ void NavMesh::FindSurfs(int hull)
     int i;
 
     surfs[hull] = Expand(hull);
-    surfs[hull] = CutPlanes(surfs[hull]);
-    surfs[hull] = PruneFaces(surfs[hull]);
+    //surfs[hull] = CutPlanes(surfs[hull]);
+    //surfs[hull] = PruneFaces(surfs[hull]);
 }
 
 void NavMesh::Render(void)
@@ -259,7 +267,7 @@ void NavMesh::Render(void)
 
 void NavMesh::Initialize(World* world)
 {
-    int i;
+    int i, j, k;
 
     this->world = world;
 
@@ -267,5 +275,25 @@ void NavMesh::Initialize(World* world)
     {
         FindSurfs(i);
         FindEdges(i);
+    }
+
+    for(i=0; i<surfs[0].size()-1; i++)
+    {
+        for(j=i+1; j<surfs[0].size(); j++)
+        {
+            if(surfs[0][i].points.size() != surfs[0][j].points.size())
+                continue;
+
+            for(k=0; k<surfs[0][i].points.size(); k++)
+            {
+                if(surfs[0][i].points[k] != surfs[0][j].points[k])
+                    break;
+            }
+
+            if(k < surfs[0][i].points.size())
+                continue;
+
+            Console::Print("duplicate\n");
+        }
     }
 }
