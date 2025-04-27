@@ -3,5 +3,5 @@
 if make; then
     mkdir -p run
     cd run
-    ../bin/acsg
+    ../bin/acsg zombieattack
 fi
