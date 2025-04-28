@@ -1,6 +1,8 @@
 #ifndef _ENTITY_H
 #define _ENTITY_H
 
+#include <map.h>
+
 #define ENTITY_MAX_KEY 32
 #define ENTITY_MAX_VAL 1024
 
@@ -13,9 +15,13 @@ typedef struct epair_s
 typedef struct entity_s
 {
     epair_t *pairs;
+    brush_t *brushes;
 } entity_t;
 
+extern int nmapentities;
+extern entity_t mapentities[MAX_MAP_ENTITIES];
+
 epair_t* entity_allocepair(void);
-epair_t* entity_findbykry(entity_t* ent, const char* key);
+epair_t* entity_findbykey(entity_t* ent, const char* key);
 
 #endif

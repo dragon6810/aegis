@@ -5,6 +5,9 @@
 
 #include <std/assert/assert.h>
 
+int nmapentities = 0;
+entity_t mapentities[MAX_MAP_ENTITIES] = {};
+
 epair_t* entity_allocepair(void)
 {
     return calloc(1, sizeof(epair_t));

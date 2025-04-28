@@ -6,5 +6,6 @@
 
 extern char sourcefilepath[PATH_MAX];
 extern char destfilepath[PATH_MAX];
+extern char entfilepath[PATH_MAX];
 
 #endif

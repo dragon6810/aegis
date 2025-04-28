@@ -15,6 +15,7 @@ bool parselib_nexttoken(tokenstate_t *tokenstate)
 
     if(tokenstate->token)
         free(tokenstate->token);
+    tokenstate->token = NULL;
 
     while(1)
     {

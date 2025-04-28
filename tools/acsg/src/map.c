@@ -7,16 +7,27 @@
 #include <parselib/parselib.h>
 
 #include <globals.h>
+#include <entity.h>
 
-int nmapentities = 0;
-entity_t mapentities[MAX_MAP_ENTITIES] = {};
+int nmapbrushes = 0;
+brush_t mapbrushes[MAX_MAP_BRUSHES] = {};
 
 tokenstate_t map_parse;
+
+brface_t* map_allocbrface(void)
+{
+    return calloc(1, sizeof(brface_t));
+}
+
+brush_t* map_allocbrush(void)
+{
+    return calloc(1, sizeof(brush_t));
+}
 
 void map_nextpair(void)
 {
     epair_t *pair;
-    
+
     if(strlen(map_parse.token) < 2 || strlen(map_parse.token) >= ENTITY_MAX_KEY - 2)
     {
         fprintf(stderr, "error: entity key too long, max is %d.\n", ENTITY_MAX_KEY);
@@ -50,7 +61,120 @@ void map_nextpair(void)
 
 void map_nextbrush(void)
 {
+    int i, j;
 
+    brush_t *brush;
+    brface_t *curface;
+
+    vec3_t plpoints[3];
+
+    brush = &mapbrushes[nmapbrushes++];
+
+    while(true)
+    {
+        if(!parselib_nexttoken(&map_parse))
+        {
+            fprintf(stderr, "error: brush entry doesn't have an end\n");
+            abort();
+        }
+
+        if(!strcmp(map_parse.token, "}"))
+            break;
+
+        for(i=0; i<3; i++)
+        {
+            if(i)
+                parselib_nexttoken(&map_parse);
+
+            if(strcmp(map_parse.token, "("))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have three plane points\n");
+                abort();
+            }
+
+            for(j=0; j<3; j++)
+            {
+                if(!parselib_nexttoken(&map_parse))
+                {
+                    fprintf(stderr, "error: brush face plane point isn't complete vector\n");
+                    abort();
+                }
+
+                plpoints[i][j] = atoi(map_parse.token);
+            }
+
+            if(!parselib_nexttoken(&map_parse) || strcmp(map_parse.token, ")"))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have three plane points\n");
+                abort();
+            }
+        }
+
+        curface = map_allocbrface();
+
+        if(!parselib_nexttoken(&map_parse) || strlen(map_parse.token) >= 16)
+        {
+            fprintf(stderr, "error: brush face entry doesn't have miptex name\n");
+            abort();
+        }
+
+        strcpy(curface->miptex, map_parse.token);
+
+        for(i=0; i<2; i++)
+        {
+            if(!parselib_nexttoken(&map_parse) || strcmp(map_parse.token, "["))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have u vector\n");
+                abort();
+            }
+
+            for(j=0; j<3; j++)
+            {
+                if(!parselib_nexttoken(&map_parse))
+                {
+                    fprintf(stderr, "error: brush face entry doesn't have texture vector\n");
+                    abort();
+                }
+
+                curface->texvec[i][j] = atoi(map_parse.token);
+            }
+
+            if(!parselib_nexttoken(&map_parse))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have texture vector\n");
+                abort();
+            }
+            curface->shift[i] = atoi(map_parse.token);
+
+            if(!parselib_nexttoken(&map_parse) || strcmp(map_parse.token, "]"))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have u vector\n");
+                abort();
+            }
+        }
+
+        if(!parselib_nexttoken(&map_parse))
+        {
+            fprintf(stderr, "error: brush face entry doesn't have rotation\n");
+            abort();
+        }
+
+        for(i=0; i<2; i++)
+        {
+            if(!parselib_nexttoken(&map_parse))
+            {
+                fprintf(stderr, "error: brush face entry doesn't have tex scale\n");
+                abort();
+            }
+            curface->scale[i] = atof(map_parse.token);
+        }
+
+        curface->next = brush->faces;
+        brush->faces = curface;
+    }
+
+    brush->nextbrush = mapentities[nmapentities].brushes;
+    mapentities[nmapentities].brushes = brush;
 }
 
 bool map_parsenext(void)
