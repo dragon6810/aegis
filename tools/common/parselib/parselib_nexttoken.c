@@ -39,8 +39,19 @@ bool parselib_nexttoken(tokenstate_t *tokenstate)
     }
 
     start = tokenstate->pos;
-    while(*tokenstate->pos > 32)
-        tokenstate->pos++;
+    if(*tokenstate->pos == '"')
+    {
+        do
+            tokenstate->pos++;
+        while(*tokenstate->pos != '"' && *tokenstate->pos != '\n' && *tokenstate->pos);
+        if(*tokenstate->pos == '"')
+            tokenstate->pos++;
+    }
+    else
+    {
+        while(*tokenstate->pos > 32)
+            tokenstate->pos++;
+    }
     len = tokenstate->pos - start;
     tokenstate->token = malloc(len + 1);
     memcpy(tokenstate->token, start, len);

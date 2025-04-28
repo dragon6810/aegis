@@ -9,4 +9,4 @@ git clone https://github.com/dragon6810/dblibc.git
 
 cd ..
 mv lib/dblibc/std std
-rm -r lib
+rm -rf lib
