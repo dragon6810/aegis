@@ -8,6 +8,7 @@
 
 #include <globals.h>
 #include <entity.h>
+#include <csg.h>
 
 int nmapbrushes = 0;
 brush_t mapbrushes[MAX_MAP_BRUSHES] = {};
@@ -55,8 +56,6 @@ void map_nextpair(void)
 
     pair->next = mapentities[nmapentities].pairs;
     mapentities[nmapentities].pairs = pair;
-
-    printf("pair: \"%s\" \"%s\".\n", pair->key, pair->val);
 }
 
 void map_nextbrush(void)
@@ -65,8 +64,7 @@ void map_nextbrush(void)
 
     brush_t *brush;
     brface_t *curface;
-
-    vec3_t plpoints[3];
+    vec3_t plpoints[3], a, b;
 
     brush = &mapbrushes[nmapbrushes++];
 
@@ -169,9 +167,17 @@ void map_nextbrush(void)
             curface->scale[i] = atof(map_parse.token);
         }
 
+        VectorSubtract(a, plpoints[1], plpoints[0]);
+        VectorSubtract(b, plpoints[2], plpoints[0]);
+        VectorCross(curface->n, b, a);
+        VectorNormalize(curface->n, curface->n);
+        curface->d = VectorDot(curface->n, plpoints[0]);
+
         curface->next = brush->faces;
         brush->faces = curface;
     }
+
+    csg_generatefaces(brush);
 
     brush->nextbrush = mapentities[nmapentities].brushes;
     mapentities[nmapentities].brushes = brush;

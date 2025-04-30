@@ -5,6 +5,8 @@
 
 #include <std/assert/assert.h>
 
+#include <globals.h>
+
 int nmapentities = 0;
 entity_t mapentities[MAX_MAP_ENTITIES] = {};
 
@@ -32,4 +34,31 @@ epair_t* entity_findbykey(entity_t* ent, const char* key)
     }
 
     return NULL;
+}
+
+void entity_writeents(void)
+{
+    int i;
+
+    FILE *ptr;
+    epair_t *pair;
+
+    ptr = fopen(entfilepath, "w");
+    if(!ptr)
+        return;
+
+    for(i=0; i<nmapentities; i++)
+    {
+        fprintf(ptr, "{\n");
+
+        for(pair=mapentities[i].pairs; ; pair=pair->next)
+        {
+            if(!pair)
+                break;
+
+            fprintf(ptr, "\"%s\" \"%s\"\n", pair->key, pair->val);
+        }
+
+        fprintf(ptr, "}\n");
+    }
 }

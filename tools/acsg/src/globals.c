@@ -2,3 +2,4 @@
 
 char sourcefilepath[PATH_MAX] = "";
 char destfilepath[PATH_MAX] = "";
+char entfilepath[PATH_MAX] = "";

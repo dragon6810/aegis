@@ -9,7 +9,7 @@ typedef struct brface_s
     struct brface_s *next;
     vec3_t n;
     float d;
-    poly_t poly;
+    poly_t* poly;
     vec3_t texvec[2];
     float shift[2], scale[2];
     char miptex[16];

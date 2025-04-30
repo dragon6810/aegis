@@ -6,6 +6,7 @@
 
 #include <globals.h>
 #include <map.h>
+#include <entity.h>
 
 int main(int argc, char** argv)
 {
@@ -49,5 +50,11 @@ int main(int argc, char** argv)
         cmdlib_defaultextension(destfilepath, ".bsp", sizeof(destfilepath));
     }
 
+    strcpy(entfilepath, sourcefilepath);
+    cmdlib_stripextension(entfilepath);
+    cmdlib_defaultextension(entfilepath, ".ent", sizeof(entfilepath));
+
     map_parsemap();
+
+    entity_writeents();
 }

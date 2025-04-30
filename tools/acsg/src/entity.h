@@ -23,5 +23,6 @@ extern entity_t mapentities[MAX_MAP_ENTITIES];
 
 epair_t* entity_allocepair(void);
 epair_t* entity_findbykey(entity_t* ent, const char* key);
+void entity_writeents(void);
 
 #endif
