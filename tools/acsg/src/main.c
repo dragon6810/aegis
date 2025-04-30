@@ -3,7 +3,9 @@
 #include <string.h>
 
 #include <cmdlib/cmdlib.h>
+#include <std/profiler/profiler.h>
 
+#include <csg.h>
 #include <globals.h>
 #include <map.h>
 #include <entity.h>
@@ -11,6 +13,8 @@
 int main(int argc, char** argv)
 {
     int i;
+
+    profiler_setup();
 
     for(i=1; i<argc; i++)
     {
@@ -55,6 +59,6 @@ int main(int argc, char** argv)
     cmdlib_defaultextension(entfilepath, ".ent", sizeof(entfilepath));
 
     map_parsemap();
-
+    csg_docsg();
     entity_writeents();
 }

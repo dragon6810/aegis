@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <std/assert/assert.h>
+#include <std/profiler/profiler.h>
 
 #include <globals.h>
 
@@ -43,6 +44,8 @@ void entity_writeents(void)
     FILE *ptr;
     epair_t *pair;
 
+    profiler_push("Write Entities");
+
     ptr = fopen(entfilepath, "w");
     if(!ptr)
         return;
@@ -61,4 +64,6 @@ void entity_writeents(void)
 
         fprintf(ptr, "}\n");
     }
+
+    profiler_pop();
 }

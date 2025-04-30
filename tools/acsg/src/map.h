@@ -17,13 +17,14 @@ typedef struct brface_s
 
 typedef struct brush_s
 {
-    struct brush_s *nextbrush;
     brface_t *faces;
+    vec3_t bounds[2];
 } brush_t;
 
 extern int nmapbrushes;
-extern brush_t mapbrushes[MAX_MAP_BRUSHES];
+extern brush_t maphulls[MAX_MAP_HULLS][MAX_MAP_BRUSHES];
 
+brface_t* map_allocbrface(void);
 void map_parsemap(void);
 
 #endif

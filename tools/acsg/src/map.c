@@ -5,13 +5,14 @@
 #include <string.h>
 
 #include <parselib/parselib.h>
+#include <std/profiler/profiler.h>
 
 #include <globals.h>
 #include <entity.h>
 #include <csg.h>
 
 int nmapbrushes = 0;
-brush_t mapbrushes[MAX_MAP_BRUSHES] = {};
+brush_t maphulls[MAX_MAP_HULLS][MAX_MAP_BRUSHES] = {};
 
 tokenstate_t map_parse;
 
@@ -66,7 +67,10 @@ void map_nextbrush(void)
     brface_t *curface;
     vec3_t plpoints[3], a, b;
 
-    brush = &mapbrushes[nmapbrushes++];
+    brush = &maphulls[0][nmapbrushes++];
+    if(!mapentities[nmapentities].brushes)
+        mapentities[nmapentities].brushes = brush;
+    mapentities[nmapentities].nbrushes++;
 
     while(true)
     {
@@ -176,10 +180,7 @@ void map_nextbrush(void)
         curface->next = brush->faces;
         brush->faces = curface;
     }
-
-    csg_generatefaces(brush);
-
-    brush->nextbrush = mapentities[nmapentities].brushes;
+    
     mapentities[nmapentities].brushes = brush;
 }
 
@@ -223,6 +224,8 @@ void map_parsemap(void)
     char *buf;
     unsigned long int buflen;
 
+    profiler_push("Parse Map");
+
     ptr = fopen(sourcefilepath, "r");
     if(!ptr)
     {
@@ -242,4 +245,6 @@ void map_parsemap(void)
     while(map_parsenext());
 
     parselib_stop(&map_parse);
+
+    profiler_pop();
 }

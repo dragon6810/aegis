@@ -3,6 +3,7 @@
         "stdlib.h": "c",
         "assert.h": "c",
         "map.h": "c",
-        "globals.h": "c"
+        "globals.h": "c",
+        "profiler.h": "c"
     }
 }

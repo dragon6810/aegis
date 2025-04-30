@@ -15,6 +15,7 @@ typedef struct epair_s
 typedef struct entity_s
 {
     epair_t *pairs;
+    int nbrushes;
     brush_t *brushes;
 } entity_t;
 
