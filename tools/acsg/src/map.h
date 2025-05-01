@@ -21,6 +21,7 @@ typedef struct brush_s
     vec3_t bounds[2];
 } brush_t;
 
+extern int nmapmodels;
 extern int nmapbrushes;
 extern brush_t maphulls[MAX_MAP_HULLS][MAX_MAP_BRUSHES];
 

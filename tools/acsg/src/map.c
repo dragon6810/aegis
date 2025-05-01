@@ -11,6 +11,7 @@
 #include <entity.h>
 #include <csg.h>
 
+int nmapmodels = 0;
 int nmapbrushes = 0;
 brush_t maphulls[MAX_MAP_HULLS][MAX_MAP_BRUSHES] = {};
 
@@ -57,19 +58,32 @@ void map_nextpair(void)
 
     pair->next = mapentities[nmapentities].pairs;
     mapentities[nmapentities].pairs = pair;
+    if(!strcmp(pair->key, "origin"))
+    {
+        sscanf(pair->val, "%f %f %f", &mapentities[nmapentities].origin[0], &mapentities[nmapentities].origin[1], &mapentities[nmapentities].origin[2]);
+    }
 }
 
 void map_nextbrush(void)
 {
     int i, j;
 
+    epair_t *newpair;
     brush_t *brush;
     brface_t *curface;
     vec3_t plpoints[3], a, b;
 
     brush = &maphulls[0][nmapbrushes++];
-    if(!mapentities[nmapentities].brushes)
-        mapentities[nmapentities].brushes = brush;
+    if(!mapentities[nmapentities].nbrushes)
+    {
+        mapentities[nmapentities].firstbrush = nmapbrushes-1;
+
+        newpair = calloc(1, sizeof(epair_t));
+        strcpy(newpair->key, "model");
+        snprintf(newpair->val, sizeof(newpair->val), "*%d", nmapmodels++);
+        newpair->next = mapentities[nmapentities].pairs;
+        mapentities[nmapentities].pairs = newpair;
+    }
     mapentities[nmapentities].nbrushes++;
 
     while(true)
@@ -180,8 +194,6 @@ void map_nextbrush(void)
         curface->next = brush->faces;
         brush->faces = curface;
     }
-    
-    mapentities[nmapentities].brushes = brush;
 }
 
 bool map_parsenext(void)
@@ -225,6 +237,9 @@ void map_parsemap(void)
     unsigned long int buflen;
 
     profiler_push("Parse Map");
+
+    memset(&mapentities, 0, sizeof(mapentities));
+    memset(&maphulls, 0, sizeof(maphulls));
 
     ptr = fopen(sourcefilepath, "r");
     if(!ptr)

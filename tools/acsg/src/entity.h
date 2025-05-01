@@ -16,7 +16,8 @@ typedef struct entity_s
 {
     epair_t *pairs;
     int nbrushes;
-    brush_t *brushes;
+    int firstbrush;
+    vec3_t origin;
 } entity_t;
 
 extern int nmapentities;

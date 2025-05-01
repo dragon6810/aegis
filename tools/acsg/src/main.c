@@ -14,6 +14,8 @@ int main(int argc, char** argv)
 {
     int i;
 
+    char ext[4];
+
     profiler_setup();
 
     for(i=1; i<argc; i++)
@@ -58,7 +60,19 @@ int main(int argc, char** argv)
     cmdlib_stripextension(entfilepath);
     cmdlib_defaultextension(entfilepath, ".ent", sizeof(entfilepath));
 
+    for(i=0; i<MAX_MAP_HULLS; i++)
+    {
+        strcpy(ext, ".g");
+        ext[2] = '0' + i;
+        ext[3] = 0;
+
+        strcpy(outfilepaths[i], sourcefilepath);
+        cmdlib_stripextension(outfilepaths[i]);
+        cmdlib_defaultextension(outfilepaths[i], ext, sizeof(outfilepaths[i]));
+    }
+
     map_parsemap();
     csg_docsg();
     entity_writeents();
+    csg_writefaces();
 }
