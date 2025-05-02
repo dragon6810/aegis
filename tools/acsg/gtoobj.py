@@ -50,7 +50,7 @@ def write_obj(models, output_path):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print("Usage: python convert_to_obj.py input.txt output.obj")
+        print("Usage: python gtoobj.py input.gx output.obj")
         sys.exit(1)
 
     input_path = sys.argv[1]

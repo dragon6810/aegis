@@ -10,6 +10,14 @@
 #include <entity.h>
 #include <globals.h>
 
+vec3_t hullsizes[MAX_MAP_HULLS][2] = 
+{
+    { {   0,   0,   0 }, {   0,   0,   0 }, },
+    { { -16, -16, -36 }, {  16,  16,  36 }, },
+    { { -32, -32, -32 }, {  32,  32,  32 }, },
+    { { -16, -16, -18 }, {  16,  16,  18 }, },
+};
+
 void csg_dupebrush(brush_t* brush, brush_t* newbrush)
 {
     brface_t *face;
@@ -81,14 +89,6 @@ void csg_brushbounds(brush_t* brush)
         }
     }
 }
-
-vec3_t hullsizes[MAX_MAP_HULLS][2] = 
-{
-    { {   0,   0,   0 }, {   0,   0,   0 }, },
-    { { -16, -16, -36 }, {  16,  16,  36 }, },
-    { { -32, -32, -32 }, {  32,  32,  32 }, },
-    { { -16, -16, -18 }, {  16,  16,  18 }, },
-};
 
 void csg_expandbrush(brush_t* brush, int hull)
 {
@@ -193,7 +193,7 @@ bool csg_boundsintersect(brush_t* a, brush_t* b)
     assert(a);
     assert(b);
 
-    for (i=0 ; i<3 ; i++)
+    for (i=0; i<3; i++)
         if (a->bounds[0][i] > b->bounds[1][i] || a->bounds[1][i] < b->bounds[0][i])
             return false;
 
@@ -240,7 +240,7 @@ bool csg_polyinsidebrush(poly_t* poly, brush_t* brush)
     for(face=brush->faces; ; face=face->next)
     {
         if(!face)
-            return NULL;
+            break;
 
         for(i=0; i<poly->npoints; i++)
         {
@@ -254,11 +254,10 @@ bool csg_polyinsidebrush(poly_t* poly, brush_t* brush)
 
 void csg_skinabyb(brush_t* a, brush_t* b)
 {
-    brface_t *facea, *faceb;
+    brface_t *facea, *faceb, *nextface, *lastface;
 
     poly_t *fpoly, *bpoly;
     brface_t *fface, *bface;
-    brface_t *newfaces;
 
     assert(a);
     assert(b);
@@ -266,30 +265,68 @@ void csg_skinabyb(brush_t* a, brush_t* b)
     if(!csg_boundsintersect(a, b))
         return;
 
+    csg_cleanbrush(a);
+
     for(faceb=b->faces; ; faceb=faceb->next)
     {
         if(!faceb)
             break;
 
-        newfaces = NULL;
+        if(!faceb->poly)
+            continue;
+
+        lastface = NULL;
         for(facea=a->faces; ; facea=facea->next)
         {
             if(!facea)
                 break;
-
+            
             if(!facea->poly)
+            {
+                lastface = facea;
                 continue;
+            }
+
+            if(PolyOnPlane(facea->poly, faceb->n, faceb->d))
+            {
+                lastface = facea;
+                continue;
+            }
 
             bpoly = CutPoly(facea->poly, faceb->n, faceb->d, 0);
             fpoly = CutPoly(facea->poly, faceb->n, faceb->d, 1);
+
+            if(!bpoly && !fpoly)
+            {
+                lastface = facea;
+                continue;
+            }
+
+            if(bpoly && !fpoly)
+            {
+                free(bpoly);
+                lastface = facea;
+                continue;
+            }
+
+            if(!bpoly && fpoly)
+            {
+                free(fpoly);
+                lastface = facea;
+                continue;
+            }
 
             if(bpoly)
             {
                 bface = map_allocbrface();
                 memcpy(bface, facea, sizeof(brface_t));
                 bface->poly = bpoly;
-                bface->next = newfaces;
-                newfaces = bface;
+                bface->next = facea->next;
+                if(lastface)
+                    lastface->next = bface;
+                else
+                    a->faces = bface;
+                lastface = bface;
             }
 
             if(fpoly)
@@ -297,30 +334,40 @@ void csg_skinabyb(brush_t* a, brush_t* b)
                 fface = map_allocbrface();
                 memcpy(fface, facea, sizeof(brface_t));
                 fface->poly = fpoly;
-                fface->next = newfaces;
-                newfaces = fface;
+                fface->next = facea->next;
+                if(lastface)
+                    lastface->next = fface;
+                else
+                    a->faces = fface;
+                lastface = fface;
             }
 
             free(facea->poly);
-            facea->poly = NULL;
+            free(facea);
+            facea = lastface;
         }
-
-        if(facea)
-            facea->next = newfaces;
     }
 
-    csg_cleanbrush(a);
-
+    lastface = NULL;
     for(facea=a->faces; ; facea=facea->next)
     {
         if(!facea)
             break;
 
-        if(csg_polyinsidebrush(facea->poly, b))
-            facea->poly = NULL;
-    }
+        if(!facea->poly || csg_polyinsidebrush(facea->poly, b))
+        {
+            if(lastface)
+                lastface->next = nextface = facea->next;
+            else
+                a->faces = nextface = facea->next;
 
-    csg_cleanbrush(a);
+            free(facea->poly);
+            free(facea);
+            facea = nextface;
+        }
+
+        lastface = facea;
+    }
 }
 
 void csg_skinmodel(int firstbrush, int nbrushes)
@@ -329,14 +376,15 @@ void csg_skinmodel(int firstbrush, int nbrushes)
 
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
-        for(i=firstbrush; i<firstbrush+nbrushes; i++)
+        for(i=firstbrush; i<firstbrush+nbrushes-1; i++)
         {
-            for(j=firstbrush; j<firstbrush+nbrushes; j++)
+            for(j=i+1; j<firstbrush+nbrushes; j++)
             {
                 if(i == j)
                     continue;
 
                 csg_skinabyb(&maphulls[h][i], &maphulls[h][j]);
+                csg_skinabyb(&maphulls[h][j], &maphulls[h][i]);
             }
         }
     }
@@ -381,7 +429,7 @@ void csg_docsg(void)
 
 void csg_writefaces(void)
 {
-    int h, i, j, b, k;
+    int h, i, j, b, k, n;
     brush_t *brush;
     brface_t *face;
     vec3_t *o;
@@ -406,10 +454,10 @@ void csg_writefaces(void)
 
             o = &mapentities[i].origin;
             fprintf(ptr, "*%d ( %f %f %f )\n", j, (*o)[0], (*o)[1], (*o)[2]);
-            for(b=mapentities[i].firstbrush; b<mapentities[i].nbrushes; b++)
+            for(b=mapentities[i].firstbrush; b<mapentities[i].firstbrush+mapentities[i].nbrushes; b++)
             {
                 brush = &maphulls[h][b];
-                for(face=brush->faces; ; face=face->next)
+                for(face=brush->faces,n=0; ; face=face->next,n++)
                 {
                     if(!face)
                         break;

@@ -1,6 +1,7 @@
 #ifndef _VECTOR_H
 #define _VECTOR_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 typedef float vec3_t[3];
@@ -26,6 +27,7 @@ poly_t* AllocPoly(int npoints);
 poly_t* CopyPoly(poly_t* poly);
 poly_t* PolyForPlane(vec3_t n, float d);
 poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side);
+bool PolyOnPlane(poly_t* poly, vec3_t n, float d);
 void PrintPoly(FILE* out, poly_t* poly);
 
 #endif

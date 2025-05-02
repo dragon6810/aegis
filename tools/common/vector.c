@@ -201,7 +201,7 @@ poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
     if(side)
     {
         VectorScale(pln, pln, -1);
-        d = -d;
+        pld = -pld;
     }
 
     for(i=0; i<poly->npoints; i++)
@@ -257,6 +257,21 @@ poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
     }
 
     return newpoly;
+}
+
+bool PolyOnPlane(poly_t* poly, vec3_t n, float d)
+{
+    const float epsilon = 0.01;
+
+    int i;
+
+    assert(poly);
+
+    for(i=0; i<poly->npoints; i++)
+        if(fabsf(VectorDot(poly->points[i], n) - d) > epsilon)
+            return false;
+
+    return true;
 }
 
 void PrintPoly(FILE* out, poly_t* poly)
