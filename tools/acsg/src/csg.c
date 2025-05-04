@@ -226,7 +226,7 @@ void csg_cleanbrush(brush_t* brush)
     }
 }
 
-bool csg_polyinsidebrush(poly_t* poly, brush_t* brush)
+bool csg_polyinsidebrush(poly_t* poly, brush_t* srcbrush, brush_t* brush)
 {
     const float epsilon = 0.01;
 
@@ -252,12 +252,9 @@ bool csg_polyinsidebrush(poly_t* poly, brush_t* brush)
     return true;
 }
 
-void csg_skinabyb(brush_t* a, brush_t* b)
+void csg_prunefaces(brush_t* a, brush_t* b)
 {
-    brface_t *facea, *faceb, *nextface, *lastface;
-
-    poly_t *fpoly, *bpoly;
-    brface_t *fface, *bface;
+    brface_t *face;
 
     assert(a);
     assert(b);
@@ -265,22 +262,40 @@ void csg_skinabyb(brush_t* a, brush_t* b)
     if(!csg_boundsintersect(a, b))
         return;
 
-    csg_cleanbrush(a);
-
-    for(faceb=b->faces; ; faceb=faceb->next)
+    for(face=a->faces; face; face=face->next)
     {
-        if(!faceb)
-            break;
-
-        if(!faceb->poly)
+        if(!face->poly || !csg_polyinsidebrush(face->poly, a, b))
             continue;
 
+        face->poly = NULL;
+    }
+}
+
+void csg_skinabyb(brush_t* a, brush_t* b)
+{
+    brface_t *facea, *faceb, *lastface;
+
+    poly_t *fpoly, *bpoly;
+    brface_t *fface, *bface;
+    brface_t *newfaces;
+
+    assert(a);
+    assert(b);
+
+    if(a == b)
+        return;
+
+    if(!csg_boundsintersect(a, b))
+        return;
+
+    csg_cleanbrush(a);
+
+    newfaces = NULL;
+    for(faceb=b->faces; faceb; faceb=faceb->next)
+    {
         lastface = NULL;
-        for(facea=a->faces; ; facea=facea->next)
-        {
-            if(!facea)
-                break;
-            
+        for(facea=a->faces; facea; facea=facea->next)
+        {   
             if(!facea->poly)
             {
                 lastface = facea;
@@ -298,6 +313,7 @@ void csg_skinabyb(brush_t* a, brush_t* b)
 
             if(!bpoly && !fpoly)
             {
+                /* this should never happen */
                 lastface = facea;
                 continue;
             }
@@ -316,58 +332,25 @@ void csg_skinabyb(brush_t* a, brush_t* b)
                 continue;
             }
 
-            if(bpoly)
-            {
-                bface = map_allocbrface();
-                memcpy(bface, facea, sizeof(brface_t));
-                bface->poly = bpoly;
-                bface->next = facea->next;
-                if(lastface)
-                    lastface->next = bface;
-                else
-                    a->faces = bface;
-                lastface = bface;
-            }
+            bface = map_allocbrface();
+            memcpy(bface, facea, sizeof(brface_t));
+            bface->poly = bpoly;
+            bface->next = newfaces;
+            newfaces = bface;
 
-            if(fpoly)
-            {
-                fface = map_allocbrface();
-                memcpy(fface, facea, sizeof(brface_t));
-                fface->poly = fpoly;
-                fface->next = facea->next;
-                if(lastface)
-                    lastface->next = fface;
-                else
-                    a->faces = fface;
-                lastface = fface;
-            }
+            fface = map_allocbrface();
+            memcpy(fface, facea, sizeof(brface_t));
+            fface->poly = fpoly;
+            fface->next = newfaces;
+            newfaces = fface;
 
-            free(facea->poly);
-            free(facea);
-            facea = lastface;
+            facea->poly = NULL;
+            lastface = facea;
         }
     }
 
-    lastface = NULL;
-    for(facea=a->faces; ; facea=facea->next)
-    {
-        if(!facea)
-            break;
-
-        if(!facea->poly || csg_polyinsidebrush(facea->poly, b))
-        {
-            if(lastface)
-                lastface->next = nextface = facea->next;
-            else
-                a->faces = nextface = facea->next;
-
-            free(facea->poly);
-            free(facea);
-            facea = nextface;
-        }
-
-        lastface = facea;
-    }
+    if(lastface)
+        lastface->next = newfaces;
 }
 
 void csg_skinmodel(int firstbrush, int nbrushes)
@@ -375,19 +358,40 @@ void csg_skinmodel(int firstbrush, int nbrushes)
     int h, i, j;
 
     for(h=0; h<MAX_MAP_HULLS; h++)
-    {
         for(i=firstbrush; i<firstbrush+nbrushes-1; i++)
+            csg_cleanbrush(&maphulls[h][i]);
+
+    for(h=0; h<MAX_MAP_HULLS; h++)
+    {
+        for(i=firstbrush; i<firstbrush+nbrushes; i++)
         {
-            for(j=i+1; j<firstbrush+nbrushes; j++)
+            for(j=firstbrush; j<firstbrush+nbrushes; j++)
             {
                 if(i == j)
                     continue;
 
                 csg_skinabyb(&maphulls[h][i], &maphulls[h][j]);
-                csg_skinabyb(&maphulls[h][j], &maphulls[h][i]);
             }
         }
     }
+
+    for(h=0; h<MAX_MAP_HULLS; h++)
+    {
+        for(i=firstbrush; i<firstbrush+nbrushes; i++)
+        {
+            for(j=firstbrush; j<firstbrush+nbrushes; j++)
+            {
+                if(i == j)
+                    continue;
+
+                csg_prunefaces(&maphulls[h][i], &maphulls[h][j]);
+            }
+        }
+    }
+
+    for(h=0; h<MAX_MAP_HULLS; h++)
+        for(i=firstbrush; i<firstbrush+nbrushes-1; i++)
+            csg_cleanbrush(&maphulls[h][i]);
 }
 
 void csg_skinbrushes(void)
