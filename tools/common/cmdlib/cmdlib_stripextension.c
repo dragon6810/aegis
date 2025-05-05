@@ -12,11 +12,14 @@ void cmdlib_stripextension(char* path)
     assert(path);
     
     pathlen = strlen(path);
+    if(!pathlen)
+        return;
+    
     for(i=pathlen-1; i>=0; i--)
         if(path[i] == '.')
             break;
-
-    if(path[i] != '.')
+    
+    if(i < 0 || path[i] != '.')
         return;
 
     memset(path + i, 0, pathlen - i);
