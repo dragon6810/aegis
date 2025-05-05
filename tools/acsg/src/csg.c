@@ -233,20 +233,37 @@ bool csg_polyinsidebrush(poly_t* poly, brush_t* srcbrush, brush_t* brush)
     int i;
 
     brface_t *face;
+    vec3_t a, b, n;
 
     assert(poly);
     assert(brush);
 
-    for(face=brush->faces; ; face=face->next)
+    for(face=brush->faces; face; face=face->next)
     {
-        if(!face)
-            break;
-
         for(i=0; i<poly->npoints; i++)
         {
             if(VectorDot(poly->points[i], face->n) - face->d > epsilon)
                 return false;
         }
+    }
+
+    for(face=brush->faces; face; face=face->next)
+    {
+        if(!PolyOnPlane(poly, face->n, face->d))
+            continue;
+
+        if(poly->npoints < 3)
+            continue;
+
+        VectorSubtract(a, poly->points[1], poly->points[0]);
+        VectorSubtract(b, poly->points[2], poly->points[0]);
+        VectorCross(n, a, b);
+        if(VectorDot(n, face->n) < 0)
+            continue;
+
+        // Poly is coincident & aligned to plane, choose one arbitrarily
+
+        return srcbrush < brush;
     }
 
     return true;
