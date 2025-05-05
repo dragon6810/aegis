@@ -18,6 +18,32 @@ vec3_t hullsizes[MAX_MAP_HULLS][2] =
     { { -16, -16, -18 }, {  16,  16,  18 }, },
 };
 
+void csg_cleanbrush(brush_t* brush)
+{
+    brface_t *face, *lastface, *nextface;
+
+    for(face=brush->faces,lastface=NULL; ; face=nextface)
+    {
+        if(!face)
+            break;
+        
+        if(face->poly)
+        {
+            nextface=face->next;
+            lastface = face;
+            continue;
+        }
+        
+        if(lastface)
+            lastface->next = face->next;
+        else
+            brush->faces = face->next;
+        nextface = face->next;
+
+        free(face);
+    }
+}
+
 void csg_dupebrush(brush_t* brush, brush_t* newbrush)
 {
     brface_t *face;
@@ -64,8 +90,8 @@ void csg_brushbounds(brush_t* brush)
 
     for(i=0; i<3; i++)
     {
-        brush->bounds[0][i] = (8192<<1);
-        brush->bounds[1][i] = -(8192<<1);
+        brush->bounds[0][i] = 8192;
+        brush->bounds[1][i] = -8192;
     }
 
     csg_generatefaces(brush);
@@ -92,10 +118,13 @@ void csg_brushbounds(brush_t* brush)
 
 void csg_expandbrush(brush_t* brush, int hull)
 {
+    const float epsilon = 0.01;
+
     int i, j;
     brface_t *face, *lastface;
 
     vec3_t corner;
+    bool nobb[2][3] = { {}, {}, };
 
     assert(brush);
     assert(hull >= 0);
@@ -104,32 +133,39 @@ void csg_expandbrush(brush_t* brush, int hull)
     csg_brushbounds(brush);
 
     lastface = NULL;
-    for(face=brush->faces; ; face=face->next)
+    for(face=brush->faces, j=0; face; face=face->next, j++)
     {
-        if(!face)
-            break;
         lastface = face;
 
         VectorCopy(corner, vec3_origin);
         for(i=0; i<3; i++)
         {
-            if(face->n[i] < 0)
+            if(fabsf(face->n[i] + 1) < epsilon)
+                nobb[0][i] = true;
+            if(fabsf(face->n[i] - 1) < epsilon)
+                nobb[1][i] = true;
+            
+            if(face->n[i] < -epsilon)
                 corner[i] = hullsizes[hull][0][i];
-            if(face->n[i] > 0)
+            if(face->n[i] > epsilon)
                 corner[i] = hullsizes[hull][1][i];
         }
+
         face->d += VectorDot(corner, face->n);
     }
 
     if(hull && lastface)
     {
-        for(i=-1; i<=1; i+=2)
+        for(i=0; i<2; i++)
         {
             for(j=0; j<3; j++)
             {
+                if(nobb[i][j])
+                    continue;
+                
                 face = map_allocbrface();
-                face->n[j] = i;
-                face->d = fabsf(brush->bounds[(i+1)/2][j])+fabsf(hullsizes[hull][(i+1)/2][j]);
+                face->n[j] = (i * 2) - 1;
+                face->d = VectorDot(face->n, brush->bounds[i]) + VectorDot(face->n, hullsizes[hull][i]);
                 strcpy(face->miptex, "NULL");
                 lastface->next = face;
                 lastface = face;
@@ -188,42 +224,19 @@ void csg_generatefaces(brush_t* brush)
 
 bool csg_boundsintersect(brush_t* a, brush_t* b)
 {
+    const float epsilon = 0.01;
+    
     int i;
 
     assert(a);
     assert(b);
 
     for (i=0; i<3; i++)
-        if (a->bounds[0][i] > b->bounds[1][i] || a->bounds[1][i] < b->bounds[0][i])
+        if (a->bounds[0][i] - b->bounds[1][i] > epsilon 
+         || b->bounds[0][i] - a->bounds[1][i] > epsilon)
             return false;
 
 	return true;
-}
-
-void csg_cleanbrush(brush_t* brush)
-{
-    brface_t *face, *lastface, *nextface;
-
-    for(face=brush->faces,lastface=NULL; ; face=nextface)
-    {
-        if(!face)
-            break;
-        
-        if(face->poly)
-        {
-            nextface=face->next;
-            lastface = face;
-            continue;
-        }
-        
-        if(lastface)
-            lastface->next = face->next;
-        else
-            brush->faces = face->next;
-        nextface = face->next;
-
-        free(face);
-    }
 }
 
 bool csg_polyinsidebrush(poly_t* poly, brush_t* srcbrush, brush_t* brush)
@@ -288,13 +301,12 @@ void csg_prunefaces(brush_t* a, brush_t* b)
     }
 }
 
-void csg_skinabyb(brush_t* a, brush_t* b)
+void csg_sliceabyb(brush_t* a, brush_t* b)
 {
     brface_t *facea, *faceb, *lastface;
 
     poly_t *fpoly, *bpoly;
     brface_t *fface, *bface;
-    brface_t *newfaces;
 
     assert(a);
     assert(b);
@@ -307,67 +319,58 @@ void csg_skinabyb(brush_t* a, brush_t* b)
 
     csg_cleanbrush(a);
 
-    newfaces = NULL;
     for(faceb=b->faces; faceb; faceb=faceb->next)
     {
-        lastface = NULL;
-        for(facea=a->faces; facea; facea=facea->next)
-        {   
-            if(!facea->poly)
-            {
-                lastface = facea;
-                continue;
-            }
-
+        for(facea=a->faces, lastface=NULL; facea; lastface=facea, facea=facea->next)
+        {
             if(PolyOnPlane(facea->poly, faceb->n, faceb->d))
-            {
-                lastface = facea;
                 continue;
-            }
 
             bpoly = CutPoly(facea->poly, faceb->n, faceb->d, 0);
             fpoly = CutPoly(facea->poly, faceb->n, faceb->d, 1);
 
-            if(!bpoly && !fpoly)
-            {
-                /* this should never happen */
-                lastface = facea;
+            if(!bpoly && !fpoly) /* this should never happen */
                 continue;
-            }
 
             if(bpoly && !fpoly)
             {
                 free(bpoly);
-                lastface = facea;
                 continue;
             }
 
             if(!bpoly && fpoly)
             {
                 free(fpoly);
-                lastface = facea;
                 continue;
             }
 
+            /* slice */
+
             bface = map_allocbrface();
             memcpy(bface, facea, sizeof(brface_t));
+
+            if(lastface)
+                lastface->next = bface;
+            else
+                a->faces = bface;
+
             bface->poly = bpoly;
-            bface->next = newfaces;
-            newfaces = bface;
 
             fface = map_allocbrface();
             memcpy(fface, facea, sizeof(brface_t));
-            fface->poly = fpoly;
-            fface->next = newfaces;
-            newfaces = fface;
 
-            facea->poly = NULL;
+            fface->next = facea->next;
+            bface->next = fface;
+
+            fface->poly = fpoly;
+
+            free(facea->poly);
+            free(facea);
+
+            facea = fface;
             lastface = facea;
         }
     }
-
-    if(lastface)
-        lastface->next = newfaces;
 }
 
 void csg_skinmodel(int firstbrush, int nbrushes)
@@ -379,35 +382,19 @@ void csg_skinmodel(int firstbrush, int nbrushes)
             csg_cleanbrush(&maphulls[h][i]);
 
     for(h=0; h<MAX_MAP_HULLS; h++)
-    {
         for(i=firstbrush; i<firstbrush+nbrushes; i++)
-        {
             for(j=firstbrush; j<firstbrush+nbrushes; j++)
-            {
-                if(i == j)
-                    continue;
-
-                csg_skinabyb(&maphulls[h][i], &maphulls[h][j]);
-            }
-        }
-    }
+                if(i != j)
+                    csg_sliceabyb(&maphulls[h][i], &maphulls[h][j]);
 
     for(h=0; h<MAX_MAP_HULLS; h++)
-    {
         for(i=firstbrush; i<firstbrush+nbrushes; i++)
-        {
             for(j=firstbrush; j<firstbrush+nbrushes; j++)
-            {
-                if(i == j)
-                    continue;
-
-                csg_prunefaces(&maphulls[h][i], &maphulls[h][j]);
-            }
-        }
-    }
+                if(i != j)
+                    csg_prunefaces(&maphulls[h][i], &maphulls[h][j]);
 
     for(h=0; h<MAX_MAP_HULLS; h++)
-        for(i=firstbrush; i<firstbrush+nbrushes-1; i++)
+        for(i=firstbrush; i<firstbrush+nbrushes; i++)
             csg_cleanbrush(&maphulls[h][i]);
 }
 
@@ -435,10 +422,10 @@ void csg_docsg(void)
         for(i=0; i<nmapbrushes; i++)
         {
             if(h)
+            {
                 csg_dupebrush(&maphulls[0][i], &maphulls[h][i]);
-            csg_generatefaces(&maphulls[h][i]);
-            csg_expandbrush(&maphulls[h][i], h);
-            csg_generatefaces(&maphulls[h][i]);
+                csg_expandbrush(&maphulls[h][i], h);
+            }
             csg_brushbounds(&maphulls[h][i]);
         }
     }
@@ -453,7 +440,6 @@ void csg_writefaces(void)
     int h, i, j, b, k, n;
     brush_t *brush;
     brface_t *face;
-    vec3_t *o;
 
     FILE *ptr;
 
@@ -473,8 +459,7 @@ void csg_writefaces(void)
             if(!mapentities[i].nbrushes)
                 continue;
 
-            o = &mapentities[i].origin;
-            fprintf(ptr, "*%d ( %f %f %f )\n", j, (*o)[0], (*o)[1], (*o)[2]);
+            fprintf(ptr, "*%d\n", j);
             for(b=mapentities[i].firstbrush; b<mapentities[i].firstbrush+mapentities[i].nbrushes; b++)
             {
                 brush = &maphulls[h][b];

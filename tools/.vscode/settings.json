@@ -7,6 +7,8 @@
         "profiler.h": "c",
         "cli.h": "c",
         "list_types.h": "c",
-        "cmdlib.h": "c"
+        "cmdlib.h": "c",
+        "queue": "c",
+        "stack": "c"
     }
 }

@@ -2,6 +2,7 @@
 #define _CLI_H
 
 #include <limits.h>
+#include <stdarg.h>
 #include <stdbool.h>
 
 #include <bspfile.h>
@@ -15,6 +16,8 @@ extern bool cli_verbose;
 extern char cli_infiles[MAX_MAP_HULLS][PATH_MAX];
 extern char cli_entfile[PATH_MAX];
 
+void cli_error(bool fatal, const char* format, ...);
+void cli_verror(bool fatal, const char* format, va_list args);
 void cli_abort(void);
 void cli_welcomemessage(void);
 void cli_parseargs(int argc, char** argv);
