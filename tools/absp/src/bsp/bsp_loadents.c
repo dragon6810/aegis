@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include <std/profiler/profiler.h>
+
 #include <cli/cli.h>
 
 bsp_entity_t* bsp_loadents_allocent(int npairs)
@@ -28,6 +30,8 @@ void bsp_loadents(void)
     if(!ptr)
         return;
 
+    profiler_push("Load Entities");
+
     while(fgetc(ptr) == '{')
     {
         fseek(ptr, 1, SEEK_CUR);
@@ -37,7 +41,7 @@ void bsp_loadents(void)
         while(fscanf(ptr, "\"%31[^\"]\" \"%1023[^\"]\"\n", key, val))
             npairs++;
         fseek(ptr, before, SEEK_SET);
-        
+
         if(bsp_nentities >= MAX_MAP_ENTITIES)
             cli_error(true, "map exceeds max entities, max is %d\n", MAX_MAP_ENTITIES);
 
@@ -52,4 +56,6 @@ void bsp_loadents(void)
 
     if(cli_verbose)
         printf("entity count: %d\n", bsp_nentities);
+
+    profiler_pop();
 }

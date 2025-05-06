@@ -29,7 +29,7 @@ typedef struct bsp_texinfo_s
 typedef struct bsp_face_s
 {
     poly_t *poly;
-    struct bsp_texinfo_s *texinfo;
+    int texinfo;
     bsp_plane_t *plane;
 } bsp_face_t;
 
@@ -61,11 +61,12 @@ extern bsp_entity_t *bsp_entities[MAX_MAP_ENTITIES];
 
 extern int bsp_nleaves[MAX_MAP_HULLS];
 extern int bsp_nplanes[MAX_MAP_HULLS];
-extern int bsp_ntexinfos[MAX_MAP_HULLS];
+extern int bsp_ntexinfos;
 extern int bsp_nfaces[MAX_MAP_HULLS];
 extern int bsp_nmodels;
 extern int bsp_nentities;
 
+int bsp_findtexinfo(const bsp_texinfo_t* texinfo);
 void bsp_loadhulls(void);
 void bsp_loadents(void);
 

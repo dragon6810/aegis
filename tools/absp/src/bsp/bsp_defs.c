@@ -11,7 +11,7 @@ bsp_entity_t *bsp_entities[MAX_MAP_ENTITIES] = {};
 
 int bsp_nleaves[MAX_MAP_HULLS] = {};
 int bsp_nplanes[MAX_MAP_HULLS] = {};
-int bsp_ntexinfos[MAX_MAP_HULLS] = {};
+int bsp_ntexinfos = 0;
 int bsp_nfaces[MAX_MAP_HULLS] = {};
 int bsp_nmodels = 0;
 int bsp_nentities = 0;

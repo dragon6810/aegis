@@ -1,5 +1,7 @@
 #include <bsp/bsp.h>
 
+#include <std/profiler/profiler.h>
+
 #include <cli/cli.h>
 
 void bsp_loadhulls(void)
@@ -16,6 +18,8 @@ void bsp_loadhulls(void)
     float scale;
     int npoints;
     int nvertices[MAX_MAP_HULLS] = {}, nfaces[MAX_MAP_HULLS] = {};
+
+    profiler_push("Load Hulls");
 
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
@@ -70,6 +74,8 @@ void bsp_loadhulls(void)
                     VectorScale(texinfo.basis[i], texinfo.basis[i], scale);
                 }
 
+                face->texinfo = bsp_findtexinfo(&texinfo);
+
                 nvertices[h] += npoints;
                 nfaces[h]++;
             }
@@ -86,4 +92,6 @@ void bsp_loadhulls(void)
         }
         printf("-+-------+----------+-------+-\n");
     }
+
+    profiler_pop();
 }
