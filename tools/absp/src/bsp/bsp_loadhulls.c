@@ -15,6 +15,7 @@ void bsp_loadhulls(void)
     bsp_face_t *face;
     float scale;
     int npoints;
+    int nvertices[MAX_MAP_HULLS] = {}, nfaces[MAX_MAP_HULLS] = {};
 
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
@@ -69,8 +70,20 @@ void bsp_loadhulls(void)
                     VectorScale(texinfo.basis[i], texinfo.basis[i], scale);
                 }
 
-                printf("face %d\n", model->nfaces[h]);
+                nvertices[h] += npoints;
+                nfaces[h]++;
             }
         }
+    }
+
+    if(cli_verbose)
+    {
+        printf(" | input | vertices | faces | \n");
+        for(h=0; h<MAX_MAP_HULLS; h++)
+        {
+            printf("-+-------+----------+-------+-\n");
+            printf(" | %5d | %8d | %5d | \n", h, nvertices[h], nfaces[h]);
+        }
+        printf("-+-------+----------+-------+-\n");
     }
 }

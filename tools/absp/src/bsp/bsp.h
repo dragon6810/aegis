@@ -39,6 +39,17 @@ typedef struct bsp_model_s
     int firstface[MAX_MAP_HULLS], nfaces[MAX_MAP_HULLS];
 } bsp_model_t;
 
+typedef struct bsp_epair_s
+{
+    char key[ENTITY_MAX_KEY], val[ENTITY_MAX_VAL];
+} bsp_epair_t;
+
+typedef struct bsp_entity_s
+{
+    int npairs;
+    bsp_epair_t pairs[0];
+} bsp_entity_t;
+
 extern vec3_t bsp_mapbounds[2];
 
 extern bsp_leaf_t *bsp_leaves[MAX_MAP_HULLS][MAX_MAP_LEAFS];
@@ -46,12 +57,14 @@ extern bsp_plane_t bsp_planes[MAX_MAP_HULLS][MAX_MAP_PLANES];
 extern bsp_texinfo_t bsp_texinfos[MAX_MAP_TEXINFO];
 extern bsp_face_t bsp_faces[MAX_MAP_HULLS][MAX_MAP_FACES];
 extern bsp_model_t bsp_models[MAX_MAP_MODELS];
+extern bsp_entity_t *bsp_entities[MAX_MAP_ENTITIES];
 
 extern int bsp_nleaves[MAX_MAP_HULLS];
 extern int bsp_nplanes[MAX_MAP_HULLS];
 extern int bsp_ntexinfos[MAX_MAP_HULLS];
 extern int bsp_nfaces[MAX_MAP_HULLS];
 extern int bsp_nmodels;
+extern int bsp_nentities;
 
 void bsp_loadhulls(void);
 void bsp_loadents(void);

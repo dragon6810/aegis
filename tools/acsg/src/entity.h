@@ -3,9 +3,6 @@
 
 #include <map.h>
 
-#define ENTITY_MAX_KEY 32
-#define ENTITY_MAX_VAL 1024
-
 typedef struct epair_s
 {
     struct epair_s *next;
