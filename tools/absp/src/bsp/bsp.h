@@ -1,6 +1,9 @@
 #ifndef _BSP_H
 #define _BSP_H
 
+#include <std/list/list.h>
+#include <std/list/list_types.h>
+
 #include <bspfile.h>
 #include <vector.h>
 
@@ -17,6 +20,8 @@ typedef struct bsp_plane_s
     float d;
     struct bsp_plane_s *children[2];
     bsp_leaf_t *leaf;
+    list_int_t faces;
+    vec3_t bounds[2];
 } bsp_plane_t;
 
 typedef struct bsp_texinfo_s
@@ -30,13 +35,14 @@ typedef struct bsp_face_s
 {
     poly_t *poly;
     int texinfo;
-    bsp_plane_t *plane;
+    int plane;
 } bsp_face_t;
 
 typedef struct bsp_model_s
 {
     int headplane[MAX_MAP_HULLS];
     int firstface[MAX_MAP_HULLS], nfaces[MAX_MAP_HULLS];
+    vec3_t bounds[MAX_MAP_HULLS][2];
 } bsp_model_t;
 
 typedef struct bsp_epair_s
@@ -69,5 +75,6 @@ extern int bsp_nentities;
 int bsp_findtexinfo(const bsp_texinfo_t* texinfo);
 void bsp_loadhulls(void);
 void bsp_loadents(void);
+void bsp_partition(void);
 
 #endif

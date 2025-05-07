@@ -5,6 +5,8 @@
 
 #define	MAX_MAP_HULLS		4
 
+#define MAX_MAP_RANGE       8192
+
 #define	MAX_MAP_MODELS		256
 #define	MAX_MAP_BRUSHES		4096
 #define	MAX_MAP_ENTITIES	1024

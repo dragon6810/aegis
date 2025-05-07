@@ -84,6 +84,7 @@ void bsp_loadhulls(void)
 
     if(cli_verbose)
     {
+        printf("-+-------+----------+-------+-\n");
         printf(" | input | vertices | faces | \n");
         for(h=0; h<MAX_MAP_HULLS; h++)
         {

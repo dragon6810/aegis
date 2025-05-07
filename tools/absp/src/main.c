@@ -15,6 +15,8 @@ int main(int argc, char** argv)
     
     bsp_loadhulls();
     bsp_loadents();
+    
+    bsp_partition();
 
     cli_cleanup();
 
