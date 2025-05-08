@@ -180,7 +180,6 @@ poly_t* PolyForPlane(vec3_t n, float d)
 poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
 {
     const float epsilon = 0.01;
-    const int front = 2, on = 1, back = 0;
 
     int i;
 
@@ -198,7 +197,7 @@ poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
     VectorCopy(pln, n);
     pld = d;
 
-    if(side)
+    if(side != SIDE_BACK)
     {
         VectorScale(pln, pln, -1);
         pld = -pld;
@@ -208,20 +207,20 @@ poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
     {
         dists[i] = VectorDot(poly->points[i], pln) - pld;
         if(dists[i] > epsilon)
-            sides[i] = front;
+            sides[i] = SIDE_FRONT;
         else if(dists[i] < -epsilon)
-            sides[i] = back;
+            sides[i] = SIDE_BACK;
         else
-            sides[i] = on;
+            sides[i] = SIDE_ON;
 
         sidecounts[sides[i]]++;
     }
     dists[i] = dists[0];
     sides[i] = sides[0];
 
-    if(!sidecounts[front])
+    if(!sidecounts[SIDE_FRONT])
         return CopyPoly(poly);
-    if(!sidecounts[back])
+    if(!sidecounts[SIDE_BACK])
         return NULL;
 
     newpoly = AllocPoly(sidecounts[0] + 2);
@@ -230,16 +229,16 @@ poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side)
     {
         switch(sides[i])
         {
-        case on:
-        case back:
+        case SIDE_ON:
+        case SIDE_BACK:
             VectorCopy(newpoly->points[newpoly->npoints++], poly->points[i]);
             break;
         default:
             break;
         }
 
-        if(!(sides[i] == back && sides[i+1] == front) &&
-           !(sides[i] == front && sides[i+1] == back))
+        if(!(sides[i] == SIDE_BACK && sides[i+1] == SIDE_FRONT) &&
+           !(sides[i] == SIDE_FRONT && sides[i+1] == SIDE_BACK))
             continue;
 
         // This edge crosses the plane
@@ -272,6 +271,39 @@ bool PolyOnPlane(poly_t* poly, vec3_t n, float d)
             return false;
 
     return true;
+}
+
+int PolySide(poly_t* poly, vec3_t n, float d)
+{
+    const float epsilon = 0.01;
+
+    int i;
+
+    int counts[3];
+    float dist;
+
+    assert(poly);
+
+    for(i=0; i<3; i++)
+        counts[i] = 0;
+    for(i=0; i<poly->npoints; i++)
+    {
+        dist = VectorDot(poly->points[i], n) - d;
+        if(dist > epsilon)
+            counts[SIDE_FRONT]++;
+        else if(dist < -epsilon)
+            counts[SIDE_BACK]++;
+        else
+            counts[SIDE_ON]++;
+    }
+
+    if(counts[SIDE_BACK] && counts[SIDE_FRONT])
+        return SIDE_CROSS;
+    if(counts[SIDE_BACK])
+        return SIDE_BACK;
+    if(counts[SIDE_FRONT])
+        return SIDE_FRONT;
+    return SIDE_ON;
 }
 
 void PrintPoly(FILE* out, poly_t* poly)

@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define SIDE_BACK  0
+#define SIDE_ON    1
+#define SIDE_FRONT 2
+#define SIDE_CROSS 3
+
 typedef float vec3_t[3];
 
 static vec3_t vec3_origin = {0, 0, 0};
@@ -28,6 +33,7 @@ poly_t* CopyPoly(poly_t* poly);
 poly_t* PolyForPlane(vec3_t n, float d);
 poly_t* CutPoly(poly_t* poly, vec3_t n, float d, int side);
 bool PolyOnPlane(poly_t* poly, vec3_t n, float d);
+int PolySide(poly_t* poly, vec3_t n, float d);
 void PrintPoly(FILE* out, poly_t* poly);
 
 #endif

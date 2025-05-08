@@ -18,9 +18,9 @@ typedef struct bsp_plane_s
 {
     vec3_t n;
     float d;
-    struct bsp_plane_s *children[2];
-    bsp_leaf_t *leaf;
+    int children[2];
     list_int_t faces;
+    int hull;
     vec3_t bounds[2];
 } bsp_plane_t;
 

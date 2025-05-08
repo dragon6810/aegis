@@ -1,35 +1,60 @@
 #include <bsp/bsp.h>
 
+#include <math.h>
+#include <string.h>
+
 #include <std/assert/assert.h>
 #include <std/profiler/profiler.h>
 
+#include <cli/cli.h>
+
+void bsp_partition_boundfaces(list_int_t faces, int hull, vec3_t min, vec3_t max)
+{
+    int i, j, k;
+
+    bsp_face_t *face;
+
+    for(i=0; i<3; i++)
+    {
+        max[i] = -MAX_MAP_RANGE - 8;
+        min[i] =  MAX_MAP_RANGE + 8;
+    }
+
+    for(i=0; i<faces.size; i++)
+    {
+        face = &bsp_faces[hull][faces.data[i]];
+        for(j=0; j<face->poly->npoints; j++)
+        {
+            for(k=0; k<3; k++)
+            {
+                if(face->poly->points[j][k] < min[k])
+                    min[k] = face->poly->points[j][k];
+                if(face->poly->points[j][k] > max[k])
+                    max[k] = face->poly->points[j][k];
+            }
+        }
+    }
+}
+
 void bsp_partition_boundmodel(bsp_model_t* model)
 {
-    int h, i, j, k;
+    int h, i;
 
-    bsp_face_t *f;
+    list_int_t faces;
 
     assert(model);
 
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
-        model->bounds[h][0][0] = model->bounds[h][0][1] = model->bounds[h][0][2] = -MAX_MAP_RANGE;
-        model->bounds[h][1][0] = model->bounds[h][1][1] = model->bounds[h][1][2] =  MAX_MAP_RANGE;
+        LIST_INITIALIZE(faces);
+        LIST_RESIZE(faces, model->nfaces[h]);
 
-        for(i=model->firstface[h]; i<model->firstface[h]+model->nfaces[h]; i++)
-        {
-            f = &bsp_faces[h][i];
-            for(j=0; j<f->poly->npoints; j++)
-            {
-                for(k=0; k<3; k++)
-                {
-                    if(f->poly->points[j][k] < model->bounds[h][0][k])
-                        model->bounds[h][0][k] = f->poly->points[j][k];
-                    if(f->poly->points[j][k] > model->bounds[h][1][k])
-                        model->bounds[h][1][k] = f->poly->points[j][k];
-                }
-            }
-        }
+        for(i=0; i<model->nfaces[h]; i++)
+            faces.data[i] = model->firstface[h] + i;
+
+        bsp_partition_boundfaces(faces, h, model->bounds[h][0], model->bounds[h][1]);
+
+        LIST_FREE(faces);
     }
 }
 
@@ -133,11 +158,176 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
     return bestface;
 }
 
+// back stays in place, returns index to front
+int bsp_partition_splitface(int iface, int h, vec3_t n, float d)
+{
+    bsp_face_t *oldface, *newface;
+    poly_t *oldpoly;
+    int inewface;
+
+    oldface = &bsp_faces[h][iface];
+    if(PolySide(oldface->poly, n, d) != SIDE_CROSS)
+        return iface;
+    
+    inewface = bsp_nfaces[h]++;
+    newface = &bsp_faces[h][inewface];
+    memcpy(newface, oldface, sizeof(bsp_face_t));
+    newface->poly = CutPoly(oldface->poly, n, d, SIDE_FRONT);
+    assert(newface->poly);
+    if(oldface->plane >= 0)
+        LIST_PUSH(bsp_planes[h][oldface->plane].faces, inewface);
+
+    oldpoly = oldface->poly;
+    oldface->poly = CutPoly(oldpoly, n, d, SIDE_BACK);
+    assert(oldface->poly);
+    free(oldpoly);
+
+    return inewface;
+}
+
+void bsp_partition_seperatebyplane(list_int_t faces, int hull, vec3_t n, float d, list_int_t* back, list_int_t* front)
+{
+    int i;
+    bsp_face_t *face;
+
+    int side;
+    int inewface;
+
+    assert(back);
+    assert(front);
+
+    LIST_INITIALIZE(*back);
+    LIST_INITIALIZE(*front);
+    for(i=0; i<faces.size; i++)
+    {
+        face = &bsp_faces[hull][faces.data[i]];
+        side = PolySide(face->poly, n, d);
+        switch(side)
+        {
+        case SIDE_ON:
+            continue;
+        case SIDE_BACK:
+            LIST_PUSH(*back, faces.data[i]);
+            continue;
+        case SIDE_FRONT:
+            LIST_PUSH(*front, faces.data[i]);
+            continue;
+        }
+
+        // split
+        inewface = bsp_partition_splitface(faces.data[i], hull, n, d);
+        LIST_PUSH(*front, inewface);
+        LIST_PUSH(*back, faces.data[i]);
+    }
+}
+
+int bsp_parition_split_r(list_int_t faces, int hull)
+{
+    const float epsilon = 0.01;
+
+    int i, j;
+    bsp_face_t *face;
+
+    int splitface;
+    bsp_face_t *psplitface;
+    bsp_plane_t *plane;
+    list_int_t offplane;
+    list_int_t facelists[2];
+    vec3_t n, a, b;
+    float d;
+    int iplane;
+
+    if(!faces.size)
+    {
+        printf("TODO: make leaves\n");
+        return -1;
+    }
+
+    splitface = bsp_partition_chooseplane(faces, hull);
+    iplane = bsp_nplanes[hull]++;
+    plane = &bsp_planes[hull][iplane];
+    psplitface = &bsp_faces[hull][faces.data[splitface]];
+    psplitface->plane = iplane;
+
+    if(psplitface->poly->npoints < 3)
+        cli_error(true, "invalid geometry: face has <3 points\n");
+    
+    VectorSubtract(a, psplitface->poly->points[1], psplitface->poly->points[0]);
+    VectorSubtract(b, psplitface->poly->points[2], psplitface->poly->points[0]);
+    VectorCross(n, a, b);
+    VectorNormalize(n, n);
+    d = VectorDot(n, psplitface->poly->points[0]);
+
+    plane->children[0] = plane->children[1] = 0;
+    bsp_partition_boundfaces(faces, hull, plane->bounds[0], plane->bounds[1]);
+    LIST_INITIALIZE(plane->faces);
+    VectorCopy(plane->n, n);
+    plane->d = d;
+    plane->hull = hull;
+
+    LIST_INITIALIZE(offplane);
+    for(i=0; i<faces.size; i++)
+    {
+        face = &bsp_faces[hull][faces.data[i]];
+        if(face->poly->npoints < 3)
+            continue;
+
+        VectorSubtract(a, face->poly->points[1], face->poly->points[0]);
+        VectorSubtract(b, face->poly->points[2], face->poly->points[0]);
+        VectorCross(n, a, b);
+        VectorNormalize(n, n);
+        d = VectorDot(n, face->poly->points[0]);
+
+        if(fabsf(d - plane->d) > epsilon)
+        {
+            LIST_PUSH(offplane, faces.data[i]);
+            continue;
+        }
+
+        for(j=0; j<3; j++)
+            if(fabsf(n[j] - plane->n[j]) > epsilon)
+                break;
+        if(j < 3)
+        {
+            LIST_PUSH(offplane, faces.data[i]);
+            continue;
+        }
+
+        LIST_PUSH(plane->faces, faces.data[i]);
+        face->plane = iplane;
+    }
+
+    bsp_partition_seperatebyplane(offplane, hull, plane->n, plane->d, &facelists[0], &facelists[1]);
+    for(i=0; i<2; i++)
+    {
+        plane->children[i] = bsp_parition_split_r(facelists[i], hull);
+        LIST_FREE(facelists[i]);
+    }
+    LIST_FREE(offplane);
+
+    return iplane;
+}
+
 void bsp_partition_processmodel(bsp_model_t* model)
 {
+    int h, i;
+
+    list_int_t faces;
+
     assert(model);
 
     bsp_partition_boundmodel(model);
+    for(h=0; h<MAX_MAP_HULLS; h++)
+    {
+        LIST_INITIALIZE(faces);
+        LIST_RESIZE(faces, model->nfaces[h]);
+        for(i=0; i<model->nfaces[h]; i++)
+            faces.data[i] = model->firstface[h] + i;
+
+        model->headplane[h] = bsp_parition_split_r(faces, h);
+
+        LIST_FREE(faces);
+    }
 }
 
 void bsp_partition(void)
