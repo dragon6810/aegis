@@ -51,6 +51,7 @@ void bsp_loadhulls(void)
                     npoints++;
                 
                 fseek(ptr, before, SEEK_SET);
+                face->plane = -1;
                 face->poly = AllocPoly(npoints);
                 for(i=0; i<npoints; i++)
                     fscanf(ptr, "( %f %f %f ) ", 

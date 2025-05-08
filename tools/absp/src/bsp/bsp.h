@@ -9,16 +9,17 @@
 
 typedef struct bsp_leaf_s
 {
-    int nfaces;
-    struct bsp_face_s *faces[0];
     int contents;
+    int hull;
+    int nfaces;
+    int faces[0];
 } bsp_leaf_t;
 
 typedef struct bsp_plane_s
 {
     vec3_t n;
     float d;
-    int children[2];
+    int children[2]; // negative indices bitwise invert to get leaf index
     list_int_t faces;
     int hull;
     vec3_t bounds[2];
