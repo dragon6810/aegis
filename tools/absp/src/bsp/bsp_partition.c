@@ -117,8 +117,6 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
     for(i=0; i<faces.size; i++)
     {
         f = &bsp_faces[hull][faces.data[i]];
-        if(f->plane >= 0)
-            continue;
         for(j=0; j<f->poly->npoints; j++)
         {
             VectorCopy(p, f->poly->points[j]);
@@ -137,7 +135,7 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
     for(i=0; i<faces.size; i++)
     {
         f = &bsp_faces[hull][faces.data[i]];
-        if(f->poly->npoints < 3)
+        if(f->poly->npoints < 3 || f->plane >= 0)
             continue;
 
         VectorSubtract(a, f->poly->points[1], f->poly->points[0]);
@@ -314,6 +312,7 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
     bsp_partition_seperatebyplane(offplane, hull, plane->n, plane->d, &facelists[0], &facelists[1]);
     for(i=0; i<2; i++)
     {
+        LIST_INSERTLIST(facelists[i], plane->faces, facelists[i].size);
         plane->children[i] = bsp_parition_split_r(facelists[i], hull, i);
         LIST_FREE(facelists[i]);
     }
