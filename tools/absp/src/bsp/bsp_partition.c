@@ -89,49 +89,23 @@ int bsp_partition_spaceratio(vec3_t n, float d, vec3_t bounds[2])
         }
     }
 
-    return counts[1] - counts[0];
+    return abs(counts[1] - counts[0]);
 }
 
 int bsp_partition_chooseplane(list_int_t faces, int hull)
 {
-    int i, j, k;
+    int i;
     bsp_face_t *f;
 
     vec3_t bounds[2];
-    vec3_t p;
     vec3_t n, a, b;
     float d;
     int score;
-
     int bestscore, bestface;
 
-    if(!faces.data)
-        return -1;
-
-    for(i=0; i<3; i++)
-    {
-        bounds[0][i] = MAX_MAP_RANGE + 8;
-        bounds[1][i] = -(MAX_MAP_RANGE + 8);
-    }
-
-    for(i=0; i<faces.size; i++)
-    {
-        f = &bsp_faces[hull][faces.data[i]];
-        for(j=0; j<f->poly->npoints; j++)
-        {
-            VectorCopy(p, f->poly->points[j]);
-            for(k=0; k<3; k++)
-            {
-                if(p[k] < bounds[0][k])
-                    bounds[0][k] = p[k];
-                if(p[k] > bounds[1][k])
-                    bounds[1][k] = p[k];
-            }
-        }
-    }
+    bsp_partition_boundfaces(faces, hull, bounds[0], bounds[1]);
 
     bestface = -1;
-    bestscore = 0;
     for(i=0; i<faces.size; i++)
     {
         f = &bsp_faces[hull][faces.data[i]];
@@ -151,9 +125,6 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
             bestscore = score;
         }
     }
-
-    if(bestface == -1)
-        return -1;
 
     return bestface;
 }
@@ -221,40 +192,45 @@ void bsp_partition_seperatebyplane(list_int_t faces, int hull, vec3_t n, float d
     }
 }
 
+int bsp_partition_addleaf(list_int_t faces, int hull, int side)
+{
+    int ileaf;
+    bsp_leaf_t* leaf;
+
+    if(bsp_nleaves[hull] >= MAX_MAP_LEAFS)
+        cli_error(true, "map exceeds max leaves, max is %d per hull\n", MAX_MAP_LEAFS);
+    
+    ileaf = bsp_nleaves[hull]++;
+    leaf = bsp_leaves[hull][ileaf] = malloc(sizeof(bsp_leaf_t) + sizeof(int) * faces.size);
+
+    leaf->contents = side ? LEAF_CONTENT_EMPTY : LEAF_CONTENT_SOLID;
+    leaf->hull = hull;
+    leaf->nfaces = faces.size;
+    memcpy(leaf->faces, faces.data, sizeof(int) * faces.size);
+
+    printf("leaf n faces: %d\n", leaf->nfaces);
+
+    return ileaf;
+}
+
 int bsp_parition_split_r(list_int_t faces, int hull, int side)
 {
-    const float epsilon = 0.01;
-
-    int i, j;
+    int i;
     bsp_face_t *face;
 
     int splitface;
     bsp_face_t *psplitface;
+    int iplane;
     bsp_plane_t *plane;
-    bsp_leaf_t *leaf;
     list_int_t offplane;
     list_int_t facelists[2];
     vec3_t n, a, b;
     float d;
-    int iplane, ileaf;
 
     splitface = bsp_partition_chooseplane(faces, hull);
 
     if(splitface < 0)
-    {
-        if(bsp_nleaves[hull] >= MAX_MAP_LEAFS)
-            cli_error(true, "map exceeds max leaves, max is %d per hull\n", MAX_MAP_LEAFS);
-        
-        ileaf = bsp_nleaves[hull]++;
-        leaf = bsp_leaves[hull][ileaf] = malloc(sizeof(bsp_leaf_t) + sizeof(int) * faces.size);
-
-        leaf->contents = side ? LEAF_CONTENT_EMPTY : LEAF_CONTENT_SOLID;
-        leaf->hull = hull;
-        leaf->nfaces = faces.size;
-        memcpy(leaf->faces, faces.data, sizeof(int) * faces.size);
-
-        return ~ileaf;
-    }
+        return ~bsp_partition_addleaf(faces, hull, side);
 
     iplane = bsp_nplanes[hull]++;
     plane = &bsp_planes[hull][iplane];
@@ -284,22 +260,7 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
         if(face->poly->npoints < 3)
             continue;
 
-        VectorSubtract(a, face->poly->points[1], face->poly->points[0]);
-        VectorSubtract(b, face->poly->points[2], face->poly->points[0]);
-        VectorCross(n, a, b);
-        VectorNormalize(n, n);
-        d = VectorDot(n, face->poly->points[0]);
-
-        if(fabsf(d - plane->d) > epsilon)
-        {
-            LIST_PUSH(offplane, faces.data[i]);
-            continue;
-        }
-
-        for(j=0; j<3; j++)
-            if(fabsf(n[j] - plane->n[j]) > epsilon)
-                break;
-        if(j < 3)
+        if(PolySide(face->poly, plane->n, plane->d) != SIDE_ON)
         {
             LIST_PUSH(offplane, faces.data[i]);
             continue;
@@ -313,7 +274,9 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
     for(i=0; i<2; i++)
     {
         LIST_INSERTLIST(facelists[i], plane->faces, facelists[i].size);
+        
         plane->children[i] = bsp_parition_split_r(facelists[i], hull, i);
+
         LIST_FREE(facelists[i]);
     }
     LIST_FREE(offplane);
