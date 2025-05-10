@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <std/assert/assert.h>
+#include <std/math/math.h>
 #include <std/profiler/profiler.h>
 
 #include <cli/cli.h>
@@ -92,6 +93,32 @@ int bsp_partition_spaceratio(vec3_t n, float d, vec3_t bounds[2])
     return abs(counts[1] - counts[0]);
 }
 
+int bsp_partition_geometryratio(list_int_t faces, int hull, vec3_t n, float d)
+{
+    int i;
+    bsp_face_t *face;
+
+    int counts[4];
+    int side;
+    int score;
+
+    for(i=0; i<4; i++)
+        counts[i] = 0;
+
+    for(i=0; i<faces.size; i++)
+    {
+        face = &bsp_faces[hull][faces.data[i]];
+        side = PolySide(face->poly, n, d);
+        counts[side]++;
+    }
+
+    score = abs(counts[SIDE_FRONT] - counts[SIDE_BACK]);
+    score = MATH_MIN(0, score - (counts[SIDE_ON] >> 1));
+    score += counts[SIDE_CROSS];
+
+    return score;
+}
+
 int bsp_partition_chooseplane(list_int_t faces, int hull)
 {
     int i;
@@ -117,7 +144,7 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
         VectorCross(n, a, b);
         VectorNormalize(n, n);
         d = VectorDot(n, f->poly->points[0]);
-        score = bsp_partition_spaceratio(n, d, bounds);
+        score = bsp_partition_spaceratio(n, d, bounds) + bsp_partition_geometryratio(faces, hull, n, d);
 
         if(score < bestscore || !i)
         {
@@ -140,17 +167,18 @@ int bsp_partition_splitface(int iface, int h, vec3_t n, float d)
     if(PolySide(oldface->poly, n, d) != SIDE_CROSS)
         return iface;
     
+    if(bsp_nfaces[h] >= MAX_MAP_FACES)
+        cli_error(true, "map exceeds max faces, max is %d per hull\n", MAX_MAP_FACES);
+
     inewface = bsp_nfaces[h]++;
     newface = &bsp_faces[h][inewface];
     memcpy(newface, oldface, sizeof(bsp_face_t));
-    newface->poly = CutPoly(oldface->poly, n, d, SIDE_FRONT);
-    assert(newface->poly);
-    if(oldface->plane >= 0)
-        LIST_PUSH(bsp_planes[h][oldface->plane].faces, inewface);
+    newface->poly = CutPoly(newface->poly, n, d, SIDE_FRONT);
+    if(newface->plane >= 0)
+        LIST_PUSH(bsp_planes[h][newface->plane].faces, inewface);
 
     oldpoly = oldface->poly;
     oldface->poly = CutPoly(oldpoly, n, d, SIDE_BACK);
-    assert(oldface->poly);
     free(oldpoly);
 
     return inewface;
@@ -160,15 +188,16 @@ void bsp_partition_seperatebyplane(list_int_t faces, int hull, vec3_t n, float d
 {
     int i;
     bsp_face_t *face;
-
+    
+    list_int_t backlist, frontlist;
     int side;
     int inewface;
 
     assert(back);
     assert(front);
 
-    LIST_INITIALIZE(*back);
-    LIST_INITIALIZE(*front);
+    LIST_INITIALIZE(backlist);
+    LIST_INITIALIZE(frontlist);
     for(i=0; i<faces.size; i++)
     {
         face = &bsp_faces[hull][faces.data[i]];
@@ -178,18 +207,21 @@ void bsp_partition_seperatebyplane(list_int_t faces, int hull, vec3_t n, float d
         case SIDE_ON:
             continue;
         case SIDE_BACK:
-            LIST_PUSH(*back, faces.data[i]);
+            LIST_PUSH(backlist, faces.data[i]);
             continue;
         case SIDE_FRONT:
-            LIST_PUSH(*front, faces.data[i]);
+            LIST_PUSH(frontlist, faces.data[i]);
             continue;
         }
 
         // split
         inewface = bsp_partition_splitface(faces.data[i], hull, n, d);
-        LIST_PUSH(*front, inewface);
-        LIST_PUSH(*back, faces.data[i]);
+        LIST_PUSH(backlist, faces.data[i]);
+        LIST_PUSH(frontlist, inewface);
     }
+
+    memcpy(back, &backlist, sizeof(list_int_t));
+    memcpy(front, &frontlist, sizeof(list_int_t));
 }
 
 int bsp_partition_addleaf(list_int_t faces, int hull, int side)
@@ -218,47 +250,43 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
     int i;
     bsp_face_t *face;
 
-    int splitface;
-    bsp_face_t *psplitface;
-    int iplane;
+    int isplitface, iplane;
+    bsp_face_t *splitface;
     bsp_plane_t *plane;
-    list_int_t offplane;
-    list_int_t facelists[2];
+    list_int_t offplane, facelists[2];
     vec3_t n, a, b;
     float d;
 
-    splitface = bsp_partition_chooseplane(faces, hull);
-
-    if(splitface < 0)
+    isplitface = bsp_partition_chooseplane(faces, hull);
+    if(isplitface < 0)
         return ~bsp_partition_addleaf(faces, hull, side);
 
+    if(bsp_nplanes[hull] >= MAX_MAP_PLANES)
+        cli_error(true, "map exceeds max planes: max is %d per hull\n", MAX_MAP_PLANES);
     iplane = bsp_nplanes[hull]++;
     plane = &bsp_planes[hull][iplane];
-    psplitface = &bsp_faces[hull][faces.data[splitface]];
-    psplitface->plane = iplane;
+    splitface = &bsp_faces[hull][faces.data[isplitface]];
+    splitface->plane = iplane;
 
-    if(psplitface->poly->npoints < 3)
+    if(splitface->poly->npoints < 3)
         cli_error(true, "invalid geometry: face has <3 points\n");
     
-    VectorSubtract(a, psplitface->poly->points[1], psplitface->poly->points[0]);
-    VectorSubtract(b, psplitface->poly->points[2], psplitface->poly->points[0]);
+    VectorSubtract(a, splitface->poly->points[1], splitface->poly->points[0]);
+    VectorSubtract(b, splitface->poly->points[2], splitface->poly->points[0]);
     VectorCross(n, a, b);
     VectorNormalize(n, n);
-    d = VectorDot(n, psplitface->poly->points[0]);
+    d = VectorDot(n, splitface->poly->points[0]);
 
-    plane->children[0] = plane->children[1] = 0;
     bsp_partition_boundfaces(faces, hull, plane->bounds[0], plane->bounds[1]);
     LIST_INITIALIZE(plane->faces);
+    plane->hull = hull;
     VectorCopy(plane->n, n);
     plane->d = d;
-    plane->hull = hull;
 
     LIST_INITIALIZE(offplane);
     for(i=0; i<faces.size; i++)
     {
         face = &bsp_faces[hull][faces.data[i]];
-        if(face->poly->npoints < 3)
-            continue;
 
         if(PolySide(face->poly, plane->n, plane->d) != SIDE_ON)
         {
@@ -274,11 +302,10 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
     for(i=0; i<2; i++)
     {
         LIST_INSERTLIST(facelists[i], plane->faces, facelists[i].size);
-        
         plane->children[i] = bsp_parition_split_r(facelists[i], hull, i);
-
         LIST_FREE(facelists[i]);
     }
+
     LIST_FREE(offplane);
 
     return iplane;
