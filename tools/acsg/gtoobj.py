@@ -4,7 +4,6 @@ import sys
 def parse_file(input_path):
     models = []
     current_model = None
-    vertex_map = {}
     vertex_list = []
     faces = []
 
@@ -15,7 +14,6 @@ def parse_file(input_path):
                 if current_model is not None:
                     models.append((vertex_list, faces))
                 current_model = int(line[1:].split()[0])
-                vertex_map = {}
                 vertex_list = []
                 faces = []
             elif line.startswith("("):
@@ -23,15 +21,12 @@ def parse_file(input_path):
                 face_indices = []
                 for match in matches:
                     x, y, z = (float(coord) for coord in match)
-                    # Convert from (X, Y, Z) with Z-up to (X, Z, -Y) for OBJ
+                    # Convert from Z-up (X, Y, Z) to OBJ Y-up (X, Z, -Y)
                     converted = (x, z, -y)
-                    if converted not in vertex_map:
-                        vertex_map[converted] = len(vertex_list) + 1
-                        vertex_list.append(converted)
-                    face_indices.append(vertex_map[converted])
+                    vertex_list.append(converted)
+                    face_indices.append(len(vertex_list))  # 1-based index
                 if len(face_indices) >= 3:
-                    for i in range(1, len(face_indices) - 1):
-                        faces.append((face_indices[0], face_indices[i], face_indices[i+1]))
+                    faces.append(face_indices)
         if current_model is not None:
             models.append((vertex_list, faces))
     return models
@@ -44,8 +39,8 @@ def write_obj(models, output_path):
             for v in vertices:
                 out.write(f'v {v[0]} {v[1]} {v[2]}\n')
             for face in faces:
-                a, b, c = (idx + global_index_offset for idx in face)
-                out.write(f'f {a} {b} {c}\n')
+                indices = [str(idx + global_index_offset) for idx in face]
+                out.write(f'f {" ".join(indices)}\n')
             global_index_offset += len(vertices)
 
 if __name__ == '__main__':

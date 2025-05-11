@@ -22,14 +22,11 @@ void csg_cleanbrush(brush_t* brush)
 {
     brface_t *face, *lastface, *nextface;
 
-    for(face=brush->faces,lastface=NULL; ; face=nextface)
+    for(face=brush->faces,lastface=nextface=NULL; face; face=nextface)
     {
-        if(!face)
-            break;
-        
         if(face->poly)
         {
-            nextface=face->next;
+            nextface = face->next;
             lastface = face;
             continue;
         }
@@ -56,11 +53,8 @@ void csg_dupebrush(brush_t* brush, brush_t* newbrush)
     memcpy(newbrush, brush, sizeof(brush_t));
 
     lastface = newbrush->faces = NULL;
-    for(face=brush->faces; ; face=face->next)
+    for(face=brush->faces; face; face=face->next)
     {
-        if(!face)
-            break;
-
         newface = map_allocbrface();
         memcpy(newface, face, sizeof(brface_t));
         if(newface->poly)
@@ -90,8 +84,8 @@ void csg_brushbounds(brush_t* brush)
 
     for(i=0; i<3; i++)
     {
-        brush->bounds[0][i] = 8192;
-        brush->bounds[1][i] = -8192;
+        brush->bounds[0][i] =  MAX_MAP_RANGE;
+        brush->bounds[1][i] = -MAX_MAP_RANGE;
     }
 
     csg_generatefaces(brush);
@@ -182,23 +176,14 @@ void csg_generatefaces(brush_t* brush)
 
     assert(brush);
 
-#if 0
-    printf("-------- brush %d --------\n", nmapbrushes-1);
-#endif
-
-    for(face=brush->faces; ; face=face->next)
+    for(face=brush->faces; face; face=face->next)
     {
-        if(!face)
-            break;
-
         if(face->poly)
             free(face->poly);
 
         curpoly = PolyForPlane(face->n, face->d);
-        for(_face=brush->faces; ; _face=_face->next)
+        for(_face=brush->faces; _face; _face=_face->next)
         {
-            if(!_face)
-                break;
             if(face == _face)
                 continue;
 
@@ -210,16 +195,7 @@ void csg_generatefaces(brush_t* brush)
         }
 
         face->poly = curpoly;
-
-#if 0
-        PrintPoly(stdout, face->poly);
-        printf("\n");
-#endif
     }
-
-#if 0
-    printf("\n");
-#endif
 }
 
 bool csg_boundsintersect(brush_t* a, brush_t* b)
@@ -317,30 +293,36 @@ void csg_sliceabyb(brush_t* a, brush_t* b)
     if(!csg_boundsintersect(a, b))
         return;
 
-    csg_cleanbrush(a);
-
     for(faceb=b->faces; faceb; faceb=faceb->next)
     {
-        for(facea=a->faces, lastface=NULL; facea; lastface=facea, facea=facea->next)
+        for(facea=a->faces, lastface=NULL; facea; facea=facea->next)
         {
             if(PolyOnPlane(facea->poly, faceb->n, faceb->d))
+            {
+                lastface = facea;
                 continue;
+            }
 
             bpoly = CutPoly(facea->poly, faceb->n, faceb->d, 0);
             fpoly = CutPoly(facea->poly, faceb->n, faceb->d, 1);
 
             if(!bpoly && !fpoly) /* this should never happen */
+            {
+                lastface = facea;
                 continue;
+            }
 
             if(bpoly && !fpoly)
             {
                 free(bpoly);
+                lastface = facea;
                 continue;
             }
 
             if(!bpoly && fpoly)
             {
                 free(fpoly);
+                lastface = facea;
                 continue;
             }
 
@@ -367,8 +349,7 @@ void csg_sliceabyb(brush_t* a, brush_t* b)
             free(facea->poly);
             free(facea);
 
-            facea = fface;
-            lastface = facea;
+            facea = lastface = fface;
         }
     }
 }

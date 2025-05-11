@@ -146,7 +146,7 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
         d = VectorDot(n, f->poly->points[0]);
         score = bsp_partition_spaceratio(n, d, bounds) + bsp_partition_geometryratio(faces, hull, n, d);
 
-        if(score < bestscore || !i)
+        if(bestface < 0 || score < bestscore)
         {
             bestface = i;
             bestscore = score;
