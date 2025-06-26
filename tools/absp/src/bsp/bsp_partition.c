@@ -156,7 +156,7 @@ int bsp_partition_chooseplane(list_int_t faces, int hull)
     return bestface;
 }
 
-// back stays in place, returns index to front
+/* back stays in place, returns index to front */
 int bsp_partition_splitface(int iface, int h, vec3_t n, float d)
 {
     bsp_face_t *oldface, *newface;
@@ -240,7 +240,7 @@ int bsp_partition_addleaf(list_int_t faces, int hull, int side)
     leaf->nfaces = faces.size;
     memcpy(leaf->faces, faces.data, sizeof(int) * faces.size);
 
-    printf("leaf n faces: %d\n", leaf->nfaces);
+    // printf("leaf n faces: %d\n", leaf->nfaces);
 
     return ileaf;
 }

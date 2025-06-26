@@ -90,7 +90,8 @@ void cli_parseargs(int argc, char** argv)
     if(cli_verbose)
             printf("    %s\n", cli_entfile);
 
-    printf("\n");
+    if(cli_verbose)
+        printf("\n");
 
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
@@ -102,6 +103,18 @@ void cli_parseargs(int argc, char** argv)
 
     if(access(cli_entfile, F_OK))
         cli_errornofile(cli_entfile);
+
+    if(cli_verbose)
+        printf("output files:\n");
+
+    strcpy(cli_outfile, cli_args.data[i]);
+    cmdlib_stripextension(cli_outfile);
+    cmdlib_defaultextension(cli_outfile, ".bsp", sizeof(cli_outfile));
+    if(cli_verbose)
+            printf("    %s\n", cli_outfile);
+
+    if(cli_verbose)
+        printf("\n");
 
     if(cli_nerrors)
         cli_abort();

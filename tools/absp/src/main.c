@@ -17,6 +17,7 @@ int main(int argc, char** argv)
     bsp_loadents();
     
     bsp_partition();
+    bspfile_writebspfile(cli_outfile);
 
     cli_cleanup();
 
