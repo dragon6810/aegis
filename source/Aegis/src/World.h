@@ -135,10 +135,11 @@ private:
 
 	// Loading
 	bool VerifyFile(FILE* ptr);
+	bool FindLump(FILE* ptr, const char* tag, uint64_t* outloc, uint64_t* outlen);
 	void LoadPlanes(FILE* ptr);
 	void LoadVerts(FILE* ptr);
 	void LoadTextures(FILE* ptr);
-	ResourceManager::texture_t* LoadTexture(int index, FILE* ptr);
+	ResourceManager::texture_t* LoadTexture(const char* name);
 	void LoadSurfs(FILE* ptr);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);

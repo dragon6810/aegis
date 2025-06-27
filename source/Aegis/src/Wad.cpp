@@ -76,6 +76,7 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
     fread(&diroffset, sizeof(diroffset), 1, ptr);
     fseek(ptr, diroffset, SEEK_SET);
 
+    type = 0;
     for(i=0; i<ntextures; i++)
     {
         fread(&diroffset, sizeof(diroffset), 1, ptr);
@@ -97,13 +98,13 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
         break;
     }
 
-    if(i >= ntextures)
+    if(i >= ntextures && name != "NULL")
     {
         Console::Print("Texture not found in wad \"%s\".\n", name.c_str());
         return NULL;
     }
 
-    if(type != 0x42 && type != 0x43)
+    if(type != 0x42 && type != 0x43 && name != "NULL")
     {
         Console::Print("Unknown wad texture type %d.\n", type);
         return NULL;
@@ -173,6 +174,14 @@ ResourceManager::texture_t* Wad::LoadTexture(std::string name)
             else
                 pixeldata[0][i] |= 0xFF000000;
         }
+    }
+
+    if(type == 0 && name == "NULL")
+    {
+        w = h = 1;
+        pixeldata[0].resize(w * h);
+        pixeldata[0][0] = 0xFFFF00FF;
+        type = 0x42;
     }
 
     tex = ResourceManager::FindTexture("wad", name);

@@ -93,8 +93,6 @@ typedef struct
 {
     vec3_t n;
     float d;
-    uint32_t nfaces;
-    uint32_t firstface;
 } bspfile_plane_t;
 
 typedef struct
@@ -102,6 +100,8 @@ typedef struct
     uint32_t plane;
     int32_t children[2]; // if negative, bitwise inverse into leaf indexes
     vec3_t bbox[2];
+    uint32_t nfaces;
+    uint32_t firstface;
 } bspfile_node_t;
 
 typedef struct

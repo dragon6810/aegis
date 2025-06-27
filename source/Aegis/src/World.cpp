@@ -88,6 +88,12 @@ traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 {
 	traceresult_t trace;
 
+	if(headnode >= clipnodes.size())
+	{
+		Console::Print("World::TraceDir: headnode out of bounds.\n");
+		abort();
+	}
+
 	trace.start = start;
 	trace.end = end;
 	trace.didhit = TraceDir_R(headnode, &trace, start, end, Vector3());
@@ -148,16 +154,16 @@ void World::LoadEntities(FILE* ptr)
 	std::string curstr;
 	std::vector<std::string> entbundles;
 	std::vector<std::unordered_map<std::string, std::string>> ents;
-
 	char key[32];
 	char val[1024];
+	uint64_t lumpoffs;
+	uint64_t lumpsize;
 
-	int lumpoffs;
-	int lumpsize;
-
-	fseek(ptr, 4 + LUMP_ENTITIES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
+	if(!FindLump(ptr, "ENTITY", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"ENTITY\" lump.\n");
+		return;
+	}
 
 	buff.resize(lumpsize);
 	fseek(ptr, lumpoffs, SEEK_SET);
@@ -535,33 +541,11 @@ void World::LoadSurfs(FILE* ptr)
 	}
 }
 
-ResourceManager::texture_t* World::LoadTexture(int index, FILE* ptr)
+ResourceManager::texture_t* World::LoadTexture(const char* name)
 {
-	long long before;
-
 	int i;
 
-	int lumpoffs;
-
-	uint32_t ntextures;
-	uint32_t textureoffs;
-
-	char name[16];
 	ResourceManager::texture_t *tex;
-
-	before = ftell(ptr);
-
-	fseek(ptr, 4 + LUMP_TEXTURES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fseek(ptr, lumpoffs, SEEK_SET);
-
-	fread(&ntextures, sizeof(int), 1, ptr);
-	fseek(ptr, index * sizeof(int), SEEK_CUR);
-	fread(&textureoffs, sizeof(int), 1, ptr);
-	fseek(ptr, lumpoffs + textureoffs, SEEK_SET);
-
-	fread(name, 1, 16, ptr);
-	fseek(ptr, before, SEEK_SET);
 
 	for(i=0; i<wads.size(); i++)
 	{
@@ -581,12 +565,12 @@ void World::LoadTextures(FILE* ptr)
 	char* c;
 	std::string realpath;
 	Wad w;
+	std::unordered_map<std::string, ResourceManager::texture_t*> foundmiptex;
 
-	int lumpoffs;
-	int lumpsize;
-	int ntexinfo;
-
-	uint32_t tex;
+	uint64_t lumpoffs;
+	uint64_t lumpsize;
+	uint64_t ntexinfo;
+	char miptex[16];
 
 	for(i=0, c=wadpath.data(); i<wadpath.size(); i++, c++)
 	{
@@ -606,10 +590,13 @@ void World::LoadTextures(FILE* ptr)
 	w.Open(realpath);
 	wads.push_back(w);
 
-	fseek(ptr, 4 + LUMP_TEXINFO * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	ntexinfo = lumpsize / 40;
+	if(!FindLump(ptr, "TEXINFO", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"TEXINFO\" lump.\n");
+		return;
+	}
+
+	ntexinfo = lumpsize / 48;
 	texinfos.resize(ntexinfo);
 
 	Console::Print("Tex Info Count: %d.\n", ntexinfo);
@@ -618,13 +605,19 @@ void World::LoadTextures(FILE* ptr)
 	for(i=0, curtex=texinfos.data(); i<ntexinfo; i++, curtex++)
 	{
 		fread(&curtex->s, sizeof(float), 3, ptr);
-		fread(&curtex->sshift, sizeof(float), 1, ptr);
 		fread(&curtex->t, sizeof(float), 3, ptr);
+		fread(&curtex->sshift, sizeof(float), 1, ptr);
 		fread(&curtex->tshift, sizeof(float), 1, ptr);
 
-		fread(&tex, sizeof(int), 1, ptr);
-		curtex->tex = LoadTexture(tex, ptr);
-		fseek(ptr, sizeof(int), SEEK_CUR);
+		fread(miptex, 1, 16, ptr);
+		if(foundmiptex.find(miptex) != foundmiptex.end())
+		{
+			curtex->tex = foundmiptex.at(miptex);
+			continue;
+		}
+
+		curtex->tex = LoadTexture(miptex);
+		foundmiptex[miptex] = curtex->tex;
 	}
 }
 
@@ -633,13 +626,16 @@ void World::LoadVerts(FILE* ptr)
 	int i;
 	Vector3 *curvert;
 
-	int lumpoffs;
-	int lumpsize;
-	int nverts;
+	uint64_t lumpoffs;
+	uint64_t lumpsize;
+	uint64_t nverts;
 
-	fseek(ptr, 4 + LUMP_VERTICES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
+	if(!FindLump(ptr, "VERTEX", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"VERTEX\" lump.\n");
+		return;
+	}
+
 	nverts = lumpsize / 12;
 	verts.resize(nverts);
 
@@ -659,14 +655,17 @@ void World::LoadPlanes(FILE* ptr)
 	int i;
 	plane_t *curplane;
 
-	int lumpoffs;
-	int lumpsize;
-	int nplanes;
+	uint64_t lumpoffs;
+	uint64_t lumpsize;
+	uint64_t nplanes;
 
-	fseek(ptr, 4 + LUMP_PLANES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	nplanes = lumpsize / 20;
+	if(!FindLump(ptr, "PLANE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"PLANE\" lump.\n");
+		return;
+	}
+
+	nplanes = lumpsize / 16;
 	planes.resize(nplanes);
 
 	Console::Print("Plane Count: %d.\n", nplanes);
@@ -678,21 +677,64 @@ void World::LoadPlanes(FILE* ptr)
 		fread(&curplane->n.y, sizeof(float), 1, ptr);
 		fread(&curplane->n.z, sizeof(float), 1, ptr);
 		fread(&curplane->d, sizeof(float), 1, ptr);
-		fseek(ptr, sizeof(int), SEEK_CUR);
 	}
+}
+
+bool World::FindLump(FILE* ptr, const char* tag, uint64_t* outloc, uint64_t* outlen)
+{
+	int i;
+
+	char curtag[9];
+	uint64_t loc, len;
+	uint64_t before, tableloc;
+	uint32_t nlumps;
+
+	assert(ptr);
+
+	before = ftell(ptr);
+
+	fseek(ptr, 8, SEEK_SET);
+	fread(&nlumps, sizeof(nlumps), 1, ptr);
+	fread(&tableloc, sizeof(tableloc), 1, ptr);
+
+	for(i=0; i<nlumps; i++)
+	{
+		fseek(ptr, tableloc + i * 24, SEEK_SET);
+		fread(curtag, 1, 8, ptr);
+		if(strcmp(curtag, tag))
+			continue;
+
+		fread(&len, sizeof(len), 1, ptr);
+		fread(&loc, sizeof(loc), 1, ptr);
+		break;
+	}
+
+	fseek(ptr, before, SEEK_SET);
+	if(i >= nlumps)
+		return false;
+
+	if(outloc)
+		*outloc = loc;
+	if(outlen)
+		*outlen = len;
+	return true;
 }
 
 bool World::VerifyFile(FILE* ptr)
 {
+	char magic[5];
 	int id;
 
 	if(!ptr)
 		return false;
 
+	magic[4] = 0;
+
 	fseek(ptr, 0, SEEK_SET);
+	fread(magic, 1, 4, ptr);
 	fread(&id, sizeof(int), 1, ptr);
 
-	if(id != 31)
+	if(strcmp(magic, "BSP") || id != 31)
 		return false;
 
 	return true;
@@ -727,6 +769,7 @@ bool World::Load(std::string name)
 	LoadPlanes(ptr);
 	LoadVerts(ptr);
 	LoadTextures(ptr);
+	return false;
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);

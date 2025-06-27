@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <bspfile.h>
+#include <std/assert/assert.h>
 
 #include <cli/cli.h>
 
@@ -100,8 +101,6 @@ uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
 
 uint32_t bsp_loadintofile_addplane(bsp_plane_t* pl)
 {
-    int i;
-
     bspfile_plane_t fileplane = {};
 
     if(bspfile_nplanes >= MAX_MAP_PLANES)
@@ -109,11 +108,6 @@ uint32_t bsp_loadintofile_addplane(bsp_plane_t* pl)
 
     VectorCopy(fileplane.n, pl->n);
     fileplane.d = pl->d;
-    fileplane.firstface = bspfile_nfaces;
-    fileplane.nfaces = pl->faces.size;
-
-    for(i=0; i<pl->faces.size; i++)
-        bsp_loadintofile_addface(&bsp_faces[pl->hull][pl->faces.data[i]], bspfile_nplanes);
     
     memcpy(&bspfile_planes[bspfile_nplanes], &fileplane, sizeof(bspfile_plane_t));
     return bspfile_nplanes++;
@@ -162,6 +156,12 @@ int32_t bsp_loadintofile_addnode_r(bsp_plane_t* node)
     VectorCopy(filenode->bbox[0], node->bounds[0]);
     VectorCopy(filenode->bbox[1], node->bounds[1]);
 
+    filenode->firstface = bspfile_nfaces;
+    filenode->nfaces = node->faces.size;
+
+    for(i=0; i<node->faces.size; i++)
+        bsp_loadintofile_addface(&bsp_faces[node->hull][node->faces.data[i]], bspfile_nplanes);
+
     for(i=0; i<2; i++)
     {
         if(node->children[i] > 0)
@@ -199,11 +199,40 @@ void bsp_loadintofile_copyents(void)
     strcpy(bspfile_entities, bsp_entstring);
 }
 
+int16_t bsp_loadintofile_addtexinfo(bsp_texinfo_t* texinfo)
+{
+    int i;
+
+    int16_t itexinfo;
+    bspfile_texinfo_t *filetexinfo;
+
+    assert(texinfo);
+
+    if(bspfile_ntexinfo >= MAX_MAP_TEXINFO)
+        cli_error(true, "max map texinfo reached: max is %d.\n", MAX_MAP_TEXINFO);
+
+    itexinfo = bspfile_ntexinfo;
+    filetexinfo = &bspfile_texinfo[bspfile_ntexinfo++];
+    memset(filetexinfo, 0, sizeof(bspfile_texinfo_t));
+
+    for(i=0; i<2; i++)
+    {
+        VectorCopy(filetexinfo->basis[i], texinfo->basis[i]);
+        filetexinfo->shift[i] = texinfo->shift[i];
+    }
+
+    strcpy(filetexinfo->miptex, texinfo->texname);
+
+    return itexinfo;
+}
+
 void bsp_loadintofile(void)
 {
     int i;
 
     bsp_loadintofile_copyents();
+    for(i=0; i<bsp_ntexinfos; i++)
+        bsp_loadintofile_addtexinfo(&bsp_texinfos[i]);
     for(i=0; i<bsp_nmodels; i++)
         bsp_loadintofile_addmodel(i);
 }
