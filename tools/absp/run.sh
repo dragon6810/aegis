@@ -2,5 +2,5 @@
 
 if make; then
     cd ../run
-    ../absp/bin/absp -v zombieattack
+    ../absp/bin/absp -v -k zombieattack
 fi

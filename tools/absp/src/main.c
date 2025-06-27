@@ -7,6 +7,8 @@
 
 int main(int argc, char** argv)
 {
+    int i;
+
     cli_welcomemessage();
 
     profiler_setup();
@@ -17,7 +19,15 @@ int main(int argc, char** argv)
     bsp_loadents();
     
     bsp_partition();
+    bsp_loadintofile();
     bspfile_writebspfile(cli_outfile);
+
+    if(!cli_keepinput)
+    {
+        for(i=0; i<MAX_MAP_HULLS; i++)
+            remove(cli_infiles[i]);
+        remove(cli_entfile);       
+    }
 
     cli_cleanup();
 

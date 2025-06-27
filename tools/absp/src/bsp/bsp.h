@@ -19,7 +19,7 @@ typedef struct bsp_plane_s
 {
     vec3_t n;
     float d;
-    int children[2]; // negative indices bitwise invert to get leaf index
+    int children[2]; // <=0 indices bitwise invert to get leaf index
     list_int_t faces;
     int hull;
     vec3_t bounds[2];
@@ -37,6 +37,8 @@ typedef struct bsp_face_s
     poly_t *poly;
     int texinfo;
     int plane;
+
+    uint16_t fileface;
 } bsp_face_t;
 
 typedef struct bsp_model_s
@@ -59,6 +61,7 @@ typedef struct bsp_entity_s
 
 extern vec3_t bsp_mapbounds[2];
 
+extern char bsp_entstring[MAX_MAP_ENTSTRING];
 extern bsp_leaf_t *bsp_leaves[MAX_MAP_HULLS][MAX_MAP_LEAFS];
 extern bsp_plane_t bsp_planes[MAX_MAP_HULLS][MAX_MAP_PLANES];
 extern bsp_texinfo_t bsp_texinfos[MAX_MAP_TEXINFO];
@@ -77,5 +80,6 @@ int bsp_findtexinfo(const bsp_texinfo_t* texinfo);
 void bsp_loadhulls(void);
 void bsp_loadents(void);
 void bsp_partition(void);
+void bsp_loadintofile(void);
 
 #endif

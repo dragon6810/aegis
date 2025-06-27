@@ -13,6 +13,7 @@ extern int cli_nerrors;
 
 extern list_str_t cli_args;
 extern bool cli_verbose;
+extern bool cli_keepinput;
 extern char cli_infiles[MAX_MAP_HULLS][PATH_MAX];
 extern char cli_entfile[PATH_MAX];
 extern char cli_outfile[PATH_MAX];

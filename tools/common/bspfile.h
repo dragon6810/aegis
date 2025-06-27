@@ -85,8 +85,8 @@ typedef struct
 {
     uint32_t index;
     uint32_t headnodes[MAX_MAP_HULLS];
-    uint32_t nhullsurfs[MAX_MAP_HULLS];
-    uint32_t firsthullsurf[MAX_MAP_HULLS];
+    uint16_t nportals[MAX_MAP_HULLS];
+    uint16_t firstportal[MAX_MAP_HULLS];
 } bspfile_model_t;
 
 typedef struct

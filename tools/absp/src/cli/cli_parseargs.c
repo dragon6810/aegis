@@ -11,7 +11,7 @@ void cli_errorusage(void)
 {
     printf("\033[31;1merror: invalid arguments\n");
 
-    printf("\033[0;1musage:\n\tabsp [-v] inputfile [outputfile]\n");
+    printf("\033[0;1musage:\n\tabsp [-vk] inputfile [outputfile]\n");
     cli_nerrors++;
 
     printf("\033[0m");
@@ -51,6 +51,17 @@ void cli_parseargs(int argc, char** argv)
         {
             printf("running in verbose mode\n");
             cli_verbose = true;
+        }
+        if
+        (
+            !strcmp(cli_args.data[i], "-k") ||
+            !strcmp(cli_args.data[i], "-K") ||
+            !strcmp(cli_args.data[i], "-keep") ||
+            !strcmp(cli_args.data[i], "-keepinput")
+        )
+        {
+            printf("keeping input files\n");
+            cli_keepinput = true;
         }
     }
 

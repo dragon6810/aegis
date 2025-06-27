@@ -2,6 +2,7 @@
 
 vec3_t bsp_mapbounds[2] = { {}, {}, };
 
+char bsp_entstring[MAX_MAP_ENTSTRING] = {};
 bsp_leaf_t *bsp_leaves[MAX_MAP_HULLS][MAX_MAP_LEAFS] = {};
 bsp_plane_t bsp_planes[MAX_MAP_HULLS][MAX_MAP_PLANES] = {};
 bsp_texinfo_t bsp_texinfos[MAX_MAP_TEXINFO] = {};

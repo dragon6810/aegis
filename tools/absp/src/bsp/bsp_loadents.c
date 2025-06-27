@@ -30,6 +30,14 @@ void bsp_loadents(void)
     if(!ptr)
         return;
 
+    fseek(ptr, 0, SEEK_END);
+    if((before = ftell(ptr)) >= MAX_MAP_ENTSTRING - 1)
+        cli_error(true, "entity string too long, max is %d.\n", MAX_MAP_ENTSTRING);
+    fseek(ptr, 0, SEEK_SET);
+    fread(bsp_entstring, 1, before, ptr);
+    bsp_entstring[before] = 0;
+    fseek(ptr, 0, SEEK_SET);
+
     profiler_push("Load Entities");
 
     while(fgetc(ptr) == '{')
