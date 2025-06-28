@@ -74,6 +74,7 @@ static const char bspfile_tag_markportals[8] = "IPORTAL";
 static const char bspfile_tag_lighting[8]    = "LIGHT";
 static const char bspfile_tag_vis[8]         = "PVS";
 
+#pragma pack(push,1)
 typedef struct
 {
     char name[8]; // must be null-terminated
@@ -157,6 +158,7 @@ typedef struct
     int16_t plane;          // if negative, bitwise inverse and normal is reversed
     int32_t leaves[2];      // indices to clipleaves
 } bspfile_portal_t;
+#pragma pack(pop)
 
 typedef uint16_t bspfile_markportal_t;
 

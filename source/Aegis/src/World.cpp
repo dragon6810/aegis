@@ -91,7 +91,8 @@ traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 	if(headnode >= clipnodes.size())
 	{
 		Console::Print("World::TraceDir: headnode out of bounds.\n");
-		abort();
+		trace.didhit = false;
+		return trace;
 	}
 
 	trace.start = start;
@@ -481,69 +482,41 @@ void World::LoadLeafs(FILE* ptr)
 
 void World::LoadSurfs(FILE* ptr)
 {
-	#if 0
 	int i, j;
 	surf_t *cursurf;
 
-	int lumpoffs;
-	int lumpsize;
-	int nsurfs;
+	uint64_t lumpoffs, lumpsize, nsurfs;
 
 	int misc;
 	long long before;
 	int firstedge;
 	short nedges;
 	unsigned short itex;
+	uint32_t portal;
+	uint16_t texinfo;
+	int32_t lights[4];
 
-	fseek(ptr, 4 + LUMP_FACES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	nsurfs = lumpsize / 20;
+	if(!FindLump(ptr, "FACE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"FACE\" lump.\n");
+		return;
+	}
+
+	nsurfs = lumpsize / 22;
 	surfs.resize(nsurfs);
-
+	
 	Console::Print("Surf Count: %d.\n", nsurfs);
 
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, cursurf=surfs.data(); i<nsurfs; i++, cursurf++)
 	{
-		misc = 0;
-		fread(&misc, sizeof(short), 1, ptr);
-		cursurf->pl = misc;
-		fread(&misc, sizeof(short), 1, ptr);
-		cursurf->reverse = misc;
-		fread(&firstedge, sizeof(int), 1, ptr);
-		fread(&nedges, sizeof(short), 1, ptr);
+		fread(&portal, sizeof(portal), 1, ptr);
+		fread(&texinfo, sizeof(texinfo), 1, ptr);
+		fread(lights, sizeof(int32_t), 4, ptr);
 
-		before = ftell(ptr);
-		cursurf->vertices.resize(nedges);
-        for(j=0; j<nedges; j++)
-		{
-			fseek(ptr, 4 + LUMP_SURFEDGES * 8, SEEK_SET);
-			fread(&lumpoffs, sizeof(int), 1, ptr);
-			fseek(ptr, lumpoffs + (j + firstedge) * sizeof(int), SEEK_SET);
-
-			fread(&misc, sizeof(int), 1, ptr);
-
-			fseek(ptr, 4 + LUMP_EDGES * 8, SEEK_SET);
-			fread(&lumpoffs, sizeof(int), 1, ptr);
-			fseek(ptr, lumpoffs + abs(misc) * sizeof(short) * 2, SEEK_SET);
-
-			if(misc < 0)
-				fseek(ptr, sizeof(short), SEEK_CUR);
-			
-			misc = 0;
-			fread(&misc, sizeof(short), 1, ptr);
-
-			cursurf->vertices[j] = misc;
-        }
-
-		fseek(ptr, before, SEEK_SET);
-		fread(&itex, sizeof(short), 1, ptr);
-		cursurf->tex = itex;
-
-		fseek(ptr, 8, SEEK_CUR);
+		cursurf->portal = portal;
+		cursurf->tex = texinfo;
 	}
-	#endif
 }
 
 void World::LoadPorts(FILE* ptr)
@@ -589,6 +562,9 @@ void World::LoadPorts(FILE* ptr)
 
 	nports = lumpsize / 16;
 	ports.resize(nports);
+	
+	Console::Print("Portal Count: %d.\n", nports);
+
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0; i<nports; i++)
 	{
@@ -848,8 +824,8 @@ bool World::Load(std::string name)
 	LoadVerts(ptr);
 	LoadTextures(ptr);
 	LoadPorts(ptr);
-	return false;
 	LoadSurfs(ptr);
+	return false;
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
 	LoadClipnodes(ptr);
