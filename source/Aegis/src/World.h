@@ -35,9 +35,9 @@ struct texinfo_t
 
 struct leaf_t
 {
-	int contents;
-	Vector3 min, max;
-	std::vector<int> portals; // index into portals
+	Vector3 bounds[2];
+	int clipleaf;			  // index into clipleafs
+	std::vector<int> surfs;   // index into surfs
 };
 
 struct portal_t
@@ -60,7 +60,7 @@ struct node_t
 	int children[2]; 		// index into nodes
 	int leaves[2]; 			// index into leaves if >= 0
 	int parent; 			// index into nodes
-	Vector3 min, max;
+	Vector3 bounds[2];
 	std::vector<int> surfs; // index into surfs
 };
 

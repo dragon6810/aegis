@@ -363,20 +363,19 @@ void World::LoadNodes(FILE* ptr)
 	int i, j;
 	node_t *curnode;
 
-	int lumpoffs;
-	int lumpsize;
-	int nnodes;
+	uint64_t lumpoffs, lumpsize, nnodes;
 
-	int misc;
-	unsigned int iplane;
-	short child;
-	unsigned short firstface;
-	unsigned short nfaces;
+	uint32_t iplane;
+	int32_t children[2];
+	uint32_t nsurfs, firstsurf;
 
-	fseek(ptr, 4 + LUMP_NODES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	nnodes = lumpsize / 24;
+	if(!FindLump(ptr, "BSP", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"BSP\" lump.\n");
+		return;
+	}
+
+	nnodes = lumpsize / 44;
 	nodes.resize(nnodes);
 
 	Console::Print("Node Count: %d.\n", nnodes);
@@ -384,58 +383,58 @@ void World::LoadNodes(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, curnode=nodes.data(); i<nnodes; i++, curnode++)
 	{
-		fread(&iplane, sizeof(int), 1, ptr);
+		fread(&iplane, sizeof(iplane), 1, ptr);
 		curnode->pl = iplane;
 		for(j=0; j<2; j++)
 		{
-			child = 0;
+			fread(&children[j], sizeof(children[j]), 1, ptr);
 			curnode->leaves[j] = -1;
-			fread(&child, sizeof(short), 1, ptr);
-			if(child >= 0)
-				curnode->children[j] = child;
+			if(children[j] > 0)
+				curnode->children[j] = children[j];
 			else
-				curnode->leaves[j] = ~child;
+				curnode->leaves[j] = ~children[j];
 		}
 
-		for(j=0; j<3; j++)
-		{
-			misc = 0;
-			fread(&misc, sizeof(short), 1, ptr);
-			curnode->min[j] = misc;
-		}
-		for(j=0; j<3; j++)
-		{
-			misc = 0;
-			fread(&misc, sizeof(short), 1, ptr);
-			curnode->max[j] = misc;
-		}
+		for(j=0; j<2; j++)
+			fread(&curnode->bounds[j], sizeof(float), 3, ptr);
 
-		fread(&firstface, sizeof(short), 1, ptr);
-		fread(&nfaces, sizeof(short), 1, ptr);
-		curnode->surfs.resize(nfaces);
-		for(j=0; j<nfaces; j++)
-			curnode->surfs[j] = j + firstface;
+		fread(&nsurfs, sizeof(nsurfs), 1, ptr);
+		fread(&firstsurf, sizeof(firstsurf), 1, ptr);
+		curnode->surfs.resize(nsurfs);
+		for(j=0; j<nsurfs; j++)
+			curnode->surfs[j] = j + firstsurf;
 	}
 }
 
 void World::LoadLeafs(FILE* ptr)
 {
-	#if 0
 	int i, j;
 	leaf_t *curleaf;
 
-	int lumpoffs;
-	int lumpsize;
-	int nleafs;
+	uint64_t lumpoffs, lumpsize, nleafs;
+	std::vector<uint16_t> marksurfs;
+	uint16_t nsurfs;
+	uint32_t firstmarksurf;
 
-	int misc;
-	long long before;
-	unsigned short firstmsurf, nsurfs;
+	if(!FindLump(ptr, "MRKFACE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"MRKFACE\" lump.\n");
+		return;
+	}
 
-	fseek(ptr, 4 + LUMP_LEAVES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	nleafs = lumpsize / 23;
+	marksurfs.resize(lumpsize / 2);
+	fread(marksurfs.data(), sizeof(uint16_t), marksurfs.size(), ptr);
+
+	nleafs = lumpsize / 32;
+	leafs.resize(nleafs);
+
+	if(!FindLump(ptr, "LEAF", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"LEAF\" lump.\n");
+		return;
+	}
+
+	nleafs = lumpsize / 32;
 	leafs.resize(nleafs);
 
 	Console::Print("Leaf Count: %d.\n", nleafs);
@@ -443,41 +442,15 @@ void World::LoadLeafs(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, curleaf=leafs.data(); i<nleafs; i++, curleaf++)
 	{
-		fread(&curleaf->contents, sizeof(int), 1, ptr);
-		fseek(ptr, 4, SEEK_CUR);
-
-		misc = 0;
-		for(j=0; j<3; j++)
-		{
-			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->min[j] = misc;
-		}
-		for(j=0; j<3; j++)
-		{
-			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->max[j] = misc;
-		}
-
-		fread(&firstmsurf, sizeof(short), 1, ptr);
-		fread(&nsurfs, sizeof(short), 1, ptr);
-
-		before = ftell(ptr);
-		curleaf->surfs.resize(nsurfs);
-		misc = 0;
-		for(j=0; j<nsurfs; j++)
-		{
-			fseek(ptr, 4 + LUMP_MARKSURFACES * 8, SEEK_SET);
-			fread(&lumpoffs, sizeof(int), 1, ptr);
-			fseek(ptr, lumpoffs + (j + firstmsurf) * sizeof(short), SEEK_SET);
-
-			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->surfs[j] = misc;
-		}
-
-		fseek(ptr, before, SEEK_SET);
-		fseek(ptr, sizeof(char) * 4, SEEK_CUR);
+		for(j=0; j<2; j++)
+			fread(&curleaf->bounds[j], sizeof(float), 3, ptr);
+		fread(&curleaf->clipleaf, sizeof(int), 1, ptr);
+		fread(&firstmarksurf, sizeof(firstmarksurf), 1, ptr);
+		fread(&nsurfs, sizeof(nsurfs), 1, ptr);
+		curleaf->surfs.reserve(nsurfs);
+		for(j=firstmarksurf; j<firstmarksurf+nsurfs; j++)
+			curleaf->surfs.emplace_back(marksurfs[j]);
 	}
-	#endif
 }
 
 void World::LoadSurfs(FILE* ptr)
@@ -574,13 +547,13 @@ void World::LoadPorts(FILE* ptr)
 		fread(&iplane, sizeof(iplane), 1, ptr);
 		fread(leaves, sizeof(int32_t), 2, ptr);
 
-		curprt->vertices.resize(nmarkedges);
+		curprt->vertices.reserve(nmarkedges);
 		for(j=firstmarkedge; j<firstmarkedge+nmarkedges; j++)
 		{
 			if(markedges[j] >= 0)
-				curprt->vertices.push_back(edges[ markedges[j]][0]);
+				curprt->vertices.emplace_back(edges[ markedges[j]][0]);
 			else
-				curprt->vertices.push_back(edges[-markedges[j]][1]);
+				curprt->vertices.emplace_back(edges[-markedges[j]][1]);
 		}
 
 		curprt->pl = iplane;
@@ -825,9 +798,9 @@ bool World::Load(std::string name)
 	LoadTextures(ptr);
 	LoadPorts(ptr);
 	LoadSurfs(ptr);
-	return false;
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
+	return false;
 	LoadClipnodes(ptr);
     LoadHullSurfs(ptr);
 
@@ -845,8 +818,10 @@ void World::RenderSurf(surf_t* surf)
 {
 	int i;
 	Vector3 pos;
+	portal_t *prt;
 	texinfo_t *tex;
 
+	prt = &ports[surf->portal];
 	tex = &texinfos[surf->tex];
 
 	glEnable(GL_TEXTURE_2D);
@@ -854,10 +829,10 @@ void World::RenderSurf(surf_t* surf)
 	if(tex->tex)
 		glBindTexture(GL_TEXTURE_2D, tex->tex->name);
 	glBegin(GL_POLYGON);
-	for(i=0; i<ports[surf->portal].vertices.size(); i++)
+	for(i=0; i<prt->vertices.size(); i++)
 	{
-		pos = verts[ports[surf->portal].vertices[i]];
-		if(texinfos[surf->tex].tex)
+		pos = verts[prt->vertices[i]];
+		if(tex->tex)
 			glTexCoord2f(
 				(Vector3::Dot(pos, tex->s) + tex->sshift) / tex->tex->width, 
 				(Vector3::Dot(pos, tex->t) + tex->tshift) / tex->tex->height);
