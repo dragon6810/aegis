@@ -129,7 +129,6 @@ typedef struct
 {
     uint32_t portal;
     uint16_t texinfo;
-    int16_t plane; // if negative, bitwise inverse and normal is reversed
     int32_t lights[FACE_MAX_LIGHTSYLE]; // terminated with -1 or max of FACE_MAX_LIGHTSTYLE
 } bspfile_face_t;
 
@@ -142,7 +141,7 @@ typedef vec3_t bspfile_vertex_t;
 
 typedef uint16_t bspfile_marksurf_t;
 
-typedef int32_t bspfile_markedge_t; // if negative, bitwise inverse to get edge and flip order
+typedef int32_t bspfile_markedge_t; // if negative, negate to get edge and flip order
 
 typedef struct
 {
@@ -155,6 +154,7 @@ typedef struct
 {
     uint32_t firstmarkedge;
     uint16_t nmarkedges;
+    int16_t plane;          // if negative, bitwise inverse and normal is reversed
     int32_t leaves[2];      // indices to clipleaves
 } bspfile_portal_t;
 

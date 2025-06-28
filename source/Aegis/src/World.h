@@ -33,19 +33,25 @@ struct texinfo_t
 	float sshift, tshift;
 };
 
-struct surf_t
-{
-	int pl; 				   // index into planes
-    bool reverse;
-	std::vector<int> vertices; // index into verts
-    int tex;				   // index into texinfo
-};
-
 struct leaf_t
 {
 	int contents;
 	Vector3 min, max;
-	std::vector<int> surfs; // index into surfs
+	std::vector<int> portals; // index into portals
+};
+
+struct portal_t
+{
+	std::vector<int> vertices; // index into verts
+	int pl;					   // index into planes
+	bool reverse;			   // reverse plane normal?
+	int leaves[2];			   // index into leaves; [back, front]
+};
+
+struct surf_t
+{
+	int portal;				   // index into portals
+    int tex;				   // index into texinfo
 };
 
 struct node_t
@@ -112,6 +118,7 @@ public:
 	std::vector<hullnode_t> clipnodes;
 	std::vector<node_t> 		nodes;
 	std::vector<leaf_t>   		leafs; // Ehhhh
+	std::vector<portal_t>		ports;
 	std::vector<surf_t>   		surfs;
 	std::vector<hullsurf_t> hullsurfs[4];
 	std::vector<Vector3>  		verts;
@@ -140,6 +147,7 @@ private:
 	void LoadVerts(FILE* ptr);
 	void LoadTextures(FILE* ptr);
 	ResourceManager::texture_t* LoadTexture(const char* name);
+	void LoadPorts(FILE* ptr);
 	void LoadSurfs(FILE* ptr);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);

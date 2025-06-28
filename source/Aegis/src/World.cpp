@@ -419,6 +419,7 @@ void World::LoadNodes(FILE* ptr)
 
 void World::LoadLeafs(FILE* ptr)
 {
+	#if 0
 	int i, j;
 	leaf_t *curleaf;
 
@@ -475,10 +476,12 @@ void World::LoadLeafs(FILE* ptr)
 		fseek(ptr, before, SEEK_SET);
 		fseek(ptr, sizeof(char) * 4, SEEK_CUR);
 	}
+	#endif
 }
 
 void World::LoadSurfs(FILE* ptr)
 {
+	#if 0
 	int i, j;
 	surf_t *cursurf;
 
@@ -539,6 +542,80 @@ void World::LoadSurfs(FILE* ptr)
 		cursurf->tex = itex;
 
 		fseek(ptr, 8, SEEK_CUR);
+	}
+	#endif
+}
+
+void World::LoadPorts(FILE* ptr)
+{
+	int i, j;
+
+	uint64_t lumpoffs, lumpsize, nedge, nmarkedge, nports;
+	std::vector<std::array<int16_t, 2>> edges;
+	std::vector<int32_t> markedges;
+	portal_t *curprt;
+	uint32_t firstmarkedge;
+	uint16_t nmarkedges;
+	int16_t iplane;
+	int32_t leaves[2];
+
+	if(!FindLump(ptr, "EDGE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"EDGE\" lump.\n");
+		return;
+	}
+	nedge = lumpsize / 4;
+	edges.resize(nedge);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nedge; i++)
+		fread(edges[i].data(), sizeof(int16_t), 2, ptr);
+
+	if(!FindLump(ptr, "MRKEDGE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"MRKEDGE\" lump.\n");
+		return;
+	}
+	nmarkedge = lumpsize / 4;
+	markedges.resize(nmarkedge);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nmarkedge; i++)
+		fread(&markedges[i], sizeof(int32_t), 1, ptr);
+
+	if(!FindLump(ptr, "PORTAL", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"PORTAL\" lump.\n");
+		return;
+	}
+
+	nports = lumpsize / 16;
+	ports.resize(nports);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nports; i++)
+	{
+		curprt = &ports[i];
+		fread(&firstmarkedge, sizeof(firstmarkedge), 1, ptr);
+		fread(&nmarkedges, sizeof(nmarkedges), 1, ptr);
+		fread(&iplane, sizeof(iplane), 1, ptr);
+		fread(leaves, sizeof(int32_t), 2, ptr);
+
+		curprt->vertices.resize(nmarkedges);
+		for(j=firstmarkedge; j<firstmarkedge+nmarkedges; j++)
+		{
+			if(markedges[j] >= 0)
+				curprt->vertices.push_back(edges[ markedges[j]][0]);
+			else
+				curprt->vertices.push_back(edges[-markedges[j]][1]);
+		}
+
+		curprt->pl = iplane;
+		curprt->reverse = false;
+		if(curprt->pl < 0)
+		{
+			curprt->pl = ~iplane;
+			curprt->reverse = true;
+		}
+		curprt->leaves[0] = leaves[0];
+		curprt->leaves[1] = leaves[1];
 	}
 }
 
@@ -770,6 +847,7 @@ bool World::Load(std::string name)
 	LoadPlanes(ptr);
 	LoadVerts(ptr);
 	LoadTextures(ptr);
+	LoadPorts(ptr);
 	return false;
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
@@ -800,9 +878,9 @@ void World::RenderSurf(surf_t* surf)
 	if(tex->tex)
 		glBindTexture(GL_TEXTURE_2D, tex->tex->name);
 	glBegin(GL_POLYGON);
-	for(i=0; i<surf->vertices.size(); i++)
+	for(i=0; i<ports[surf->portal].vertices.size(); i++)
 	{
-		pos = verts[surf->vertices[i]];
+		pos = verts[ports[surf->portal].vertices[i]];
 		if(texinfos[surf->tex].tex)
 			glTexCoord2f(
 				(Vector3::Dot(pos, tex->s) + tex->sshift) / tex->tex->width, 

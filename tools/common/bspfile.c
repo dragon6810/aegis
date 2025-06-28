@@ -101,7 +101,7 @@ void bspfile_writebspfile(const char* path)
     marksurfsoffs = ftell(ptr);
     fwrite(&bspfile_marksurfs, sizeof(bspfile_marksurf_t), bspfile_nmarksurfs, ptr);
     markedgesoffs = ftell(ptr);
-    fwrite(&bspfile_edges, sizeof(bspfile_edge_t), bspfile_nedges, ptr);
+    fwrite(&bspfile_markedges, sizeof(bspfile_markedge_t), bspfile_nmarkedges, ptr);
     texinfooffs = ftell(ptr);
     fwrite(&bspfile_texinfo, sizeof(bspfile_texinfo_t), bspfile_ntexinfo, ptr);
     portalsoffs = ftell(ptr);

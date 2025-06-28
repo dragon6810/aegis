@@ -42,7 +42,7 @@ int32_t bsp_loadintofile_findedge(int16_t e[2])
     {
         if(bspfile_edges[i].vertex[0] == e[0] && bspfile_edges[i].vertex[1] == e[1])
             return i;
-        if(bspfile_edges[i].vertex[1] == e[0] && bspfile_edges[i].vertex[0] == e[1])
+        if(bspfile_edges[i].vertex[1] == e[0] && bspfile_edges[i].vertex[0] == e[1] && i)
             return -i;
     }
 
@@ -68,12 +68,19 @@ uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
     bspfile_face_t fileface = {};
     bspfile_portal_t fileportal = {};
     int16_t iverts[face->poly->npoints + 1], e[2];
+    vec3_t a, b, n;
 
     if(bspfile_nfaces >= MAX_MAP_FACES)
         cli_error(true, "max map faces reached: max is %d.\n", MAX_MAP_FACES);
 
-    fileface.plane = iplane;
+    fileportal.plane = iplane;
     fileface.texinfo = face->texinfo;
+
+    VectorSubtract(a, face->poly->points[1], face->poly->points[0]);
+    VectorSubtract(b, face->poly->points[2], face->poly->points[0]);
+    VectorCross(n, a, b);
+    if(VectorDot(n, bspfile_planes[iplane].n) < 0)
+        fileportal.plane = ~iplane;
 
     if(bspfile_nmarkedges + face->poly->npoints >= MAX_MAP_MARKEDGES)
         cli_error(true, "max map markedges reached: max is %d.\n", MAX_MAP_MARKEDGES);
