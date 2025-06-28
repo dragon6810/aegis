@@ -168,8 +168,8 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
         nodes[i] = {};
         nodes[i].points.resize(world->surfs[i].vertices.size());
         for(j=0; j<nodes[i].points.size(); j++)
-            nodes[i].points[j] = *world->surfs[i].vertices[j];
-        nodes[i].normal = world->surfs[i].pl->n;
+            nodes[i].points[j] = world->verts[world->surfs[i].vertices[j]];
+        nodes[i].normal = world->planes[world->surfs[i].pl].n;
         if(world->surfs[i].reverse)
             nodes[i].normal = nodes[i].normal * -1;
         nodes[i].center = PolyMath::FindCenter(nodes[i].points);

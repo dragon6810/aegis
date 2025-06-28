@@ -155,7 +155,7 @@ typedef struct
 {
     uint32_t firstmarkedge;
     uint16_t nmarkedges;
-    int32_t leaves[2];
+    int32_t leaves[2];      // indices to clipleaves
 } bspfile_portal_t;
 
 typedef uint16_t bspfile_markportal_t;

@@ -54,23 +54,23 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 
 	curnode = &clipnodes[icurnode];
 
-	d1 = Vector3::Dot(start, curnode->pl->n) - curnode->pl->d;
-	d2 = Vector3::Dot(end, curnode->pl->n) - curnode->pl->d;
+	d1 = Vector3::Dot(start, planes[curnode->pl].n) - planes[curnode->pl].d;
+	d2 = Vector3::Dot(end, planes[curnode->pl].n) - planes[curnode->pl].d;
 
 	if(fabsf(d1) < epsilon && fabsf(d2) < epsilon)
 	{
-		if(TraceDir_R(curnode->children[0], trace, start, end, curnode->pl->n))
+		if(TraceDir_R(curnode->children[0], trace, start, end, planes[curnode->pl].n))
 			return true;
 		
-		return TraceDir_R(curnode->children[1], trace, start, end, curnode->pl->n);
+		return TraceDir_R(curnode->children[1], trace, start, end, planes[curnode->pl].n);
 	}
 
 	if(d1 * d2 > 0)
 	{
 		if(d1 > 0)
-			return TraceDir_R(curnode->children[1], trace, start, end, curnode->pl->n);
+			return TraceDir_R(curnode->children[1], trace, start, end, planes[curnode->pl].n);
 
-		return TraceDir_R(curnode->children[0], trace, start, end, curnode->pl->n);
+		return TraceDir_R(curnode->children[0], trace, start, end, planes[curnode->pl].n);
 	}
 
 	t = d1 / (d1 - d2);
@@ -78,10 +78,10 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 
 	first = d1 > 0;
 
-	if(TraceDir_R(curnode->children[first], trace, start, cross, curnode->pl->n))
+	if(TraceDir_R(curnode->children[first], trace, start, cross, planes[curnode->pl].n))
 		return true;
 	
-	return TraceDir_R(curnode->children[!first], trace, cross, end, curnode->pl->n);
+	return TraceDir_R(curnode->children[!first], trace, cross, end, planes[curnode->pl].n);
 }
 
 traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
@@ -109,7 +109,7 @@ int World::GetContents(Vector3 pos, int node)
 		return node;
 
 	curnode = &clipnodes[node];
-	d = Vector3::Dot(pos, curnode->pl->n) - curnode->pl->d;
+	d = Vector3::Dot(pos, planes[curnode->pl].n) - planes[curnode->pl].d;
 
 	if(d > 0)
 		return GetContents(pos, curnode->children[1]);
@@ -237,8 +237,8 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 		if(!parents.size())
 			break;
 
-		n = parents[parents.size()-1].node->pl->n;
-		d = parents[parents.size()-1].node->pl->d;
+		n = planes[clipnodes[parents[parents.size()-1].node].pl].n;
+		d = planes[clipnodes[parents[parents.size()-1].node].pl].d;
 
 		parents[i].points = PolyMath::ClipToPlane(parents[i].points, n, d, parents[parents.size()-1].flip);
 
@@ -263,8 +263,8 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 				center = center + parents[i].points[j];
 			center = center / parents[i].points.size();
 
-			contents[0] = GetContents(center - parents[i].node->pl->n, headnodes[ihull]);
-			contents[1] = GetContents(center + parents[i].node->pl->n, headnodes[ihull]);
+			contents[0] = GetContents(center - planes[clipnodes[parents[i].node].pl].n, headnodes[ihull]);
+			contents[1] = GetContents(center + planes[clipnodes[parents[i].node].pl].n, headnodes[ihull]);
 
 			if(contents[0] == contents[1])
 				continue;
@@ -276,16 +276,16 @@ void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull
 	}
 
 	curnode = &clipnodes[icurnode];
-	newsurf.points = PolyMath::BaseWindingForPlane(curnode->pl->n, curnode->pl->d);
-	newsurf.node = curnode;
+	newsurf.points = PolyMath::BaseWindingForPlane(planes[curnode->pl].n, planes[curnode->pl].d);
+	newsurf.node = icurnode;
 
 	for(i=0; i<parents.size(); i++)
 	{
-		n = parents[i].node->pl->n;
-		d = parents[i].node->pl->d;
+		n = planes[clipnodes[parents[i].node].pl].n;
+		d = planes[clipnodes[parents[i].node].pl].d;
 
 		newsurf.points = PolyMath::ClipToPlane(newsurf.points, n, d, parents[i].flip);
-		if(!PolyMath::PlaneCrosses(parents[i].points, curnode->pl->n, curnode->pl->d))
+		if(!PolyMath::PlaneCrosses(parents[i].points, planes[curnode->pl].n, planes[curnode->pl].d))
 			continue;
 
 		parents.insert(parents.begin() + i, parents[i]);
@@ -353,7 +353,7 @@ void World::LoadClipnodes(FILE* ptr)
 		fread(&iplane, sizeof(int), 1, ptr);
 		fread(curnode->children, sizeof(short), 2, ptr);
 
-		curnode->pl = &planes[iplane];
+		curnode->pl = iplane;
 	}
 }
 
@@ -384,15 +384,16 @@ void World::LoadNodes(FILE* ptr)
 	for(i=0, curnode=nodes.data(); i<nnodes; i++, curnode++)
 	{
 		fread(&iplane, sizeof(int), 1, ptr);
-		curnode->pl = &planes[iplane];
+		curnode->pl = iplane;
 		for(j=0; j<2; j++)
 		{
 			child = 0;
+			curnode->leaves[j] = -1;
 			fread(&child, sizeof(short), 1, ptr);
 			if(child >= 0)
-				curnode->children[j] = &nodes[child];
+				curnode->children[j] = child;
 			else
-				curnode->leaves[j] = &leafs[~child];
+				curnode->leaves[j] = ~child;
 		}
 
 		for(j=0; j<3; j++)
@@ -412,7 +413,7 @@ void World::LoadNodes(FILE* ptr)
 		fread(&nfaces, sizeof(short), 1, ptr);
 		curnode->surfs.resize(nfaces);
 		for(j=0; j<nfaces; j++)
-			curnode->surfs[j] = &surfs[j + firstface];
+			curnode->surfs[j] = j + firstface;
 	}
 }
 
@@ -468,7 +469,7 @@ void World::LoadLeafs(FILE* ptr)
 			fseek(ptr, lumpoffs + (j + firstmsurf) * sizeof(short), SEEK_SET);
 
 			fread(&misc, sizeof(short), 1, ptr);
-			curleaf->surfs[j] = &surfs[misc];
+			curleaf->surfs[j] = misc;
 		}
 
 		fseek(ptr, before, SEEK_SET);
@@ -504,7 +505,7 @@ void World::LoadSurfs(FILE* ptr)
 	{
 		misc = 0;
 		fread(&misc, sizeof(short), 1, ptr);
-		cursurf->pl = &planes[misc];
+		cursurf->pl = misc;
 		fread(&misc, sizeof(short), 1, ptr);
 		cursurf->reverse = misc;
 		fread(&firstedge, sizeof(int), 1, ptr);
@@ -530,12 +531,12 @@ void World::LoadSurfs(FILE* ptr)
 			misc = 0;
 			fread(&misc, sizeof(short), 1, ptr);
 
-			cursurf->vertices[j] = &verts[misc];
+			cursurf->vertices[j] = misc;
         }
 
 		fseek(ptr, before, SEEK_SET);
 		fread(&itex, sizeof(short), 1, ptr);
-		cursurf->tex = &texinfos[itex];
+		cursurf->tex = itex;
 
 		fseek(ptr, 8, SEEK_CUR);
 	}
@@ -790,19 +791,22 @@ void World::RenderSurf(surf_t* surf)
 {
 	int i;
 	Vector3 pos;
+	texinfo_t *tex;
+
+	tex = &texinfos[surf->tex];
 
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	if(surf->tex->tex)
-		glBindTexture(GL_TEXTURE_2D, surf->tex->tex->name);
+	if(tex->tex)
+		glBindTexture(GL_TEXTURE_2D, tex->tex->name);
 	glBegin(GL_POLYGON);
 	for(i=0; i<surf->vertices.size(); i++)
 	{
-		pos = *surf->vertices[i];
-		if(surf->tex->tex)
+		pos = verts[surf->vertices[i]];
+		if(texinfos[surf->tex].tex)
 			glTexCoord2f(
-				(Vector3::Dot(pos, surf->tex->s) + surf->tex->sshift) / surf->tex->tex->width, 
-				(Vector3::Dot(pos, surf->tex->t) + surf->tex->tshift) / surf->tex->tex->height);
+				(Vector3::Dot(pos, tex->s) + tex->sshift) / tex->tex->width, 
+				(Vector3::Dot(pos, tex->t) + tex->tshift) / tex->tex->height);
 		glVertex3f(pos.x, pos.y, pos.z);
 	}
 	glEnd();

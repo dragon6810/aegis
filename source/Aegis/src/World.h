@@ -35,39 +35,39 @@ struct texinfo_t
 
 struct surf_t
 {
-	plane_t *pl;
+	int pl; 				   // index into planes
     bool reverse;
-	std::vector<Vector3*> vertices;
-    texinfo_t *tex;
+	std::vector<int> vertices; // index into verts
+    int tex;				   // index into texinfo
 };
 
 struct leaf_t
 {
 	int contents;
 	Vector3 min, max;
-	std::vector<surf_t*> surfs;
+	std::vector<int> surfs; // index into surfs
 };
 
 struct node_t
 {
-	plane_t *pl;
-	node_t *children[2];
-	leaf_t *leaves[2];
-	node_t *parent;
+	int pl; 				// index into planes
+	int children[2]; 		// index into nodes
+	int leaves[2]; 			// index into leaves if >= 0
+	int parent; 			// index into nodes
 	Vector3 min, max;
-	std::vector<surf_t*> surfs;
+	std::vector<int> surfs; // index into surfs
 };
 
 struct hullnode_t
 {
-	plane_t* pl;
+	int pl; 		   // index into planes
 	short children[2];
 };
 
 struct hullsurf_t
 {
 	std::vector<Vector3> points;
-	hullnode_t *node;
+	int node; 					 // index into clipnodes
 	bool flip;
 };
 
