@@ -19,6 +19,7 @@ int main(int argc, char** argv)
     bsp_loadents();
     
     bsp_partition();
+    bsp_portalize();
     bsp_loadintofile();
     bspfile_writebspfile(cli_outfile);
 

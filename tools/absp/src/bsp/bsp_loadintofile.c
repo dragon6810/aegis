@@ -85,8 +85,8 @@ uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
     if(bspfile_nmarkedges + face->poly->npoints >= MAX_MAP_MARKEDGES)
         cli_error(true, "max map markedges reached: max is %d.\n", MAX_MAP_MARKEDGES);
 
-    fileportal.firstmarkedge = bspfile_nmarkedges;
-    fileportal.nmarkedges = face->poly->npoints;
+    fileportal.firstmarkedge = fileface.firstmarkedge = bspfile_nmarkedges;
+    fileportal.nmarkedges = fileface.nmarkedges = face->poly->npoints;
 
     for(i=0; i<face->poly->npoints; i++)
         iverts[i] = bsp_loadintofile_findvertex(face->poly->points[i]);
@@ -196,7 +196,8 @@ void bsp_loadintofile_addmodel(int imodel)
     for(i=0; i<MAX_MAP_HULLS; i++)
     {
         filemodel->firstportal[i] = bspfile_nportals;
-        filemodel->headnodes[i] = bsp_loadintofile_addnode_r(&bsp_planes[i][bsp_models[imodel].headplane[i]]);
+        if(!i)
+            filemodel->renderhead = bsp_loadintofile_addnode_r(&bsp_planes[i][bsp_models[imodel].headplane[i]]);
         filemodel->nportals[i] = bspfile_nportals - filemodel->firstportal[i];
     }
 }

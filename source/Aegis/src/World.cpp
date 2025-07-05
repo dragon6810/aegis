@@ -466,6 +466,8 @@ void World::LoadSurfs(FILE* ptr)
 	short nedges;
 	unsigned short itex;
 	uint32_t portal;
+	uint32_t firstmarkedge;
+    uint16_t nmarkedges;
 	uint16_t texinfo;
 	int32_t lights[4];
 
@@ -475,7 +477,7 @@ void World::LoadSurfs(FILE* ptr)
 		return;
 	}
 
-	nsurfs = lumpsize / 22;
+	nsurfs = lumpsize / 28;
 	surfs.resize(nsurfs);
 	
 	Console::Print("Surf Count: %d.\n", nsurfs);
@@ -484,10 +486,15 @@ void World::LoadSurfs(FILE* ptr)
 	for(i=0, cursurf=surfs.data(); i<nsurfs; i++, cursurf++)
 	{
 		fread(&portal, sizeof(portal), 1, ptr);
+		fread(&firstmarkedge, sizeof(firstmarkedge), 1, ptr);
+		fread(&nmarkedges, sizeof(nmarkedges), 1, ptr);
 		fread(&texinfo, sizeof(texinfo), 1, ptr);
 		fread(lights, sizeof(int32_t), 4, ptr);
 
 		cursurf->portal = portal;
+		Console::Print("Before: %llu.\n", ftell(ptr));
+		cursurf->vertices = LoadFromMarkEdges(ptr, firstmarkedge, nmarkedges);
+		Console::Print("After: %llu.\n", ftell(ptr));
 		cursurf->tex = texinfo;
 	}
 }
@@ -496,36 +503,12 @@ void World::LoadPorts(FILE* ptr)
 {
 	int i, j;
 
-	uint64_t lumpoffs, lumpsize, nedge, nmarkedge, nports;
-	std::vector<std::array<int16_t, 2>> edges;
-	std::vector<int32_t> markedges;
+	uint64_t lumpoffs, lumpsize, nports;
 	portal_t *curprt;
 	uint32_t firstmarkedge;
 	uint16_t nmarkedges;
 	int16_t iplane;
 	int32_t leaves[2];
-
-	if(!FindLump(ptr, "EDGE", &lumpoffs, &lumpsize))
-	{
-		Console::Print("Map has no \"EDGE\" lump.\n");
-		return;
-	}
-	nedge = lumpsize / 4;
-	edges.resize(nedge);
-	fseek(ptr, lumpoffs, SEEK_SET);
-	for(i=0; i<nedge; i++)
-		fread(edges[i].data(), sizeof(int16_t), 2, ptr);
-
-	if(!FindLump(ptr, "MRKEDGE", &lumpoffs, &lumpsize))
-	{
-		Console::Print("Map has no \"MRKEDGE\" lump.\n");
-		return;
-	}
-	nmarkedge = lumpsize / 4;
-	markedges.resize(nmarkedge);
-	fseek(ptr, lumpoffs, SEEK_SET);
-	for(i=0; i<nmarkedge; i++)
-		fread(&markedges[i], sizeof(int32_t), 1, ptr);
 
 	if(!FindLump(ptr, "PORTAL", &lumpoffs, &lumpsize))
 	{
@@ -547,14 +530,7 @@ void World::LoadPorts(FILE* ptr)
 		fread(&iplane, sizeof(iplane), 1, ptr);
 		fread(leaves, sizeof(int32_t), 2, ptr);
 
-		curprt->vertices.reserve(nmarkedges);
-		for(j=firstmarkedge; j<firstmarkedge+nmarkedges; j++)
-		{
-			if(markedges[j] >= 0)
-				curprt->vertices.emplace_back(edges[ markedges[j]][0]);
-			else
-				curprt->vertices.emplace_back(edges[-markedges[j]][1]);
-		}
+		curprt->vertices = LoadFromMarkEdges(ptr, firstmarkedge, nmarkedges);
 
 		curprt->pl = iplane;
 		curprt->reverse = false;
@@ -566,6 +542,91 @@ void World::LoadPorts(FILE* ptr)
 		curprt->leaves[0] = leaves[0];
 		curprt->leaves[1] = leaves[1];
 	}
+}
+
+std::vector<int> World::LoadFromMarkEdges(FILE *ptr, int firstmarkedge, int nmarkedges)
+{
+	int i;
+
+	uint64_t before;
+	uint64_t lumpoffs, lumpsize, nedge, nmarkedge;
+	std::vector<std::array<int16_t, 2>> edges;
+	std::vector<int32_t> markedges;
+	int32_t markedge;
+	std::vector<int> points;
+
+	assert(ptr);
+
+	before = ftell(ptr);
+
+	if(!FindLump(ptr, "EDGE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"EDGE\" lump.\n");
+		fseek(ptr, before, SEEK_SET);
+		return std::vector<int>();
+	}
+	nedge = lumpsize / 4;
+	edges.resize(nedge);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nedge; i++)
+		fread(edges[i].data(), sizeof(int16_t), 2, ptr);
+
+	if(!FindLump(ptr, "MRKEDGE", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"MRKEDGE\" lump.\n");
+		fseek(ptr, before, SEEK_SET);
+		return std::vector<int>();
+	}
+	nmarkedge = lumpsize / 4;
+	markedges.resize(nmarkedge);
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nmarkedge; i++)
+		fread(&markedges[i], sizeof(int32_t), 1, ptr);
+
+	fseek(ptr, before, SEEK_SET);
+
+	if(firstmarkedge < 0 || firstmarkedge + nmarkedges >= nmarkedge)
+	{
+		Console::Print("World::LoadFromMarkEdges: mark edge index out of bounds.\n");
+		return std::vector<int>();
+	}
+
+	for(i=firstmarkedge; i<firstmarkedge+nmarkedges; i++)
+	{
+		markedge = markedges[i];
+		if(markedge >= 0)
+		{
+			if(markedge >= nedge)
+			{
+				Console::Print("World::LoadFromMarkEdges: edge index out of bounds.\n");
+				continue;
+			}
+
+			if(edges[markedge][0] >= this->verts.size())
+			{
+				Console::Print("World::LoadFromMarkEdges: vertex index out of bounds.\n");
+				continue;
+			}
+			points.push_back(edges[markedge][0]);
+		}
+		else
+		{
+			if(-markedge >= nedge)
+			{
+				Console::Print("World::LoadFromMarkEdges: edge index out of bounds.\n");
+				continue;
+			}
+
+			if(edges[-markedge][1] >= this->verts.size())
+			{
+				Console::Print("World::LoadFromMarkEdges: vertex index out of bounds.\n");
+				continue;
+			}
+			points.push_back(edges[-markedge][1]);
+		}
+	}
+
+	return points;
 }
 
 ResourceManager::texture_t* World::LoadTexture(const char* name)
@@ -829,9 +890,9 @@ void World::RenderSurf(surf_t* surf)
 	if(tex->tex)
 		glBindTexture(GL_TEXTURE_2D, tex->tex->name);
 	glBegin(GL_POLYGON);
-	for(i=0; i<prt->vertices.size(); i++)
+	for(i=0; i<surf->vertices.size(); i++)
 	{
-		pos = verts[prt->vertices[i]];
+		pos = verts[surf->vertices[i]];
 		if(tex->tex)
 			glTexCoord2f(
 				(Vector3::Dot(pos, tex->s) + tex->sshift) / tex->tex->width, 

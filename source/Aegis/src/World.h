@@ -51,6 +51,7 @@ struct portal_t
 struct surf_t
 {
 	int portal;				   // index into portals
+	std::vector<int> vertices; // index into verts; sometimes different from portal verts, often the same
     int tex;				   // index into texinfo
 };
 
@@ -149,6 +150,7 @@ private:
 	ResourceManager::texture_t* LoadTexture(const char* name);
 	void LoadPorts(FILE* ptr);
 	void LoadSurfs(FILE* ptr);
+	std::vector<int> LoadFromMarkEdges(FILE *ptr, int firstmarkedge, int nmarkedges);
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
 	void LoadClipnodes(FILE* ptr);

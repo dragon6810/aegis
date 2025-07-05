@@ -85,6 +85,7 @@ typedef struct
 typedef struct
 {
     uint32_t index;
+    uint32_t renderhead;
     uint32_t headnodes[MAX_MAP_HULLS];
     uint16_t nportals[MAX_MAP_HULLS];
     uint16_t firstportal[MAX_MAP_HULLS];
@@ -129,6 +130,8 @@ typedef struct
 typedef struct
 {
     uint32_t portal;
+    uint32_t firstmarkedge; // annoyingly have to do this in addition to portal because multiple faces can be on 1 portal
+    uint16_t nmarkedges;
     uint16_t texinfo;
     int32_t lights[FACE_MAX_LIGHTSYLE]; // terminated with -1 or max of FACE_MAX_LIGHTSTYLE
 } bspfile_face_t;
