@@ -237,6 +237,7 @@ int bsp_partition_addleaf(list_int_t faces, int hull, int side)
 
     leaf->contents = side ? LEAF_CONTENT_EMPTY : LEAF_CONTENT_SOLID;
     leaf->hull = hull;
+    LIST_INITIALIZE(leaf->portals);
     leaf->nfaces = faces.size;
     memcpy(leaf->faces, faces.data, sizeof(int) * faces.size);
 
@@ -265,6 +266,7 @@ int bsp_parition_split_r(list_int_t faces, int hull, int side)
         cli_error(true, "map exceeds max planes: max is %d per hull\n", MAX_MAP_PLANES);
     iplane = bsp_nplanes[hull]++;
     plane = &bsp_planes[hull][iplane];
+    LIST_INITIALIZE(plane->portals);
     splitface = &bsp_faces[hull][faces.data[isplitface]];
     splitface->plane = iplane;
 
