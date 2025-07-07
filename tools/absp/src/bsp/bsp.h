@@ -35,6 +35,8 @@ typedef struct bsp_portal_s
     poly_t *poly;
     
     int curside; // used during construction, useless otherwise
+
+    int fileprt;
 } bsp_portal_t;
 
 typedef struct bsp_texinfo_s

@@ -106,18 +106,68 @@ uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
     return bspfile_nfaces++;
 }
 
-uint32_t bsp_loadintofile_addplane(bsp_plane_t* pl)
+uint32_t bsp_loadintofile_findplane(bsp_plane_t* pl)
 {
-    bspfile_plane_t fileplane = {};
+    int i, j;
+
+    bspfile_plane_t *fileplane;
+
+    for(i=0, fileplane=bspfile_planes; i<bspfile_nplanes; i++, fileplane++)
+    {
+        for(j=0; j<3; j++)
+            if(pl->n[j] != fileplane->n[j])
+                break;
+        if(j < 3)
+            continue;
+        if(pl->d != fileplane->d)
+            continue;
+
+        return i;
+    }
 
     if(bspfile_nplanes >= MAX_MAP_PLANES)
         cli_error(true, "max map planes reached: max is %d.\n", MAX_MAP_PLANES);
 
-    VectorCopy(fileplane.n, pl->n);
-    fileplane.d = pl->d;
+    fileplane = &bspfile_planes[bspfile_nplanes];
+    VectorCopy(fileplane->n, pl->n);
+    fileplane->d = pl->d;
     
-    memcpy(&bspfile_planes[bspfile_nplanes], &fileplane, sizeof(bspfile_plane_t));
     return bspfile_nplanes++;
+}
+
+// doesn't set leaf indices, must be done manually
+uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
+{
+    int i, j;
+
+    bspfile_portal_t *fileprt;
+    int16_t e[2];
+
+    assert(prt);
+
+    if(prt->fileprt >= 0)
+        return prt->fileprt;
+
+    if(bspfile_nportals >= MAX_MAP_PORTALS)
+        cli_error(true, "max map portals reached: max is %d.\n", MAX_MAP_PORTALS);
+
+    fileprt = &bspfile_portals[bspfile_nportals];
+    fileprt->leaves[0] = fileprt->leaves[1] = -1;
+    fileprt->plane = bsp_loadintofile_findplane(prt->pl);
+    fileprt->firstmarkedge = bspfile_nmarkedges;
+    fileprt->nmarkedges = prt->poly->npoints;
+
+    if(bspfile_nmarkedges + prt->poly->npoints-1 >= MAX_MAP_MARKEDGES)
+        cli_error(true, "max map mark edges reached: max is %d.\n", MAX_MAP_MARKEDGES);
+    
+    for(i=0; i<prt->poly->npoints; i++)
+    {
+        for(j=0; j<2; j++)
+            e[j] = bsp_loadintofile_findvertex(prt->poly->points[(i+j)%prt->poly->npoints]);
+        bspfile_markedges[bspfile_nmarkedges++] = bsp_loadintofile_findedge(e);
+    }
+
+    return bspfile_nportals++;
 }
 
 int32_t bsp_loadintofile_addleaf(bsp_leaf_t* leaf)
@@ -159,7 +209,7 @@ int32_t bsp_loadintofile_addnode_r(bsp_plane_t* node)
     filenode = &bspfile_nodes[bspfile_nnodes++];
     memset(filenode, 0, sizeof(bspfile_node_t));
 
-    filenode->plane = bsp_loadintofile_addplane(node);
+    filenode->plane = bsp_loadintofile_findplane(node);
     VectorCopy(filenode->bbox[0], node->bounds[0]);
     VectorCopy(filenode->bbox[1], node->bounds[1]);
 

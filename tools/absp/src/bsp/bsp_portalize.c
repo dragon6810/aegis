@@ -34,6 +34,7 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
     newprt->hull = h;
     newprt->leafs[0] = newprt->leafs[1] = NULL;
     newprt->poly = PolyForPlane(pl->n, pl->d);
+    newprt->fileprt = -1;
     for(i=0; i<prts.size; i++)
     {
         curprt = &bsp_portals[h][prts.data[i]];
@@ -168,6 +169,7 @@ static void bsp_portalize_makeboundportals(void)
             prt->leafs[0] = prt->leafs[1] = NULL;
             prt->curside = 1;
             prt->poly = AllocPoly(4);
+            prt->fileprt = -1;
             for(j=0; j<4; j++)
                 VectorCopy(prt->poly->points[j], corners[windings[i][3-j]]); // reversing winding because i forgot
         }
