@@ -10,8 +10,7 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
     int i, j;
     bsp_portal_t *curprt;
 
-    list_int_t cpyprts;
-    int inewprt;
+    int inewprt, isplitprt;
     bsp_portal_t *newprt;
     vec3_t a, b, n;
     float d;
@@ -24,9 +23,6 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
 
     assert(pl);
 
-    LIST_COPY(cpyprts, prts);
-    prts = cpyprts;
-
     if(bsp_nportals[h] >= MAX_MAP_PORTALS)
         cli_error(true, "max map portals reached: max is %d.\n", MAX_MAP_PORTALS);
     inewprt = bsp_nportals[h];
@@ -37,6 +33,7 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
     newprt->leafs[0] = newprt->leafs[1] = NULL;
     newprt->poly = PolyForPlane(pl->n, pl->d);
     newprt->fileprt = -1;
+    LIST_PUSH(pl->portals, inewprt);
     for(i=0; i<prts.size; i++)
     {
         curprt = &bsp_portals[h][prts.data[i]];
@@ -58,54 +55,51 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
     {
         LIST_INITIALIZE(prtsides[i]);
         LIST_RESIZE(prtsides[i], 1);
-        prtsides[i].data[0] = bsp_nportals[h]-1;
-        for(j=0; j<prts.size; j++)
+        prtsides[i].data[0] = inewprt;
+    }
+
+    for(i=0; i<prts.size; i++)
+    {
+        curprt = &bsp_portals[h][prts.data[i]];
+        side = PolySide(curprt->poly, pl->n, pl->d);
+        switch (side)
         {
-            curprt = &bsp_portals[h][prts.data[j]];
-            side = PolySide(curprt->poly, pl->n, pl->d);
-            switch (side)
-            {
-            case SIDE_BACK:
-                if(!i)
-                    LIST_PUSH(prtsides[i], prts.data[j]);
-               
-                break;
-            case SIDE_FRONT:
-                if(i)
-                    LIST_PUSH(prtsides[i], prts.data[j]);
-                
-                break;
-            case SIDE_CROSS:
-                if(!i)
-                    LIST_PUSH(prtsides[i], prts.data[j]); // since back half stays in place
+        case SIDE_BACK:
+            LIST_PUSH(prtsides[0], prts.data[i]);
+            
+            break;
+        case SIDE_FRONT:
+            LIST_PUSH(prtsides[1], prts.data[i]);
+            
+            break;
+        case SIDE_CROSS:
+            if(bsp_nportals[h] >= MAX_MAP_PORTALS)
+                cli_error(true, "max map portals reached: max is %d.\n", MAX_MAP_PORTALS);
+            splitprt = &bsp_portals[h][bsp_nportals[h]];
+            isplitprt = bsp_nportals[h]++;
+            
+            for(j=0; j<2; j++)
+                splitpoly[j] = CutPoly(curprt->poly, pl->n, pl->d, j);
 
-                if(bsp_nportals[h] >= MAX_MAP_PORTALS)
-                    cli_error(true, "max map portals reached: max is %d.\n", MAX_MAP_PORTALS);
-                splitprt = &bsp_portals[h][bsp_nportals[h]];
-                
-                splitpoly[0] = CutPoly(curprt->poly, pl->n, pl->d, SIDE_BACK);
-                splitpoly[1] = CutPoly(curprt->poly, pl->n, pl->d, SIDE_FRONT);
+            *splitprt = *curprt;
+            free(curprt->poly);
+            curprt->poly = splitpoly[0];
+            splitprt->poly = splitpoly[1];
 
-                *splitprt = *curprt;
-                free(curprt->poly);
-                curprt->poly = splitpoly[0];
-                splitprt->poly = splitpoly[1];
+            if(curprt->pl)
+                LIST_PUSH(curprt->pl->portals, isplitprt);
+            if(curprt->leafs[0])
+                LIST_PUSH(curprt->leafs[0]->portals, isplitprt);
+            if(curprt->leafs[1])
+                LIST_PUSH(curprt->leafs[1]->portals, isplitprt);
 
-                if(curprt->pl)
-                    LIST_PUSH(curprt->pl->portals, bsp_nportals[h]);
-                if(curprt->leafs[0])
-                    LIST_PUSH(curprt->leafs[0], bsp_nportals[h]);
-                if(curprt->leafs[1])
-                    LIST_PUSH(curprt->leafs[1], bsp_nportals[h]);
-                LIST_PUSH(prts, bsp_nportals[h]);
+            LIST_PUSH(prtsides[0], prts.data[i]);
+            LIST_PUSH(prtsides[1], isplitprt);
 
-                bsp_nportals[h]++;
-
-                break;
-            default:
-                cli_error(true, "bsp_portalize_r: unexpected portal-plane alignment\n");
-                break;
-            }
+            break;
+        default:
+            cli_error(true, "bsp_portalize_r: unexpected portal-plane alignment\n");
+            break;
         }
     }
 

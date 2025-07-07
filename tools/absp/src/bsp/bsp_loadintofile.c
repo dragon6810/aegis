@@ -158,7 +158,6 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
         for(j=0; j<2; j++)
             e[j] = iverts[i + j];
         bspfile_markedges[bspfile_nmarkedges++] = bsp_loadintofile_findedge(e);
-        printf("index vs nmarkedge: %d, %d\n", fileprt->firstmarkedge + i, bspfile_nmarkedges);
     }
 
     return bspfile_nportals++;
@@ -213,6 +212,9 @@ int16_t bsp_loadintofile_addclipnode_r(bsp_plane_t* node)
 
     filenode = &bspfile_clipnodes[bspfile_nclipnodes];
     ifilenode = bspfile_nclipnodes++;
+
+    for(i=0; i<node->portals.size; i++)
+        bsp_loadintofile_findportal(&bsp_portals[node->hull][node->portals.data[i]]);
 
     filenode->plane = bsp_loadintofile_findplane(node);
     for(i=0; i<2; i++)

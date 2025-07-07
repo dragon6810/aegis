@@ -14,6 +14,8 @@ void NavMesh::DrawSurf(navnode_t* surf)
     int i;
     Vector3 cur, next;
 
+    glDisable(GL_CULL_FACE);
+
     glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(-1.0f, -1.0f);
     glColor4f(0.5, 0.8, 1, 0.5);
@@ -53,6 +55,8 @@ void NavMesh::DrawSurf(navnode_t* surf)
         glVertex3f(next[0], next[1], next[2]);
     }
     glEnd();
+
+    glEnable(GL_CULL_FACE);
 
     glColor3f(1, 1, 1);
 }
@@ -175,7 +179,7 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
         nodes[i].points.resize(curprt->vertices.size());
         for(j=0; j<nodes[i].points.size(); j++)
             nodes[i].points[j] = world->verts[curprt->vertices[j]];
-        PolyMath::FindNormal(nodes[i].points);
+        nodes[i].normal = PolyMath::FindNormal(nodes[i].points);
         nodes[i].center = PolyMath::FindCenter(nodes[i].points);
     }
 
@@ -237,6 +241,9 @@ std::vector<navnode_t> NavMesh::PruneFaces(const std::vector<navnode_t>& surfs)
     {
         if(!SurfQualifies(surfs[i]))
             continue;
+
+        //newnodes.push_back(surfs[i]);
+        //continue;
 
         nodetris = EarClip(surfs[i].points);
         for(j=0; j<nodetris.size(); j++)
