@@ -413,7 +413,7 @@ void World::LoadLeafs(FILE* ptr)
 
 	uint64_t lumpoffs, lumpsize, nleafs;
 	std::vector<uint16_t> marksurfs;
-	uint16_t nsurfs;
+	uint16_t nsurfs, clip;
 	uint32_t firstmarksurf;
 
 	if(!FindLump(ptr, "MRKFACE", &lumpoffs, &lumpsize))
@@ -424,9 +424,6 @@ void World::LoadLeafs(FILE* ptr)
 
 	marksurfs.resize(lumpsize / 2);
 	fread(marksurfs.data(), sizeof(uint16_t), marksurfs.size(), ptr);
-
-	nleafs = lumpsize / 32;
-	leafs.resize(nleafs);
 
 	if(!FindLump(ptr, "LEAF", &lumpoffs, &lumpsize))
 	{
@@ -444,12 +441,13 @@ void World::LoadLeafs(FILE* ptr)
 	{
 		for(j=0; j<2; j++)
 			fread(&curleaf->bounds[j], sizeof(float), 3, ptr);
-		fread(&curleaf->clipleaf, sizeof(int), 1, ptr);
 		fread(&firstmarksurf, sizeof(firstmarksurf), 1, ptr);
 		fread(&nsurfs, sizeof(nsurfs), 1, ptr);
 		curleaf->surfs.reserve(nsurfs);
 		for(j=firstmarksurf; j<firstmarksurf+nsurfs; j++)
 			curleaf->surfs.emplace_back(marksurfs[j]);
+		fread(&clip, sizeof(clip), 1, ptr);
+		curleaf->clipleaf = clip;
 	}
 }
 
@@ -465,7 +463,6 @@ void World::LoadSurfs(FILE* ptr)
 	int firstedge;
 	short nedges;
 	unsigned short itex;
-	uint32_t portal;
 	uint32_t firstmarkedge;
     uint16_t nmarkedges;
 	uint16_t texinfo;
@@ -477,7 +474,7 @@ void World::LoadSurfs(FILE* ptr)
 		return;
 	}
 
-	nsurfs = lumpsize / 28;
+	nsurfs = lumpsize / 24;
 	surfs.resize(nsurfs);
 	
 	Console::Print("Surf Count: %d.\n", nsurfs);
@@ -485,16 +482,12 @@ void World::LoadSurfs(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, cursurf=surfs.data(); i<nsurfs; i++, cursurf++)
 	{
-		fread(&portal, sizeof(portal), 1, ptr);
 		fread(&firstmarkedge, sizeof(firstmarkedge), 1, ptr);
 		fread(&nmarkedges, sizeof(nmarkedges), 1, ptr);
 		fread(&texinfo, sizeof(texinfo), 1, ptr);
 		fread(lights, sizeof(int32_t), 4, ptr);
 
-		cursurf->portal = portal;
-		Console::Print("Before: %llu.\n", ftell(ptr));
 		cursurf->vertices = LoadFromMarkEdges(ptr, firstmarkedge, nmarkedges);
-		Console::Print("After: %llu.\n", ftell(ptr));
 		cursurf->tex = texinfo;
 	}
 }
@@ -585,7 +578,7 @@ std::vector<int> World::LoadFromMarkEdges(FILE *ptr, int firstmarkedge, int nmar
 
 	fseek(ptr, before, SEEK_SET);
 
-	if(firstmarkedge < 0 || firstmarkedge + nmarkedges >= nmarkedge)
+	if(firstmarkedge < 0 || firstmarkedge + nmarkedges - 1 >= nmarkedge)
 	{
 		Console::Print("World::LoadFromMarkEdges: mark edge index out of bounds.\n");
 		return std::vector<int>();
@@ -768,6 +761,50 @@ void World::LoadPlanes(FILE* ptr)
 	}
 }
 
+void World::LoadModels(FILE* ptr)
+{
+	int i, j, p;
+
+	uint64_t lumpoffs;
+	uint64_t lumpsize;
+	uint64_t nmodels;
+	uint32_t index, renderhead, headnodes[NHULLS];
+	uint16_t nportals[NHULLS], firstportal[NHULLS];
+	model_t curmdl;
+
+	if(!FindLump(ptr, "MODEL", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"MODEL\" lump.\n");
+		return;
+	}
+
+	nmodels = lumpsize / 40;
+
+	Console::Print("Model Count: %d.\n", nmodels);
+
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nmodels; i++)
+	{
+		fread(&index, sizeof(index), 1, ptr);
+		fread(&renderhead, sizeof(renderhead), 1, ptr);
+		fread(headnodes, sizeof(headnodes[0]), NHULLS, ptr);
+		fread(nportals, sizeof(nportals[0]), NHULLS, ptr);
+		fread(firstportal, sizeof(firstportal[0]), NHULLS, ptr);
+
+		curmdl = {};
+		curmdl.renderhead = renderhead;
+		for(j=0; j<NHULLS; j++)
+		{
+			curmdl.clipheads[j] = headnodes[j];
+			curmdl.portals[j].resize(nportals[j]);
+			for(p=0; p<nportals[j]; p++)
+				curmdl.portals[j][p] = p + firstportal[j];
+			
+			this->models[index] = curmdl;
+		}
+	}
+}
+
 bool World::FindLump(FILE* ptr, const char* tag, uint64_t* outloc, uint64_t* outlen)
 {
 	int i;
@@ -853,6 +890,7 @@ bool World::Load(std::string name)
 		return false;
 	}
 
+	LoadModels(ptr);
 	LoadEntities(ptr);
 	LoadPlanes(ptr);
 	LoadVerts(ptr);
@@ -861,9 +899,8 @@ bool World::Load(std::string name)
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
-	return false;
-	LoadClipnodes(ptr);
-    LoadHullSurfs(ptr);
+	//LoadClipnodes(ptr);
+    //LoadHullSurfs(ptr);
 
 	navmesh.Initialize(this);
 
@@ -879,10 +916,8 @@ void World::RenderSurf(surf_t* surf)
 {
 	int i;
 	Vector3 pos;
-	portal_t *prt;
 	texinfo_t *tex;
 
-	prt = &ports[surf->portal];
 	tex = &texinfos[surf->tex];
 
 	glEnable(GL_TEXTURE_2D);

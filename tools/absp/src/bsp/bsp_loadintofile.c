@@ -54,44 +54,32 @@ int32_t bsp_loadintofile_findedge(int16_t e[2])
     return bspfile_nedges++;
 }
 
-uint32_t bsp_loadintofile_addportal(bspfile_portal_t* prt)
-{
-    if(bspfile_nportals >= MAX_MAP_PORTALS)
-        cli_error(true, "max map portals reached: max is %d.\n", MAX_MAP_PORTALS);
-    memcpy(&bspfile_portals[bspfile_nportals], prt, sizeof(bspfile_portal_t));
-    return bspfile_nportals++;
-}
-
 uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
 {
     int i;
 
     bspfile_face_t fileface = {};
-    bspfile_portal_t fileportal = {};
     int16_t iverts[face->poly->npoints + 1], e[2];
     vec3_t a, b, n;
 
     if(bspfile_nfaces >= MAX_MAP_FACES)
         cli_error(true, "max map faces reached: max is %d.\n", MAX_MAP_FACES);
 
-    fileportal.plane = iplane;
     fileface.texinfo = face->texinfo;
 
     VectorSubtract(a, face->poly->points[1], face->poly->points[0]);
     VectorSubtract(b, face->poly->points[2], face->poly->points[0]);
     VectorCross(n, a, b);
-    if(VectorDot(n, bspfile_planes[iplane].n) < 0)
-        fileportal.plane = ~iplane;
 
-    if(bspfile_nmarkedges + face->poly->npoints >= MAX_MAP_MARKEDGES)
-        cli_error(true, "max map markedges reached: max is %d.\n", MAX_MAP_MARKEDGES);
-
-    fileportal.firstmarkedge = fileface.firstmarkedge = bspfile_nmarkedges;
-    fileportal.nmarkedges = fileface.nmarkedges = face->poly->npoints;
+    fileface.firstmarkedge = bspfile_nmarkedges;
+    fileface.nmarkedges = face->poly->npoints;
 
     for(i=0; i<face->poly->npoints; i++)
         iverts[i] = bsp_loadintofile_findvertex(face->poly->points[i]);
     iverts[i] = iverts[0];
+
+    if(bspfile_nmarkedges + face->poly->npoints-1 >= MAX_MAP_MARKEDGES)
+        cli_error(true, "max map mark edges reached: max is %d.\n", MAX_MAP_MARKEDGES);
 
     for(i=0; i<face->poly->npoints; i++)
     {
@@ -101,8 +89,7 @@ uint16_t bsp_loadintofile_addface(bsp_face_t* face, int16_t iplane)
     }
 
     face->fileface = bspfile_nfaces;
-
-    fileface.portal = bsp_loadintofile_addportal(&fileportal);
+    
     memcpy(&bspfile_faces[bspfile_nfaces], &fileface, sizeof(bspfile_face_t));
     return bspfile_nfaces++;
 }
@@ -142,7 +129,7 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
     int i, j;
 
     bspfile_portal_t *fileprt;
-    int16_t e[2];
+    int16_t iverts[prt->poly->npoints+1], e[2];
 
     assert(prt);
 
@@ -155,17 +142,23 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
     fileprt = &bspfile_portals[bspfile_nportals];
     fileprt->leaves[0] = fileprt->leaves[1] = -1;
     fileprt->plane = bsp_loadintofile_findplane(prt->pl);
-    fileprt->firstmarkedge = bspfile_nmarkedges;
-    fileprt->nmarkedges = prt->poly->npoints;
 
     if(bspfile_nmarkedges + prt->poly->npoints-1 >= MAX_MAP_MARKEDGES)
         cli_error(true, "max map mark edges reached: max is %d.\n", MAX_MAP_MARKEDGES);
+
+    for(i=0; i<prt->poly->npoints; i++)
+        iverts[i] = bsp_loadintofile_findvertex(prt->poly->points[i]);
+    iverts[i] = iverts[0];
+
+    fileprt->firstmarkedge = bspfile_nmarkedges;
+    fileprt->nmarkedges = prt->poly->npoints;
     
     for(i=0; i<prt->poly->npoints; i++)
     {
         for(j=0; j<2; j++)
-            e[j] = bsp_loadintofile_findvertex(prt->poly->points[(i+j)%prt->poly->npoints]);
+            e[j] = iverts[i + j];
         bspfile_markedges[bspfile_nmarkedges++] = bsp_loadintofile_findedge(e);
+        printf("index vs nmarkedge: %d, %d\n", fileprt->firstmarkedge + i, bspfile_nmarkedges);
     }
 
     return bspfile_nportals++;

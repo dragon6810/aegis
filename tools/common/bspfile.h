@@ -13,11 +13,6 @@ header:
     uint32_t version;   // 31
     uint32_t nlumps;    // total number of lumps
     uint64_t tableoffs; // location of lump table
-
-lump table entry:
-    char tag[8];   // null-terminated
-    uint64_t size; // size of all data of lump
-    uint64_t offs; // location of lump
 */
 
 #define BSP_FILE_VERSION    31
@@ -129,8 +124,7 @@ typedef struct
 
 typedef struct
 {
-    uint32_t portal;
-    uint32_t firstmarkedge; // annoyingly have to do this in addition to portal because multiple faces can be on 1 portal
+    uint32_t firstmarkedge;
     uint16_t nmarkedges;
     uint16_t texinfo;
     int32_t lights[FACE_MAX_LIGHTSYLE]; // terminated with -1 or max of FACE_MAX_LIGHTSTYLE

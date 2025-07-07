@@ -1,6 +1,8 @@
 #include <bsp/bsp.h>
 
 #include <std/assert/assert.h>
+#include <std/profiler/profiler.h>
+
 #include <cli/cli.h>
 
 static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
@@ -182,6 +184,8 @@ void bsp_portalize(void)
 
     list_int_t prts;
 
+    profiler_push("Portalize World");
+
     bsp_portalize_makeboundportals();
     for(h=0; h<MAX_MAP_HULLS; h++)
     {
@@ -194,4 +198,6 @@ void bsp_portalize(void)
 
         LIST_FREE(prts);
     }
+
+    profiler_pop();
 }

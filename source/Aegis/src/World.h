@@ -50,7 +50,6 @@ struct portal_t
 
 struct surf_t
 {
-	int portal;				   // index into portals
 	std::vector<int> vertices; // index into verts; sometimes different from portal verts, often the same
     int tex;				   // index into texinfo
 };
@@ -76,6 +75,14 @@ struct hullsurf_t
 	std::vector<Vector3> points;
 	int node; 					 // index into clipnodes
 	bool flip;
+};
+
+struct model_t
+{
+	int renderhead; 				  // index into nodes
+	int clipheads[NHULLS]; 	  		  // index into clipnodes
+	std::vector<int> surfs;   		  // index into surfs
+	std::vector<int> portals[NHULLS]; // index into portals
 };
 
 struct traceresult_t
@@ -116,15 +123,16 @@ public:
 
 	int headnodes[4];
 
-	std::vector<hullnode_t> clipnodes;
-	std::vector<node_t> 		nodes;
-	std::vector<leaf_t>   		leafs; // Ehhhh
-	std::vector<portal_t>		ports;
-	std::vector<surf_t>   		surfs;
-	std::vector<hullsurf_t> hullsurfs[4];
-	std::vector<Vector3>  		verts;
-	std::vector<plane_t> 	   planes; // You broke the 5-letter synergy, man!
-	std::vector<texinfo_t> 	 texinfos;
+	std::vector<hullnode_t> 		   clipnodes;
+	std::vector<node_t> 				   nodes;
+	std::vector<leaf_t>   				   leafs;
+	std::vector<portal_t>				   ports;
+	std::vector<surf_t>   				   surfs;
+	std::vector<hullsurf_t> 		hullsurfs[4];
+	std::vector<Vector3>  				   verts;
+	std::vector<plane_t> 	   			  planes;
+	std::vector<texinfo_t> 	 			texinfos;
+	std::unordered_map<uint32_t, model_t> models;
 
 	std::vector<ResourceManager::texture_t*> textures;
 
@@ -144,6 +152,7 @@ private:
 	// Loading
 	bool VerifyFile(FILE* ptr);
 	bool FindLump(FILE* ptr, const char* tag, uint64_t* outloc, uint64_t* outlen);
+	void LoadModels(FILE* ptr);
 	void LoadPlanes(FILE* ptr);
 	void LoadVerts(FILE* ptr);
 	void LoadTextures(FILE* ptr);

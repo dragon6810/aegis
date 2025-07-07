@@ -161,20 +161,21 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
 
     std::vector<navnode_t> nodes;
     std::vector<std::array<Vector3, 3>> tris;
+    model_t *mdl;
     portal_t *curprt;
 
-    nodes.resize(world->surfs.size());
+    mdl = &world->models[0];
+
+    nodes.resize(mdl->portals[hull].size());
     for(i=0; i<nodes.size(); i++)
     {
-        curprt = &world->ports[world->surfs[i].portal];
+        curprt = &world->ports[mdl->portals[hull][i]];
 
         nodes[i] = {};
         nodes[i].points.resize(curprt->vertices.size());
         for(j=0; j<nodes[i].points.size(); j++)
             nodes[i].points[j] = world->verts[curprt->vertices[j]];
-        nodes[i].normal = world->planes[curprt->pl].n;
-        if(curprt->reverse)
-            nodes[i].normal = nodes[i].normal * -1;
+        PolyMath::FindNormal(nodes[i].points);
         nodes[i].center = PolyMath::FindCenter(nodes[i].points);
     }
 
