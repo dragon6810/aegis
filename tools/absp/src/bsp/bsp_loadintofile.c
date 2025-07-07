@@ -5,6 +5,7 @@
 
 #include <bspfile.h>
 #include <std/assert/assert.h>
+#include <std/profiler/profiler.h>
 
 #include <cli/cli.h>
 
@@ -170,6 +171,68 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
     return bspfile_nportals++;
 }
 
+int16_t bsp_loadintofile_addclipleaf(bsp_leaf_t* leaf)
+{
+    int i, j;
+
+    bspfile_clipleaf_t *fileleaf;
+    bspfile_portal_t *fileprt;
+    bsp_portal_t *prt;
+
+    assert(leaf);
+
+    if(bspfile_nclipleafs >= MAX_MAP_CLIPLEAFS)
+        cli_error(true, "max map clipleafs reached: max is %d.\n", MAX_MAP_CLIPLEAFS);
+
+    fileleaf = &bspfile_clipleafs[bspfile_nclipleafs];
+
+    fileleaf->contents = leaf->contents;
+    fileleaf->firstmarkportal = bspfile_nmarkportals;
+    fileleaf->nmarkportals = leaf->portals.size;
+
+    if(bspfile_nmarkportals + leaf->portals.size - 1 >= MAX_MAP_MARKPORTALS)
+        cli_error(true, "max map markportals reached: max is %d.\n", MAX_MAP_MARKPORTALS);
+
+    for(i=0; i<leaf->portals.size; i++)
+    {
+        prt = &bsp_portals[leaf->hull][leaf->portals.data[i]];
+        bspfile_markportals[bspfile_nmarkportals++] = bsp_loadintofile_findportal(prt);
+        fileprt = &bspfile_portals[bsp_loadintofile_findportal(prt)];
+        for(j=0; j<2; j++)
+            if(prt->leafs[j] == leaf)
+                fileprt->leaves[j] = bspfile_nclipleafs;
+    }
+
+    return bspfile_nclipleafs++;
+}
+
+int16_t bsp_loadintofile_addclipnode_r(bsp_plane_t* node)
+{
+    int i;
+
+    bspfile_clipnode_t *filenode;
+    int16_t ifilenode;
+
+    assert(node);
+
+    if(bspfile_nclipnodes >= MAX_MAP_CLIPNODES)
+        cli_error(true, "max map clipnodes reached: max is %d.\n", MAX_MAP_CLIPNODES);
+
+    filenode = &bspfile_clipnodes[bspfile_nclipnodes];
+    ifilenode = bspfile_nclipnodes++;
+
+    filenode->plane = bsp_loadintofile_findplane(node);
+    for(i=0; i<2; i++)
+    {
+        if(node->children[i] > 0)
+            filenode->children[i] = bsp_loadintofile_addclipnode_r(&bsp_planes[node->hull][node->children[i]]);
+        else
+            filenode->children[i] = ~bsp_loadintofile_addclipleaf(bsp_leaves[node->hull][~node->children[i]]); 
+    }
+
+    return ifilenode;
+}
+
 int32_t bsp_loadintofile_addleaf(bsp_leaf_t* leaf)
 {
     int i;
@@ -248,6 +311,7 @@ void bsp_loadintofile_addmodel(int imodel)
         filemodel->firstportal[i] = bspfile_nportals;
         if(!i)
             filemodel->renderhead = bsp_loadintofile_addnode_r(&bsp_planes[i][bsp_models[imodel].headplane[i]]);
+        filemodel->headnodes[i] = bsp_loadintofile_addclipnode_r(&bsp_planes[i][bsp_models[imodel].headplane[i]]);
         filemodel->nportals[i] = bspfile_nportals - filemodel->firstportal[i];
     }
 }
@@ -288,9 +352,13 @@ void bsp_loadintofile(void)
 {
     int i;
 
+    profiler_push("Load Into File");
+
     bsp_loadintofile_copyents();
     for(i=0; i<bsp_ntexinfos; i++)
         bsp_loadintofile_addtexinfo(&bsp_texinfos[i]);
     for(i=0; i<bsp_nmodels; i++)
         bsp_loadintofile_addmodel(i);
+
+    profiler_pop();
 }

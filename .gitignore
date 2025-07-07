@@ -410,6 +410,7 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 *.dir/
-Makefile
 *.ninja
 *.log
+bin/
+obj/
