@@ -167,20 +167,30 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
     std::vector<std::array<Vector3, 3>> tris;
     model_t *mdl;
     portal_t *curprt;
+    navnode_t *newnode;
+    hullleaf_t *leaves[2];
 
     mdl = &world->models[0];
 
-    nodes.resize(mdl->portals[hull].size());
-    for(i=0; i<nodes.size(); i++)
+    for(i=0; i<mdl->portals[hull].size(); i++)
     {
         curprt = &world->ports[mdl->portals[hull][i]];
+        
+        if(curprt->leaves[0] == -1 || curprt->leaves[1] == -1)
+            continue;
+        for(j=0; j<2; j++)
+            leaves[j] = &world->clipleafs[curprt->leaves[j]];
+        if((leaves[0]->contents == CONTENTS_EMPTY) == (leaves[1]->contents == CONTENTS_EMPTY))
+            continue;
 
-        nodes[i] = {};
-        nodes[i].points.resize(curprt->vertices.size());
-        for(j=0; j<nodes[i].points.size(); j++)
-            nodes[i].points[j] = world->verts[curprt->vertices[j]];
-        nodes[i].normal = PolyMath::FindNormal(nodes[i].points);
-        nodes[i].center = PolyMath::FindCenter(nodes[i].points);
+        nodes.push_back({});
+        newnode = &nodes.back();
+
+        newnode->points.resize(curprt->vertices.size());
+        for(j=0; j<newnode->points.size(); j++)
+            newnode->points[j] = world->verts[curprt->vertices[j]];
+        newnode->normal = PolyMath::FindNormal(newnode->points);
+        newnode->center = PolyMath::FindCenter(newnode->points);
     }
 
     return nodes;
@@ -265,7 +275,7 @@ void NavMesh::FindSurfs(int hull)
 
     surfs[hull] = Expand(hull);
     //surfs[hull] = CutPlanes(surfs[hull]);
-    //surfs[hull] = PruneFaces(surfs[hull]);
+    surfs[hull] = PruneFaces(surfs[hull]);
 }
 
 void NavMesh::Render(void)
@@ -286,25 +296,5 @@ void NavMesh::Initialize(World* world)
     {
         FindSurfs(i);
         FindEdges(i);
-    }
-
-    for(i=0; i<surfs[0].size()-1; i++)
-    {
-        for(j=i+1; j<surfs[0].size(); j++)
-        {
-            if(surfs[0][i].points.size() != surfs[0][j].points.size())
-                continue;
-
-            for(k=0; k<surfs[0][i].points.size(); k++)
-            {
-                if(surfs[0][i].points[k] != surfs[0][j].points[k])
-                    break;
-            }
-
-            if(k < surfs[0][i].points.size())
-                continue;
-
-            Console::Print("duplicate\n");
-        }
     }
 }

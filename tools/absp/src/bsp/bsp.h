@@ -14,6 +14,8 @@ typedef struct bsp_leaf_s
     list_int_t portals;
     int nfaces;
     int faces[0]; // TODO: turn this into a list_int_t
+
+    int fileclipleaf;
 } bsp_leaf_t;
 
 typedef struct bsp_plane_s

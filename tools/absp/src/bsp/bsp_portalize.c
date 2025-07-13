@@ -1,5 +1,7 @@
 #include <bsp/bsp.h>
 
+#include <string.h>
+
 #include <std/assert/assert.h>
 #include <std/profiler/profiler.h>
 
@@ -52,11 +54,7 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
     }
 
     for(i=0; i<2; i++)
-    {
         LIST_INITIALIZE(prtsides[i]);
-        LIST_RESIZE(prtsides[i], 1);
-        prtsides[i].data[0] = inewprt;
-    }
 
     for(i=0; i<prts.size; i++)
     {
@@ -81,17 +79,16 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
             for(j=0; j<2; j++)
                 splitpoly[j] = CutPoly(curprt->poly, pl->n, pl->d, j);
 
-            *splitprt = *curprt;
             free(curprt->poly);
+            memcpy(splitprt, curprt, sizeof(bsp_portal_t));
             curprt->poly = splitpoly[0];
             splitprt->poly = splitpoly[1];
 
             if(curprt->pl)
                 LIST_PUSH(curprt->pl->portals, isplitprt);
-            if(curprt->leafs[0])
-                LIST_PUSH(curprt->leafs[0]->portals, isplitprt);
-            if(curprt->leafs[1])
-                LIST_PUSH(curprt->leafs[1]->portals, isplitprt);
+            for(j=0; j<2; j++)
+                if(curprt->leafs[j])
+                    LIST_PUSH(curprt->leafs[j]->portals, isplitprt);
 
             LIST_PUSH(prtsides[0], prts.data[i]);
             LIST_PUSH(prtsides[1], isplitprt);
@@ -105,9 +102,13 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
 
     for(i=0; i<2; i++)
     {
-        newprt->curside = i;
-        
-        if(pl->children[i] > 0)
+        for(j=0; j<pl->portals.size; j++)
+        {
+            bsp_portals[h][pl->portals.data[j]].curside = i;
+            LIST_PUSH(prtsides[i], pl->portals.data[j]);
+        }
+
+        if(pl->children[i] >= 0)
         {
             bsp_portalize_r(&bsp_planes[h][pl->children[i]], h, prtsides[i]);
             LIST_FREE(prtsides[i]);
@@ -115,8 +116,12 @@ static void bsp_portalize_r(bsp_plane_t *pl, int h, list_int_t prts)
         else
         {
             curleaf = bsp_leaves[h][~pl->children[i]];
-            newprt->leafs[i] = curleaf;
-            LIST_PUSH(curleaf->portals, inewprt);
+            for(j=0; j<prtsides[i].size; j++)
+            {
+                curprt = &bsp_portals[h][prtsides[i].data[j]];
+                curprt->leafs[curprt->curside] = curleaf;
+                LIST_PUSH(curleaf->portals, prtsides[i].data[j]);
+            }
         }
     }
 }

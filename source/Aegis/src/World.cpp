@@ -35,14 +35,16 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 {
 	const float epsilon = 0.01;
 
-	hullnode_t* curnode;
+	hullnode_t *curnode;
+	hullleaf_t *curleaf;
 	Vector3 cross;
 	float d1, d2, t;
 	int first;
 
 	if(icurnode < 0)
 	{
-		if(icurnode == CONTENTS_SOLID)
+		curleaf = &this->clipleafs[~icurnode];
+		if(curleaf->contents == CONTENTS_SOLID)
 		{
 			trace->hit = start;
 			trace->n = n;
@@ -219,112 +221,55 @@ void World::LoadEntities(FILE* ptr)
 		entities[i] = LoadEntity(ents[i]);
 }
 
-void World::LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull)
+void World::LoadClipleaves(FILE* ptr)
 {
-    int i, j;
+	int i, j;
 
-	std::vector<hullsurf_t> newverts;
-	std::vector<hullsurf_t> newsurfs;
-	hullsurf_t curverts, curnewverts;
-	hullnode_t *curnode;
-	Vector3 a, b, n;
-	float d;
-    hullsurf_t newsurf;
-	int contents[2];
-	Vector3 center;
+	uint64_t lumpoffs, lumpsize, nmarkprts, nclipleaves;
+	
+	std::vector<uint16_t> markportals;
 
-	for(i=0; i<parents.size()-1; i++)
+	int8_t contents;
+	uint16_t nmarkportals;
+	uint32_t firstmarkportal;
+
+	if(!FindLump(ptr, "IPORTAL", &lumpoffs, &lumpsize))
 	{
-		if(!parents.size())
-			break;
-
-		n = planes[clipnodes[parents[parents.size()-1].node].pl].n;
-		d = planes[clipnodes[parents[parents.size()-1].node].pl].d;
-
-		parents[i].points = PolyMath::ClipToPlane(parents[i].points, n, d, parents[parents.size()-1].flip);
-
-		if(parents[i].points.size())
-			continue;
-
-		parents.erase(parents.begin() + i);
-		i--;
-	}
-
-	if(icurnode < 0)
-	{
-		for(i=0; i<parents.size(); i++)
-		{
-			// This code for checking if its a boundary portal is stupid and hacky and slow and bad.
-			// Please replace with a better solution later, probably while constructing a graph reperesentation of the
-			// space which is useful anyway.
-
-			center = Vector3();
-
-			for(j=0; j<parents[i].points.size(); j++)
-				center = center + parents[i].points[j];
-			center = center / parents[i].points.size();
-
-			contents[0] = GetContents(center - planes[clipnodes[parents[i].node].pl].n, headnodes[ihull]);
-			contents[1] = GetContents(center + planes[clipnodes[parents[i].node].pl].n, headnodes[ihull]);
-
-			if(contents[0] == contents[1])
-				continue;
-
-			hullsurfs[ihull].push_back(parents[i]);
-		}
-
+		Console::Print("Map has no \"IPORTAL\" lump.\n");
 		return;
 	}
 
-	curnode = &clipnodes[icurnode];
-	newsurf.points = PolyMath::BaseWindingForPlane(planes[curnode->pl].n, planes[curnode->pl].d);
-	newsurf.node = icurnode;
+	markportals.resize(lumpsize / 2);
+	fread(markportals.data(), sizeof(uint16_t), markportals.size(), ptr);
 
-	for(i=0; i<parents.size(); i++)
+	if(!FindLump(ptr, "HULLEAF", &lumpoffs, &lumpsize))
 	{
-		n = planes[clipnodes[parents[i].node].pl].n;
-		d = planes[clipnodes[parents[i].node].pl].d;
-
-		newsurf.points = PolyMath::ClipToPlane(newsurf.points, n, d, parents[i].flip);
-		if(!PolyMath::PlaneCrosses(parents[i].points, planes[curnode->pl].n, planes[curnode->pl].d))
-			continue;
-
-		parents.insert(parents.begin() + i, parents[i]);
-		parents[  i].points = PolyMath::ClipToPlane(parents[i].points, n, d, false);
-		parents[++i].points = PolyMath::ClipToPlane(parents[i].points, n, d, true);
+		Console::Print("Map has no \"HULLEAF\" lump.\n");
+		return;
 	}
 
-	assert(newsurf.points.size() != 0);
+	nclipleaves = lumpsize / 7;
+	clipleafs.resize(nclipleaves);
 
-	newsurf.flip = false;
-    parents.push_back(newsurf);
-    for(i=0; i<2; i++)
-    {   
-		// Clip to front instead
-		if(i)
-			parents[parents.size() - 1].flip = true;
+	Console::Print("Clipleaf Count: %d.\n", nclipleaves);
 
-        LoadSurfs_r(parents, curnode->children[i], ihull);
-    }
-}
+	fseek(ptr, lumpoffs, SEEK_SET);
+	for(i=0; i<nclipleaves; i++)
+	{
+		fread(&contents, sizeof(contents), 1, ptr);
+		fread(&firstmarkportal, sizeof(firstmarkportal), 1, ptr);
+		fread(&nmarkportals, sizeof(nmarkportals), 1, ptr);
+		clipleafs[i].contents = contents;
 
-void World::LoadHullSurfs(FILE* ptr)
-{
-    int i, j, k;
-
-    int lumpoffs, lumpsize;
-    int index;
-
-    fseek(ptr, 4 + LUMP_MODELS * 8, SEEK_SET);
-    fread(&lumpoffs, sizeof(int), 1, ptr);
-    fread(&lumpsize, sizeof(int), 1, ptr);
-    fseek(ptr, lumpoffs + 36, SEEK_SET);
-    for(i=0; i<NHULLS; i++)
-    {
-        fread(&index, sizeof(int), 1, ptr);
-		headnodes[i] = index;
-        LoadSurfs_r({}, index, i);
-    }
+		clipleafs[i].portals.reserve(nmarkportals);
+		for(j=firstmarkportal; j<firstmarkportal+nmarkportals; j++)
+		{
+			if(j < markportals.size() && j >= 0)
+				clipleafs[i].portals.emplace_back(markportals[j]);
+			else
+				Console::Print("World::LoadClipleaves: mark portal index out of bounds.\n");
+		}
+	}
 }
 
 void World::LoadClipnodes(FILE* ptr)
@@ -332,17 +277,18 @@ void World::LoadClipnodes(FILE* ptr)
 	int i, j;
 	hullnode_t *curnode;
 
-	int lumpoffs;
-	int lumpsize;
-	int nclipnodes;
+	uint64_t lumpoffs, lumpsize, nclipnodes;
 
-	unsigned int iplane;
+	unsigned short iplane;
 	short children[2];
 
-	fseek(ptr, 4 + LUMP_CLIPNODES * 8, SEEK_SET);
-	fread(&lumpoffs, sizeof(int), 1, ptr);
-	fread(&lumpsize, sizeof(int), 1, ptr);
-	nclipnodes = lumpsize / 8;
+	if(!FindLump(ptr, "HULLBSP", &lumpoffs, &lumpsize))
+	{
+		Console::Print("Map has no \"HULLBSP\" lump.\n");
+		return;
+	}
+
+	nclipnodes = lumpsize / 6;
 	clipnodes.resize(nclipnodes);
 
 	Console::Print("Clipnode Count: %d.\n", nclipnodes);
@@ -351,8 +297,8 @@ void World::LoadClipnodes(FILE* ptr)
 	clipnodes.resize(nclipnodes);
 	for(i=0, curnode=clipnodes.data(); i<nclipnodes; i++, curnode++)
 	{
-		fread(&iplane, sizeof(int), 1, ptr);
-		fread(curnode->children, sizeof(short), 2, ptr);
+		fread(&iplane, sizeof(iplane), 1, ptr);
+		fread(curnode->children, sizeof(curnode->children[0]), 2, ptr);
 
 		curnode->pl = iplane;
 	}
@@ -899,8 +845,8 @@ bool World::Load(std::string name)
 	LoadSurfs(ptr);
 	LoadLeafs(ptr);
 	LoadNodes(ptr);
-	//LoadClipnodes(ptr);
-    //LoadHullSurfs(ptr);
+	LoadClipnodes(ptr);
+	LoadClipleaves(ptr);
 
 	navmesh.Initialize(this);
 

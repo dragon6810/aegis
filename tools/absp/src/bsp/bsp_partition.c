@@ -234,6 +234,7 @@ int bsp_partition_addleaf(list_int_t faces, int hull, int side)
     
     ileaf = bsp_nleaves[hull]++;
     leaf = bsp_leaves[hull][ileaf] = malloc(sizeof(bsp_leaf_t) + sizeof(int) * faces.size);
+    leaf->fileclipleaf = -1;
 
     leaf->contents = side ? LEAF_CONTENT_EMPTY : LEAF_CONTENT_SOLID;
     leaf->hull = hull;

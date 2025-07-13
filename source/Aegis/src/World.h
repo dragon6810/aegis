@@ -13,8 +13,8 @@
 
 #define NHULLS 4
 
-#define CONTENTS_EMPTY -1
-#define CONTENTS_SOLID -2
+#define CONTENTS_EMPTY 0
+#define CONTENTS_SOLID 1
 
 // forward declarations
 class EntityCamera;
@@ -45,7 +45,7 @@ struct portal_t
 	std::vector<int> vertices; // index into verts
 	int pl;					   // index into planes
 	bool reverse;			   // reverse plane normal?
-	int leaves[2];			   // index into leaves; [back, front]
+	int leaves[2];			   // index into clipleafs; [back, front]
 };
 
 struct surf_t
@@ -67,14 +67,13 @@ struct node_t
 struct hullnode_t
 {
 	int pl; 		   // index into planes
-	short children[2];
+	short children[2]; // if negative, bitwise inverse index into clipleafs
 };
 
-struct hullsurf_t
+struct hullleaf_t
 {
-	std::vector<Vector3> points;
-	int node; 					 // index into clipnodes
-	bool flip;
+	int contents;
+	std::vector<int> portals; // index into portals
 };
 
 struct model_t
@@ -124,11 +123,11 @@ public:
 	int headnodes[4];
 
 	std::vector<hullnode_t> 		   clipnodes;
+	std::vector<hullleaf_t> 		   clipleafs;
 	std::vector<node_t> 				   nodes;
 	std::vector<leaf_t>   				   leafs;
 	std::vector<portal_t>				   ports;
 	std::vector<surf_t>   				   surfs;
-	std::vector<hullsurf_t> 		hullsurfs[4];
 	std::vector<Vector3>  				   verts;
 	std::vector<plane_t> 	   			  planes;
 	std::vector<texinfo_t> 	 			texinfos;
@@ -163,9 +162,7 @@ private:
 	void LoadLeafs(FILE* ptr);
 	void LoadNodes(FILE* ptr);
 	void LoadClipnodes(FILE* ptr);
-    void LoadHullSurfs(FILE* ptr);
-
-    void LoadSurfs_r(std::vector<hullsurf_t> parents, int icurnode, int ihull);
+    void LoadClipleaves(FILE* ptr);
 	
     // Entity Loading
 	void LoadEntities(FILE* ptr);

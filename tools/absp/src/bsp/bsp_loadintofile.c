@@ -100,6 +100,8 @@ uint32_t bsp_loadintofile_findplane(bsp_plane_t* pl)
 
     bspfile_plane_t *fileplane;
 
+    assert(pl);
+
     for(i=0, fileplane=bspfile_planes; i<bspfile_nplanes; i++, fileplane++)
     {
         for(j=0; j<3; j++)
@@ -141,7 +143,8 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
 
     fileprt = &bspfile_portals[bspfile_nportals];
     fileprt->leaves[0] = fileprt->leaves[1] = -1;
-    fileprt->plane = bsp_loadintofile_findplane(prt->pl);
+    if(prt->pl)
+        fileprt->plane = bsp_loadintofile_findplane(prt->pl);
 
     if(bspfile_nmarkedges + prt->poly->npoints-1 >= MAX_MAP_MARKEDGES)
         cli_error(true, "max map mark edges reached: max is %d.\n", MAX_MAP_MARKEDGES);
@@ -160,10 +163,12 @@ uint16_t bsp_loadintofile_findportal(bsp_portal_t* prt)
         bspfile_markedges[bspfile_nmarkedges++] = bsp_loadintofile_findedge(e);
     }
 
+    prt->fileprt = bspfile_nportals;
+
     return bspfile_nportals++;
 }
 
-int16_t bsp_loadintofile_addclipleaf(bsp_leaf_t* leaf)
+int16_t bsp_loadintofile_findclipleaf(bsp_leaf_t* leaf)
 {
     int i, j;
 
@@ -188,8 +193,9 @@ int16_t bsp_loadintofile_addclipleaf(bsp_leaf_t* leaf)
     for(i=0; i<leaf->portals.size; i++)
     {
         prt = &bsp_portals[leaf->hull][leaf->portals.data[i]];
+
         bspfile_markportals[bspfile_nmarkportals++] = bsp_loadintofile_findportal(prt);
-        fileprt = &bspfile_portals[bsp_loadintofile_findportal(prt)];
+        fileprt = &bspfile_portals[bspfile_markportals[bspfile_nmarkportals-1]];
         for(j=0; j<2; j++)
             if(prt->leafs[j] == leaf)
                 fileprt->leaves[j] = bspfile_nclipleafs;
@@ -213,8 +219,8 @@ int16_t bsp_loadintofile_addclipnode_r(bsp_plane_t* node)
     filenode = &bspfile_clipnodes[bspfile_nclipnodes];
     ifilenode = bspfile_nclipnodes++;
 
-    for(i=0; i<node->portals.size; i++)
-        bsp_loadintofile_findportal(&bsp_portals[node->hull][node->portals.data[i]]);
+    //for(i=0; i<node->portals.size; i++)
+    //    bsp_loadintofile_findportal(&bsp_portals[node->hull][node->portals.data[i]]);
 
     filenode->plane = bsp_loadintofile_findplane(node);
     for(i=0; i<2; i++)
@@ -222,7 +228,7 @@ int16_t bsp_loadintofile_addclipnode_r(bsp_plane_t* node)
         if(node->children[i] > 0)
             filenode->children[i] = bsp_loadintofile_addclipnode_r(&bsp_planes[node->hull][node->children[i]]);
         else
-            filenode->children[i] = ~bsp_loadintofile_addclipleaf(bsp_leaves[node->hull][~node->children[i]]); 
+            filenode->children[i] = ~bsp_loadintofile_findclipleaf(bsp_leaves[node->hull][~node->children[i]]); 
     }
 
     return ifilenode;
