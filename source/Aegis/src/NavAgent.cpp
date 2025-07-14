@@ -36,6 +36,7 @@ std::vector<navnode_t*> NavAgent::AStar(NavMesh* mesh, navnode_t* start, navnode
         frontier[i]->h = (end->center - frontier[i]->center).Length();
         frontier[i]->f = (frontier[i]->center - start->center).Length() + frontier[i]->h;
         frontier[i]->exploredby = start;
+        frontier[i]->explored = false;
     }
     start->h = (end->center - start->center).Length();
     start->f = start->h;
@@ -79,11 +80,12 @@ std::vector<navnode_t*> NavAgent::AStar(NavMesh* mesh, navnode_t* start, navnode
                 break;
             }
             
-            frontier.erase(std::remove(frontier.begin(), frontier.end(), toexplore->edges[i]), frontier.end());
+            //frontier.erase(std::remove(frontier.begin(), frontier.end(), toexplore->edges[i]), frontier.end());
             toexplore->edges[i]->h = (toexplore->edges[i]->center - start->center).Length();
             toexplore->edges[i]->f = (toexplore->edges[i]->center - toexplore->center).Length() + (toexplore->f - toexplore->h);
             toexplore->edges[i]->f += toexplore->edges[i]->h;
             toexplore->edges[i]->exploredby = toexplore;
+            frontier.push_back(toexplore->edges[i]);
         }
 
         toexplore->explored = true;
@@ -94,12 +96,12 @@ std::vector<navnode_t*> NavAgent::AStar(NavMesh* mesh, navnode_t* start, navnode
         return std::vector<navnode_t*>();
 
     path.push_back(end);
-    path.push_back(end);
     do
     {
         path.push_back(pathroot);
         pathroot = pathroot->exploredby;
     } while(pathroot != start);
+    path.push_back(start);
     std::reverse(path.begin(), path.end());
 
     return path;
@@ -107,12 +109,18 @@ std::vector<navnode_t*> NavAgent::AStar(NavMesh* mesh, navnode_t* start, navnode
 
 void NavAgent::RenderPath()
 {
-    int i;
+    int i, j;
+
+    Vector3 v;
 
     glBegin(GL_POINTS);
     glColor3f(1, 1, 0);
     for(i=0; i<curpath.anchors.size(); i++)
-        glVertex3f(curpath.anchors[i].pos.x, curpath.anchors[i].pos.y, curpath.anchors[i].pos.z);
+    {
+        v = curpath.anchors[i].pos;
+        v = v + curpath.anchors[i].node->normal;
+        glVertex3f(v.x, v.y, v.z);
+    }
     glEnd();
 
     if(curpath.anchors.size() > 1)
@@ -121,8 +129,12 @@ void NavAgent::RenderPath()
         glColor3f(0, 1, 0);
         for(i=0; i<curpath.anchors.size()-1; i++)
         {
-            glVertex3f(curpath.anchors[i].pos.x, curpath.anchors[i].pos.y, curpath.anchors[i].pos.z);
-            glVertex3f(curpath.anchors[i+1].pos.x, curpath.anchors[i+1].pos.y, curpath.anchors[i+1].pos.z);
+            for(j=0; j<2; j++)
+            {
+                v = curpath.anchors[i+j].pos;
+                v = v + curpath.anchors[i+j].node->normal;
+                glVertex3f(v.x, v.y, v.z);
+            }
         }
         glEnd();
     }

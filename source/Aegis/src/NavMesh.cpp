@@ -14,6 +14,8 @@ void NavMesh::DrawSurf(navnode_t* surf)
     int i;
     Vector3 cur, next;
 
+    return;
+
     glDisable(GL_CULL_FACE);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -274,7 +276,7 @@ void NavMesh::FindSurfs(int hull)
     int i;
 
     surfs[hull] = Expand(hull);
-    //surfs[hull] = CutPlanes(surfs[hull]);
+    surfs[hull] = CutPlanes(surfs[hull]);
     surfs[hull] = PruneFaces(surfs[hull]);
 }
 

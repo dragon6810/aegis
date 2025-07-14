@@ -58,12 +58,18 @@ bool WalkAgent::ConstructPath(Vector3 start, Vector3 end)
     }
 
     nodepath = AStar(&this->world->navmesh, startnode, endnode);
+    if(nodepath.size() < 2)
+        return false;
+
     this->curpath.anchors.resize(nodepath.size());
     for(i=0; i<nodepath.size(); i++)
     {
         this->curpath.anchors[i].pos = nodepath[i]->center;
         this->curpath.anchors[i].node = nodepath[i];
     }
+
+    this->curpath.anchors.front().pos = start;
+    this->curpath.anchors.back().pos = end;
 
     /*
     this->curpath.anchors.resize(2);
