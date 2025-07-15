@@ -12,6 +12,19 @@ Matrix4x4::Matrix4x4(void)
     m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1;
 }
 
+Matrix4x4 const Matrix4x4::Transpose(void)
+{
+    int i, j;
+
+    Matrix4x4 trans;
+
+    for(i=0; i<4; i++)
+        for(j=0; j<4; j++)
+            trans[i][j] = this->m[j][i];
+
+    return trans;
+}
+
 Matrix4x4 Matrix4x4::operator*(Matrix4x4 a)
 {
     int i, j, k;

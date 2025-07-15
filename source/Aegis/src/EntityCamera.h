@@ -2,6 +2,7 @@
 
 #include "EntityBase.h"
 
+#include "Camera.h"
 #include "Quaternion.h"
 
 class EntityCamera : public EntityBase
@@ -15,6 +16,8 @@ public:
 
 	void SetUpGL(void);
 
+	
+	Camera cam;
 	Vector3 pos;
 	Vector3 rot;
 	Vector3 mousedir;

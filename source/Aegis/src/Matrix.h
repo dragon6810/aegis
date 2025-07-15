@@ -12,6 +12,8 @@ public:
 	float m[4][4];
 	Vector3 v;
 
+	Matrix4x4 const Transpose(void);
+
 	Matrix4x4 operator*(Matrix4x4 a);
 	Vector3 operator*(Vector3 v);
 	float* operator[](int i);

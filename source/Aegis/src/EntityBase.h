@@ -16,4 +16,5 @@ protected:
 	int LoadInt(const std::unordered_map <std::string, std::string>& pairs, std::string key, int _default);
 	float LoadFloat(const std::unordered_map <std::string, std::string>& pairs, std::string key, float _default);
 	Vector3 LoadVector3(const std::unordered_map <std::string, std::string>& pairs, std::string key, Vector3 _default);
+	Vector3 LoadEuler(const std::unordered_map <std::string, std::string>& pairs, std::string key, Vector3 _default);
 };

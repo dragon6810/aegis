@@ -38,3 +38,16 @@ Vector3 EntityBase::LoadVector3(const std::unordered_map <std::string, std::stri
 
 	return val;
 }
+
+Vector3 EntityBase::LoadEuler(const std::unordered_map <std::string, std::string>& pairs, std::string key, Vector3 _default)
+{
+	Vector3 ent, game;
+
+	if (pairs.find(key) == pairs.end())
+		return _default;
+
+	ent = LoadVector3(pairs, key, Vector3());
+	game.x = ent.z;
+	game.y = -ent.x;
+	game.z = ent.y;
+}
