@@ -1,36 +1,143 @@
 #include "Gui.h"
 
+#include <string>
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
 
+#include "Map.h"
+
 void Gui::Setup(GLFWwindow* win)
 {
+    int i;
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); 
-    (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
+    //ImGui::StyleColorsClassic();
     
     ImGui_ImplGlfw_InitForOpenGL(win, true);
     ImGui_ImplOpenGL2_Init();
+
+    for(i=0; i<Viewport::NTYPES; i++)
+    {
+        this->viewports[i].fbo = 0;
+        this->viewports[i].tex = 0;
+        this->viewports[i].depth = 0;
+        this->viewports[i].canvassize = Eigen::Vector2i(0, 0);
+        this->viewports[i].type = (Viewport::viewporttype_e) i;
+        if(i != Viewport::FREECAM)
+            this->viewports[i].pos[i] = Map::max_map_size + 8.0;
+    }
+}
+
+
+void Gui::DrawViewports(void)
+{
+    int i;
+
+    std::string viewportname;
+    ImVec2 viewportsize;
+
+    for(i=0; i<Viewport::NTYPES; i++)
+    {
+        viewportname = std::string("Viewport ") + std::to_string(i);
+        ImGui::Begin(viewportname.c_str());
+
+        viewportsize = ImGui::GetContentRegionAvail();
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
+        if(this->viewports[i].canvassize.x() != viewportsize.x || this->viewports[i].canvassize.y() != viewportsize.y)
+        {
+            if (this->viewports[i].tex)
+                glDeleteTextures(1, &this->viewports[i].tex);
+            if (this->viewports[i].fbo)
+                glDeleteFramebuffersEXT(1, &this->viewports[i].fbo);
+            if (this->viewports[i].depth)
+                glDeleteRenderbuffersEXT(1, &this->viewports[i].depth);
+
+            glGenTextures(1, &this->viewports[i].tex);
+            glGenFramebuffersEXT(1, &this->viewports[i].fbo);
+            glGenRenderbuffersEXT(1, &this->viewports[i].depth);
+
+            glBindTexture(GL_TEXTURE_2D, this->viewports[i].tex);
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
+            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, this->viewports[i].depth);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewportsize.x, viewportsize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, viewportsize.x, viewportsize.y);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, this->viewports[i].tex, 0);
+            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, this->viewports[i].depth);
+            
+            if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+                fprintf(stderr, "error creating fbo for viewport %d with code %d\n", i, glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT));
+
+            this->viewports[i].canvassize = Eigen::Vector2i(viewportsize.x, viewportsize.y);
+        }
+
+        map.Render(this->viewports[i]);
+
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        
+        ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize);
+        ImGui::End();
+    }
 }
 
 void Gui::Draw()
 {
+    ImGuiDockNodeFlags dockspaceflags;
+
     ImGui_ImplOpenGL2_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Button("Button");
+    if (ImGui::BeginMainMenuBar()) 
+    {
+        if (ImGui::BeginMenu("File")) 
+        {
+            if (ImGui::MenuItem("New", "Ctrl+N")) 
+            {
+
+            }
+            if (ImGui::MenuItem("Open", "Ctrl+O")) 
+            {
+
+            }
+            if (ImGui::MenuItem("Save", "Ctrl+S"))
+            {
+
+            }
+            if (ImGui::MenuItem("Save as", "Ctrl+Alt+S")) 
+            {
+
+            }
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    dockspaceflags = ImGuiDockNodeFlags_PassthruCentralNode;
+    //ImGui::DockSpace(ImGui::GetMainViewport()->ID, ImVec2(0.0f, 0.0f), dockspaceflags);
+
+    this->DrawViewports();
 }
 
 void Gui::FinishFrame()
 {
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
 }

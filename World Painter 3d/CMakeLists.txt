@@ -39,6 +39,11 @@ add_executable (
 
     "src/main.cpp" 
     "src/Gui.cpp"
+    "src/Map.cpp"
+    "src/Brush.cpp"
+    "src/Plane.cpp"
+    "src/Entity.cpp"
+    "src/Viewport.cpp"
 )
 
 set_target_properties(WP3D PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -59,6 +64,9 @@ if (APPLE)
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
     find_package(SFML COMPONENTS System Audio REQUIRED)
+    find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
+    include_directories(/opt/homebrew/include/eigen3)
     
     target_link_libraries(WP3D PRIVATE
         GLEW::GLEW
@@ -66,6 +74,7 @@ if (APPLE)
         SFML::Audio
         SFML::System
         "-framework OpenGL"
+        Eigen3::Eigen
     )
 elseif (WIN32)
     target_link_libraries(WP3D PRIVATE

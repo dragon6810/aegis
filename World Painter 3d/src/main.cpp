@@ -1,8 +1,5 @@
 #include <stdio.h>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "Gui.h"
 
 int main(int argc, char** argv)
@@ -17,6 +14,12 @@ int main(int argc, char** argv)
     glfwMakeContextCurrent(win);
 
     glewInit();
+    if (!GLEW_EXT_framebuffer_object)
+    {
+        printf("couldnt enable fbo extension\n");
+        return 1;
+    }
+
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 

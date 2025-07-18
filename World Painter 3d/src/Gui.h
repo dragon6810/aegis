@@ -1,6 +1,10 @@
 #pragma once
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "Map.h"
+#include "Viewport.h"
 
 class Gui
 {
@@ -11,7 +15,12 @@ public:
         return instance;
     }
 private:
-        Gui() {}
+    Gui() {}
+
+    Map map;
+    Viewport viewports[Viewport::NTYPES];
+
+    void DrawViewports(void);
 public:
     void Setup(GLFWwindow* win);
     void Draw();
