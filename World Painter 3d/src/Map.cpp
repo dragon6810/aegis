@@ -81,21 +81,59 @@ void Map::GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3])
     }
 }
 
+void Map::PanOrtho(Viewport& view, ImGuiKey key)
+{
+    const float panspeed = 0.25;
+
+    Eigen::Vector3f basis[3];
+
+    assert(view.type != Viewport::FREECAM);
+
+    GetViewBasis(view, basis);
+    switch(key)
+    {
+        case ImGuiKey_W:
+            view.pos += basis[2] * panspeed * view.zoom;
+            break;
+        case ImGuiKey_A:
+            view.pos -= basis[1] * panspeed * view.zoom;
+            break;
+        case ImGuiKey_S:
+            view.pos -= basis[2] * panspeed * view.zoom;
+            break;
+        case ImGuiKey_D:
+            view.pos += basis[1] * panspeed * view.zoom;
+            break;
+        default:
+            break;
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
-    const int colcycle = 4;
-    const float maxbrightness = 0.75;
+    const int colcycle = max_grid_level + 1;
+    const float minbrightness = 0.25;
+    const float maxbrightness = 1.0;
 
     int i, j, k, l;
 
     int firstlevel;
     int axis;
-    Eigen::Vector3f basis[2], seg[2];
+    Eigen::Vector3f basis[3], seg[2];
+    Eigen::Vector2f camsize;
     float linedistance, brightness;
+    float min, max;
 
-    firstlevel = log2f(view.zoom / 32.0);
+    if(view.type == Viewport::FREECAM)
+        return;
+
+    firstlevel = log2f(view.zoom / 16.0);
+    if(firstlevel < 0)
+        firstlevel = 0;
     if(firstlevel < gridlevel)
         firstlevel = gridlevel;
+    if(firstlevel > max_grid_level)
+        firstlevel = max_grid_level;
 
     if(firstlevel > max_grid_level)
         return;
@@ -104,27 +142,37 @@ void Map::DrawGrid(const Viewport& view)
     if(view.type == Viewport::FREECAM)
         axis = 2;
 
-    for(i=0; i<2; i++)
-    {
-        basis[i] = Eigen::Vector3f(0, 0, 0);
-        basis[i][(axis + i + 1) % 3] = 1;
-    }
+    GetViewBasis(view, basis);
+
+    camsize[0] = view.zoom * ((float) view.canvassize[0] / (float) view.canvassize[1]);
+    camsize[1] = view.zoom;
 
     glBegin(GL_LINES);
     for(i=firstlevel; i<=max_grid_level; i++)
     {
         linedistance = 1 << i;
-        brightness = maxbrightness / (float) colcycle * (float) ((i % colcycle) + 1);
+        brightness = 1.0 / (float) colcycle * (float) ((i % (colcycle)) + 1);
+        brightness *= (maxbrightness - minbrightness);
+        brightness += minbrightness;
         glColor3f(brightness, brightness, brightness);
         for(j=0; j<2; j++)
         {
-            for(k=-max_map_size; k <= max_map_size; k += linedistance)
+            min = basis[j+1].dot(view.pos - (camsize[j] + linedistance) * (basis[j+1]));
+            if(-max_map_size > min)
+                min = -max_map_size;
+            max = basis[j+1].dot(view.pos + (camsize[j] + linedistance) * (basis[j+1]));
+            if(max_map_size < max)
+                max = max_map_size;
+
+            min = roundf(min / (float) linedistance) * (float) linedistance;
+            max = roundf(max / (float) linedistance) * (float) linedistance;
+            for(k=min; k <= max; k += linedistance)
             {
                 seg[0] = seg[1] = Eigen::Vector3f(0, 0, 0);
-                seg[0] += k * basis[j];
-                seg[1] += k * basis[j];
-                seg[0] += -max_map_size * basis[!j];
-                seg[1] += max_map_size * basis[!j];
+                seg[0] += k * basis[j+1];
+                seg[1] += k * basis[j+1];
+                seg[0] += -max_map_size * basis[!j+1];
+                seg[1] += max_map_size * basis[!j+1];
                 for(l=0; l<2; l++)
                     glVertex3f(seg[l][0], seg[l][1], seg[l][2]);
             }
@@ -238,6 +286,47 @@ void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
     }
 
     glEnd();
+}
+
+void Map::KeyPress(Viewport& view, ImGuiKey key)
+{
+    const float zoomfactor = sqrtf(2.0);
+    const float minzoom = 8.0;
+    const float maxzoom = max_map_size * 2;
+
+    switch(key)
+    {
+    case ImGuiKey_LeftBracket:
+        if(gridlevel)
+            gridlevel--;
+        
+        break;
+    case ImGuiKey_RightBracket:
+        if(gridlevel < max_grid_level)
+            gridlevel++;
+
+        break;
+    case ImGuiKey_Minus:
+        if(view.type != Viewport::FREECAM && view.zoom < maxzoom)
+            view.zoom *= zoomfactor;
+
+        break;
+    case ImGuiKey_Equal:
+        if(view.type != Viewport::FREECAM && view.zoom > minzoom)
+            view.zoom /= zoomfactor;
+
+        break;
+    case ImGuiKey_W:
+    case ImGuiKey_A:
+    case ImGuiKey_S:
+    case ImGuiKey_D:
+        if(view.type != Viewport::FREECAM)
+            PanOrtho(view, key);
+
+        break;
+    default:
+        break;
+    }
 }
 
 void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button)

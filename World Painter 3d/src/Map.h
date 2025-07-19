@@ -13,6 +13,8 @@ private:
     // outbasis is forward, right, up
     void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
 
+    void PanOrtho(Viewport& view, ImGuiKey key);
+
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
     void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
@@ -27,6 +29,7 @@ public:
 
     std::vector<Entity> entities;
 
+    void KeyPress(Viewport& view, ImGuiKey key);
     void Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button);
     void Render(const Viewport& view);
 };

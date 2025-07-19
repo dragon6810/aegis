@@ -96,24 +96,36 @@ void Gui::DrawViewports(void)
             this->viewports[i].canvassize = Eigen::Vector2i(viewportsize.x, viewportsize.y);
         }
 
-        for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
+        if(ImGui::IsWindowFocused())
         {
-            if (!ImGui::IsWindowHovered() || !ImGui::IsMouseClicked(j))
-                continue;
+            for(j=ImGuiKey_NamedKey_BEGIN; j<ImGuiKey_NamedKey_END; j++)
+            {
+                if(ImGui::IsKeyPressed((ImGuiKey) j))
+                    map.KeyPress(this->viewports[i], (ImGuiKey) j);
+            }
+            
+            // mouse input only when the mouse is over the window
+            if(ImGui::IsWindowHovered())
+            {
+                mousepos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
+                mousepos.y = ImGui::GetMousePos().y - ImGui::GetWindowPos().y;
+                mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
+                mousepos.x /= viewportsize.x;
+                mousepos.y /= viewportsize.y;
 
-            printf("click on viewport %d\n", i);
-            mousepos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
-            mousepos.y = ImGui::GetMousePos().y - ImGui::GetWindowPos().y;
-            mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
-            mousepos.x /= viewportsize.x;
-            mousepos.y /= viewportsize.y;
-            printf("mouse pos: %f, %f\n", mousepos.x, mousepos.y);
-            this->map.Click
-            (
-                this->viewports[i],
-                Eigen::Vector2f(mousepos.x, mousepos.y), 
-                (ImGuiMouseButton_) j
-            );
+                for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
+                {
+                    if (!ImGui::IsMouseClicked(j))
+                        continue;
+                    
+                    this->map.Click
+                    (
+                        this->viewports[i],
+                        Eigen::Vector2f(mousepos.x, mousepos.y), 
+                        (ImGuiMouseButton_) j
+                    );
+                }
+            }
         }
 
         map.Render(this->viewports[i]);
