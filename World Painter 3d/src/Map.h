@@ -14,6 +14,7 @@ private:
     void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
 
     void PanOrtho(Viewport& view, ImGuiKey key);
+    void FinalizeBrush(void);
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
@@ -32,4 +33,6 @@ public:
     void KeyPress(Viewport& view, ImGuiKey key);
     void Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button);
     void Render(const Viewport& view);
+
+    void NewMap(void);
 };

@@ -25,6 +25,8 @@ void Gui::Setup(GLFWwindow* win)
     ImGui_ImplGlfw_InitForOpenGL(win, true);
     ImGui_ImplOpenGL2_Init();
 
+    map.NewMap();
+
     for(i=0; i<Viewport::NTYPES; i++)
     {
         this->viewports[i].fbo = 0;

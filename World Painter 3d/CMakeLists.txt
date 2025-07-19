@@ -44,6 +44,7 @@ add_executable (
     "src/Plane.cpp"
     "src/Entity.cpp"
     "src/Viewport.cpp"
+    "src/Polygon.cpp"
 )
 
 set_target_properties(WP3D PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

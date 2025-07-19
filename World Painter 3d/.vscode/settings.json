@@ -89,6 +89,7 @@
         "codecvt": "cpp",
         "csignal": "cpp",
         "fstream": "cpp",
-        "stacktrace": "cpp"
+        "stacktrace": "cpp",
+        "dense": "cpp"
     }
 }

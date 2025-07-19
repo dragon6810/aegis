@@ -109,6 +109,47 @@ void Map::PanOrtho(Viewport& view, ImGuiKey key)
     }
 }
 
+void Map::FinalizeBrush(void)
+{
+    int i, j;
+
+    Eigen::Vector3f bb[2];
+    Brush *br;
+    Plane *pl;
+
+    // TODO: brush types other than block
+
+    for(i=0; i<3; i++)
+        bb[0][i] = bb[1][i] = brushcorners[0][i];
+    for(i=0; i<3; i++)
+    {
+        if(brushcorners[1][i] < bb[0][i])
+            bb[0][i] = brushcorners[1][i];
+        if(brushcorners[1][i] > bb[1][i])
+            bb[1][i] = brushcorners[1][i];
+    }
+
+    this->entities[0].brushes.push_back({});
+    br = &this->entities[0].brushes.back();
+    br->planes.resize(6);
+    for(i=0; i<3; i++)
+    {
+        pl = &br->planes[i * 2 + 0];
+        pl->normal = Eigen::Vector3f(0, 0, 0);
+        pl->normal[i] = -1;
+        pl->d = -bb[0][i];
+
+        pl = &br->planes[i * 2 + 1];
+        pl->normal = Eigen::Vector3f(0, 0, 0);
+        pl->normal[i] = 1;
+        pl->d = bb[1][i];
+    }
+
+    br->MakeFaces();
+
+    nbrushcorners = 0;
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -324,6 +365,15 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             PanOrtho(view, key);
 
         break;
+    case ImGuiKey_Escape:
+        nbrushcorners = 0;
+
+        break;
+    case ImGuiKey_Enter:
+        if(nbrushcorners == 2)
+            this->FinalizeBrush();
+
+        break;
     default:
         break;
     }
@@ -373,6 +423,8 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
 
 void Map::Render(const Viewport& view)
 {
+    int i;
+
     const float axislen = 64;
 
     glPushMatrix();
@@ -397,9 +449,24 @@ void Map::Render(const Viewport& view)
 
     glEnable(GL_DEPTH_TEST);
 
+    for(i=0; i<this->entities.size(); i++)
+        this->entities[i].Draw(view);
+
     DrawWorkingBrush(view);
 
     glColor3f(1, 1, 1);
 
     glPopMatrix();
+}
+
+void Map::NewMap(void)
+{
+    Entity *worldspawn;
+
+    this->entities.resize(1);
+    worldspawn = &this->entities.back();
+
+    worldspawn->pairs["classname"] = "worldspawn";
+    worldspawn->pairs["wp3dversion"] = "wp3d_v1";
+    worldspawn->brushes.clear();
 }
