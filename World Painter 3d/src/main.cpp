@@ -4,7 +4,8 @@
 
 int main(int argc, char** argv)
 {
-    GLFWwindow* win;
+    GLFWwindow *win;
+    int w, h;
 
     glfwInit();
 
@@ -33,6 +34,9 @@ int main(int argc, char** argv)
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         Gui::GetGui().Draw();
+
+        glfwGetFramebufferSize(win, &w, &h);
+        glViewport(0, 0, w, h);
 
         Gui::GetGui().FinishFrame();
 

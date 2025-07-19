@@ -16,8 +16,8 @@ void Gui::Setup(GLFWwindow* win)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
@@ -35,20 +35,31 @@ void Gui::Setup(GLFWwindow* win)
         if(i != Viewport::FREECAM)
             this->viewports[i].pos[i] = Map::max_map_size + 8.0;
     }
+
+    currenttool = TOOL_BRUSH;
 }
 
+void Gui::ViewportInput(void)
+{
+
+}
 
 void Gui::DrawViewports(void)
 {
-    int i;
+    int i, j;
 
     std::string viewportname;
-    ImVec2 viewportsize;
+    ImVec2 viewportsize, mousepos;
 
+    this->currentviewport = -1;
     for(i=0; i<Viewport::NTYPES; i++)
     {
         viewportname = std::string("Viewport ") + std::to_string(i);
-        ImGui::Begin(viewportname.c_str());
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::Begin(viewportname.c_str(), NULL, ImGuiWindowFlags_NoTitleBar);
+
+        if(ImGui::IsWindowFocused())
+            this->currentviewport = i;
 
         viewportsize = ImGui::GetContentRegionAvail();
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
@@ -85,12 +96,33 @@ void Gui::DrawViewports(void)
             this->viewports[i].canvassize = Eigen::Vector2i(viewportsize.x, viewportsize.y);
         }
 
+        for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
+        {
+            if (!ImGui::IsWindowHovered() || !ImGui::IsMouseClicked(j))
+                continue;
+
+            printf("click on viewport %d\n", i);
+            mousepos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
+            mousepos.y = ImGui::GetMousePos().y - ImGui::GetWindowPos().y;
+            mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
+            mousepos.x /= viewportsize.x;
+            mousepos.y /= viewportsize.y;
+            printf("mouse pos: %f, %f\n", mousepos.x, mousepos.y);
+            this->map.Click
+            (
+                this->viewports[i],
+                Eigen::Vector2f(mousepos.x, mousepos.y), 
+                (ImGuiMouseButton_) j
+            );
+        }
+
         map.Render(this->viewports[i]);
 
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         
         ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize);
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 }
 
@@ -129,15 +161,20 @@ void Gui::Draw()
     }
 
     dockspaceflags = ImGuiDockNodeFlags_PassthruCentralNode;
-    //ImGui::DockSpace(ImGui::GetMainViewport()->ID, ImVec2(0.0f, 0.0f), dockspaceflags);
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
     this->DrawViewports();
 }
 
 void Gui::FinishFrame()
 {
+    GLFWwindow *ctx;
+
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    
+    ctx = glfwGetCurrentContext();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
+    glfwMakeContextCurrent(ctx);
 }
