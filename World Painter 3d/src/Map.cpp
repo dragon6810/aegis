@@ -81,6 +81,60 @@ void Map::GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3])
     }
 }
 
+void Map::DrawGrid(const Viewport& view)
+{
+    const int colcycle = 4;
+    const float maxbrightness = 0.75;
+
+    int i, j, k, l;
+
+    int firstlevel;
+    int axis;
+    Eigen::Vector3f basis[2], seg[2];
+    float linedistance, brightness;
+
+    firstlevel = log2f(view.zoom / 32.0);
+    if(firstlevel < gridlevel)
+        firstlevel = gridlevel;
+
+    if(firstlevel > max_grid_level)
+        return;
+
+    axis = (int) view.type;
+    if(view.type == Viewport::FREECAM)
+        axis = 2;
+
+    for(i=0; i<2; i++)
+    {
+        basis[i] = Eigen::Vector3f(0, 0, 0);
+        basis[i][(axis + i + 1) % 3] = 1;
+    }
+
+    glBegin(GL_LINES);
+    for(i=firstlevel; i<=max_grid_level; i++)
+    {
+        linedistance = 1 << i;
+        brightness = maxbrightness / (float) colcycle * (float) ((i % colcycle) + 1);
+        glColor3f(brightness, brightness, brightness);
+        for(j=0; j<2; j++)
+        {
+            for(k=-max_map_size; k <= max_map_size; k += linedistance)
+            {
+                seg[0] = seg[1] = Eigen::Vector3f(0, 0, 0);
+                seg[0] += k * basis[j];
+                seg[1] += k * basis[j];
+                seg[0] += -max_map_size * basis[!j];
+                seg[1] += max_map_size * basis[!j];
+                for(l=0; l<2; l++)
+                    glVertex3f(seg[l][0], seg[l][1], seg[l][2]);
+            }
+        }
+    }
+    glEnd();
+
+    glColor3f(1, 1, 1);
+}
+
 void Map::DrawWorkingBrush(const Viewport& view)
 {
     const Eigen::Vector3f cornercolors[2] = { Eigen::Vector3f(1, 0, 0), Eigen::Vector3f(0, 1, 0) };
@@ -192,6 +246,7 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
 
     Eigen::Vector3f basis[3], clickpos;
     int icorner;
+    int realgridsize;
 
     if(view.type == Viewport::FREECAM)
         return;
@@ -221,8 +276,10 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         this->nbrushcorners = 1;
     if(this->nbrushcorners == 1 && icorner == 1)
         this->nbrushcorners = 2;
+
+    realgridsize = 1 << gridlevel;
     for(i=0; i<3; i++)
-        this->brushcorners[icorner][i] = (int) clickpos[i];
+        this->brushcorners[icorner][i] = ((int) roundf(clickpos[i] / (float) realgridsize)) << gridlevel;
 }
 
 void Map::Render(const Viewport& view)
@@ -231,6 +288,9 @@ void Map::Render(const Viewport& view)
 
     glPushMatrix();
     SetupFrame(view);
+
+    glDisable(GL_DEPTH_TEST);
+    DrawGrid(view);
 
     glPointSize(8.0);
 
@@ -245,6 +305,8 @@ void Map::Render(const Viewport& view)
     glVertex3f(0, 0, 0);
     glVertex3f(0, 0, axislen);
     glEnd();
+
+    glEnable(GL_DEPTH_TEST);
 
     DrawWorkingBrush(view);
 

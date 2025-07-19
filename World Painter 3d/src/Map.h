@@ -13,10 +13,14 @@ private:
     // outbasis is forward, right, up
     void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
 
+    void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
     void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
 public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
+    static constexpr int max_grid_level = 10; // 2^10 = 1024
+
+    unsigned int gridlevel = 4; // 0 to max_grid_level
 
     int nbrushcorners = 0;
     Eigen::Vector3i brushcorners[2]; // once both corners are placed, it will be [min, max]
