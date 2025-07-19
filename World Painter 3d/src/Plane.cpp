@@ -20,8 +20,37 @@ void Plane::DrawWire(const Viewport& view)
     glEnd();
 }
 
+void Plane::DrawShaded(const Viewport& view)
+{
+    const Eigen::Vector3f lightdir = Eigen::Vector3f(1, 1.25, 1.5).normalized();
+    const float ambient = 0.75;
+
+    int i;
+
+    float brightness;
+
+    brightness = (this->normal.dot(lightdir) / 2.0 + 0.5) * (1.0 - ambient) + ambient;
+    if(brightness > 1)
+        brightness = 1;
+    if(brightness < 0)
+        brightness = 0;
+
+    glColor3f(brightness, brightness, brightness);
+
+    glBegin(GL_POLYGON);
+
+    for(i=0; i<this->poly.points.size(); i++)
+    {
+        glVertex3f(this->poly.points[i][0], this->poly.points[i][1], this->poly.points[i][2]);
+    }
+
+    glEnd();
+}
+
 void Plane::Draw(const Viewport& view)
 {
     if(view.wireframe)
         this->DrawWire(view);
+    else
+        this->DrawShaded(view);
 }

@@ -36,6 +36,8 @@ void Gui::Setup(GLFWwindow* win)
         this->viewports[i].type = (Viewport::viewporttype_e) i;
         if(i != Viewport::FREECAM)
             this->viewports[i].pos[i] = Map::max_map_size + 8.0;
+        else
+            this->viewports[i].wireframe = false;
     }
 
     currenttool = TOOL_BRUSH;
@@ -136,7 +138,7 @@ void Gui::DrawViewports(float deltatime)
 
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         
-        ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize);
+        ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize, {0, 1}, {1, 0});
         ImGui::End();
         ImGui::PopStyleVar();
     }

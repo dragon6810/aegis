@@ -25,12 +25,11 @@ void Map::SetupFrame(const Viewport& view)
     {
         aspect = (float)view.canvassize.x() / (float)view.canvassize.y();
         projmat = glm::perspective(glm::radians(view.fov), aspect, 1.0f, max_map_size * 2.0f);
-        projmat[1] *= -1.0f;
     }
     else
     {
         aspect = (float)view.canvassize.x() / (float)view.canvassize.y();
-        projmat = glm::ortho(-view.zoom * aspect, view.zoom * aspect, view.zoom, -view.zoom, 1.0f, max_map_size * 2.0f);
+        projmat = glm::ortho(-view.zoom * aspect, view.zoom * aspect, -view.zoom, view.zoom, 1.0f, max_map_size * 2.0f);
     }
     glLoadMatrixf(&projmat[0][0]);
 
