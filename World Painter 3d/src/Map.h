@@ -12,6 +12,9 @@ private:
 
     // outbasis is forward, right, up
     void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
+
+    void DrawWorkingBrush(const Viewport& view);
+    void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
 public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
 
