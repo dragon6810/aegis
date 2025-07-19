@@ -109,6 +109,75 @@ void Map::PanOrtho(Viewport& view, ImGuiKey key)
     }
 }
 
+void Map::MoveFreecam(Viewport& view, ImGuiKey key, float deltatime)
+{
+    const float movespeed = 300;
+
+    Eigen::Vector3f basis[3];
+    Eigen::Vector3f move;
+    
+    assert(view.type == Viewport::FREECAM);
+
+    GetViewBasis(view, basis);
+    switch(key)
+    {
+        case ImGuiKey_W:
+            move = basis[0] *  movespeed * deltatime;
+            break;
+        case ImGuiKey_A:
+            move = basis[1] * -movespeed * deltatime;
+            break;
+        case ImGuiKey_S:
+            move = basis[0] * -movespeed * deltatime;
+            break;
+        case ImGuiKey_D:
+            move = basis[1] *  movespeed * deltatime;
+            break;
+        default:
+            return;
+    }
+
+    view.pos += move;
+}
+
+void Map::LookFreecam(Viewport& view, ImGuiKey key, float deltatime)
+{
+    const float turnspeed = M_PI;
+
+    assert(view.type == Viewport::FREECAM);
+
+    Eigen::Vector3f addrot;
+
+    addrot = Eigen::Vector3f(0, 0, 0);
+    switch(key)
+    {
+    case ImGuiKey_UpArrow:
+        addrot[1] -= turnspeed * deltatime;
+
+        break;
+    case ImGuiKey_LeftArrow:
+        addrot[2] += turnspeed * deltatime;
+        
+        break;
+    case ImGuiKey_DownArrow:
+        addrot[1] += turnspeed * deltatime;
+        
+        break;
+    case ImGuiKey_RightArrow:
+        addrot[2] -= turnspeed * deltatime;
+        
+        break;
+    default:
+        return;
+    }
+
+    view.rot += addrot;
+    if(view.rot[1] > M_PI_2)
+        view.rot[1] = M_PI_2;
+    if(view.rot[1] < -M_PI_2)
+        view.rot[1] = -M_PI_2;
+}
+
 void Map::FinalizeBrush(void)
 {
     int i, j;
@@ -327,6 +396,29 @@ void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
     }
 
     glEnd();
+}
+
+void Map::KeyDown(Viewport& view, ImGuiKey key, float deltatime)
+{
+    switch(key)
+    {
+    case ImGuiKey_W:
+    case ImGuiKey_A:
+    case ImGuiKey_S:
+    case ImGuiKey_D:
+        if(view.type == Viewport::FREECAM)
+            MoveFreecam(view, key, deltatime);
+
+        break;
+    case ImGuiKey_UpArrow:
+    case ImGuiKey_LeftArrow:
+    case ImGuiKey_DownArrow:
+    case ImGuiKey_RightArrow:
+        if(view.type == Viewport::FREECAM)
+            LookFreecam(view, key, deltatime);
+
+        break;
+    };
 }
 
 void Map::KeyPress(Viewport& view, ImGuiKey key)

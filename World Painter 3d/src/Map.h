@@ -14,6 +14,8 @@ private:
     void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
 
     void PanOrtho(Viewport& view, ImGuiKey key);
+    void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
+    void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void FinalizeBrush(void);
 
     void DrawGrid(const Viewport& view);
@@ -30,6 +32,7 @@ public:
 
     std::vector<Entity> entities;
 
+    void KeyDown(Viewport& view, ImGuiKey key, float deltatime);
     void KeyPress(Viewport& view, ImGuiKey key);
     void Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button);
     void Render(const Viewport& view);

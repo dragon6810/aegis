@@ -46,7 +46,7 @@ void Gui::ViewportInput(void)
 
 }
 
-void Gui::DrawViewports(void)
+void Gui::DrawViewports(float deltatime)
 {
     int i, j;
 
@@ -104,6 +104,8 @@ void Gui::DrawViewports(void)
             {
                 if(ImGui::IsKeyPressed((ImGuiKey) j))
                     map.KeyPress(this->viewports[i], (ImGuiKey) j);
+                if(ImGui::IsKeyDown((ImGuiKey) j))
+                    map.KeyDown(this->viewports[i], (ImGuiKey) j, deltatime);
             }
             
             // mouse input only when the mouse is over the window
@@ -142,6 +144,8 @@ void Gui::DrawViewports(void)
 
 void Gui::Draw()
 {
+    float deltatime;
+    uint64_t curframe, msdelta;
     ImGuiDockNodeFlags dockspaceflags;
 
     ImGui_ImplOpenGL2_NewFrame();
@@ -177,7 +181,15 @@ void Gui::Draw()
     dockspaceflags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
-    this->DrawViewports();
+    curframe = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    if(!lastframe)
+        lastframe = curframe;
+    msdelta = curframe - lastframe;
+    deltatime = (float) msdelta / 1000.0;
+
+    this->DrawViewports(deltatime);
+
+    lastframe = curframe;
 }
 
 void Gui::FinishFrame()

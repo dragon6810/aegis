@@ -27,7 +27,9 @@ private:
     int currentviewport = -1;
     tool_e currenttool;
 
-    void DrawViewports(void);
+    uint64_t lastframe = 0;
+
+    void DrawViewports(float deltatime);
     void ViewportInput(void);
 public:
     void Setup(GLFWwindow* win);
