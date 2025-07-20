@@ -23,8 +23,11 @@ private:
 
     uint64_t lastframe = 0;
 
+    void ApplyStyle(void);
     void DrawViewports(float deltatime);
     void DrawToolBar(void);
+    void DrawToolSettings(void);
+    void DrawRibbon(void);
     void ViewportInput(void);
 public:
     void Setup(GLFWwindow* win);

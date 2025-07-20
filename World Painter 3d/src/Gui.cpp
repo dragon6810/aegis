@@ -12,15 +12,19 @@ void Gui::Setup(GLFWwindow* win)
 {
     int i;
 
+    ImFont* opensans;
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.Fonts->AddFontFromFileTTF("resource/OpenSans-Regular.ttf");
 
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
+    ApplyStyle();
     
     ImGui_ImplGlfw_InitForOpenGL(win, true);
     ImGui_ImplOpenGL2_Init();
@@ -41,6 +45,42 @@ void Gui::Setup(GLFWwindow* win)
     }
 }
 
+void Gui::ApplyStyle(void)
+{
+    const ImVec4 windowbg = ImVec4(0.15, 0.15, 0.15, 1.0);
+    const ImVec4 tabbar = ImVec4(0.05, 0.05, 0.05, 1.0);
+    const ImVec4 button = ImVec4(0.2, 0.2, 0.2, 1.0);
+    const ImVec4 active = ImVec4(0.25, 0.25, 0.25, 1.0);
+    const ImVec4 hover = ImVec4(0.3, 0.3, 0.3, 1.0);
+    const ImVec4 border = ImVec4(0.5, 0.5, 0.5, 1.0);
+
+    ImGuiStyle *style;
+
+    style = &ImGui::GetStyle();
+    style->Colors[ImGuiCol_WindowBg] = windowbg;
+    style->Colors[ImGuiCol_TitleBg] = tabbar;
+    style->Colors[ImGuiCol_TitleBgActive] = tabbar;
+    style->Colors[ImGuiCol_Tab] = tabbar;
+    style->Colors[ImGuiCol_TabHovered] = hover;
+    style->Colors[ImGuiCol_TabActive] = windowbg;
+    style->Colors[ImGuiCol_TabUnfocused] = tabbar;
+    style->Colors[ImGuiCol_TabUnfocusedActive] = tabbar;
+    style->Colors[ImGuiCol_Border] = border;
+    style->Colors[ImGuiCol_TabSelectedOverline] = border;
+    style->Colors[ImGuiCol_Button] = button;
+    style->Colors[ImGuiCol_ButtonActive] = active;
+    style->Colors[ImGuiCol_ButtonHovered] = hover;
+    style->Colors[ImGuiCol_Separator] = hover;
+    style->Colors[ImGuiCol_SeparatorHovered] = hover;
+    style->Colors[ImGuiCol_SeparatorActive] = hover;
+    style->Colors[ImGuiCol_ResizeGrip] = active;
+    style->FrameRounding = 2;
+    style->FrameBorderSize = 1;
+    style->WindowMenuButtonPosition = ImGuiDir_None;
+    style->TabBarOverlineSize = 0;
+    style->TabBorderSize = 1;
+}
+
 void Gui::ViewportInput(void)
 {
 
@@ -58,7 +98,7 @@ void Gui::DrawViewports(float deltatime)
     {
         viewportname = std::string("Viewport ") + std::to_string(i);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin(viewportname.c_str(), NULL);
+        ImGui::Begin(viewportname.c_str(), NULL, ImGuiWindowFlags_NoCollapse);
 
         if(ImGui::IsWindowFocused())
             this->currentviewport = i;
@@ -151,7 +191,7 @@ void Gui::DrawToolBar(void)
         else
             ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
 
-        if (ImGui::Button(label))
+        if (ImGui::Button(label, ImVec2(ImGui::GetContentRegionAvail().x, 0.0)))
             map.SwitchTool(toolId);
 
         ImGui::PopStyleColor();
@@ -174,7 +214,7 @@ void Gui::DrawToolBar(void)
     if (shift && ImGui::IsKeyPressed(ImGuiKey_R)) map.SwitchTool(Map::TOOL_SCALE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_B)) map.SwitchTool(Map::TOOL_BRUSH);
 
-    ImGui::Begin("Tool Bar", NULL);
+    ImGui::Begin("Tool Bar", NULL, ImGuiWindowFlags_NoCollapse);
 
     tool("Select",    Map::TOOL_SELECT,    "Select Tool (Shift + S)", "Can be used to select vertices,\nplanes, brushes, or entities");
     tool("Translate", Map::TOOL_TRANSLATE, "Translate Tool (Shift + W)", "Can be used to translate vertices,\nplanes, brushes, or entities");
@@ -182,6 +222,18 @@ void Gui::DrawToolBar(void)
     tool("Scale",     Map::TOOL_SCALE,     "Scale Tool (Shift + R)", "Can be used to scale brushes");
     tool("Brush",     Map::TOOL_BRUSH,     "Brush Tool (Shift + B)", "Can be used to create new brushes");
 
+    ImGui::End();
+}
+
+void Gui::DrawToolSettings(void)
+{
+    ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
+    ImGui::End();
+}
+
+void Gui::DrawRibbon(void)
+{
+    ImGui::Begin("Ribbon", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
     ImGui::End();
 }
 
@@ -209,10 +261,11 @@ void Gui::Draw()
         ImGui::EndMainMenuBar();
     }
 
-    dockspaceflags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
+    DrawRibbon();
     DrawToolBar();
+    DrawToolSettings();
 
     curframe = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if(!lastframe)
