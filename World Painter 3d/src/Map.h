@@ -40,6 +40,7 @@ private:
     void FinalizeBrush(void);
     void ClearSelection(void);
     void SetupPlanePoints(bool allplanes);
+    void MovePlanePoints(Eigen::Vector3f add);
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);

@@ -270,6 +270,58 @@ void Map::SetupPlanePoints(bool allplanes)
     }
 }
 
+void Map::MovePlanePoints(Eigen::Vector3f add)
+{
+    int i, j, k, l;
+
+    Entity *ent;
+    Brush *br;
+    Plane *pl;
+
+    bool rebuildbr, rebuildpl;
+
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            br = &ent->brushes[j];
+            rebuildbr = false;
+            for(k=0; k<br->planes.size(); k++)
+            {
+                if(this->selectiontype == SELECT_PLANE && !br->plselection.contains(k))
+                    continue;
+
+                pl = &br->planes[k];
+                rebuildpl = false;
+                for(l=0; l<3; l++)
+                {
+                    if(!pl->triplaneselection.contains(l))
+                        continue;
+
+                    rebuildpl = true;
+                    pl->triplane[l] += add;
+                }
+
+                if(rebuildpl)
+                {
+                    rebuildbr = true;
+                    pl->UpdateStandard();
+                }
+            }
+
+            if(rebuildbr)
+                br->MakeFaces();
+        }
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -494,6 +546,9 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     const float minzoom = 8.0;
     const float maxzoom = max_map_size * 2;
 
+    Eigen::Vector3f basis[3], add;
+    float gridsize;
+
     // so that we dont get messed up by tool hotkeys
     if(ImGui::GetIO().KeyShift)
         return;
@@ -536,6 +591,30 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     case ImGuiKey_Enter:
         if(nbrushcorners == 2)
             this->FinalizeBrush();
+
+        break;
+    case ImGuiKey_UpArrow:
+    case ImGuiKey_LeftArrow:
+    case ImGuiKey_DownArrow:
+    case ImGuiKey_RightArrow:
+        if(tool == TOOL_PLANE)
+        {
+            if(view.type == Viewport::FREECAM)
+                break;
+            
+            GetViewBasis(view, basis);
+            gridsize = (float) (1 << this->gridlevel);
+            if(key == ImGuiKey::ImGuiKey_UpArrow)
+                add = basis[2] * gridsize;
+            if(key == ImGuiKey::ImGuiKey_LeftArrow)
+                add = basis[1] * -gridsize;
+            if(key == ImGuiKey::ImGuiKey_DownArrow)
+                add = basis[2] * -gridsize;
+            if(key == ImGuiKey::ImGuiKey_RightArrow)
+                add = basis[1] * gridsize;
+
+            MovePlanePoints(add);
+        }
 
         break;
     default:

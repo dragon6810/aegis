@@ -111,6 +111,19 @@ void Plane::UpdateTriplane(void)
         this->triplane[i] = this->poly.points[i * pointstep];
 }
 
+void Plane::UpdateStandard(void)
+{
+    int i;
+
+    Eigen::Vector3f e[2];
+
+    for(i=0; i<2; i++)
+        e[i] = this->triplane[i+1] - this->triplane[0];
+    this->normal = e[0].cross(e[1]);
+    this->normal.normalize();
+    this->d = this->normal.dot(this->triplane[0]);
+}
+
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 {
     int i;

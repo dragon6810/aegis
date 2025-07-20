@@ -8,6 +8,7 @@ void Brush::MakeFaces(void)
 
     for(i=0; i<this->planes.size(); i++)
     {
+        this->planes[i].poly.points.clear();
         this->planes[i].poly.FromPlane(this->planes[i].normal, this->planes[i].d, Map::max_map_size);
         for(j=0; j<this->planes.size(); j++)
         {

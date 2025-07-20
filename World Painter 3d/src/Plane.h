@@ -26,6 +26,7 @@ public:
     Polygon poly; // cached, must be updated when brush is updated
 
     void UpdateTriplane(void);
+    void UpdateStandard(void);
     bool RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, int ent, Map& map);
     void SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r);
