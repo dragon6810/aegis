@@ -258,7 +258,7 @@ void Gui::DrawToolSettings(void)
                     ImGui::SetItemDefaultFocus();
 
                 if (ImGui::IsItemHovered())
-                    ImGui::SetTooltip((std::string(selecttypenames[i]) + " (" + std::to_string(i+1) + ")").c_str(), selecttypetooltips[i]);
+                    ImGui::SetTooltip((std::string(selecttypenames[i]) + " (" + std::to_string(i+1) + ")").c_str());
             }
             ImGui::EndCombo();
             map.selectiontype = (Map::selectiontype_e) selectiontype;
