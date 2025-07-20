@@ -7,16 +7,20 @@
 #include "Polygon.h"
 #include "Viewport.h"
 
+class Brush;
+class Map;
+
 class Plane
 {
 private:
-    void DrawWire(const Viewport& view);
-    void DrawShaded(const Viewport& view);
+    void DrawWire(const Viewport& view, bool drawselected);
+    void DrawShaded(const Viewport& view, bool drawselected);
 public:
     Eigen::Vector3f normal = Eigen::Vector3f(0, 0, 0);
     float d = 0;
     std::string texture = "";
     Polygon poly; // cached, must be updated when brush is updated
 
-    void Draw(const Viewport& view);
+    bool RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
+    void Draw(const Viewport& view, int index, int brush, int ent, const Map& map);
 };

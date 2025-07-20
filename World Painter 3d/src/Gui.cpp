@@ -228,6 +228,17 @@ void Gui::DrawToolBar(void)
 void Gui::DrawToolSettings(void)
 {
     ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
+
+    switch(map.tool)
+    {
+    case Map::TOOL_SELECT:
+        
+
+        break;
+    default:
+        break;
+    }
+
     ImGui::End();
 }
 

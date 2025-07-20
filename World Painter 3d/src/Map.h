@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include <imgui.h>
 
 #include "Entity.h"
@@ -10,12 +12,19 @@ class Map
 public:
     typedef enum
     {
-        TOOL_SELECT,
+        TOOL_SELECT=0,
         TOOL_TRANSLATE,
         TOOL_ROTATE,
         TOOL_SCALE,
         TOOL_BRUSH,
+        TOOL_COUNT,
     } tooltype_e;
+
+    typedef enum
+    {
+        SELECT_BRUSH=0,
+        SELECT_COUNT,
+    } selectiontype_e;
 private:
     void SetupFrame(const Viewport& view);
 
@@ -39,8 +48,10 @@ public:
     int nbrushcorners = 0;
     Eigen::Vector3i brushcorners[2]; // once both corners are placed, it will be [min, max]
     tooltype_e tool;
+    selectiontype_e selectiontype;
 
     std::vector<Entity> entities;
+    std::unordered_set<int> entselection;
 
     void SwitchTool(tooltype_e type);
     void KeyDown(Viewport& view, ImGuiKey key, float deltatime);

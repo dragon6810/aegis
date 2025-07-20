@@ -411,7 +411,7 @@ void Map::KeyDown(Viewport& view, ImGuiKey key, float deltatime)
     // so that we dont get messed up by tool hotkeys
     if(ImGui::GetIO().KeyShift)
         return;
-        
+
     switch(key)
     {
     case ImGuiKey_W:
@@ -490,17 +490,42 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
 void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button)
 {
-    int i;
+    int i, j;
 
-    Eigen::Vector3f basis[3], clickpos;
+    Eigen::Vector3f basis[3], clickpos, ray;
+    Eigen::Vector2f camplane;
     int icorner;
     int realgridsize;
 
-    if(view.type == Viewport::FREECAM)
-        return;
+    // TODO: this is dumb, clean this up
+    if(this->tool == TOOL_SELECT)
+    {
+        if(view.type != Viewport::FREECAM)
+            return;
 
+        GetViewBasis(view, basis);
+        camplane[1] = tanf(glm::radians(view.fov * 0.5));
+        camplane[0] = camplane[1] * (float) view.canvassize[0] / (float) view.canvassize[1];
+        basis[1] *= camplane[0];
+        basis[2] *= camplane[1];
+        ray = basis[0];
+        ray += basis[1] *  (mousepos[0] * 2.0 - 1.0);
+        ray += basis[2] * -(mousepos[1] * 2.0 - 1.0);
+        ray.normalize();
+        
+        entities[0].brselection.clear();
+        for(i=0; i<entities[0].brushes.size(); i++)
+        {
+            if(!entities[0].brushes[i].RayIntersect(view.pos, ray, NULL))
+                continue;
+            entities[0].brselection.insert(i);
+        }
+    }
     if(this->tool == TOOL_BRUSH)
     {
+        if(view.type == Viewport::FREECAM)
+            return;
+
         if(button != ImGuiMouseButton_Left && button != ImGuiMouseButton_Right)
             return;
         if(button == ImGuiMouseButton_Right && nbrushcorners < 1)
@@ -562,7 +587,7 @@ void Map::Render(const Viewport& view)
     glEnable(GL_DEPTH_TEST);
 
     for(i=0; i<this->entities.size(); i++)
-        this->entities[i].Draw(view);
+        this->entities[i].Draw(view, i, *this);
 
     DrawWorkingBrush(view);
 
@@ -575,6 +600,8 @@ void Map::NewMap(void)
 {
     Entity *worldspawn;
 
+    this->entselection.clear();
+
     this->entities.resize(1);
     worldspawn = &this->entities.back();
 
@@ -583,4 +610,5 @@ void Map::NewMap(void)
     worldspawn->brushes.clear();
 
     this->SwitchTool(TOOL_SELECT);
+    this->selectiontype = SELECT_BRUSH;
 }
