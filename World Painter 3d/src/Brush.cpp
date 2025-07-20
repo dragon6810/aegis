@@ -82,6 +82,22 @@ void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map
     this->planes[bestplane].Select(o, r, bestplane, index, ent, map);
 }
 
+void Brush::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+{
+    int i;
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
+            continue;
+
+        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+            this->planes[i].triplaneselection.clear();
+
+        this->planes[i].SelectTriplane(o, r);
+    }
+}
+
 void Brush::Draw(const Viewport& view, int index, int ent, const Map& map)
 {
     int i;

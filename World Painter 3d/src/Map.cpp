@@ -241,6 +241,35 @@ void Map::ClearSelection(void)
     }
 }
 
+void Map::SetupPlanePoints(bool allplanes)
+{
+    int i, j, k;
+    Entity *ent;
+    Brush *br;
+
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(!allplanes && this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(!allplanes && this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            br = &ent->brushes[j];
+            for(k=0; k<br->planes.size(); k++)
+            {
+                if(!allplanes && this->selectiontype == SELECT_PLANE && !br->plselection.contains(k))
+                    continue;
+                
+                br->planes[k].UpdateTriplane();
+            }
+        }
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -425,6 +454,9 @@ void Map::SwitchTool(tooltype_e type)
     if(type == this->tool)
         return;
 
+    if(type == TOOL_PLANE)
+        SetupPlanePoints(false);
+
     this->nbrushcorners = 0;
     this->tool = type;
 }
@@ -523,7 +555,7 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
     int bestent;
 
     // TODO: this is dumb, clean this up
-    if(this->tool == TOOL_SELECT)
+    if(this->tool == TOOL_SELECT || this->tool == TOOL_PLANE)
     {
         if(view.type != Viewport::FREECAM)
             return;
@@ -537,26 +569,38 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         ray += basis[1] *  (mousepos[0] * 2.0 - 1.0);
         ray += basis[2] * -(mousepos[1] * 2.0 - 1.0);
         ray.normalize();
-        
-        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
-            ClearSelection();
-        bestent = -1;
-        for(i=0; i<entities.size(); i++)
-        {
-            if(!entities[i].RayIntersects(view.pos, ray, &curdist))
-                continue;
 
-            if(bestent < 0 || curdist < bestdist)
+        if(this->tool == TOOL_SELECT)
+        {
+            if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+                ClearSelection();
+            bestent = -1;
+            for(i=0; i<entities.size(); i++)
             {
-                bestdist = curdist;
-                bestent = i;
+                if(!entities[i].RayIntersects(view.pos, ray, &curdist))
+                    continue;
+
+                if(bestent < 0 || curdist < bestdist)
+                {
+                    bestdist = curdist;
+                    bestent = i;
+                }
+            }
+
+            if(bestent < 0)
+                return;
+
+            entities[bestent].Select(view.pos, ray, bestent, *this);
+        }
+        else
+        {
+            for(i=0; i<entities.size(); i++)
+            {
+                if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
+                    continue;
+                entities[i].SelectTriplane(view.pos, ray, *this);
             }
         }
-
-        if(bestent < 0)
-            return;
-
-        entities[bestent].Select(view.pos, ray, bestent, *this);
     }
     if(this->tool == TOOL_BRUSH)
     {
@@ -607,7 +651,7 @@ void Map::Render(const Viewport& view)
     glDisable(GL_DEPTH_TEST);
     DrawGrid(view);
 
-    glPointSize(8.0);
+    glPointSize(4.0);
 
     glBegin(GL_LINES);
     glColor3f(1, 0, 0);

@@ -56,6 +56,61 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
     glEnd();
 }
 
+bool Plane::PointRay(Eigen::Vector3f o, Eigen::Vector3f r, Eigen::Vector3f p)
+{
+    const float epsilon = 0.01;
+    const float pointradius = 0.5;
+
+    int i, j;
+
+    Eigen::Vector3f bb[2];
+    float t[2], bestt[2];
+
+    bb[0] = p - Eigen::Vector3f::Ones() * pointradius;
+    bb[1] = p + Eigen::Vector3f::Ones() * pointradius;
+
+    bestt[0] = -INFINITY;
+    bestt[1] = INFINITY;
+    for(i=0; i<3; i++)
+    {
+        if (fabs(r[i]) < epsilon)
+        {
+            if (o[i] < bb[0][i] || o[i] > bb[1][i])
+                return false;
+            continue;
+        }
+
+        for(j=0; j<2; j++)
+            t[j] = (bb[j][i] - o[i]) / r[i];
+        if(t[0] > t[1])
+            std::swap(t[0], t[1]);
+        
+        if(t[0] > bestt[0])
+            bestt[0] = t[0];
+        if(t[1] < bestt[1])
+            bestt[1] = t[1];
+
+        if(bestt[0] > bestt[1])
+            return false;
+    }
+
+    return true;
+}
+
+void Plane::UpdateTriplane(void)
+{
+    int i;
+
+    int pointstep;
+
+    if(this->poly.points.size() < 3)
+        return;
+
+    pointstep = this->poly.points.size() / 3;
+    for(i=0; i<3; i++)
+        this->triplane[i] = this->poly.points[i * pointstep];
+}
+
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 {
     int i;
@@ -99,8 +154,31 @@ void Plane::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, i
         selection->erase(index);
 }
 
+void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
+{
+    const float pointradius = 0.5;
+
+    int i;
+
+    if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+        this->triplaneselection.clear();
+
+    for(i=0; i<3; i++)
+    {
+        if(!PointRay(o, r, this->triplane[i]))
+            continue;
+
+        if(!this->triplaneselection.contains(i))
+            this->triplaneselection.insert(i);
+        else
+            this->triplaneselection.erase(i);
+    }
+}
+
 void Plane::Draw(const Viewport& view, int index, int brush, int ent, const Map& map)
 {
+    int i;
+
     bool selected;
 
     switch(map.selectiontype)
@@ -122,4 +200,20 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, const Map&
         this->DrawWire(view, selected);
     else
         this->DrawShaded(view, selected);
+
+    if(selected && map.tool == Map::TOOL_PLANE)
+    {
+        glBegin(GL_POINTS);
+        
+        for(i=0; i<3; i++)
+        {
+            if(!this->triplaneselection.contains(i))
+                glColor3f(1, 1, 0);
+            else
+                glColor3f(1, 0, 0);
+            glVertex3f(this->triplane[i][0], this->triplane[i][1], this->triplane[i][2]);
+        }
+        
+        glEnd();
+    }
 }

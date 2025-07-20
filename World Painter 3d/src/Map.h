@@ -16,6 +16,7 @@ public:
         TOOL_TRANSLATE,
         TOOL_ROTATE,
         TOOL_SCALE,
+        TOOL_PLANE,
         TOOL_BRUSH,
         TOOL_COUNT,
     } tooltype_e;
@@ -38,6 +39,7 @@ private:
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void FinalizeBrush(void);
     void ClearSelection(void);
+    void SetupPlanePoints(bool allplanes);
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
