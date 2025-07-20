@@ -232,6 +232,8 @@ void Gui::DrawToolSettings(void)
 {
     const char *selecttypenames[] = { "Select Planes", "Select Brushes", "Select Entities", };
 
+    int i;
+
     int selectiontype;
 
     ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
@@ -239,10 +241,28 @@ void Gui::DrawToolSettings(void)
     switch(map.tool)
     {
     case Map::TOOL_SELECT:
-        selectiontype = (int) map.selectiontype;
         ImGui::Text("Selection Mode");
-        if (ImGui::Combo("##SelectionModeDropdown", &selectiontype, selecttypenames, (int) Map::SELECT_COUNT))
+
+        for(i=0; i<(int) Map::SELECT_COUNT; i++)
+            if(ImGui::IsKeyPressed((ImGuiKey) ((int) ImGuiKey_1 + i)))
+                    map.selectiontype = (Map::selectiontype_e) i;
+
+        selectiontype = (int) map.selectiontype;
+        if (ImGui::BeginCombo("##SelectionModeDropdown", selecttypenames[selectiontype]))
+        {
+            for (i=0; i<(int) Map::SELECT_COUNT; i++)
+            {
+                if (ImGui::Selectable(selecttypenames[i], selectiontype == i))
+                    selectiontype = i;
+                if (selectiontype == i)
+                    ImGui::SetItemDefaultFocus();
+
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip((std::string(selecttypenames[i]) + " (" + std::to_string(i+1) + ")").c_str(), selecttypetooltips[i]);
+            }
+            ImGui::EndCombo();
             map.selectiontype = (Map::selectiontype_e) selectiontype;
+        }
 
         break;
     default:
