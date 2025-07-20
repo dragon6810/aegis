@@ -218,6 +218,29 @@ void Map::FinalizeBrush(void)
     nbrushcorners = 0;
 }
 
+void Map::ClearSelection(void)
+{
+    int i, j, k;
+
+    if(this->selectiontype == SELECT_ENTITY)
+    {
+        this->entselection.clear();
+        return;
+    }
+
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_BRUSH)
+        {
+            this->entities[i].brselection.clear();
+            return;
+        }
+        
+        for(j=0; j<this->entities[i].brushes.size(); j++)
+            this->entities[i].brushes[j].plselection.clear();
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -496,6 +519,8 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
     Eigen::Vector2f camplane;
     int icorner;
     int realgridsize;
+    float curdist, bestdist;
+    int bestent;
 
     // TODO: this is dumb, clean this up
     if(this->tool == TOOL_SELECT)
@@ -513,13 +538,25 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         ray += basis[2] * -(mousepos[1] * 2.0 - 1.0);
         ray.normalize();
         
-        entities[0].brselection.clear();
-        for(i=0; i<entities[0].brushes.size(); i++)
+        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+            ClearSelection();
+        bestent = -1;
+        for(i=0; i<entities.size(); i++)
         {
-            if(!entities[0].brushes[i].RayIntersect(view.pos, ray, NULL))
+            if(!entities[i].RayIntersects(view.pos, ray, &curdist))
                 continue;
-            entities[0].brselection.insert(i);
+
+            if(bestent < 0 || curdist < bestdist)
+            {
+                bestdist = curdist;
+                bestent = i;
+            }
         }
+
+        if(bestent < 0)
+            return;
+
+        entities[bestent].Select(view.pos, ray, bestent, *this);
     }
     if(this->tool == TOOL_BRUSH)
     {

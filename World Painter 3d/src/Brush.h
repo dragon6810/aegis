@@ -16,5 +16,6 @@ public:
 
     void MakeFaces(void);
     bool RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
+    void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map);
     void Draw(const Viewport& view, int index, int ent, const Map& map);
 };

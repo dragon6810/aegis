@@ -22,5 +22,6 @@ public:
     Polygon poly; // cached, must be updated when brush is updated
 
     bool RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
+    void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, int ent, Map& map);
     void Draw(const Viewport& view, int index, int brush, int ent, const Map& map);
 };

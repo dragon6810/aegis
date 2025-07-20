@@ -90,6 +90,7 @@
         "csignal": "cpp",
         "fstream": "cpp",
         "stacktrace": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "source_location": "cpp"
     }
 }

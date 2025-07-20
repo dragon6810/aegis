@@ -22,7 +22,9 @@ public:
 
     typedef enum
     {
-        SELECT_BRUSH=0,
+        SELECT_PLANE=0,
+        SELECT_BRUSH,
+        SELECT_ENTITY,
         SELECT_COUNT,
     } selectiontype_e;
 private:
@@ -35,6 +37,7 @@ private:
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void FinalizeBrush(void);
+    void ClearSelection(void);
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);

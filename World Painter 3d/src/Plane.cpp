@@ -88,14 +88,31 @@ bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
     return true;
 }
 
+void Plane::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, int ent, Map& map)
+{
+    std::unordered_set<int> *selection;
+
+    selection = &map.entities[ent].brushes[brush].plselection;
+    if(!selection->contains(index))
+        selection->insert(index);
+    else
+        selection->erase(index);
+}
+
 void Plane::Draw(const Viewport& view, int index, int brush, int ent, const Map& map)
 {
     bool selected;
 
     switch(map.selectiontype)
     {
+    case Map::SELECT_PLANE:
+        selected = map.entities[ent].brushes[brush].plselection.contains(index);
+        break;
     case Map::SELECT_BRUSH:
         selected = map.entities[ent].brselection.contains(brush);
+        break;
+    case Map::SELECT_ENTITY:
+        selected = map.entselection.contains(ent);
         break;
     default:
         selected = false;

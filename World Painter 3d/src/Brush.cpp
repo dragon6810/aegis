@@ -44,6 +44,44 @@ bool Brush::RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
     return true;
 }
 
+void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map)
+{
+    // TODO: also stop duplicating code here! what's gotten into you!?
+
+    int i;
+
+    std::unordered_set<int> *selection;
+    float bestdist, curdist;
+    int bestplane;
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        selection = &map.entities[ent].brselection;
+        if(!selection->contains(index))
+            selection->insert(index);
+        else
+            selection->erase(index);
+    }
+
+    bestplane = -1;
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(!this->planes[i].RayIntersectFace(o, r, &curdist))
+            continue;
+
+        if(bestplane < 0 || curdist < bestdist)
+        {
+            bestdist = curdist;
+            bestplane = i;
+        }
+    }
+
+    if(bestplane < 0)
+        return;
+
+    this->planes[bestplane].Select(o, r, bestplane, index, ent, map);
+}
+
 void Brush::Draw(const Viewport& view, int index, int ent, const Map& map)
 {
     int i;

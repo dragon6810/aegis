@@ -70,6 +70,9 @@ void Gui::ApplyStyle(void)
     style->Colors[ImGuiCol_Button] = button;
     style->Colors[ImGuiCol_ButtonActive] = active;
     style->Colors[ImGuiCol_ButtonHovered] = hover;
+    style->Colors[ImGuiCol_FrameBg] = button;
+    style->Colors[ImGuiCol_FrameBgActive] = active;
+    style->Colors[ImGuiCol_FrameBgHovered] = hover;
     style->Colors[ImGuiCol_Separator] = hover;
     style->Colors[ImGuiCol_SeparatorHovered] = hover;
     style->Colors[ImGuiCol_SeparatorActive] = hover;
@@ -227,12 +230,19 @@ void Gui::DrawToolBar(void)
 
 void Gui::DrawToolSettings(void)
 {
+    const char *selecttypenames[] = { "Select Planes", "Select Brushes", "Select Entities", };
+
+    int selectiontype;
+
     ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
 
     switch(map.tool)
     {
     case Map::TOOL_SELECT:
-        
+        selectiontype = (int) map.selectiontype;
+        ImGui::Text("Selection Mode");
+        if (ImGui::Combo("##SelectionModeDropdown", &selectiontype, selecttypenames, (int) Map::SELECT_COUNT))
+            map.selectiontype = (Map::selectiontype_e) selectiontype;
 
         break;
     default:
