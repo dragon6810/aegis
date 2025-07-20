@@ -39,8 +39,6 @@ void Gui::Setup(GLFWwindow* win)
         else
             this->viewports[i].wireframe = false;
     }
-
-    currenttool = TOOL_BRUSH;
 }
 
 void Gui::ViewportInput(void)
@@ -60,7 +58,7 @@ void Gui::DrawViewports(float deltatime)
     {
         viewportname = std::string("Viewport ") + std::to_string(i);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin(viewportname.c_str(), NULL, ImGuiWindowFlags_NoTitleBar);
+        ImGui::Begin(viewportname.c_str(), NULL);
 
         if(ImGui::IsWindowFocused())
             this->currentviewport = i;
@@ -144,6 +142,49 @@ void Gui::DrawViewports(float deltatime)
     }
 }
 
+void Gui::DrawToolBar(void)
+{
+    const auto tool = [&](const char* label, Map::tooltype_e toolId, const char* shortcut, const char* description)
+    {
+        if (map.tool == toolId)
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+        else
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+
+        if (ImGui::Button(label))
+            map.SwitchTool(toolId);
+
+        ImGui::PopStyleColor();
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::TextUnformatted(shortcut);
+            ImGui::TextUnformatted(description);
+            ImGui::EndTooltip();
+        }
+    };
+
+    bool shift;
+
+    shift = ImGui::GetIO().KeyShift;
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_S)) map.SwitchTool(Map::TOOL_SELECT);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_W)) map.SwitchTool(Map::TOOL_TRANSLATE);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_E)) map.SwitchTool(Map::TOOL_ROTATE);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_R)) map.SwitchTool(Map::TOOL_SCALE);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_B)) map.SwitchTool(Map::TOOL_BRUSH);
+
+    ImGui::Begin("Tool Bar", NULL);
+
+    tool("Select",    Map::TOOL_SELECT,    "Select Tool (Shift + S)", "Can be used to select vertices,\nplanes, brushes, or entities");
+    tool("Translate", Map::TOOL_TRANSLATE, "Translate Tool (Shift + W)", "Can be used to translate vertices,\nplanes, brushes, or entities");
+    tool("Rotate",    Map::TOOL_ROTATE,    "Rotate Tool (Shift + E)", "Can be used to rotate brushes or\nentities");
+    tool("Scale",     Map::TOOL_SCALE,     "Scale Tool (Shift + R)", "Can be used to scale brushes");
+    tool("Brush",     Map::TOOL_BRUSH,     "Brush Tool (Shift + B)", "Can be used to create new brushes");
+
+    ImGui::End();
+}
+
 void Gui::Draw()
 {
     float deltatime;
@@ -160,19 +201,7 @@ void Gui::Draw()
         {
             if (ImGui::MenuItem("New", "Ctrl+N")) 
             {
-
-            }
-            if (ImGui::MenuItem("Open", "Ctrl+O")) 
-            {
-
-            }
-            if (ImGui::MenuItem("Save", "Ctrl+S"))
-            {
-
-            }
-            if (ImGui::MenuItem("Save as", "Ctrl+Alt+S")) 
-            {
-
+                map.NewMap();
             }
 
             ImGui::EndMenu();
@@ -182,6 +211,8 @@ void Gui::Draw()
 
     dockspaceflags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
+
+    DrawToolBar();
 
     curframe = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if(!lastframe)

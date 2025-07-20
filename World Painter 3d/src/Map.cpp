@@ -397,8 +397,21 @@ void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
     glEnd();
 }
 
+void Map::SwitchTool(tooltype_e type)
+{
+    if(type == this->tool)
+        return;
+
+    this->nbrushcorners = 0;
+    this->tool = type;
+}
+
 void Map::KeyDown(Viewport& view, ImGuiKey key, float deltatime)
 {
+    // so that we dont get messed up by tool hotkeys
+    if(ImGui::GetIO().KeyShift)
+        return;
+        
     switch(key)
     {
     case ImGuiKey_W:
@@ -425,6 +438,10 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     const float zoomfactor = sqrtf(2.0);
     const float minzoom = 8.0;
     const float maxzoom = max_map_size * 2;
+
+    // so that we dont get messed up by tool hotkeys
+    if(ImGui::GetIO().KeyShift)
+        return;
 
     switch(key)
     {
@@ -457,7 +474,8 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
         break;
     case ImGuiKey_Escape:
-        nbrushcorners = 0;
+        if(this->tool = TOOL_BRUSH)
+            nbrushcorners = 0;
 
         break;
     case ImGuiKey_Enter:
@@ -481,35 +499,38 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
     if(view.type == Viewport::FREECAM)
         return;
 
-    if(button != ImGuiMouseButton_Left && button != ImGuiMouseButton_Right)
-        return;
-    if(button == ImGuiMouseButton_Right && nbrushcorners < 1)
-        return;
-    if(button == ImGuiMouseButton_Left)
-        icorner = 0;
-    if(button == ImGuiMouseButton_Right)
-        icorner = 1;
+    if(this->tool == TOOL_BRUSH)
+    {
+        if(button != ImGuiMouseButton_Left && button != ImGuiMouseButton_Right)
+            return;
+        if(button == ImGuiMouseButton_Right && nbrushcorners < 1)
+            return;
+        if(button == ImGuiMouseButton_Left)
+            icorner = 0;
+        if(button == ImGuiMouseButton_Right)
+            icorner = 1;
 
-    Map::GetViewBasis(view, basis);
-    basis[1] *= view.zoom * ((float)view.canvassize.x() / (float)view.canvassize.y());
-    basis[2] *= view.zoom;
-    clickpos = Eigen::Vector3f(0, 0, 0);
-    clickpos += basis[1] *  (mousepos[0] * 2.0 - 1.0);
-    clickpos += basis[2] * -(mousepos[1] * 2.0 - 1.0);
-    clickpos += view.pos;
-    if(nbrushcorners < 1 || (icorner == 1 && nbrushcorners < 2))
-        clickpos[view.type] = 0;
-    else
-        clickpos[view.type] = brushcorners[icorner][view.type];
+        Map::GetViewBasis(view, basis);
+        basis[1] *= view.zoom * ((float)view.canvassize.x() / (float)view.canvassize.y());
+        basis[2] *= view.zoom;
+        clickpos = Eigen::Vector3f(0, 0, 0);
+        clickpos += basis[1] *  (mousepos[0] * 2.0 - 1.0);
+        clickpos += basis[2] * -(mousepos[1] * 2.0 - 1.0);
+        clickpos += view.pos;
+        if(nbrushcorners < 1 || (icorner == 1 && nbrushcorners < 2))
+            clickpos[view.type] = 0;
+        else
+            clickpos[view.type] = brushcorners[icorner][view.type];
 
-    if(!this->nbrushcorners)
-        this->nbrushcorners = 1;
-    if(this->nbrushcorners == 1 && icorner == 1)
-        this->nbrushcorners = 2;
+        if(!this->nbrushcorners)
+            this->nbrushcorners = 1;
+        if(this->nbrushcorners == 1 && icorner == 1)
+            this->nbrushcorners = 2;
 
-    realgridsize = 1 << gridlevel;
-    for(i=0; i<3; i++)
-        this->brushcorners[icorner][i] = ((int) roundf(clickpos[i] / (float) realgridsize)) << gridlevel;
+        realgridsize = 1 << gridlevel;
+        for(i=0; i<3; i++)
+            this->brushcorners[icorner][i] = ((int) roundf(clickpos[i] / (float) realgridsize)) << gridlevel;
+    }
 }
 
 void Map::Render(const Viewport& view)
@@ -560,4 +581,6 @@ void Map::NewMap(void)
     worldspawn->pairs["classname"] = "worldspawn";
     worldspawn->pairs["wp3dversion"] = "wp3d_v1";
     worldspawn->brushes.clear();
+
+    this->SwitchTool(TOOL_SELECT);
 }

@@ -7,6 +7,15 @@
 
 class Map
 {
+public:
+    typedef enum
+    {
+        TOOL_SELECT,
+        TOOL_TRANSLATE,
+        TOOL_ROTATE,
+        TOOL_SCALE,
+        TOOL_BRUSH,
+    } tooltype_e;
 private:
     void SetupFrame(const Viewport& view);
 
@@ -29,9 +38,11 @@ public:
 
     int nbrushcorners = 0;
     Eigen::Vector3i brushcorners[2]; // once both corners are placed, it will be [min, max]
+    tooltype_e tool;
 
     std::vector<Entity> entities;
 
+    void SwitchTool(tooltype_e type);
     void KeyDown(Viewport& view, ImGuiKey key, float deltatime);
     void KeyPress(Viewport& view, ImGuiKey key);
     void Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button);

@@ -14,22 +14,17 @@ public:
         static Gui instance;
         return instance;
     }
-
-    typedef enum
-    {
-        TOOL_BRUSH,
-    } tool_e;
 private:
     Gui() {}
 
     Map map;
     Viewport viewports[Viewport::NTYPES];
     int currentviewport = -1;
-    tool_e currenttool;
 
     uint64_t lastframe = 0;
 
     void DrawViewports(float deltatime);
+    void DrawToolBar(void);
     void ViewportInput(void);
 public:
     void Setup(GLFWwindow* win);
