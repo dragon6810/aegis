@@ -322,6 +322,32 @@ void Map::MovePlanePoints(Eigen::Vector3f add)
     }
 }
 
+void Map::MoveVertexPoints(Eigen::Vector3f add)
+{
+    int i, j, k;
+    std::unordered_set<int>::iterator it;
+
+    Entity *ent;
+    Brush *br;
+
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            br = &ent->brushes[j];
+            for(it=br->pointselection.begin(); it!=br->pointselection.end(); it++)
+                br->points[*it] += add;
+        }
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -597,7 +623,7 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     case ImGuiKey_LeftArrow:
     case ImGuiKey_DownArrow:
     case ImGuiKey_RightArrow:
-        if(tool == TOOL_PLANE)
+        if(tool == TOOL_PLANE || tool == TOOL_VERTEX)
         {
             if(view.type == Viewport::FREECAM)
                 break;
@@ -613,7 +639,10 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             if(key == ImGuiKey::ImGuiKey_RightArrow)
                 add = basis[1] * gridsize;
 
-            MovePlanePoints(add);
+            if(tool == TOOL_PLANE)
+                MovePlanePoints(add);
+            else if(tool == TOOL_VERTEX)
+                MoveVertexPoints(add);
         }
 
         break;
