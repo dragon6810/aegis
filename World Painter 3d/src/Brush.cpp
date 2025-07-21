@@ -130,7 +130,7 @@ void Brush::UpdateGeometryValid(void)
             poly[j] = this->points[this->planes[i].indices[j]];
 
         n = (poly[1] - poly[0]).cross(poly[2] - poly[0]);
-        if(!n.squaredNorm()) // this is okay, since it just means a dead plane was made. skip
+        if(n.squaredNorm() < epsilon) // this is okay, since it just means a dead plane was made. skip
             continue;
 
         n.normalize();
@@ -163,6 +163,52 @@ void Brush::UpdateGeometryValid(void)
     }
 
     this->geometryvalid = true;
+}
+
+void Brush::FinalizeVertexEdit(void)
+{
+    const float epsilon = 0.1;
+
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    std::vector<Plane> newplanes;
+    std::unordered_map<int, int> newplanemapping;
+    std::unordered_set<int> newplaneselection;
+    Eigen::Vector3f a, b, n;
+    float d;
+    Plane *pl;
+
+    this->pointselection.clear();
+    if(!this->geometryvalid || !this->drawvertexpreview)
+        return;
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(this->planes[i].indices.size() < 3)
+            continue;
+
+        a = this->points[this->planes[i].indices[1]] - this->points[this->planes[i].indices[0]];
+        b = this->points[this->planes[i].indices[2]] - this->points[this->planes[i].indices[0]];
+        n = a.cross(b);
+        if(n.squaredNorm() < epsilon)
+            continue;
+        n.normalize();
+        d = n.dot(this->points[this->planes[i].indices[0]]);
+
+        newplanemapping[i] = newplanes.size();
+        newplanes.push_back({});
+        pl = &newplanes.back();
+        *pl = this->planes[i];
+        pl->normal = n;
+        pl->d = d;
+    }
+
+    this->planes = newplanes;
+    this->MakeFaces();
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        newplaneselection.insert(newplanemapping[*it]);
+    this->plselection = newplaneselection;
 }
 
 bool Brush::RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)

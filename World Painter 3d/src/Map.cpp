@@ -349,6 +349,28 @@ void Map::MoveVertexPoints(Eigen::Vector3f add)
     }
 }
 
+void Map::FinalizeVertexEdit(void)
+{
+    int i, j, k;
+
+    Entity *ent;
+
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            ent->brushes[j].FinalizeVertexEdit();
+        }
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -618,6 +640,8 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     case ImGuiKey_Enter:
         if(nbrushcorners == 2)
             this->FinalizeBrush();
+        if(tool == TOOL_VERTEX)
+            this->FinalizeVertexEdit();
 
         break;
     case ImGuiKey_UpArrow:
