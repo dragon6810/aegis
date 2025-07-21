@@ -58,7 +58,10 @@ void Brush::DrawVertexPreview(const Map& map)
     }
 
     glBegin(GL_LINES);
-    glColor3f(1, 1, 0);
+    if(this->geometryvalid)
+        glColor3f(1, 1, 0);
+    else
+        glColor3f(1, 0, 0);
     for(eit=edges.begin(); eit!=edges.end(); eit++)
     {
         glVertex3f(this->points[std::get<0>(*eit)][0], this->points[std::get<0>(*eit)][1], this->points[std::get<0>(*eit)][2]);
@@ -102,6 +105,64 @@ void Brush::MakeFaces(void)
         for(j=0; j<this->planes[i].indices.size(); j++)
             this->planes[i].indices[j] = FindVertex(this->planes[i].poly.points[j]);
     }
+}
+
+void Brush::UpdateGeometryValid(void)
+{
+    const float epsilon = 0.1;
+
+    int i, j;
+
+    std::vector<Eigen::Vector3f> normals;
+    std::vector<float> distances;
+    std::vector<Eigen::Vector3f> poly;
+    Eigen::Vector3f n;
+    float d;
+
+    // first, check if all faces are coplanar
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(this->planes[i].indices.size() < 3)
+            continue;
+
+        poly.resize(this->planes[i].indices.size());
+        for(j=0; j<this->planes[i].indices.size(); j++)
+            poly[j] = this->points[this->planes[i].indices[j]];
+
+        n = (poly[1] - poly[0]).cross(poly[2] - poly[0]);
+        if(!n.squaredNorm()) // this is okay, since it just means a dead plane was made. skip
+            continue;
+
+        n.normalize();
+        d = n.dot(poly[0]);
+
+        for(j=0; j<poly.size(); j++)
+        {
+            if(fabsf(n.dot(poly[j]) - d) > epsilon)
+            {
+                this->geometryvalid = false;
+                return;
+            }
+        }
+
+        normals.push_back(n);
+        distances.push_back(d);
+    }
+
+    // now test convexity
+    for(i=0; i<normals.size(); i++)
+    {
+        for(j=0; j<this->points.size(); j++)
+        {
+            if(normals[i].dot(this->points[j]) - distances[i] > epsilon)
+            {
+                this->geometryvalid = false;
+                return;
+            }
+        }
+    }
+
+    this->geometryvalid = true;
 }
 
 bool Brush::RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)

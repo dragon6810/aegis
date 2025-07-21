@@ -20,8 +20,10 @@ public:
     std::unordered_set<int> pointselection; // this is all messy, will change soon. must be in sync with planes indexselection
 
     bool drawvertexpreview;
+    bool geometryvalid = true; // is the current points array convex?
 
     void MakeFaces(void);
+    void UpdateGeometryValid(void);
     bool RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map);
     void SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map);

@@ -344,6 +344,7 @@ void Map::MoveVertexPoints(Eigen::Vector3f add)
             br = &ent->brushes[j];
             for(it=br->pointselection.begin(); it!=br->pointselection.end(); it++)
                 br->points[*it] += add;
+            br->UpdateGeometryValid();
         }
     }
 }
