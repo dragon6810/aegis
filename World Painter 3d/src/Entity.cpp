@@ -54,6 +54,19 @@ void Entity::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map
     }
 }
 
+void Entity::SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+{
+    int i;
+
+    for(i=0; i<this->brushes.size(); i++)
+    {
+        if(map.selectiontype == Map::SELECT_BRUSH && !this->brselection.contains(i))
+            continue;
+
+        this->brushes[i].SelectVerts(o, r, map);
+    }
+}
+
 bool Entity::RayIntersects(Eigen::Vector3f o, Eigen::Vector3f r, float* dist)
 {
     int i;
@@ -83,7 +96,7 @@ bool Entity::RayIntersects(Eigen::Vector3f o, Eigen::Vector3f r, float* dist)
     return true;
 }
 
-void Entity::Draw(const Viewport& view, int index, const Map& map)
+void Entity::Draw(const Viewport& view, int index, Map& map)
 {
     int i;
 

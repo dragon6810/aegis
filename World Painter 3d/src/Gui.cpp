@@ -215,17 +215,19 @@ void Gui::DrawToolBar(void)
     if (shift && ImGui::IsKeyPressed(ImGuiKey_W)) map.SwitchTool(Map::TOOL_TRANSLATE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_E)) map.SwitchTool(Map::TOOL_ROTATE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_R)) map.SwitchTool(Map::TOOL_SCALE);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_Z)) map.SwitchTool(Map::TOOL_VERTEX);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_Q)) map.SwitchTool(Map::TOOL_PLANE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_B)) map.SwitchTool(Map::TOOL_BRUSH);
 
     ImGui::Begin("Tool Bar", NULL, ImGuiWindowFlags_NoCollapse);
 
-    tool("Select",    Map::TOOL_SELECT,    "Select Tool (Shift + S)", "Can be used to select vertices,\nplanes, brushes, or entities");
-    tool("Translate", Map::TOOL_TRANSLATE, "Translate Tool (Shift + W)", "Can be used to translate vertices,\nplanes, brushes, or entities");
-    tool("Rotate",    Map::TOOL_ROTATE,    "Rotate Tool (Shift + E)", "Can be used to rotate brushes or\nentities");
-    tool("Scale",     Map::TOOL_SCALE,     "Scale Tool (Shift + R)", "Can be used to scale brushes");
-    tool("Plane",     Map::TOOL_PLANE,     "Brush Tool (Shift + Q)", "Can be used to modify or create new planes");
-    tool("Brush",     Map::TOOL_BRUSH,     "Brush Tool (Shift + B)", "Can be used to create new brushes");
+    tool("Select",         Map::TOOL_SELECT,    "Select Tool (Shift + S)", "Can be used to select vertices,\nplanes, brushes, or entities");
+    tool("Translate",      Map::TOOL_TRANSLATE, "Translate Tool (Shift + W)", "Can be used to translate vertices,\nplanes, brushes, or entities");
+    tool("Rotate",         Map::TOOL_ROTATE,    "Rotate Tool (Shift + E)", "Can be used to rotate brushes or\nentities");
+    tool("Scale",          Map::TOOL_SCALE,     "Scale Tool (Shift + R)", "Can be used to scale brushes");
+    tool("Vertex Editing", Map::TOOL_VERTEX,    "Vertex Editing Tool (Shift + Z)", "Can be used to modify vertex geometry");
+    tool("Plane",          Map::TOOL_PLANE,     "Brush Tool (Shift + Q)", "Can be used to modify or create new planes");
+    tool("Brush",          Map::TOOL_BRUSH,     "Brush Tool (Shift + B)", "Can be used to create new brushes");
 
     ImGui::End();
 }

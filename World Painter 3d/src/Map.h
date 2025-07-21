@@ -16,6 +16,7 @@ public:
         TOOL_TRANSLATE,
         TOOL_ROTATE,
         TOOL_SCALE,
+        TOOL_VERTEX,
         TOOL_PLANE,
         TOOL_BRUSH,
         TOOL_COUNT,

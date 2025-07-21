@@ -2,6 +2,82 @@
 
 #include "Map.h"
 
+int Brush::FindVertex(Eigen::Vector3f p)
+{
+    int i;
+
+    Eigen::Vector3i pi;
+
+    pi = p.cast<int>();
+    for(i=0; i<this->points.size(); i++)
+    {
+        if(pi != this->points[i].cast<int>())
+            continue;
+        
+        return i;
+    }
+
+    this->points.push_back(pi.cast<float>());
+    return this->points.size() - 1;
+}
+
+struct pairhash
+{
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1, T2>& p) const {
+        auto h1 = std::hash<T1>{}(p.first);
+        auto h2 = std::hash<T2>{}(p.second);
+
+        // TODO: make better
+        return h1 ^ (h2 << 1); 
+    }
+};
+
+void Brush::DrawVertexPreview(const Map& map)
+{
+    int i, j;
+    std::unordered_set<std::pair<int, int>, pairhash>::iterator eit;
+    std::unordered_set<int>::iterator pit;
+    Plane *pl;
+
+    // i think i love sets a little too much
+    std::unordered_set<std::pair<int, int>, pairhash> edges;
+    std::unordered_set<int> activepoints;
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        pl = &this->planes[i];
+        for(j=0; j<pl->indices.size(); j++)
+        {
+            edges.insert(std::pair<int, int>(pl->indices[j], pl->indices[(j+1)%pl->indices.size()]));
+            if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
+                continue;
+            
+            activepoints.insert(pl->indices[j]);
+        }
+    }
+
+    glBegin(GL_LINES);
+    glColor3f(1, 1, 0);
+    for(eit=edges.begin(); eit!=edges.end(); eit++)
+    {
+        glVertex3f(this->points[std::get<0>(*eit)][0], this->points[std::get<0>(*eit)][1], this->points[std::get<0>(*eit)][2]);
+        glVertex3f(this->points[std::get<1>(*eit)][0], this->points[std::get<1>(*eit)][1], this->points[std::get<1>(*eit)][2]);
+    }
+    glEnd();
+
+    glBegin(GL_POINTS);
+    for(pit=activepoints.begin(); pit!=activepoints.end(); pit++)
+    {
+        if(this->pointselection.contains(*pit))
+            glColor3f(1, 0, 0);
+        else
+            glColor3f(1, 1, 0);
+        glVertex3f(this->points[*pit][0], this->points[*pit][1], this->points[*pit][2]);
+    }
+    glEnd();
+}
+
 void Brush::MakeFaces(void)
 {
     int i, j;
@@ -17,6 +93,14 @@ void Brush::MakeFaces(void)
 
             this->planes[i].poly.Clip(this->planes[j].normal, this->planes[j].d, 0);
         }
+    }
+
+    this->points.clear();
+    for(i=0; i<this->planes.size(); i++)
+    {
+        this->planes[i].indices.resize(this->planes[i].poly.points.size());
+        for(j=0; j<this->planes[i].indices.size(); j++)
+            this->planes[i].indices[j] = FindVertex(this->planes[i].poly.points[j]);
     }
 }
 
@@ -99,10 +183,43 @@ void Brush::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
     }
 }
 
-void Brush::Draw(const Viewport& view, int index, int ent, const Map& map)
+void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
+            continue;
+
+        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+            this->planes[i].indexselection.clear();
+
+        this->planes[i].SelectVerts(o, r, *this);
+    }
+
+    this->pointselection.clear();
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
+            continue;
+
+        for(it=this->planes[i].indexselection.begin(); it!=this->planes[i].indexselection.end(); it++)
+            this->pointselection.insert(this->planes[i].indices[*it]);
+    }
+}
+
+void Brush::Draw(const Viewport& view, int index, int ent, Map& map)
 {
     int i;
 
+    this->drawvertexpreview = false;
     for(i=0; i<this->planes.size(); i++)
         this->planes[i].Draw(view, i, index, ent, map);
+
+    if(!this->drawvertexpreview)
+        return;
+
+    this->DrawVertexPreview(map);
 }

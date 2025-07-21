@@ -91,6 +91,8 @@
         "fstream": "cpp",
         "stacktrace": "cpp",
         "dense": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "flat_map": "cpp",
+        "flat_set": "cpp"
     }
 }

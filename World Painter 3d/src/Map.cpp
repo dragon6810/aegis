@@ -634,7 +634,7 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
     int bestent;
 
     // TODO: this is dumb, clean this up
-    if(this->tool == TOOL_SELECT || this->tool == TOOL_PLANE)
+    if(this->tool == TOOL_SELECT || this->tool == TOOL_PLANE || this->tool == TOOL_VERTEX)
     {
         if(view.type != Viewport::FREECAM)
             return;
@@ -671,13 +671,22 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
 
             entities[bestent].Select(view.pos, ray, bestent, *this);
         }
-        else
+        else if(tool == TOOL_PLANE)
         {
             for(i=0; i<entities.size(); i++)
             {
                 if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
                     continue;
                 entities[i].SelectTriplane(view.pos, ray, *this);
+            }
+        }
+        else if(tool == TOOL_VERTEX)
+        {
+            for(i=0; i<entities.size(); i++)
+            {
+                if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
+                    continue;
+                entities[i].SelectVertex(view.pos, ray, *this);
             }
         }
     }

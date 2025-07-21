@@ -188,7 +188,26 @@ void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
     }
 }
 
-void Plane::Draw(const Viewport& view, int index, int brush, int ent, const Map& map)
+void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush)
+{
+    int i;
+
+    if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
+        this->indexselection.clear();
+
+    for(i=0; i<this->indices.size(); i++)
+    {
+        if(!PointRay(o, r, brush.points[this->indices[i]]))
+            continue;
+
+        if(!this->indexselection.contains(i))
+            this->indexselection.insert(i);
+        else
+            this->indexselection.erase(i);
+    }
+}
+
+void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
 {
     int i;
 
@@ -229,4 +248,7 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, const Map&
         
         glEnd();
     }
+
+    if(selected && map.tool == Map::TOOL_VERTEX)
+        map.entities[ent].brushes[brush].drawvertexpreview = true;
 }
