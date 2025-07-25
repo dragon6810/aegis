@@ -16,10 +16,10 @@ First, you will need to install some dependencies. If you have homebrew, this ca
     
     brew install glew
     brew install glfw
-    brew install sfml
 
 In order to build the project, run:
 
+    git submodule update --init --recursive
     ./configure.sh
     ./build.sh
 
