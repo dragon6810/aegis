@@ -1,5 +1,7 @@
 #pragma once
 
+#include "polylib.h"
+
 #include <math.h>
 
 #include <Eigen/Dense>
