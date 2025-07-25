@@ -55,6 +55,9 @@ Mathlib::Poly<R> Mathlib::ClipPoly(Mathlib::Poly<R> poly, Eigen::Vector<float, R
         clipped.push_back(e[0] + dir * t);
     }
 
+    if(clipped.size() < 3)
+        return Poly<R>();
+
     return clipped;
 }
 
