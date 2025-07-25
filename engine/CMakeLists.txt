@@ -30,7 +30,6 @@ if (APPLE)
 
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
-    find_package(SFML COMPONENTS System Audio REQUIRED)
     
     target_link_libraries(engine PRIVATE
         glm
@@ -40,14 +39,11 @@ if (APPLE)
         mathlib
         GLEW::GLEW
         glfw
-        SFML::Audio
-        SFML::System
         "-framework OpenGL"
     )
 elseif (UNIX)
     find_package(OpenGL REQUIRED)
     find_package(GLEW REQUIRED)
-    find_package(SFML COMPONENTS system audio REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(GLFW3 REQUIRED glfw3)
 
@@ -64,7 +60,5 @@ elseif (UNIX)
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}
-        sfml-system
-        sfml-audio
     )
 endif()
