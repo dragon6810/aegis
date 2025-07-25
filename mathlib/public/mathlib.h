@@ -8,7 +8,7 @@
 
 #define DEG2RAD(x) (x * M_PI * 2.0 / 360.0)
 #define RAD2DEG(x) (x * 360.0 / (M_PI * 2.0))
-#define LERP(a, b, t) ((a - b) * t + a)
+#define LERP(a, b, t) ((b - a) * t + a)
 #define TOHOMOGENOUS(v) (Eigen::Vector4f(v[0], v[1], v[2], 1.0))
 #define TOHOMOGENOUSZEXT(v) (Eigen::Vector4f(v[0], v[1], v[2], 0.0))
 

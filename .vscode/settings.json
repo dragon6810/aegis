@@ -29,6 +29,7 @@
         "__split_buffer": "cpp",
         "locale": "cpp",
         "algorithm": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "dense": "cpp"
     }
 }
