@@ -30,6 +30,19 @@
         "locale": "cpp",
         "algorithm": "cpp",
         "core": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "*.tpp": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "__hash_table": "cpp",
+        "bitset": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "__tree": "cpp",
+        "map": "cpp",
+        "regex": "cpp",
+        "set": "cpp"
     }
 }
