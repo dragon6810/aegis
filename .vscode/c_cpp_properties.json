@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/thirdparty/glew/public",
+                "${workspaceFolder}/thirdparty/glm/public",
+                "${workspaceFolder}/thirdparty/SFML/public",
+                "${workspaceFolder}/thirdparty/eigen/public",
+                "${workspaceFolder}/thirdparty/imgui/public",
+                "${workspaceFolder}/mathlib/public"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c89",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
+}
