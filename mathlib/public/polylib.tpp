@@ -66,6 +66,8 @@ bool Mathlib::EquivalentPolys(Mathlib::Poly<R> a, Mathlib::Poly<R> b, float epsi
 {
     int i;
 
+    int offs;
+
     if(a.size() != b.size())
         return false;
 
@@ -73,7 +75,19 @@ bool Mathlib::EquivalentPolys(Mathlib::Poly<R> a, Mathlib::Poly<R> b, float epsi
         return true;
 
     for(i=0; i<a.size(); i++)
-        if((b[i]-a[i]).norm() > epsilon)
+    {
+        if((b[i] - a[0]).norm() > epsilon)
+            continue;
+
+        offs = i;
+        break;
+    }
+
+    if(i >= a.size())
+        return false;
+
+    for(i=0; i<a.size(); i++)
+        if((b[(i + offs) % b.size()] - a[i]).norm() > epsilon)
             return false;
 
     return true;

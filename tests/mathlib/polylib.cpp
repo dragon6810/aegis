@@ -70,6 +70,48 @@ TEST(ClipPolyTests, NominalTests)
     EXPECT_TRUE(Mathlib::EquivalentPolys(out, expect));
 }
 
+TEST(EquivalentPolysTests, ZeroOffsetTests)
+{
+    Mathlib::Poly<2> a, b;
+
+    a = 
+    {
+        { 0, 0, },
+        { 1, 0, },
+        { 1, 1, },
+        { 0, 1, },
+    };
+    b = a;
+    EXPECT_EQ(Mathlib::EquivalentPolys(a, b), true);
+
+    b[1] = { 1, -1, };
+    EXPECT_EQ(Mathlib::EquivalentPolys(a, b), false);
+}
+
+TEST(EquivalentPolysTests, OffsetTests)
+{
+    Mathlib::Poly<2> a, b;
+
+    a = 
+    {
+        { 0, 0, },
+        { 1, 0, },
+        { 1, 1, },
+        { 0, 1, },
+    };
+    b = 
+    {
+        { 1, 0, },
+        { 1, 1, },
+        { 0, 1, },
+        { 0, 0, },
+    };
+    EXPECT_EQ(Mathlib::EquivalentPolys(a, b), true);
+
+    b[2] = { 1, -1, };
+    EXPECT_EQ(Mathlib::EquivalentPolys(a, b), false);
+}
+
 TEST(FromPlaneTests, AxialTests)
 {
     Mathlib::Poly<3> out, expect;

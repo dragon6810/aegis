@@ -32,7 +32,7 @@ Mathlib::Poly<3> Mathlib::FromPlane(Eigen::Vector3f n, float d, float maxrange)
     for(i=0; i<2; i++)
     {
         basis[i] = Eigen::Vector3f::Zero();
-        basis[i][(axis+i)%3] = 1;
+        basis[i][(axis + 1 + i) % 3] = 1;
     }
 
     dir = Eigen::Vector3f::Zero();
@@ -42,7 +42,7 @@ Mathlib::Poly<3> Mathlib::FromPlane(Eigen::Vector3f n, float d, float maxrange)
     {
         p = Eigen::Vector3f::Zero();
         for(j=0; j<2; j++)
-            p += winding[i][j] * basis[j];
+            p += winding[i][j] * basis[j] * maxrange;
         
         t = (n.dot(p) - d) / -n.dot(dir);
         p += dir * t;

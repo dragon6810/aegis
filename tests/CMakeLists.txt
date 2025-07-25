@@ -1,6 +1,7 @@
 add_executable(tests
     mathlib/mathlib.cpp
     mathlib/polylib.cpp
+    mathlib/collisionlib.cpp
 )
 
 target_link_libraries(tests PRIVATE

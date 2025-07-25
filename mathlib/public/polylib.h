@@ -33,8 +33,7 @@ namespace Mathlib
     Poly<R> ClipPoly(Poly<R> poly, Eigen::Vector<float, R> n, float d, planeside_e side);
 
     /*
-        checks if the distance between every corresponding point is equivalent.
-        this does not account for one poly being offset, they must start on the same vertex.
+        checks if the distance between every corresponding point is below epsilon.
     */
     template <int R>
     bool EquivalentPolys(Poly<R> a, Poly<R> b, float epsilon=0.01);
