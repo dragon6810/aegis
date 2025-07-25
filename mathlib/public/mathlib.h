@@ -18,6 +18,7 @@ namespace Mathlib
     computes a quaternion from given euler angles.
     euler angles should be in the form [roll pich yaw].
     assuming [0 0 0] is looking down the positive x-axis.
+    angles are assumed to be in radians.
     */
     Eigen::Quaternionf FromEuler(Eigen::Vector3f euler);
 };

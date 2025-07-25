@@ -38,3 +38,31 @@ TEST(LERPTests, NominalTests)
     EXPECT_NEAR(LERP(8, 16, 0), 8, 0.01);
     EXPECT_NEAR(LERP(32, 64, 1), 64, 0.01);
 }
+
+TEST(FromEulerTests, NominalTests)
+{
+    EXPECT_NEAR
+    (
+        Mathlib::FromEuler(Eigen::Vector3f(0, 0, 0)).angularDistance
+        (Eigen::Quaternionf(1, 0, 0, 0)),
+        0, 0.01
+    );
+    EXPECT_NEAR
+    (
+        Mathlib::FromEuler(Eigen::Vector3f(M_PI_2, 0, 0)).angularDistance
+        (Eigen::Quaternionf(M_SQRT1_2, M_SQRT1_2, 0, 0)),
+        0, 0.01
+    );
+    EXPECT_NEAR
+    (
+        Mathlib::FromEuler(Eigen::Vector3f(M_PI_2, 0, M_PI_4)).angularDistance
+        (Eigen::Quaternionf(0.6532815, 0.6532815, 0.2705981, 0.2705981)),
+        0, 0.01
+    );
+    EXPECT_NEAR
+    (
+        Mathlib::FromEuler(Eigen::Vector3f(M_PI_2, M_PI, M_PI_4)).angularDistance
+        (Eigen::Quaternionf(0.2705981, -0.2705981, 0.6532815, -0.6532815)),
+        0, 0.01
+    );
+}
