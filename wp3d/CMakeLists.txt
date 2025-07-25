@@ -43,6 +43,7 @@ elseif (UNIX)
         glew
         imgui
         eigen
+        mathlib
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}

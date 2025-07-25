@@ -69,3 +69,22 @@ TEST(ClipPolyTests, NominalTests)
     out = Mathlib::ClipPoly(in, n, d, Mathlib::SIDE_BACK);
     EXPECT_TRUE(Mathlib::EquivalentPolys(out, expect));
 }
+
+TEST(FromPlaneTests, AxialTests)
+{
+    Mathlib::Poly<3> out, expect;
+    Eigen::Vector3f n;
+    float d;
+
+    n = Eigen::Vector3f(1, 0, 0);
+    d = 0;
+    expect = 
+    {
+        { 0, -1, -1, },
+        { 0, 1, -1, },
+        { 0, 1, 1 },
+        { 0, -1, 1},
+    };
+    out = Mathlib::FromPlane(n, d, 1);
+    EXPECT_TRUE(Mathlib::EquivalentPolys(out, expect));
+}

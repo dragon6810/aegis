@@ -38,6 +38,12 @@ namespace Mathlib
     */
     template <int R>
     bool EquivalentPolys(Poly<R> a, Poly<R> b, float epsilon=0.01);
+
+    /*
+        creates a quad with radius maxrange along the given plane.
+        wound counter-clockwise.
+    */
+    Poly<3> FromPlane(Eigen::Vector3f n, float d, float maxrange=8192);
 };
 
 #include "polylib.tpp"
