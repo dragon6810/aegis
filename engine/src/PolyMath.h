@@ -3,19 +3,18 @@
 #include <vector>
 #include <optional>
 
-#include "Vector.h"
-#include "Matrix.h"
+#include <Eigen/Dense>
 
 class PolyMath
 {
 public:
-    static std::vector<Vector3> BaseWindingForPlane(Vector3 n, float d, float maxrange=8192);
-    static bool PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d);
-    static std::vector<Vector3> ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, bool front);
-    static Vector3 FindCenter(std::vector<Vector3> points);
-    static Vector3 FindNormal(std::vector<Vector3> points);
-    static std::optional<Vector3> SegmentIntersects(std::vector<Vector3> points, Vector3 a, Vector3 b);
-    static Matrix3x3 PlaneProjection(Vector3 n);
-    static std::optional<Vector3> SegmentPlane(Vector3 n, float d, Vector3 a, Vector3 b);
-    static bool PointIn2d(std::vector<Vector2> points, Vector2 p);
+    static std::vector<Eigen::Vector3f> BaseWindingForPlane(Eigen::Vector3f n, float d, float maxrange=8192);
+    static bool PlaneCrosses(std::vector<Eigen::Vector3f> points, Eigen::Vector3f n, float d);
+    static std::vector<Eigen::Vector3f> ClipToPlane(std::vector<Eigen::Vector3f> points, Eigen::Vector3f n, float d, bool front);
+    static Eigen::Vector3f FindCenter(std::vector<Eigen::Vector3f> points);
+    static Eigen::Vector3f FindNormal(std::vector<Eigen::Vector3f> points);
+    static std::optional<Eigen::Vector3f> SegmentIntersects(std::vector<Eigen::Vector3f> points, Eigen::Vector3f a, Eigen::Vector3f b);
+    static Eigen::Matrix3f PlaneProjection(Eigen::Vector3f n);
+    static std::optional<Eigen::Vector3f> SegmentPlane(Eigen::Vector3f n, float d, Eigen::Vector3f a, Eigen::Vector3f b);
+    static bool PointIn2d(std::vector<Eigen::Vector2f> points, Eigen::Vector2f p);
 };

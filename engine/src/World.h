@@ -5,7 +5,8 @@
 #include <memory>
 #include <functional>
 
-#include "Vector.h"
+#include <Eigen/Dense>
+
 #include "ResourceManager.h"
 #include "Wad.h"
 #include "EntityBase.h"
@@ -22,20 +23,20 @@ class EntityStudio;
 
 struct plane_t
 {
-	Vector3 n;
+	Eigen::Vector3f n;
 	float d;
 };
 
 struct texinfo_t
 {
 	ResourceManager::texture_t *tex;
-	Vector3 s, t;
+	Eigen::Vector3f s, t;
 	float sshift, tshift;
 };
 
 struct leaf_t
 {
-	Vector3 bounds[2];
+	Eigen::Vector3f bounds[2];
 	int clipleaf;			  // index into clipleafs
 	std::vector<int> surfs;   // index into surfs
 };
@@ -60,7 +61,7 @@ struct node_t
 	int children[2]; 		// index into nodes
 	int leaves[2]; 			// index into leaves if >= 0
 	int parent; 			// index into nodes
-	Vector3 bounds[2];
+	Eigen::Vector3f bounds[2];
 	std::vector<int> surfs; // index into surfs
 };
 
@@ -87,10 +88,10 @@ struct model_t
 struct traceresult_t
 {
 	bool didhit;
-	Vector3 n;
-	Vector3 hit;
-	Vector3 start;
-	Vector3 end;
+	Eigen::Vector3f n;
+	Eigen::Vector3f hit;
+	Eigen::Vector3f start;
+	Eigen::Vector3f end;
 };
 
 class World
@@ -115,7 +116,7 @@ private:
 		LUMP_MODELS=       14,
 	};
 public:
-    static std::array<std::array<Vector3, 2>, 4> hulls;
+    static std::array<std::array<Eigen::Vector3f, 2>, 4> hulls;
     
     std::vector<std::shared_ptr<EntityBase>> entities;
 	std::shared_ptr<EntityCamera> camera;
@@ -128,7 +129,7 @@ public:
 	std::vector<leaf_t>   				   leafs;
 	std::vector<portal_t>				   ports;
 	std::vector<surf_t>   				   surfs;
-	std::vector<Vector3>  				   verts;
+	std::vector<Eigen::Vector3f>  		   verts;
 	std::vector<plane_t> 	   			  planes;
 	std::vector<texinfo_t> 	 			texinfos;
 	std::unordered_map<uint32_t, model_t> models;
@@ -142,8 +143,8 @@ public:
 	void Render(void);
     void Tick(void);
 
-	traceresult_t TraceDir(int headnode, Vector3 start, Vector3 end);
-	int GetContents(Vector3 pos, int node);
+	traceresult_t TraceDir(int headnode, Eigen::Vector3f start, Eigen::Vector3f end);
+	int GetContents(Eigen::Vector3f pos, int node);
 private:
 	std::string wadpath;
 	std::vector<Wad> wads;
@@ -172,5 +173,5 @@ private:
 	void RenderSurf(surf_t* surf);
 
 	// Collision
-	bool TraceDir_R(int icurnode, traceresult_t* trac, Vector3 start, Vector3 end, Vector3 n);
+	bool TraceDir_R(int icurnode, traceresult_t* trac, Eigen::Vector3f start, Eigen::Vector3f end, Eigen::Vector3f n);
 };

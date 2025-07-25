@@ -20,7 +20,7 @@ void EntityZombie::Tick(void)
 {
     EntityStudio::Tick();
 
-    this->navagent->ConstructPath(this->pos, Vector3());
+    this->navagent->ConstructPath(this->pos, Eigen::Vector3f());
 }
 
 std::string EntityZombie::GetModelName(void)

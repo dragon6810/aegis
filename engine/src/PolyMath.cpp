@@ -3,9 +3,11 @@
 #include <cassert>
 #include <math.h>
 
+#include <mathlib.h>
+
 #include "Console.h"
 
-std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float maxrange)
+std::vector<Eigen::Vector3f> PolyMath::BaseWindingForPlane(Eigen::Vector3f n, float d, float maxrange)
 {
 	const float epsilon = 0.01;
 
@@ -13,8 +15,8 @@ std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float max
 
     int axis;
     float curaxis, maxaxis;
-    Vector3 up, right, origin;
-	std::vector<Vector3> winding;
+    Eigen::Vector3f up, right, origin;
+	std::vector<Eigen::Vector3f> winding;
 
     axis = -1;
     maxaxis = 0;
@@ -30,7 +32,7 @@ std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float max
     if(axis < 0)
         return {};
 
-    up = right = Vector3();
+    up = right = Eigen::Vector3f();
     switch(axis)
     {
     case 0:
@@ -46,11 +48,11 @@ std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float max
         break;
     }
 
-	up = up - n * Vector3::Dot(up, n);
-    up.Normalize();
+	up = up - n * up.dot(n);
+    up.normalize();
 	assert(!(up == n));
 
-    right = Vector3::Cross(up, n);
+    right = up.cross(n);
 
 	origin = n * d;
 	up = up * maxrange;
@@ -62,15 +64,15 @@ std::vector<Vector3> PolyMath::BaseWindingForPlane(Vector3 n, float d, float max
 	winding[2] = origin - up - right;
 	winding[3] = origin - up + right;
 
-	assert(fabsf(Vector3::Dot(winding[0], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[1], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[2], n) - d) < epsilon);
-	assert(fabsf(Vector3::Dot(winding[3], n) - d) < epsilon);
+	assert(fabsf(winding[0].dot(n) - d) < epsilon);
+	assert(fabsf(winding[1].dot(n) - d) < epsilon);
+	assert(fabsf(winding[2].dot(n) - d) < epsilon);
+	assert(fabsf(winding[3].dot(n) - d) < epsilon);
 
 	return winding;
 }
 
-bool PolyMath::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
+bool PolyMath::PlaneCrosses(std::vector<Eigen::Vector3f> points, Eigen::Vector3f n, float d)
 {
 	const float epsilon = 0.01;
 
@@ -80,8 +82,8 @@ bool PolyMath::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
 
 	for(i=0; i<points.size(); i++)
     {
-        d1 = Vector3::Dot(points[i], n) - d;
-        d2 = Vector3::Dot(points[(i+1)%points.size()], n) - d;
+        d1 = points[i].dot(n) - d;
+        d2 = points[(i+1)%points.size()].dot(n) - d;
 
         if(d1 > epsilon && d2 < -epsilon)
             return true;
@@ -92,7 +94,7 @@ bool PolyMath::PlaneCrosses(std::vector<Vector3> points, Vector3 n, float d)
 	return false;
 }
 
-std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 n, float d, bool front)
+std::vector<Eigen::Vector3f> PolyMath::ClipToPlane(std::vector<Eigen::Vector3f> points, Eigen::Vector3f n, float d, bool front)
 {
 	const float epsilon = 0.01;
 
@@ -102,7 +104,7 @@ std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 
 	int last, cur;
 	bool sameside;
     float d1, d2, t;
-	std::vector<Vector3> newpoints;
+	std::vector<Eigen::Vector3f> newpoints;
 
     if(front)
     {
@@ -114,7 +116,7 @@ std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 
 	sameside = true;
 	for(i=0; i<points.size(); i++)
     {
-        d1 = Vector3::Dot(points[i], n) - d;
+        d1 = points[i].dot(n) - d;
 		
 		if(firstside == 0)
 		{
@@ -143,8 +145,8 @@ std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 
 	firstout = firstin = -1;
     for(i=0; i<points.size(); i++)
     {
-        d1 = Vector3::Dot(points[(i - 1 + points.size()) % points.size()], n) - d;
-        d2 = Vector3::Dot(points[i], n) - d;
+        d1 = points[(i - 1 + points.size()) % points.size()].dot(n) - d;
+        d2 = points[i].dot(n) - d;
 
 		if((d1 < epsilon) && (d2 > epsilon))
 			firstout = i;
@@ -169,23 +171,23 @@ std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 
 
 	last = (firstout - 1 + points.size()) % points.size();
 	cur = firstout;
-	d1 = Vector3::Dot(points[last], n) - d;
-	d2 = Vector3::Dot(points[cur], n) - d;
+	d1 = points[last].dot(n) - d;
+	d2 = points[cur].dot(n) - d;
 	
 	assert(d1 - d2 != 0);
 
 	t = -d1 / (d2 - d1);
-	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+    points[cur] = LERP(points[last], points[cur], t);
 
 	cur = (firstin - 1 + points.size()) % points.size();
 	last = firstin;
-	d1 = Vector3::Dot(points[last], n) - d;
-	d2 = Vector3::Dot(points[cur], n) - d;
+	d1 = points[last].dot(n) - d;
+	d2 = points[cur].dot(n) - d;
 	
 	assert(d1 - d2 != 0);
 	
 	t = -d1 / (d2 - d1);
-	points[cur] = Vector3::Lerp(points[last], points[cur], t);
+    points[cur] = LERP(points[last], points[cur], t);
 
 	firstin = (firstin - 1 + points.size()) % points.size();
 	for(i=0; i<points.size(); i++)
@@ -207,13 +209,13 @@ std::vector<Vector3> PolyMath::ClipToPlane(std::vector<Vector3> points, Vector3 
     return newpoints;
 }
 
-Vector3 PolyMath::FindCenter(std::vector<Vector3> points)
+Eigen::Vector3f PolyMath::FindCenter(std::vector<Eigen::Vector3f> points)
 {
     int i;
 
-    Vector3 center;
+    Eigen::Vector3f center;
 
-    center = Vector3(0, 0, 0);
+    center = Eigen::Vector3f(0, 0, 0);
     for(i=0; i<points.size(); i++)
         center = center + points[i];
     center = center / points.size();
@@ -221,40 +223,40 @@ Vector3 PolyMath::FindCenter(std::vector<Vector3> points)
     return center;
 }
 
-Vector3 PolyMath::FindNormal(std::vector<Vector3> points)
+Eigen::Vector3f PolyMath::FindNormal(std::vector<Eigen::Vector3f> points)
 {
-    Vector3 a, b, n;
+    Eigen::Vector3f a, b, n;
 
     if(points.size() < 3)
-        return Vector3(0, 0, 0);
+        return Eigen::Vector3f(0, 0, 0);
 
     a = points[1] - points[0];
     b = points[2] - points[0];
-    n = Vector3::Cross(a, b);
-    n.Normalize();
+    n = a.cross(b);
+    n.normalize();
 
     return n;
 }
 
-std::optional<Vector3> PolyMath::SegmentIntersects(std::vector<Vector3> points, Vector3 a, Vector3 b)
+std::optional<Eigen::Vector3f> PolyMath::SegmentIntersects(std::vector<Eigen::Vector3f> points, Eigen::Vector3f a, Eigen::Vector3f b)
 {
     int i;
 
-    Vector3 n;
-    std::optional<Vector3> intersect;
-    Matrix3x3 toplane;
-    std::vector<Vector3> polyproj3;
-    std::vector<Vector2> polyproj;
-    std::optional<Vector3> planeinter;
-    Vector3 inter3, interproj3;
-    Vector2 interproj;
+    Eigen::Vector3f n;
+    std::optional<Eigen::Vector3f> intersect;
+    Eigen::Matrix3f toplane;
+    std::vector<Eigen::Vector3f> polyproj3;
+    std::vector<Eigen::Vector2f> polyproj;
+    std::optional<Eigen::Vector3f> planeinter;
+    Eigen::Vector3f inter3, interproj3;
+    Eigen::Vector2f interproj;
 
-    intersect = std::optional<Vector3>();
+    intersect = std::optional<Eigen::Vector3f>();
     if(points.size() < 3)
         return intersect;
 
     n = FindNormal(points);
-    planeinter = SegmentPlane(n, Vector3::Dot(points[0], n), a, b);
+    planeinter = SegmentPlane(n, points[0].dot(n), a, b);
     if(!planeinter.has_value())
         return intersect;
 
@@ -262,15 +264,13 @@ std::optional<Vector3> PolyMath::SegmentIntersects(std::vector<Vector3> points, 
 
     toplane = PlaneProjection(n);
     interproj3 = toplane * inter3;
-    interproj.x = interproj3.x;
-    interproj.y = interproj3.y;
+    interproj = interproj3.head<2>();
     polyproj3.resize(points.size());
     polyproj.resize(points.size());
     for(i=0; i<polyproj3.size(); i++)
     {
         polyproj3[i] = toplane * points[i];
-        polyproj[i].x = polyproj3[i].x;
-        polyproj[i].y = polyproj3[i].y;
+        polyproj[i] = polyproj3[i].head<2>();
     }
 
     if(!PointIn2d(polyproj, interproj))
@@ -280,42 +280,42 @@ std::optional<Vector3> PolyMath::SegmentIntersects(std::vector<Vector3> points, 
     return intersect;
 }
 
-Matrix3x3 PolyMath::PlaneProjection(Vector3 n)
+Eigen::Matrix3f PolyMath::PlaneProjection(Eigen::Vector3f n)
 {
-    Vector3 x, y, z;
-    Matrix3x3 mat;
+    Eigen::Vector3f x, y, z;
+    Eigen::Matrix3f mat;
 
-    y = Vector3(0, 0, 1);
+    y = Eigen::Vector3f(0, 0, 1);
     if(y == n)
-        y = Vector3(0, 1, 0);
-    x = Vector3::Cross(y, n);
-    y = Vector3::Cross(x, n);
-    z = Vector3::Cross(x, y);
+        y = Eigen::Vector3f(0, 1, 0);
+    x = y.cross(n);
+    y = x.cross(n);
+    z = x.cross(y);
 
-    mat.SetColumn(x, 0);
-    mat.SetColumn(y, 1);
-    mat.SetColumn(z, 2);
-    mat = mat.Transpose();
+    mat.col(0) = x;
+    mat.col(1) = y;
+    mat.col(2) = z;
+    mat.transposeInPlace();
 
     return mat;
 }
 
-std::optional<Vector3> PolyMath::SegmentPlane(Vector3 n, float d, Vector3 a, Vector3 b)
+std::optional<Eigen::Vector3f> PolyMath::SegmentPlane(Eigen::Vector3f n, float d, Eigen::Vector3f a, Eigen::Vector3f b)
 {
-    std::optional<Vector3> intersect;
-    Vector3 r;
+    std::optional<Eigen::Vector3f> intersect;
+    Eigen::Vector3f r;
     float numer, denom, t, maxt;
 
-    intersect = std::optional<Vector3>();
+    intersect = std::optional<Eigen::Vector3f>();
 
     r = b - a;
-    maxt = r.Length();
+    maxt = r.norm();
     r = r / maxt;
 
-    denom = Vector3::Dot(r, n);
+    denom = -r.dot(n);
     if(denom == 0)
         return intersect;
-    numer = d - Vector3::Dot(a, n);
+    numer = a.dot(n) - d;
     t = numer / denom;
     if(t < 0 || t > maxt)
         return intersect;
@@ -324,14 +324,14 @@ std::optional<Vector3> PolyMath::SegmentPlane(Vector3 n, float d, Vector3 a, Vec
     return intersect;
 }
 
-bool PolyMath::PointIn2d(std::vector<Vector2> points, Vector2 p)
+bool PolyMath::PointIn2d(std::vector<Eigen::Vector2f> points, Eigen::Vector2f p)
 {
     int i;
 
     int nintersects;
     float invslope;
-    Vector2 *curedge[2];
-    Vector2 intersect;
+    Eigen::Vector2f *curedge[2];
+    Eigen::Vector2f intersect;
 
     if(points.size() < 3)
         return false;
@@ -341,15 +341,15 @@ bool PolyMath::PointIn2d(std::vector<Vector2> points, Vector2 p)
         curedge[0] = &points[i];
         curedge[1] = &points[(i+1)%points.size()];
 
-        if(curedge[0]->y == curedge[1]->y)
+        if((*curedge[0])[1] == (*curedge[1])[1])
             continue;
-        if(curedge[0]->x < p.x && curedge[1]->x < p.x)
+        if((*curedge[0])[0] < p[0] && (*curedge[1])[0] < p[0])
             continue;
-        if((curedge[0]->y - p.y) * (curedge[1]->y - p.y) > 0)
+        if(((*curedge[0])[1] - p[1]) * ((*curedge[1])[1] - p[1]) > 0)
             continue;
-        invslope = (curedge[1]->x - curedge[0]->x) / (curedge[1]->y - curedge[0]->y);
-        intersect = *curedge[0] + Vector2(invslope * (p.y - curedge[0]->y), p.y - curedge[0]->y);
-        if(intersect.x < p.x)
+        invslope = ((*curedge[1])[0] - (*curedge[0])[0]) / ((*curedge[1])[1] - (*curedge[0])[1]);
+        intersect = *curedge[0] + Eigen::Vector2f(invslope * (p[1] - (*curedge[0])[1]), p[1] - (*curedge[0])[1]);
+        if(intersect[0] < p[0])
             continue;
 
         nintersects++;

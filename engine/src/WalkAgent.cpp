@@ -11,7 +11,7 @@ WalkAgent::WalkAgent(World* world)
     this->world = world;
 }
 
-navnode_t* WalkAgent::NavNodeFromPos(Vector3 pos)
+navnode_t* WalkAgent::NavNodeFromPos(Eigen::Vector3f pos)
 {
     const float seglength = 512.0;
 
@@ -19,12 +19,12 @@ navnode_t* WalkAgent::NavNodeFromPos(Vector3 pos)
 
     NavMesh *navmesh;
     navnode_t *curnode;
-    Vector3 start, end;
+    Eigen::Vector3f start, end;
 
     start = pos;
-    end = start + Vector3(0, 0, -seglength);
+    end = start + Eigen::Vector3f(0, 0, -seglength);
 
-    // TODO: Make faster, ideally use bsp
+    // TODO: Make faster, ideally use bsp or make an octree
 
     for(i=0; i<world->navmesh.surfs[0].size(); i++)
     {
@@ -39,7 +39,7 @@ navnode_t* WalkAgent::NavNodeFromPos(Vector3 pos)
     return NULL;
 }
 
-bool WalkAgent::ConstructPath(Vector3 start, Vector3 end)
+bool WalkAgent::ConstructPath(Eigen::Vector3f start, Eigen::Vector3f end)
 {
     int i;
 

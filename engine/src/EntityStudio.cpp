@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include <mathlib.h>
+
 #include "Console.h"
 #include "Command.h"
 
@@ -12,18 +14,17 @@ bool EntityStudio::drawskeleton = false;
 
 void EntityStudio::Init(const std::unordered_map <std::string, std::string>& pairs)
 {
-    pos = LoadVector3(pairs, "origin", Vector3(0,0,0));
-    rot = LoadVector3(pairs, "angles", Vector3(0,0,0));
+    pos = LoadVector3(pairs, "origin", Eigen::Vector3f(0,0,0));
+    rot = LoadVector3(pairs, "angles", Eigen::Vector3f(0,0,0));
 
     LoadModel();
 }
 
 void EntityStudio::Render(void)
 {
-    this->transform = Quaternion::FromEuler(this->rot).ToMatrix4();
-    this->transform[0][3] = this->pos[0];
-    this->transform[1][3] = this->pos[1];
-    this->transform[2][3] = this->pos[2];
+    this->transform = Eigen::Matrix4f::Identity();
+    this->transform.topLeftCorner<3, 3>() = Mathlib::FromEuler(this->rot).toRotationMatrix();
+    this->transform.topRightCorner<3, 1>() = this->pos;
 
     if(sequences.size())
     {
@@ -63,8 +64,8 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
 
     int f, n;
     float t;
-    Vector3 curpos, nextpos, addpos, realpos;
-    Quaternion currot, nextrot, addrot, realrot;
+    Eigen::Vector3f curpos, nextpos, addpos, realpos;
+    Eigen::Quaternionf currot, nextrot, addrot, realrot;
 
     f = (int) frame;
     n = (f + 1) % sequences[curseq].nframes;
@@ -73,11 +74,12 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
     curpos  = sequences[curseq].anim.data[bone - bones.data()].pos[f];
     nextpos = sequences[curseq].anim.data[bone - bones.data()].pos[n];
 
-    currot  = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[f]);
-    nextrot = Quaternion::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[n]);
+    currot  = Mathlib::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[f]);
+    nextrot = Mathlib::FromEuler(sequences[curseq].anim.data[bone - bones.data()].rot[n]);
 
     realpos = sequences[curseq].anim.data[bone - bones.data()].pos[f];
-    realrot = Quaternion::Slerp(currot, nextrot, t);
+    
+    realrot = currot.slerp(t, nextrot);
 
     if(bone->controller)
     {
@@ -93,34 +95,32 @@ void EntityStudio::UpdateBoneMatrix(bone_t* bone)
                 addpos[2] = bone->controller->cur;
                 break;
             case MOTION_XR:
-                addrot = Quaternion::FromEuler(Vector3(bone->controller->cur * DEG2RAD, 0, 0));
+                addrot = Mathlib::FromEuler(DEG2RAD(bone->controller->cur) * Eigen::Vector3f::UnitX());
                 break;
             case MOTION_YR:
-                addrot = Quaternion::FromEuler(Vector3(0, bone->controller->cur * DEG2RAD, 0));
+                addrot = Mathlib::FromEuler(DEG2RAD(bone->controller->cur) * Eigen::Vector3f::UnitY());
                 break;
             case MOTION_ZR:
-                addrot = Quaternion::FromEuler(Vector3(0, 0, bone->controller->cur * DEG2RAD));
+                addrot = Mathlib::FromEuler(DEG2RAD(bone->controller->cur) * Eigen::Vector3f::UnitZ());
                 break;
             default:
                 break;
         }
         bone->controller->pos = addpos;
         bone->controller->rot = addrot;
-        addrot = Quaternion::Slerp(bone->controller->lastlastrot, bone->controller->lastrot, Game::GetGame().intertick);
+        addrot = bone->controller->lastlastrot.slerp(Game::GetGame().intertick, bone->controller->lastrot);
     }
 
     bone->curpos = sequences[curseq].anim.data[bone - bones.data()].pos[f] + addpos;
-    bone->currot = Quaternion::Slerp(currot, nextrot, t) * addrot;
+    bone->currot = currot.slerp(t, nextrot) * addrot;
     
-    bone->transform = bone->currot.ToMatrix4();
-    bone->transform[0][3] = bone->curpos[0];
-    bone->transform[1][3] = bone->curpos[1];
-    bone->transform[2][3] = bone->curpos[2];
+    bone->transform = Eigen::Matrix4f::Identity();
+    bone->transform.topLeftCorner<3, 3>() = bone->currot.toRotationMatrix();
+    bone->transform.topRightCorner<3, 1>() = bone->curpos;
 
-    bone->noctl = realrot.ToMatrix4();
-    bone->noctl[0][3] = realpos[0];
-    bone->noctl[1][3] = realpos[1];
-    bone->noctl[2][3] = realpos[2];
+    bone->noctl = Eigen::Matrix4f::Identity();
+    bone->noctl.topLeftCorner<3, 3>() = realrot.toRotationMatrix();
+    bone->noctl.topRightCorner<3, 1>() = realpos;
 }
 
 void EntityStudio::UpdateBones(void)
@@ -140,20 +140,18 @@ void EntityStudio::UpdateBones(void)
 
 void EntityStudio::DrawSkeleton(void)
 {
-    Vector3 zero(0, 0, 0);
-
     int i, j;
-    Vector3 root, cur;
+    Eigen::Vector3f root, cur;
 
     glColor3f(1, 0, 0);
     glBegin(GL_LINES);
 
     for(i=0; i<bones.size(); i++)
     {
-        root = bones[i].transform * zero;
+        root = bones[i].transform.topRightCorner<3, 1>();
         for(j=0; j<bones[i].children.size(); j++)
         {
-            cur = bones[i].children[j]->transform * zero;
+            cur = bones[i].children[j]->transform.topRightCorner<3, 1>();
             glVertex3f(root[0], root[1], root[2]);
             glVertex3f(cur[0], cur[1], cur[2]);
         }
@@ -167,7 +165,7 @@ void EntityStudio::DrawMesh(mesh_t* m)
 {
     int i;
 
-    Vector3 p, n;
+    Eigen::Vector3f p, n;
 
     // Model is wound clockwise
     // In the future patch the winding during load time
@@ -192,18 +190,11 @@ void EntityStudio::DrawMesh(mesh_t* m)
         p = m->verts[i];
         n = m->normals[i];
 
-        p = this->transform * m->bones[i]->transform * p;
-        n = m->bones[i]->transform * n;
-        n[0] -= m->bones[i]->transform[0][3];
-        n[1] -= m->bones[i]->transform[1][3];
-        n[2] -= m->bones[i]->transform[2][3];
-        n = this->transform * n;
-        n[0] -= this->transform[0][3];
-        n[1] -= this->transform[1][3];
-        n[2] -= this->transform[2][3];
+        p = (this->transform * m->bones[i]->transform * TOHOMOGENOUS(p)).head<3>();
+        n = (m->bones[i]->transform * TOHOMOGENOUSZEXT(n)).head<3>();
 
-        glTexCoord2f(m->coords[i].x, m->coords[i].y);
-        glVertex3f(p.x, p.y, p.z);
+        glTexCoord2f(m->coords[i][0], m->coords[i][1]);
+        glVertex3f(p[0], p[1], p[2]);
     }
 
     glEnd();
@@ -240,8 +231,8 @@ EntityStudio::model_t EntityStudio::LoadModel(FILE* ptr)
 
     std::vector<uint8_t> vertinfo;
     std::vector<uint8_t> norminfo;
-    std::vector<Vector3> verts;
-    std::vector<Vector3> norms;
+    std::vector<Eigen::Vector3f> verts;
+    std::vector<Eigen::Vector3f> norms;
 
     int itriverts, nsequences;
     int itex;
@@ -757,7 +748,7 @@ void EntityStudio::LoadBones(FILE* ptr)
             curbone->parent->children.push_back(curbone);
         }
         curbone->curpos = curbone->defpos;
-        curbone->currot = Quaternion::FromEuler(curbone->defrot);
+        curbone->currot = Mathlib::FromEuler(curbone->defrot);
 #if VERBOSE_STUDIO_LOGGING
         Console::Print("Bone %d:\n", i);
         Console::Print("    Name: \"%s\".\n", curbone->name.c_str());
@@ -770,23 +761,23 @@ void EntityStudio::LoadHeader(FILE* ptr)
 {
     fseek(ptr, 76, SEEK_SET);
 
-    fread(&eyepos.x, sizeof(float), 1, ptr);
-    fread(&eyepos.y, sizeof(float), 1, ptr);
-    fread(&eyepos.z, sizeof(float), 1, ptr);
+    fread(&eyepos[0], sizeof(float), 1, ptr);
+    fread(&eyepos[1], sizeof(float), 1, ptr);
+    fread(&eyepos[2], sizeof(float), 1, ptr);
 
     fseek(ptr, 24, SEEK_CUR);
 
-    fread(&bbmin.x, sizeof(float), 1, ptr);
-    fread(&bbmin.y, sizeof(float), 1, ptr);
-    fread(&bbmin.z, sizeof(float), 1, ptr);
+    fread(&bbmin[0], sizeof(float), 1, ptr);
+    fread(&bbmin[1], sizeof(float), 1, ptr);
+    fread(&bbmin[2], sizeof(float), 1, ptr);
 
-    fread(&bbmax.x, sizeof(float), 1, ptr);
-    fread(&bbmax.y, sizeof(float), 1, ptr);
-    fread(&bbmax.z, sizeof(float), 1, ptr);
+    fread(&bbmax[0], sizeof(float), 1, ptr);
+    fread(&bbmax[1], sizeof(float), 1, ptr);
+    fread(&bbmax[2], sizeof(float), 1, ptr);
 
 #ifdef VERBOSE_STUDIO_LOGGING
     Console::Print("Model header:\n");
-    Console::Print("    Eye position: %s.\n", eyepos.ToString().c_str());
+    Console::Print("    Eye position: ( %f %f %f ).\n", eyepos[0], eyepos[1], eyepos[2]);
 #endif
 }
 

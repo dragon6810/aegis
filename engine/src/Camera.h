@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Matrix.h"
-#include "Quaternion.h"
-#include "Vector.h"
+#include <Eigen/Dense>
 
 class Camera
 {
@@ -11,9 +9,9 @@ public:
 
     float fov = 60.0;
     float aspect = 4.0 / 3.0;
-    Vector3 pos = Vector3(0, 0, 0);
-    Quaternion rot = Quaternion();
+    Eigen::Vector3f pos = Eigen::Vector3f(0, 0, 0);
+    Eigen::Quaternionf rot = Eigen::Quaternionf::Identity();
 
-    Matrix4x4 GetView(void);
+    Eigen::Matrix4f GetView(void);
     void SetupGL(void);
 };

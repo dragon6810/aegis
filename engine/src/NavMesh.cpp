@@ -12,7 +12,7 @@
 void NavMesh::DrawSurf(navnode_t* surf)
 {
     int i;
-    Vector3 cur, next;
+    Eigen::Vector3f cur, next;
 
     return;
 
@@ -26,7 +26,7 @@ void NavMesh::DrawSurf(navnode_t* surf)
     glBegin(GL_POLYGON);
     
     for(i=0; i<surf->points.size(); i++)
-        glVertex3f(surf->points[i].x, surf->points[i].y, surf->points[i].z);
+        glVertex3f(surf->points[i][0], surf->points[i][1], surf->points[i][2]);
     
     glEnd();
     glDisable(GL_BLEND);
@@ -40,7 +40,7 @@ void NavMesh::DrawSurf(navnode_t* surf)
 
     glBegin(GL_POLYGON);
     for(i=0; i<surf->points.size(); i++)
-        glVertex3f(surf->points[i].x, surf->points[i].y, surf->points[i].z);
+        glVertex3f(surf->points[i][0], surf->points[i][1], surf->points[i][0]);
     glEnd();
     
     glDisable(GL_POLYGON_OFFSET_LINE);
@@ -63,12 +63,12 @@ void NavMesh::DrawSurf(navnode_t* surf)
     glColor3f(1, 1, 1);
 }
 
-std::pair<Vector3, Vector3> NavMesh::MakeEdge(Vector3 a, Vector3 b)
+std::pair<Eigen::Vector3f, Eigen::Vector3f> NavMesh::MakeEdge(Eigen::Vector3f a, Eigen::Vector3f b)
 {
-    return std::tie(a.x, a.y, a.z) < std::tie(b.x, b.y, b.z) ? std::make_pair(a, b) : std::make_pair(b, a);
+    return std::tie(a[0], a[1], a[2]) < std::tie(b[0], b[1], b[2]) ? std::make_pair(a, b) : std::make_pair(b, a);
 }
 
-bool NavMesh::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
+bool NavMesh::SameEdge(Eigen::Vector3f v1, Eigen::Vector3f v2, Eigen::Vector3f v3, Eigen::Vector3f v4)
 {
     if(v1 == v3)
         return v2 == v4;
@@ -82,7 +82,7 @@ bool NavMesh::SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
 void NavMesh::FindEdges(int hull)
 {
     int i, j, cur, next, _cur, _next;
-    Vector3 *v1, *v2, *v3, *v4;
+    Eigen::Vector3f *v1, *v2, *v3, *v4;
     bool found;
 
     for(i=0; i<surfs[hull].size()-1; i++)
@@ -120,12 +120,12 @@ void NavMesh::FindEdges(int hull)
     }
 }
 
-std::vector<std::array<Vector3, 3>> NavMesh::EarClip(std::vector<Vector3> poly)
+std::vector<std::array<Eigen::Vector3f, 3>> NavMesh::EarClip(std::vector<Eigen::Vector3f> poly)
 {
     int cur, last, next;
 
-    std::vector<std::array<Vector3, 3>> tris;
-    std::array<Vector3, 3> tri;
+    std::vector<std::array<Eigen::Vector3f, 3>> tris;
+    std::array<Eigen::Vector3f, 3> tri;
 
     if(poly.size() < 3)
     {
@@ -157,7 +157,7 @@ bool NavMesh::SurfQualifies(const navnode_t& node)
     maxangle = atanf(maxslope);
     maxcos = cosf(maxangle);
 
-    return Vector3::Dot(node.normal, Vector3(0, 0, 1)) > maxcos;
+    return node.normal.dot(Eigen::Vector3f(0, 0, 1)) > maxcos;
 }
 
 std::vector<navnode_t> NavMesh::Expand(int hull)
@@ -166,7 +166,7 @@ std::vector<navnode_t> NavMesh::Expand(int hull)
     navnode_t curnode;
 
     std::vector<navnode_t> nodes;
-    std::vector<std::array<Vector3, 3>> tris;
+    std::vector<std::array<Eigen::Vector3f, 3>> tris;
     model_t *mdl;
     portal_t *curprt;
     navnode_t *newnode;
@@ -203,8 +203,8 @@ std::vector<navnode_t> NavMesh::CutPlanes(const std::vector<navnode_t>& surfs)
     int i, j;
 
     std::vector<navnode_t> newsurfs;
-    std::vector<Vector3> front, back;
-    Vector3 n;
+    std::vector<Eigen::Vector3f> front, back;
+    Eigen::Vector3f n;
     float d;
     navnode_t newnode;
 
@@ -213,7 +213,7 @@ std::vector<navnode_t> NavMesh::CutPlanes(const std::vector<navnode_t>& surfs)
     for(i=0; i<newsurfs.size(); i++)
     {
         n = newsurfs[i].normal;
-        d = Vector3::Dot(n, newsurfs[i].points[0]);
+        d = n.dot(newsurfs[i].points[0]);
         for(j=0; j<newsurfs.size(); j++)
         {
             if(i == j)
@@ -246,7 +246,7 @@ std::vector<navnode_t> NavMesh::PruneFaces(const std::vector<navnode_t>& surfs)
     int i, j;
 
     std::vector<navnode_t> newnodes;
-    std::vector<std::array<Vector3, 3>> nodetris;
+    std::vector<std::array<Eigen::Vector3f, 3>> nodetris;
     navnode_t newnode;
 
     for(i=0; i<surfs.size(); i++)
@@ -261,7 +261,7 @@ std::vector<navnode_t> NavMesh::PruneFaces(const std::vector<navnode_t>& surfs)
         for(j=0; j<nodetris.size(); j++)
         {
             newnode = {};
-            newnode.points = std::vector<Vector3>(nodetris[j].begin(), nodetris[j].end());
+            newnode.points = std::vector<Eigen::Vector3f>(nodetris[j].begin(), nodetris[j].end());
             newnode.center = PolyMath::FindCenter(newnode.points);
             newnode.normal = surfs[i].normal;
             newnodes.push_back(newnode);

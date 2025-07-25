@@ -26,28 +26,28 @@ float EntityBase::LoadFloat(const std::unordered_map <std::string, std::string>&
 	return val;
 }
 
-Vector3 EntityBase::LoadVector3(const std::unordered_map <std::string, std::string>& pairs, std::string key, Vector3 _default)
+Eigen::Vector3f EntityBase::LoadVector3(const std::unordered_map <std::string, std::string>& pairs, std::string key, Eigen::Vector3f _default)
 {
-	Vector3 val;
+	Eigen::Vector3f val;
 
 	if (pairs.find(key) == pairs.end())
 		return _default;
 
-	if (sscanf(pairs.at(key).c_str(), "%f %f %f", &val.x, &val.y, &val.z) != 3)
+	if (sscanf(pairs.at(key).c_str(), "%f %f %f", &val[0], &val[1], &val[2]) != 3)
 		return _default;
 
 	return val;
 }
 
-Vector3 EntityBase::LoadEuler(const std::unordered_map <std::string, std::string>& pairs, std::string key, Vector3 _default)
+Eigen::Vector3f EntityBase::LoadEuler(const std::unordered_map <std::string, std::string>& pairs, std::string key, Eigen::Vector3f _default)
 {
-	Vector3 ent, game;
+	Eigen::Vector3f ent, game;
 
 	if (pairs.find(key) == pairs.end())
 		return _default;
 
-	ent = LoadVector3(pairs, key, Vector3());
-	game.x = ent.z;
-	game.y = -ent.x;
-	game.z = ent.y;
+	ent = LoadVector3(pairs, key, Eigen::Vector3f());
+	game[0] = ent[2];
+	game[1] = -ent[0];
+	game[2] = ent[1];
 }

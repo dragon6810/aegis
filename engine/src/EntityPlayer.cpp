@@ -6,42 +6,43 @@
 
 void EntityPlayer::SetTargetAngle(void)
 {
-    Vector3 forward, right;
-    Vector3 base, tip, n;
-    Vector3 p, dir;
-    Vector3 diff;
+    Eigen::Vector3f forward, right;
+    Eigen::Vector3f base, tip, n;
+    Eigen::Vector3f p, dir;
+    Eigen::Vector3f diff;
     float d, den, t;
     float x, y;
 
-    base = Vector3(0, 0, 0);
-    tip = Vector3(0, 0, 1);
-    base = ctlindices[0]->bone->noctl * base;
-    tip = ctlindices[0]->bone->noctl * tip;
+    base = Eigen::Vector3f(0, 0, 0);
+    tip = Eigen::Vector3f(0, 0, 1);
+    base = (ctlindices[0]->bone->noctl * TOHOMOGENOUS(base)).head<3>();
+    tip = (ctlindices[0]->bone->noctl * TOHOMOGENOUS(tip)).head<3>();
     n = tip - base;
-    d = Vector3::Dot(n, base);
+    d = n.dot(base);
 
     p = Game::GetGame().world.camera->pos;
     dir = Game::GetGame().world.camera->mousedir;
 
-    den = Vector3::Dot(n, dir);
+    // isn't this backwards? something to look into.
+    den = n.dot(dir);
     if(fabsf(den) < 0.001)
         return;
 
     diff = base - p;
-    t = Vector3::Dot(diff, n) / den;
-    p = Vector3::Lerp(p, p + dir, t);
+    t = diff.dot(n) / den;
+    p += dir * t;
 
-    right = Vector3(1, 0, 0);
-    forward = Vector3(0, 1, 0);
-    right = ctlindices[0]->bone->noctl * right;
-    forward = ctlindices[0]->bone->noctl * forward;
+    right = Eigen::Vector3f(1, 0, 0);
+    forward = Eigen::Vector3f(0, 1, 0);
+    right = (ctlindices[0]->bone->noctl * TOHOMOGENOUS(right)).head<3>();
+    forward = (ctlindices[0]->bone->noctl * TOHOMOGENOUS(forward)).head<3>();
     right = right - base;
     forward = forward - base;
 
-    x = Vector3::Dot(right, p);
-    y = Vector3::Dot(forward, p);
+    x = right.dot(p);
+    y = forward.dot(p);
 
-    yawtarget = atan2f(y, x) * RAD2DEG + 180;
+    yawtarget = RAD2DEG(atan2f(y, x)) + 180;
 }
 
 void EntityPlayer::Render(void)

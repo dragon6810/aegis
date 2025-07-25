@@ -1,15 +1,16 @@
 #include "EntityCamera.h"
 
 #include "Console.h"
-#include "Matrix.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <mathlib.h>
+
 void EntityCamera::Init(const std::unordered_map <std::string, std::string>& pairs)
 {
-	pos = LoadVector3(pairs, "origin", Vector3(0, 0, 0));
-	rot = LoadVector3(pairs, "angles", Vector3(0, 0, 0));
+	pos = LoadVector3(pairs, "origin", Eigen::Vector3f(0, 0, 0));
+	rot = LoadVector3(pairs, "angles", Eigen::Vector3f(0, 0, 0));
 }
 
 void EntityCamera::Render(void)
@@ -24,57 +25,59 @@ void EntityCamera::Tick(void)
 
 void EntityCamera::UpdateMouse(float x, float y)
 {
-    Quaternion q;
-    Matrix4x4 mat;
+    Eigen::Quaternionf q;
+    Eigen::Matrix4f mat;
 
     float planew, planeh;
     float hfov;
-    Vector3 realpoint;
-    Vector3 corrected;
+    Eigen::Vector3f realpoint;
+    Eigen::Vector3f corrected;
 
     // The dimensions of the camera plane one unit forward
     planeh = 2.0 * tan(vfov * 0.5);
     planew = planeh * aspect;
 
     // The direction if the camera was looking down +y
-    realpoint.y =  planew * (x-0.5);
-    realpoint.z = -planeh * (y-0.5);
-    realpoint.x = -1;
+    realpoint[1] =  planew * (x-0.5);
+    realpoint[2] = -planeh * (y-0.5);
+    realpoint[0] = -1;
    
     // Rotate direction by camera quaternion
-    corrected.x = rot.z;
-    corrected.y = -rot.x;
-    corrected.z = rot.y;
-    q = Quaternion::FromEuler(Quaternion::ToRadians(corrected));
-    mat = q.ToMatrix4();
+    corrected[0] = rot[2];
+    corrected[1] = -rot[0];
+    corrected[2] = rot[1];
+    q = Mathlib::FromEuler(DEG2RAD(corrected));
+    mat = Eigen::Matrix4f::Identity();
+    mat.topLeftCorner<3, 3>() = q.toRotationMatrix();
 
-    realpoint = mat * realpoint;
-    realpoint.Normalize();
+    realpoint = (mat * TOHOMOGENOUS(realpoint)).head<3>();
+    realpoint.normalize();
 
     mousedir = realpoint;
 }
 
 void EntityCamera::SetUpGL()
 {
-    Quaternion q;
-    Matrix4x4 mat;
+    Eigen::Quaternionf q;
+    Eigen::Matrix4f mat;
 
-    Vector3 forward(-1, 0, 0);
-    Vector3 up(0, 0, 1);
-    Vector3 corrected;
+    Eigen::Vector3f forward(-1, 0, 0);
+    Eigen::Vector3f up(0, 0, 1);
+    Eigen::Vector3f corrected;
     
-    corrected.x = rot.z;
-    corrected.y = -rot.x;
-    corrected.z = rot.y;
-    q = Quaternion::FromEuler(Quaternion::ToRadians(corrected));
-    mat = q.ToMatrix4();
+    corrected[0] = rot[2];
+    corrected[1] = -rot[0];
+    corrected[2] = rot[1];
+    q = Mathlib::FromEuler(DEG2RAD(corrected));
+    mat = Eigen::Matrix4f::Identity();
+    mat.topLeftCorner<3, 3>() = q.toRotationMatrix();
 
-    forward = mat * forward;
-    up = mat * up;
+    forward = (mat * TOHOMOGENOUS(forward)).head<3>();
+    up = (mat * TOHOMOGENOUS(up)).head<3>();
 
-    glm::vec3 cameraPos(pos.x, pos.y, pos.z);
-    glm::vec3 cameraTarget = cameraPos + glm::vec3(forward.x, forward.y, forward.z);
-    glm::vec3 cameraUp(up.x, up.y, up.z);
+    glm::vec3 cameraPos(pos[0], pos[1], pos[2]);
+    glm::vec3 cameraTarget = cameraPos + glm::vec3(forward[0], forward[1], forward[2]);
+    glm::vec3 cameraUp(up[0], up[1], up[2]);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

@@ -11,11 +11,8 @@ add_executable (
     "src/Wad.cpp" 
     "src/Console.cpp" 
     "src/RasterFont.cpp" 
-    "src/Vector.cpp" 
     "src/EntityBase.cpp" 
     "src/EntityCamera.cpp" 
-    "src/Quaternion.cpp" 
-    "src/Matrix.cpp" 
     "src/EntityStudio.cpp" 
     "src/EntityPlayer.cpp" 
     "src/NavMesh.cpp" 
@@ -39,6 +36,8 @@ if (APPLE)
         glm
         glew 
         SFML
+        eigen
+        mathlib
         GLEW::GLEW
         glfw
         SFML::Audio
@@ -60,6 +59,8 @@ elseif (UNIX)
         glm
         glew
         SFML
+        eigen
+        mathlib
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}

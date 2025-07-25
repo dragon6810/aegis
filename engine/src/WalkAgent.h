@@ -9,7 +9,7 @@ public:
 protected:
     World* world;
 protected:
-    virtual navnode_t* NavNodeFromPos(Vector3 pos) override;
+    virtual navnode_t* NavNodeFromPos(Eigen::Vector3f pos) override;
 public:
-    virtual bool ConstructPath(Vector3 start, Vector3 end) override;
+    virtual bool ConstructPath(Eigen::Vector3f start, Eigen::Vector3f end) override;
 };

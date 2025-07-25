@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "Vector.h"
+#include <Eigen/Dense>
 
 // forward declarations
 class World;
@@ -18,9 +18,9 @@ struct traceresult_t;
 
 typedef struct navnode_s
 {
-    std::vector<Vector3> points;
-    Vector3 normal;
-    Vector3 center;
+    std::vector<Eigen::Vector3f> points;
+    Eigen::Vector3f normal;
+    Eigen::Vector3f center;
     std::vector<struct navnode_s*> edges;
 
     // Pathfinding intermediate values
@@ -49,8 +49,8 @@ private:
     std::vector<navnode_t> PruneFaces(const std::vector<navnode_t>& surfs);
     bool SurfQualifies(const navnode_t& surf);
     void DrawSurf(navnode_t* surf);
-    bool SameEdge(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4);
+    bool SameEdge(Eigen::Vector3f v1, Eigen::Vector3f v2, Eigen::Vector3f v3, Eigen::Vector3f v4);
 
-    std::vector<std::array<Vector3, 3>> EarClip(std::vector<Vector3> poly);
-    std::pair<Vector3, Vector3> MakeEdge(Vector3 a, Vector3 b);
+    std::vector<std::array<Eigen::Vector3f, 3>> EarClip(std::vector<Eigen::Vector3f> poly);
+    std::pair<Eigen::Vector3f, Eigen::Vector3f> MakeEdge(Eigen::Vector3f a, Eigen::Vector3f b);
 };

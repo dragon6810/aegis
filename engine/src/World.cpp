@@ -21,23 +21,23 @@ std::unordered_map<std::string, std::function<std::shared_ptr<EntityBase>()>> en
 	{"zombie_grunt", []() { return std::make_shared<EntityZombie>(); }},
 };
 
-std::array<std::array<Vector3, 2>, 4> World::hulls =
+std::array<std::array<Eigen::Vector3f, 2>, 4> World::hulls =
 {
     {
-        { Vector3(  0,   0,   0), Vector3(  0,   0,   0) },
-        { Vector3(-16, -16, -36), Vector3( 16,  16,  36) },
-        { Vector3(-32, -32, -32), Vector3( 32,  32,  32) },
-        { Vector3(-16, -16, -18), Vector3( 16,  16,  18) },
+        { Eigen::Vector3f(  0,   0,   0), Eigen::Vector3f(  0,   0,   0) },
+        { Eigen::Vector3f(-16, -16, -36), Eigen::Vector3f( 16,  16,  36) },
+        { Eigen::Vector3f(-32, -32, -32), Eigen::Vector3f( 32,  32,  32) },
+        { Eigen::Vector3f(-16, -16, -18), Eigen::Vector3f( 16,  16,  18) },
     }
 };
 
-bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector3 end, Vector3 n)
+bool World::TraceDir_R(int icurnode, traceresult_t* trace, Eigen::Vector3f start, Eigen::Vector3f end, Eigen::Vector3f n)
 {
 	const float epsilon = 0.01;
 
 	hullnode_t *curnode;
 	hullleaf_t *curleaf;
-	Vector3 cross;
+	Eigen::Vector3f cross;
 	float d1, d2, t;
 	int first;
 
@@ -56,8 +56,8 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 
 	curnode = &clipnodes[icurnode];
 
-	d1 = Vector3::Dot(start, planes[curnode->pl].n) - planes[curnode->pl].d;
-	d2 = Vector3::Dot(end, planes[curnode->pl].n) - planes[curnode->pl].d;
+	d1 = start.dot(planes[curnode->pl].n) - planes[curnode->pl].d;
+	d2 = end.dot(planes[curnode->pl].n) - planes[curnode->pl].d;
 
 	if(fabsf(d1) < epsilon && fabsf(d2) < epsilon)
 	{
@@ -76,7 +76,7 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 	}
 
 	t = d1 / (d1 - d2);
-	cross = Vector3::Lerp(start, end, t);
+	cross = LERP(start, end, t);
 
 	first = d1 > 0;
 
@@ -86,7 +86,7 @@ bool World::TraceDir_R(int icurnode, traceresult_t* trace, Vector3 start, Vector
 	return TraceDir_R(curnode->children[!first], trace, cross, end, planes[curnode->pl].n);
 }
 
-traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
+traceresult_t World::TraceDir(int headnode, Eigen::Vector3f start, Eigen::Vector3f end)
 {
 	traceresult_t trace;
 
@@ -99,11 +99,11 @@ traceresult_t World::TraceDir(int headnode, Vector3 start, Vector3 end)
 
 	trace.start = start;
 	trace.end = end;
-	trace.didhit = TraceDir_R(headnode, &trace, start, end, Vector3());
+	trace.didhit = TraceDir_R(headnode, &trace, start, end, Eigen::Vector3f());
 	return trace;
 }
 
-int World::GetContents(Vector3 pos, int node)
+int World::GetContents(Eigen::Vector3f pos, int node)
 {
 	float d;
 	hullnode_t *curnode;
@@ -112,7 +112,7 @@ int World::GetContents(Vector3 pos, int node)
 		return node;
 
 	curnode = &clipnodes[node];
-	d = Vector3::Dot(pos, planes[curnode->pl].n) - planes[curnode->pl].d;
+	d = pos.dot(planes[curnode->pl].n) - planes[curnode->pl].d;
 
 	if(d > 0)
 		return GetContents(pos, curnode->children[1]);
@@ -651,7 +651,7 @@ void World::LoadTextures(FILE* ptr)
 void World::LoadVerts(FILE* ptr)
 {
 	int i;
-	Vector3 *curvert;
+	Eigen::Vector3f *curvert;
 
 	uint64_t lumpoffs;
 	uint64_t lumpsize;
@@ -671,9 +671,9 @@ void World::LoadVerts(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, curvert=verts.data(); i<nverts; i++, curvert++)
 	{
-		fread(&curvert->x, sizeof(float), 1, ptr);
-		fread(&curvert->y, sizeof(float), 1, ptr);
-		fread(&curvert->z, sizeof(float), 1, ptr);
+		fread(&(*curvert)[0], sizeof(float), 1, ptr);
+		fread(&(*curvert)[1], sizeof(float), 1, ptr);
+		fread(&(*curvert)[2], sizeof(float), 1, ptr);
 	}
 }
 
@@ -700,9 +700,9 @@ void World::LoadPlanes(FILE* ptr)
 	fseek(ptr, lumpoffs, SEEK_SET);
 	for(i=0, curplane=planes.data(); i<nplanes; i++, curplane++)
 	{
-		fread(&curplane->n.x, sizeof(float), 1, ptr);
-		fread(&curplane->n.y, sizeof(float), 1, ptr);
-		fread(&curplane->n.z, sizeof(float), 1, ptr);
+		fread(&curplane->n[0], sizeof(float), 1, ptr);
+		fread(&curplane->n[1], sizeof(float), 1, ptr);
+		fread(&curplane->n[2], sizeof(float), 1, ptr);
 		fread(&curplane->d, sizeof(float), 1, ptr);
 	}
 }
@@ -852,7 +852,7 @@ bool World::Load(std::string name)
 
 	Console::Print("Finished loading map \"%s\".\n", realpath.c_str());
 
-	trace = TraceDir(0, Vector3(0, 0, 128), Vector3(0, 0, -128));
+	trace = TraceDir(0, Eigen::Vector3f(0, 0, 128), Eigen::Vector3f(0, 0, -128));
 
 	fclose(ptr);
 	return true;
@@ -861,7 +861,7 @@ bool World::Load(std::string name)
 void World::RenderSurf(surf_t* surf)
 {
 	int i;
-	Vector3 pos;
+	Eigen::Vector3f pos;
 	texinfo_t *tex;
 
 	tex = &texinfos[surf->tex];
@@ -875,10 +875,12 @@ void World::RenderSurf(surf_t* surf)
 	{
 		pos = verts[surf->vertices[i]];
 		if(tex->tex)
-			glTexCoord2f(
-				(Vector3::Dot(pos, tex->s) + tex->sshift) / tex->tex->width, 
-				(Vector3::Dot(pos, tex->t) + tex->tshift) / tex->tex->height);
-		glVertex3f(pos.x, pos.y, pos.z);
+			glTexCoord2f
+			(
+				(pos.dot(tex->s) + tex->sshift) / tex->tex->width, 
+				(pos.dot(tex->t) + tex->tshift) / tex->tex->height
+			);
+		glVertex3f(pos[0], pos[1], pos[2]);
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
@@ -887,7 +889,7 @@ void World::RenderSurf(surf_t* surf)
 void World::Render(void)
 {
 	int i;
-	Vector3 d, p;
+	Eigen::Vector3f d, p;
 
 	camera->SetUpGL();
     
@@ -897,7 +899,7 @@ void World::Render(void)
 
     glColor3f(1, 0, 0);
 	glBegin(GL_POINTS);
-	glVertex3f(p.x, p.y, p.z);
+	glVertex3f(p[0], p[1], p[2]);
 	glVertex3f(0, 0, 0);
 	glEnd();
 	glColor3f(1, 1, 1);

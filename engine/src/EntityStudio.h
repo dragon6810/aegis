@@ -4,10 +4,10 @@
 
 #include <vector>
 
-#include "Matrix.h"
+#include <Eigen/Dense>
+
 #include "TickProperty.h"
 #include "ResourceManager.h"
-#include "Quaternion.h"
 
 class EntityStudio : public EntityBase
 {
@@ -18,8 +18,8 @@ public:
 
     virtual std::string GetModelName(void);
 
-    Vector3 pos;
-    Vector3 rot;
+    Eigen::Vector3f pos;
+    Eigen::Vector3f rot;
 
 protected:
     // Forward declarations
@@ -38,15 +38,15 @@ protected:
         struct controller_s* controller;
         std::vector<struct bone_s*> children;
 
-        Vector3 defpos;
-        Vector3 defrot;
-        Vector3 scalepos;
-        Vector3 scalerot;
-        Vector3 curpos;
-        Quaternion currot;
+        Eigen::Vector3f defpos;
+        Eigen::Vector3f defrot;
+        Eigen::Vector3f scalepos;
+        Eigen::Vector3f scalerot;
+        Eigen::Vector3f curpos;
+        Eigen::Quaternionf currot;
 
-        Matrix4x4 noctl;
-        Matrix4x4 transform;
+        Eigen::Matrix4f noctl;
+        Eigen::Matrix4f transform;
     } bone_t;
 
     typedef enum
@@ -65,10 +65,10 @@ protected:
         int type;
         float min, max, def;
         float cur;
-        Quaternion lastrot;
-        Quaternion lastlastrot;
-        Quaternion rot;
-        Vector3 pos;
+        Eigen::Quaternionf lastrot;
+        Eigen::Quaternionf lastlastrot;
+        Eigen::Quaternionf rot;
+        Eigen::Vector3f pos;
     } controller_t;
 
     // Decompressed animation for 1 bone
@@ -76,8 +76,8 @@ protected:
     {
         int nframes;
         bone_t* bone;
-        std::vector<Vector3> pos;
-        std::vector<Vector3> rot;
+        std::vector<Eigen::Vector3f> pos;
+        std::vector<Eigen::Vector3f> rot;
     } boneanim_t;
 
     typedef struct anim_s
@@ -97,7 +97,7 @@ protected:
         // TODO: Events
 
         bone_t* rootbone;
-        Vector3 displacement; // Displacement of rootbone
+        Eigen::Vector3f displacement; // Displacement of rootbone
 
         // TODO: Blends
 
@@ -113,9 +113,9 @@ protected:
     typedef struct mesh_s
     {
         meshtype_e type;
-        std::vector<Vector3> verts;
-        std::vector<Vector3> normals;
-        std::vector<Vector2> coords;
+        std::vector<Eigen::Vector3f> verts;
+        std::vector<Eigen::Vector3f> normals;
+        std::vector<Eigen::Vector2f> coords;
         std::vector<bone_t*> bones;
         ResourceManager::texture_t* tex;
     } mesh_t;
@@ -128,8 +128,8 @@ protected:
     } model_t;
 
 protected:
-    Vector3 eyepos;
-    Vector3 bbmin, bbmax;
+    Eigen::Vector3f eyepos;
+    Eigen::Vector3f bbmin, bbmax;
     int curseq = 0;
     TickProperty<float> frame;
 
@@ -140,7 +140,7 @@ protected:
     std::vector<ResourceManager::texture_t*> textures;
     std::vector<model_t> models;
 
-    Matrix4x4 transform;
+    Eigen::Matrix4f transform;
 public:
     static bool drawstudio;
     static bool drawskeleton;
