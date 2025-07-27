@@ -24,4 +24,9 @@ public:
 
     GLuint fbo = 0, tex = 0, depth = 0;
     Eigen::Vector2i canvassize = Eigen::Vector2i(0, 0);
+
+    // outbasis is forward, right, up
+    void GetViewBasis(Eigen::Vector3f outbasis[3]) const;
+    // clickpos in ndc
+    void GetRay(Eigen::Vector2f clickpos, Eigen::Vector3f* outo, Eigen::Vector3f* outr) const;
 };

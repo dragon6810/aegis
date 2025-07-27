@@ -17,7 +17,7 @@ void Map::SetupFrame(const Viewport& view)
     glViewport(0, 0, view.canvassize.x(), view.canvassize.y());
 
     pos = view.pos;
-    Map::GetViewBasis(view, basis);
+    view.GetViewBasis(basis);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -44,42 +44,6 @@ void Map::SetupFrame(const Viewport& view)
     glLoadMatrixf(&viewmat[0][0]);
 }
 
-void Map::GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3])
-{
-    Eigen::Quaternionf rot;
-
-    assert(outbasis);
-
-    switch(view.type)
-    {
-        case Viewport::ORTHOX:
-            outbasis[0] = Eigen::Vector3f(-1, 0, 0);
-            outbasis[1] = Eigen::Vector3f(0, 1, 0);
-            outbasis[2] = Eigen::Vector3f(0, 0, 1);
-            break;
-        case Viewport::ORTHOY:
-            outbasis[0] = Eigen::Vector3f(0, -1, 0);
-            outbasis[1] = Eigen::Vector3f(-1, 0, 0);
-            outbasis[2] = Eigen::Vector3f(0, 0, 1);
-            break;
-        case Viewport::ORTHOZ:
-            outbasis[0] = Eigen::Vector3f(0, 0, -1);
-            outbasis[1] = Eigen::Vector3f(1, 0, 0);
-            outbasis[2] = Eigen::Vector3f(0, 1, 0);
-            break;
-        case Viewport::FREECAM:
-            rot = Eigen::Quaternionf(Eigen::AngleAxisf(view.rot[0], Eigen::Vector3f::UnitX()));
-            rot = Eigen::Quaternionf(Eigen::AngleAxisf(view.rot[1], Eigen::Vector3f::UnitY())) * rot;
-            rot = Eigen::Quaternionf(Eigen::AngleAxisf(view.rot[2], Eigen::Vector3f::UnitZ())) * rot;
-            outbasis[0] = rot * Eigen::Vector3f(1, 0, 0);
-            outbasis[1] = rot * Eigen::Vector3f(0, -1, 0);
-            outbasis[2] = rot * Eigen::Vector3f(0, 0, 1);
-            break;
-        default:
-            break;
-    }
-}
-
 void Map::PanOrtho(Viewport& view, ImGuiKey key)
 {
     const float panspeed = 0.25;
@@ -88,7 +52,7 @@ void Map::PanOrtho(Viewport& view, ImGuiKey key)
 
     assert(view.type != Viewport::FREECAM);
 
-    GetViewBasis(view, basis);
+    view.GetViewBasis(basis);
     switch(key)
     {
         case ImGuiKey_W:
@@ -117,7 +81,7 @@ void Map::MoveFreecam(Viewport& view, ImGuiKey key, float deltatime)
     
     assert(view.type == Viewport::FREECAM);
 
-    GetViewBasis(view, basis);
+    view.GetViewBasis(basis);
     switch(key)
     {
         case ImGuiKey_W:
@@ -404,7 +368,7 @@ void Map::DrawGrid(const Viewport& view)
     if(view.type == Viewport::FREECAM)
         axis = 2;
 
-    GetViewBasis(view, basis);
+    view.GetViewBasis(basis);
 
     camsize[0] = view.zoom * ((float) view.canvassize[0] / (float) view.canvassize[1]);
     camsize[1] = view.zoom;
@@ -653,7 +617,7 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             if(view.type == Viewport::FREECAM)
                 break;
             
-            GetViewBasis(view, basis);
+            view.GetViewBasis(basis);
             gridsize = (float) (1 << this->gridlevel);
             if(key == ImGuiKey::ImGuiKey_UpArrow)
                 add = basis[2] * gridsize;
@@ -680,104 +644,81 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
 {
     int i, j;
 
-    Eigen::Vector3f basis[3], clickpos, ray;
+    Eigen::Vector3f basis[3], clickpos, o, r;
     Eigen::Vector2f camplane;
     int icorner;
     int realgridsize;
     float curdist, bestdist;
     int bestent;
 
-    // TODO: this is dumb, clean this up
-    if(this->tool == TOOL_SELECT || this->tool == TOOL_PLANE || this->tool == TOOL_VERTEX)
+    switch(this->tool)
     {
+    case TOOL_SELECT:
         if(view.type != Viewport::FREECAM)
             return;
 
-        GetViewBasis(view, basis);
-        camplane[1] = tanf(glm::radians(view.fov * 0.5));
-        camplane[0] = camplane[1] * (float) view.canvassize[0] / (float) view.canvassize[1];
-        basis[1] *= camplane[0];
-        basis[2] *= camplane[1];
-        ray = basis[0];
-        ray += basis[1] *  (mousepos[0] * 2.0 - 1.0);
-        ray += basis[2] * -(mousepos[1] * 2.0 - 1.0);
-        ray.normalize();
+        view.GetRay(mousepos, &o, &r);
 
-        if(this->tool == TOOL_SELECT)
-        {
-            if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
                 ClearSelection();
-            bestent = -1;
-            for(i=0; i<entities.size(); i++)
-            {
-                if(!entities[i].RayIntersects(view.pos, ray, &curdist))
-                    continue;
 
-                if(bestent < 0 || curdist < bestdist)
-                {
-                    bestdist = curdist;
-                    bestent = i;
-                }
-            }
-
-            if(bestent < 0)
-                return;
-
-            entities[bestent].Select(view.pos, ray, bestent, *this);
-        }
-        else if(tool == TOOL_PLANE)
+        bestent = -1;
+        for(i=0; i<entities.size(); i++)
         {
-            for(i=0; i<entities.size(); i++)
+            if(!entities[i].RayIntersects(o, r, &curdist))
+                continue;
+
+            if(bestent < 0 || curdist < bestdist)
             {
-                if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
-                    continue;
-                entities[i].SelectTriplane(view.pos, ray, *this);
+                bestdist = curdist;
+                bestent = i;
             }
         }
-        else if(tool == TOOL_VERTEX)
+
+        if(bestent < 0)
+            return;
+
+        entities[bestent].Select(o, r, bestent, *this);
+
+        break;
+    case TOOL_VERTEX:
+        view.GetRay(mousepos, &o, &r);
+
+        for(i=0; i<entities.size(); i++)
         {
-            for(i=0; i<entities.size(); i++)
-            {
-                if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
-                    continue;
-                entities[i].SelectVertex(view.pos, ray, *this);
-            }
+            if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
+                continue;
+            entities[i].SelectVertex(o, r, *this);
         }
-    }
-    if(this->tool == TOOL_BRUSH)
-    {
+
+        break;
+    case TOOL_BRUSH:
         if(view.type == Viewport::FREECAM)
             return;
 
         if(button != ImGuiMouseButton_Left && button != ImGuiMouseButton_Right)
             return;
-        if(button == ImGuiMouseButton_Right && nbrushcorners < 1)
+        if(button == ImGuiMouseButton_Right && !nbrushcorners)
             return;
         if(button == ImGuiMouseButton_Left)
             icorner = 0;
         if(button == ImGuiMouseButton_Right)
             icorner = 1;
 
-        Map::GetViewBasis(view, basis);
-        basis[1] *= view.zoom * ((float)view.canvassize.x() / (float)view.canvassize.y());
-        basis[2] *= view.zoom;
-        clickpos = Eigen::Vector3f(0, 0, 0);
-        clickpos += basis[1] *  (mousepos[0] * 2.0 - 1.0);
-        clickpos += basis[2] * -(mousepos[1] * 2.0 - 1.0);
-        clickpos += view.pos;
-        if(nbrushcorners < 1 || (icorner == 1 && nbrushcorners < 2))
-            clickpos[view.type] = 0;
+        view.GetRay(mousepos, &o, NULL);
+        if(!nbrushcorners || (icorner == 1 && nbrushcorners == 1))
+            o[view.type] = 0;
         else
-            clickpos[view.type] = brushcorners[icorner][view.type];
+            o[view.type] = brushcorners[icorner][view.type];
 
-        if(!this->nbrushcorners)
-            this->nbrushcorners = 1;
-        if(this->nbrushcorners == 1 && icorner == 1)
-            this->nbrushcorners = 2;
+        if(!this->nbrushcorners || (this->nbrushcorners == 1 && icorner == 1))
+            this->nbrushcorners++;
 
         realgridsize = 1 << gridlevel;
         for(i=0; i<3; i++)
-            this->brushcorners[icorner][i] = ((int) roundf(clickpos[i] / (float) realgridsize)) << gridlevel;
+            this->brushcorners[icorner][i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
+        
+        break;
     }
 }
 

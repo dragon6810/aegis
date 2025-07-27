@@ -32,9 +32,6 @@ public:
 private:
     void SetupFrame(const Viewport& view);
 
-    // outbasis is forward, right, up
-    void GetViewBasis(const Viewport& view, Eigen::Vector3f outbasis[3]);
-
     void PanOrtho(Viewport& view, ImGuiKey key);
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);

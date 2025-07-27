@@ -8,7 +8,6 @@ add_executable (
     "src/Plane.cpp"
     "src/Entity.cpp"
     "src/Viewport.cpp"
-    "src/Polygon.cpp"
 )
 
 if (APPLE)
@@ -24,6 +23,7 @@ if (APPLE)
         glew 
         imgui
         eigen
+        mathlib
         GLEW::GLEW
         glfw
         "-framework OpenGL"

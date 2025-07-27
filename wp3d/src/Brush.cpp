@@ -87,23 +87,26 @@ void Brush::MakeFaces(void)
 
     for(i=0; i<this->planes.size(); i++)
     {
-        this->planes[i].poly.points.clear();
-        this->planes[i].poly.FromPlane(this->planes[i].normal, this->planes[i].d, Map::max_map_size);
+        this->planes[i].poly.clear();
+        this->planes[i].poly = Mathlib::FromPlane(this->planes[i].normal, this->planes[i].d, Map::max_map_size);
         for(j=0; j<this->planes.size(); j++)
         {
             if(i == j)
                 continue;
 
-            this->planes[i].poly.Clip(this->planes[j].normal, this->planes[j].d, 0);
+            this->planes[i].poly = Mathlib::ClipPoly<3>(this->planes[i].poly, this->planes[j].normal, this->planes[j].d, Mathlib::SIDE_BACK);
         }
     }
 
     this->points.clear();
     for(i=0; i<this->planes.size(); i++)
     {
-        this->planes[i].indices.resize(this->planes[i].poly.points.size());
+        this->planes[i].indices.resize(this->planes[i].poly.size());
         for(j=0; j<this->planes[i].indices.size(); j++)
-            this->planes[i].indices[j] = FindVertex(this->planes[i].poly.points[j]);
+        {
+            this->planes[i].poly[j] = this->planes[i].poly[j].cast<int>().cast<float>();
+            this->planes[i].indices[j] = FindVertex(this->planes[i].poly[j]);
+        }
     }
 }
 
@@ -191,9 +194,9 @@ void Brush::FinalizeVertexEdit(void)
         a = this->points[this->planes[i].indices[1]] - this->points[this->planes[i].indices[0]];
         b = this->points[this->planes[i].indices[2]] - this->points[this->planes[i].indices[0]];
         n = a.cross(b);
-        if(n.squaredNorm() < epsilon)
-            continue;
         n.normalize();
+        if(n.norm() < epsilon)
+            continue;
         d = n.dot(this->points[this->planes[i].indices[0]]);
 
         newplanemapping[i] = newplanes.size();

@@ -159,6 +159,8 @@ void Gui::DrawViewports(float deltatime)
                 mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
                 mousepos.x /= viewportsize.x;
                 mousepos.y /= viewportsize.y;
+                mousepos.x =  (mousepos.x * 2.0 - 1.0);
+                mousepos.y = -(mousepos.y * 2.0 - 1.0);
 
                 for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
                 {

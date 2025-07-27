@@ -15,10 +15,10 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
 
     glBegin(GL_LINES);
 
-    for(i=0; i<this->poly.points.size(); i++)
+    for(i=0; i<this->poly.size(); i++)
     {
-        l[0] = this->poly.points[i];
-        l[1] = this->poly.points[(i+1)%this->poly.points.size()];
+        l[0] = this->poly[i];
+        l[1] = this->poly[(i+1)%this->poly.size()];
         glVertex3f(l[0][0], l[0][1], l[0][2]);
         glVertex3f(l[1][0], l[1][1], l[1][2]);
     }
@@ -48,9 +48,9 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
 
     glBegin(GL_POLYGON);
 
-    for(i=0; i<this->poly.points.size(); i++)
+    for(i=0; i<this->poly.size(); i++)
     {
-        glVertex3f(this->poly.points[i][0], this->poly.points[i][1], this->poly.points[i][2]);
+        glVertex3f(this->poly[i][0], this->poly[i][1], this->poly[i][2]);
     }
 
     glEnd();
@@ -103,12 +103,12 @@ void Plane::UpdateTriplane(void)
 
     int pointstep;
 
-    if(this->poly.points.size() < 3)
+    if(this->poly.size() < 3)
         return;
 
-    pointstep = this->poly.points.size() / 3;
+    pointstep = this->poly.size() / 3;
     for(i=0; i<3; i++)
-        this->triplane[i] = this->poly.points[i * pointstep];
+        this->triplane[i] = this->poly[i * pointstep];
 }
 
 void Plane::UpdateStandard(void)
@@ -141,10 +141,10 @@ bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
         return false;
     p = o + t * d;
 
-    for(i=0; i<this->poly.points.size(); i++)
+    for(i=0; i<this->poly.size(); i++)
     {
-        e[0] = this->poly.points[i];
-        e[1] = this->poly.points[(i + 1) % this->poly.points.size()];
+        e[0] = this->poly[i];
+        e[1] = this->poly[(i + 1) % this->poly.size()];
         edgenormal = (e[1] - e[0]).normalized().cross(this->normal);
         if(edgenormal.dot(p - e[0]) > 0)
             return false;

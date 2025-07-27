@@ -4,8 +4,8 @@
 #include <unordered_set>
 
 #include <Eigen/Dense>
+#include <mathlib.h>
 
-#include "Polygon.h"
 #include "Viewport.h"
 
 class Brush;
@@ -23,7 +23,7 @@ public:
     Eigen::Vector3f triplane[3] = {};
     std::unordered_set<int> triplaneselection;
     std::string texture = "";
-    Polygon poly; // cached, must be updated when brush is updated
+    Mathlib::Poly<3> poly; // cached, must be updated when brush is updated
     std::vector<int> indices; // indices into brush vertices for poly
     std::unordered_set<int> indexselection;
 
