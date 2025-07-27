@@ -2,19 +2,42 @@
 
 #include "Gui.h"
 
+#include <GLFW/glfw3.h>
+
+void errorcallback(int error, const char* description) 
+{
+    printf("GLFW Error: %d: \"%s\".\n", error, description);
+}
+
 int main(int argc, char** argv)
 {
     GLFWwindow *win;
     int w, h;
 
-    glfwInit();
+    glfwSetErrorCallback(errorcallback);
+    printf("GLFW Version: %s\n", glfwGetVersionString());
+    if(!glfwInit())
+    {
+        printf("couldn't initialize glfw.\n");
+        return 1;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     win = glfwCreateWindow(1280, 960, "World Painter 3d", NULL, NULL);
+    if(!win)
+    {
+        printf("couldn't create window.\n");
+        return 1;
+    }
+
     glfwMakeContextCurrent(win);
 
-    glewInit();
+    if(glewInit() != GLEW_OK)
+    {
+        printf("couldn't initialize glew.\n");
+        return 1;
+    }
     if (!GLEW_EXT_framebuffer_object)
     {
         printf("couldnt enable fbo extension\n");

@@ -200,7 +200,7 @@ void Brush::FinalizeVertexEdit(void)
         d = n.dot(this->points[this->planes[i].indices[0]]);
 
         newplanemapping[i] = newplanes.size();
-        newplanes.push_back({});
+        newplanes.push_back(Plane());
         pl = &newplanes.back();
         *pl = this->planes[i];
         pl->normal = n;

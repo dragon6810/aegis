@@ -78,4 +78,6 @@ bool WalkAgent::ConstructPath(Eigen::Vector3f start, Eigen::Vector3f end)
     this->curpath.anchors[1].pos = endnode->center;
     this->curpath.anchors[1].node = endnode;
     */
+
+    return true;
 }

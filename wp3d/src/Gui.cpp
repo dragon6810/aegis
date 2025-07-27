@@ -1,5 +1,6 @@
 #include "Gui.h"
 
+#include <chrono>
 #include <string>
 
 #include <imgui.h>
@@ -23,7 +24,6 @@ void Gui::Setup(GLFWwindow* win)
     io.Fonts->AddFontFromFileTTF("resource/OpenSans-Regular.ttf");
 
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
     ApplyStyle();
     
     ImGui_ImplGlfw_InitForOpenGL(win, true);

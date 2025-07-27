@@ -19,9 +19,6 @@ if (APPLE)
     find_package(GLFW3 REQUIRED)
     
     target_link_libraries(imgui PRIVATE
-        #glm
-        #glew 
-        #GLEW::GLEW
         glfw
         "-framework OpenGL"
     )
@@ -37,10 +34,7 @@ elseif (UNIX)
 
     target_link_libraries(imgui PRIVATE
         glm
-        #glew
-        imgui
         OpenGL::GL
-        #GLEW::GLEW
         ${GLFW3_LIBRARIES}
     )
 endif()
