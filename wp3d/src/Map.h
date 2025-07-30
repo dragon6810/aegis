@@ -42,6 +42,7 @@ private:
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
+    void DrawTriplane(const Viewport& view);
     void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
 public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
@@ -50,7 +51,11 @@ public:
     unsigned int gridlevel = 4; // 0 to max_grid_level
 
     int nbrushcorners = 0;
-    Eigen::Vector3i brushcorners[2]; // once both corners are placed, it will be [min, max]
+    Eigen::Vector3i brushcorners[2];
+    int ntriplane = 0;
+    bool drawingtriplane = false;
+    Eigen::Vector3f triplane[3];
+    std::unordered_set<int> triplaneselection;
     tooltype_e tool;
     selectiontype_e selectiontype;
 
@@ -61,6 +66,7 @@ public:
     void KeyDown(Viewport& view, ImGuiKey key, float deltatime);
     void KeyPress(Viewport& view, ImGuiKey key);
     void Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button);
+    void MouseUpdate(const Viewport& view, const Eigen::Vector2f& mousepos);
     void Render(const Viewport& view);
 
     void NewMap(void);

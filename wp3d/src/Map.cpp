@@ -395,6 +395,68 @@ void Map::DrawWorkingBrush(const Viewport& view)
     }
 }
 
+void Map::DrawTriplane(const Viewport& view)
+{
+    int i;
+
+    Eigen::Vector3f n;
+    float d;
+    Mathlib::Poly<3> poly;
+
+    if(!this->ntriplane)
+        return;
+
+    glPointSize(4.0);
+    glBegin(GL_POINTS);
+    for(i=0; i<this->ntriplane; i++)
+    {
+        if(this->triplaneselection.contains(i))
+            glColor3f(1, 0, 0);
+        else
+            glColor3f(1, 1, 0);
+        glVertex3f(this->triplane[i][0], this->triplane[i][1], this->triplane[i][2]);
+    }
+    glEnd();
+
+    if(this->ntriplane < 3)
+        return;
+
+    n = (this->triplane[1] - this->triplane[0]).cross(this->triplane[2] - this->triplane[0]);
+    n.normalize();
+    d = n.dot(this->triplane[0]);
+    poly = Mathlib::FromPlane(n, d, Map::max_map_size);
+    if(view.type == Viewport::FREECAM)
+    {
+        glColor4f(1, 1, 0, 0.5);
+        glEnable(GL_ALPHA_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_CULL_FACE);
+
+        glBegin(GL_POLYGON);
+        for(i=0; i<poly.size(); i++)
+            glVertex3f(poly[i][0], poly[i][1], poly[i][2]);
+        glEnd();
+
+        glColor4f(1, 1, 1, 1);
+        glDisable(GL_ALPHA_TEST);
+        glEnable(GL_CULL_FACE);
+    }
+    else
+    {
+        glColor3f(1, 1, 0);
+
+        glBegin(GL_LINES);
+        for(i=0; i<poly.size(); i++)
+        {
+            glVertex3f(poly[i][0], poly[i][1], poly[i][2]);
+            glVertex3f(poly[(i+1)%poly.size()][0], poly[(i+1)%poly.size()][1], poly[(i+1)%poly.size()][2]);
+        }
+        glEnd();
+
+        glColor3f(1, 1, 1);
+    }
+}
+
 void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
 {
     int i;
@@ -557,14 +619,17 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
 void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button)
 {
+    const float pixelradius = 2.0;
+
     int i, j;
 
-    Eigen::Vector3f basis[3], clickpos, o, r;
+    Eigen::Vector3f basis[3], p, clickpos, o, r;
     Eigen::Vector2f camplane;
     int icorner;
     int realgridsize;
     float curdist, bestdist;
     int bestent;
+    float viewheight, worldradius;
 
     switch(this->tool)
     {
@@ -607,6 +672,63 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         }
 
         break;
+    case TOOL_PLANE:
+        if(!this->drawingtriplane && !this->ntriplane)
+        {
+            if(view.type == Viewport::FREECAM)
+                break;
+
+            view.GetViewBasis(basis);
+            basis[2] *= view.zoom;
+            basis[1] *= view.zoom * (float) view.canvassize[0] / (float) view.canvassize[1];
+            realgridsize = 1 << this->gridlevel;
+            p = view.pos + mousepos[0] * basis[1] + mousepos[1] * basis[2];
+            p[view.type] = 0;
+            for(i=0; i<3; i++)
+                p[i] = (roundf(p[i] / realgridsize)) * realgridsize;
+            this->triplane[0] = this->triplane[2] = p;
+            r = Eigen::Vector3f::Zero();
+            r[view.type] = 1 << this->gridlevel;
+            this->triplane[1] = this->triplane[0] + r;
+            this->ntriplane = 3;
+            this->drawingtriplane = true;
+        }
+        else if(this->drawingtriplane)
+        {
+            if(view.type == Viewport::FREECAM)
+                break;
+            this->drawingtriplane = false;
+        }
+        else
+        {
+            view.GetRay(mousepos, &o, &r);
+            if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+                this->triplaneselection.clear();
+
+            view.GetViewBasis(basis);
+            if(view.type == Viewport::FREECAM)
+                viewheight = tanf(DEG2RAD(view.fov) / 2.0) * 2.0;
+            else
+                viewheight = view.zoom * 2.0;
+
+            for(i=0; i<this->ntriplane; i++)
+            {
+                worldradius = pixelradius / (float) view.canvassize[1] * viewheight;
+
+                if(view.type == Viewport::FREECAM)
+                    worldradius *= (this->triplane[i] - view.pos).dot(basis[0]);
+
+                if(!Mathlib::RayCuboid(o, r, this->triplane[i], worldradius).hit)
+                    continue;
+
+                if(!this->triplaneselection.contains(i))
+                    this->triplaneselection.insert(i);
+                else
+                    this->triplaneselection.erase(i);
+            }
+        }
+
+        break;
     case TOOL_BRUSH:
         if(view.type == Viewport::FREECAM)
             return;
@@ -633,6 +755,36 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         for(i=0; i<3; i++)
             this->brushcorners[icorner][i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
         
+        break;
+    }
+}
+
+void Map::MouseUpdate(const Viewport& view, const Eigen::Vector2f& mousepos)
+{
+    int i;
+
+    Eigen::Vector3f basis[3], p;
+    int realgridsize;
+
+    switch(this->tool)
+    {
+    case TOOL_PLANE:
+        if(!this->drawingtriplane)
+            break;
+        
+        if(view.type == Viewport::FREECAM)
+            break;
+
+        view.GetViewBasis(basis);
+        basis[2] *= view.zoom;
+        basis[1] *= view.zoom * (float) view.canvassize[0] / (float) view.canvassize[1];
+        realgridsize = 1 << this->gridlevel;
+        p = view.pos + mousepos[0] * basis[1] + mousepos[1] * basis[2];
+        p[view.type] = 0;
+        for(i=0; i<3; i++)
+            p[i] = (roundf(p[i] / realgridsize)) * realgridsize;
+        this->triplane[2] = p;
+
         break;
     }
 }
@@ -669,6 +821,7 @@ void Map::Render(const Viewport& view)
         this->entities[i].Draw(view, i, *this);
 
     DrawWorkingBrush(view);
+    DrawTriplane(view);
 
     glColor3f(1, 1, 1);
 

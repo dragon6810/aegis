@@ -14,8 +14,8 @@ Mathlib::hitresult_t Mathlib::RayCuboid(Eigen::Vector3f o, Eigen::Vector3f r, Ei
 
     bb[0] = cuboid - cuboidradius * Eigen::Vector3f::Ones();
     bb[1] = cuboid + cuboidradius * Eigen::Vector3f::Ones();
-    tbounds[0] = INFINITY;
-    tbounds[1] = -INFINITY;
+    tbounds[0] = -INFINITY;
+    tbounds[1] = INFINITY;
 
     for(i=0; i<3; i++)
     {

@@ -162,6 +162,8 @@ void Gui::DrawViewports(float deltatime)
                 mousepos.x =  (mousepos.x * 2.0 - 1.0);
                 mousepos.y = -(mousepos.y * 2.0 - 1.0);
 
+                this->map.MouseUpdate(this->viewports[i], Eigen::Vector2f(mousepos[0], mousepos[1]));
+
                 for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
                 {
                     if (!ImGui::IsMouseClicked(j))
