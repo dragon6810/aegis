@@ -24,6 +24,15 @@ TEST(RAD2DEGTests, NominalTests)
     EXPECT_NEAR(RAD2DEG(4.97419), 285, 0.01);
 }
 
+TEST(SIGNTests, NominalTests)
+{
+    EXPECT_EQ(SIGN(0), 0);
+    EXPECT_EQ(SIGN(-1), -1);
+    EXPECT_EQ(SIGN(1), 1);
+    EXPECT_EQ(SIGN(-31), -1);
+    EXPECT_EQ(SIGN(16), 1);
+}
+
 TEST(RAD2DEGTests, OutOfBoundsTests)
 {
     EXPECT_NEAR(RAD2DEG( -0.610865), -35, 0.01);

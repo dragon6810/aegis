@@ -84,7 +84,7 @@ void Brush::DrawVertexPreview(const Map& map)
 
 void Brush::MakeFaces(void)
 {
-    const float epsilon = 0.1;
+    const float epsilon = 0.01;
 
     int i, j, k;
 
@@ -108,7 +108,7 @@ void Brush::MakeFaces(void)
         for(j=0; j<this->planes[i].indices.size(); j++)
         {
             for(k=0; k<3; k++)
-                this->planes[i].poly[j][k] = (int) (this->planes[i].poly[j][k] + epsilon);
+                this->planes[i].poly[j][k] = (int) (this->planes[i].poly[j][k] + epsilon * SIGN(this->planes[i].poly[j][k]));
             this->planes[i].indices[j] = FindVertex(this->planes[i].poly[j]);
         }
     }

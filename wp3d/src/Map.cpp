@@ -161,6 +161,8 @@ void Map::FinalizeBrush(void)
             bb[1][i] = brushcorners[1][i];
     }
 
+    //printf("bb: ( %f %f %f ), ( %f %f %f )\n", bb[0][0], bb[0][1], bb[0][2], bb[1][0], bb[1][1], bb[1][2]);
+
     this->entities[0].brushes.push_back({});
     br = &this->entities[0].brushes.back();
     br->planes.resize(6);
