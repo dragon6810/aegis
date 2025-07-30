@@ -186,9 +186,61 @@ void Map::FinalizeBrush(void)
 
 void Map::FinalizePlane(void)
 {
+    int i, j;
+    Entity *ent;
+
+    Eigen::Vector3f n;
+    float d;
+    bool pointent;
+    std::unordered_set<int> newentselection, newbrselection;
+    std::vector<Entity> newents;
+    std::vector<Brush> newbrs;
+
     if(this->ntriplane != 3)
         return;
-    
+
+    n = (this->triplane[1] - this->triplane[0]).cross(this->triplane[2] - this->triplane[0]);
+    n.normalize();
+    d = n.dot(this->triplane[0]);
+
+    newentselection.clear();
+    newents.clear();
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        pointent = !ent->brushes.size();
+
+        newbrselection.clear();
+        newbrs.clear();
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            ent->brushes[j].AddPlane(n, d);
+            if(!ent->brushes[j].points.size())
+                continue;
+
+            if(ent->brselection.contains(j))
+                newbrselection.insert(newbrs.size());
+            newbrs.push_back(ent->brushes[j]);
+        }
+        ent->brselection = newbrselection;
+        ent->brushes = newbrs;
+
+        if(ent->brushes.size() || pointent || (ent->pairs.contains("classname") && ent->pairs["classname"] == "worldspawn"))
+        {
+            if(this->entselection.contains(i))
+                this->entselection.insert(newents.size());
+            newents.push_back(*ent);
+        }
+    }
+    this->entselection = newentselection;
+    this->entities = newents;
+
     this->ntriplane = 0;
     this->drawingtriplane = false;
 }
@@ -537,6 +589,8 @@ void Map::SwitchTool(tooltype_e type)
     this->nbrushcorners = 0;
     this->ntriplane = 0;
     this->drawingtriplane = false;
+    if(type == TOOL_PLANE && this->selectiontype == SELECT_PLANE)
+        this->selectiontype = SELECT_BRUSH;
     this->tool = type;
 }
 

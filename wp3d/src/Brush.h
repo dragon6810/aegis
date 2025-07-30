@@ -23,6 +23,7 @@ public:
     bool geometryvalid = true; // is the current points array convex?
 
     void MakeFaces(void);
+    void AddPlane(Eigen::Vector3f n, float d);
     void UpdateGeometryValid(void);
     void FinalizeVertexEdit(void);
     bool RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);

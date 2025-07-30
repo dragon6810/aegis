@@ -87,6 +87,8 @@ void Brush::MakeFaces(void)
     const float epsilon = 0.01;
 
     int i, j, k;
+    
+    std::vector<Plane> newplanes;
 
     for(i=0; i<this->planes.size(); i++)
     {
@@ -112,6 +114,26 @@ void Brush::MakeFaces(void)
             this->planes[i].indices[j] = FindVertex(this->planes[i].poly[j]);
         }
     }
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(this->planes[i].poly.size() >= 3)
+            newplanes.push_back(this->planes[i]);
+    }
+
+    this->planes = newplanes;
+}
+
+void Brush::AddPlane(Eigen::Vector3f n, float d)
+{
+    Plane p;
+
+    p = Plane();
+    p.normal = n;
+    p.d = d;
+
+    this->planes.push_back(p);
+    this->MakeFaces();
 }
 
 void Brush::UpdateGeometryValid(void)
