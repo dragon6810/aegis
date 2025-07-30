@@ -56,47 +56,6 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
     glEnd();
 }
 
-bool Plane::PointRay(Eigen::Vector3f o, Eigen::Vector3f r, Eigen::Vector3f p)
-{
-    const float epsilon = 0.01;
-    const float pointradius = 0.5;
-
-    int i, j;
-
-    Eigen::Vector3f bb[2];
-    float t[2], bestt[2];
-
-    bb[0] = p - Eigen::Vector3f::Ones() * pointradius;
-    bb[1] = p + Eigen::Vector3f::Ones() * pointradius;
-
-    bestt[0] = -INFINITY;
-    bestt[1] = INFINITY;
-    for(i=0; i<3; i++)
-    {
-        if (fabs(r[i]) < epsilon)
-        {
-            if (o[i] < bb[0][i] || o[i] > bb[1][i])
-                return false;
-            continue;
-        }
-
-        for(j=0; j<2; j++)
-            t[j] = (bb[j][i] - o[i]) / r[i];
-        if(t[0] > t[1])
-            std::swap(t[0], t[1]);
-        
-        if(t[0] > bestt[0])
-            bestt[0] = t[0];
-        if(t[1] < bestt[1])
-            bestt[1] = t[1];
-
-        if(bestt[0] > bestt[1])
-            return false;
-    }
-
-    return true;
-}
-
 void Plane::UpdateTriplane(void)
 {
     int i;
@@ -172,13 +131,13 @@ void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
     const float pointradius = 0.5;
 
     int i;
-
     if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
         this->triplaneselection.clear();
 
     for(i=0; i<3; i++)
     {
-        if(!PointRay(o, r, this->triplane[i]))
+
+        if(!Mathlib::RayCuboid(o, r, this->triplane[i], pointradius).hit)
             continue;
 
         if(!this->triplaneselection.contains(i))
@@ -188,16 +147,33 @@ void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
     }
 }
 
-void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush)
+void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, const Viewport& view)
 {
+    const float pixelradius = 2.0;
+
     int i;
+
+    float worldradius;
+    Eigen::Vector3f basis[3];
+    float viewheight;
+
+    view.GetViewBasis(basis);
+    if(view.type == Viewport::FREECAM)
+        viewheight = tanf(DEG2RAD(view.fov) / 2.0) * 2.0;
+    else
+        viewheight = view.zoom * 2.0;
 
     if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
         this->indexselection.clear();
 
     for(i=0; i<this->indices.size(); i++)
     {
-        if(!PointRay(o, r, brush.points[this->indices[i]]))
+        worldradius = pixelradius / (float) view.canvassize[1] * viewheight;
+
+        if(view.type == Viewport::FREECAM)
+            worldradius *= (brush.points[this->indices[i]] - view.pos).dot(basis[0]);
+
+        if(!Mathlib::RayCuboid(o, r, brush.points[this->indices[i]], worldradius).hit)
             continue;
 
         if(!this->indexselection.contains(i))

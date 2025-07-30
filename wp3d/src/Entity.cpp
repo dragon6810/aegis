@@ -54,7 +54,7 @@ void Entity::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map
     }
 }
 
-void Entity::SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+void Entity::SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view)
 {
     int i;
 
@@ -63,7 +63,7 @@ void Entity::SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
         if(map.selectiontype == Map::SELECT_BRUSH && !this->brselection.contains(i))
             continue;
 
-        this->brushes[i].SelectVerts(o, r, map);
+        this->brushes[i].SelectVerts(o, r, map, view);
     }
 }
 

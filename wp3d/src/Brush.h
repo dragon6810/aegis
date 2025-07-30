@@ -28,6 +28,6 @@ public:
     bool RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map);
     void SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map);
-    void SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map);
+    void SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view);
     void Draw(const Viewport& view, int index, int ent, Map& map);
 };

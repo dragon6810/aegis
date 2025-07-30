@@ -688,7 +688,7 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         {
             if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
                 continue;
-            entities[i].SelectVertex(o, r, *this);
+            entities[i].SelectVertex(o, r, *this, view);
         }
 
         break;

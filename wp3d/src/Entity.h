@@ -16,7 +16,7 @@ public:
     
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, Map& map);
     void SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map);
-    void SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map);
+    void SelectVertex(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view);
     bool RayIntersects(Eigen::Vector3f o, Eigen::Vector3f r, float* dist);
     void Draw(const Viewport& view, int index, Map& map);
 };

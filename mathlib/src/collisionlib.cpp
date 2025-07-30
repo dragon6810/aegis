@@ -56,6 +56,7 @@ Mathlib::hitresult_t Mathlib::RayCuboid(Eigen::Vector3f o, Eigen::Vector3f r, Ei
         return result;
     }
 
+    result.hit = true;
     result.pos = o + r * tbounds[0];
     return result;
 }

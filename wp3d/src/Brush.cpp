@@ -69,6 +69,7 @@ void Brush::DrawVertexPreview(const Map& map)
     }
     glEnd();
 
+    glPointSize(4.0);
     glBegin(GL_POINTS);
     for(pit=activepoints.begin(); pit!=activepoints.end(); pit++)
     {
@@ -83,7 +84,9 @@ void Brush::DrawVertexPreview(const Map& map)
 
 void Brush::MakeFaces(void)
 {
-    int i, j;
+    const float epsilon = 0.1;
+
+    int i, j, k;
 
     for(i=0; i<this->planes.size(); i++)
     {
@@ -104,7 +107,8 @@ void Brush::MakeFaces(void)
         this->planes[i].indices.resize(this->planes[i].poly.size());
         for(j=0; j<this->planes[i].indices.size(); j++)
         {
-            this->planes[i].poly[j] = this->planes[i].poly[j].cast<int>().cast<float>();
+            for(k=0; k<3; k++)
+                this->planes[i].poly[j][k] = (int) (this->planes[i].poly[j][k] + epsilon);
             this->planes[i].indices[j] = FindVertex(this->planes[i].poly[j]);
         }
     }
@@ -293,7 +297,7 @@ void Brush::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
     }
 }
 
-void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view)
 {
     int i;
     std::unordered_set<int>::iterator it;
@@ -306,7 +310,7 @@ void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
         if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
             this->planes[i].indexselection.clear();
 
-        this->planes[i].SelectVerts(o, r, *this);
+        this->planes[i].SelectVerts(o, r, *this, view);
     }
 
     this->pointselection.clear();
