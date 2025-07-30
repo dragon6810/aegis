@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# third-party
+# Third-party
 add_subdirectory(thirdparty/glew)
 add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/SFML)
@@ -16,10 +16,19 @@ add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/googletest)
 
-# libraries
+# Libraries
 add_subdirectory(mathlib)
 
-# results
-add_subdirectory(tests)
-add_subdirectory(engine)
-add_subdirectory(wp3d)
+# Executables
+set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "tests")
+    add_subdirectory(tests)
+endif()
+
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "engine")
+    add_subdirectory(engine)
+endif()
+
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "wp3d")
+    add_subdirectory(wp3d)
+endif()

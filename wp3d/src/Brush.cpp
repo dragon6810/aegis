@@ -61,7 +61,7 @@ void Brush::DrawVertexPreview(const Map& map)
     if(this->geometryvalid)
         glColor3f(1, 1, 0);
     else
-        glColor3f(1, 0, 0);
+        glColor3f(0, 0, 1);
     for(eit=edges.begin(); eit!=edges.end(); eit++)
     {
         glVertex3f(this->points[std::get<0>(*eit)][0], this->points[std::get<0>(*eit)][1], this->points[std::get<0>(*eit)][2]);
@@ -279,22 +279,6 @@ void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map
         return;
 
     this->planes[bestplane].Select(o, r, bestplane, index, ent, map);
-}
-
-void Brush::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
-{
-    int i;
-
-    for(i=0; i<this->planes.size(); i++)
-    {
-        if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
-            continue;
-
-        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
-            this->planes[i].triplaneselection.clear();
-
-        this->planes[i].SelectTriplane(o, r);
-    }
 }
 
 void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view)

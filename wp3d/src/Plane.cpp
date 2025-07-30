@@ -56,33 +56,6 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
     glEnd();
 }
 
-void Plane::UpdateTriplane(void)
-{
-    int i;
-
-    int pointstep;
-
-    if(this->poly.size() < 3)
-        return;
-
-    pointstep = this->poly.size() / 3;
-    for(i=0; i<3; i++)
-        this->triplane[i] = this->poly[i * pointstep];
-}
-
-void Plane::UpdateStandard(void)
-{
-    int i;
-
-    Eigen::Vector3f e[2];
-
-    for(i=0; i<2; i++)
-        e[i] = this->triplane[i+1] - this->triplane[0];
-    this->normal = e[0].cross(e[1]);
-    this->normal.normalize();
-    this->d = this->normal.dot(this->triplane[0]);
-}
-
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 {
     int i;
@@ -124,27 +97,6 @@ void Plane::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, i
         selection->insert(index);
     else
         selection->erase(index);
-}
-
-void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
-{
-    const float pointradius = 0.5;
-
-    int i;
-    if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
-        this->triplaneselection.clear();
-
-    for(i=0; i<3; i++)
-    {
-
-        if(!Mathlib::RayCuboid(o, r, this->triplane[i], pointradius).hit)
-            continue;
-
-        if(!this->triplaneselection.contains(i))
-            this->triplaneselection.insert(i);
-        else
-            this->triplaneselection.erase(i);
-    }
 }
 
 void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, const Viewport& view)
@@ -208,22 +160,6 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
         this->DrawWire(view, selected);
     else
         this->DrawShaded(view, selected);
-
-    if(selected && map.tool == Map::TOOL_PLANE)
-    {
-        glBegin(GL_POINTS);
-        
-        for(i=0; i<3; i++)
-        {
-            if(!this->triplaneselection.contains(i))
-                glColor3f(1, 1, 0);
-            else
-                glColor3f(1, 0, 0);
-            glVertex3f(this->triplane[i][0], this->triplane[i][1], this->triplane[i][2]);
-        }
-        
-        glEnd();
-    }
 
     if(selected && map.tool == Map::TOOL_VERTEX)
         map.entities[ent].brushes[brush].drawvertexpreview = true;
