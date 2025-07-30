@@ -406,11 +406,12 @@ void Map::DrawWorkingBrush(const Viewport& view)
 
 void Map::DrawTriplane(const Viewport& view)
 {
-    int i;
+    int i, j;
 
-    Eigen::Vector3f n;
+    Eigen::Vector3f n, v[2];
     float d;
     Mathlib::Poly<3> poly;
+    Eigen::Vector3f bb[2];
 
     if(!this->ntriplane)
         return;
@@ -464,6 +465,28 @@ void Map::DrawTriplane(const Viewport& view)
 
         glColor3f(1, 1, 1);
     }
+
+    for(i=0; i<this->ntriplane; i++)
+    {
+        for(j=0; j<3; j++)
+        {
+            if(!i || this->triplane[i][j] < bb[0][j])
+                bb[0][j] = this->triplane[i][j];
+            if(!i || this->triplane[i][j] > bb[1][j])
+                bb[1][j] = this->triplane[i][j];
+        }
+    }
+    v[0] = (bb[0] + bb[1]) / 2.0;
+    v[1] = v[0] + n * 32.0;
+
+    glBegin(GL_LINES);
+    glColor3f(1, 1, 0);
+
+    glVertex3f(v[0][0], v[0][1], v[0][2]);
+    glVertex3f(v[1][0], v[1][1], v[1][2]);
+
+    glColor3f(1, 1, 1);
+    glEnd();
 }
 
 void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
@@ -555,6 +578,7 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
     Eigen::Vector3f basis[3], add;
     float gridsize;
+    std::unordered_set<int> newselection;
 
     // so that we dont get messed up by tool hotkeys
     if(ImGui::GetIO().KeyShift)
@@ -609,6 +633,22 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizeVertexEdit();
         if(tool == TOOL_PLANE)
             this->FinalizePlane();
+
+        break;
+    case ImGuiKey_F:
+        if(tool == TOOL_PLANE)
+        {
+            std::swap(this->triplane[0], this->triplane[this->ntriplane-1]);
+            newselection.clear();
+            for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
+            {
+                if(*it > this->ntriplane)
+                    newselection.insert(*it);
+                else
+                    newselection.insert(this->ntriplane - 1 - *it);
+            }
+            this->triplaneselection = newselection;
+        }
 
         break;
     case ImGuiKey_UpArrow:
