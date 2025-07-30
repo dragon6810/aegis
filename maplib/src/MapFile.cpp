@@ -57,20 +57,240 @@ bool Maplib::MapFile::Write(std::string path)
 
 Maplib::MapFile Maplib::MapFile::Load(std::string path)
 {
-    int i;
+    int i, j;
+    Parselib::Tokenizer::token_t *tkn;
 
     MapFile map;
     Parselib::Tokenizer tknizer;
     entity_t ent;
     brush_t br;
     plane_t pl;
+    std::string key, val;
+    std::string cur;
 
     map = MapFile();
 
     tknizer.EatFile(path.c_str());
-    for(i=0; i<tknizer.tokens.size(); i++)
+    
+    tkn = tknizer.tokens.data();
+    while(tkn <= &tknizer.tokens.back())
     {
-        printf("token: \"%s\".\n", tknizer.tokens[i].val.c_str());
+        ent = {};
+
+        if(tkn->val != "{")
+        {
+            fprintf(stderr, "Maplib::MapFile::Load: expected entity definition.\n");
+            return map;
+        }
+        tkn++;
+        if(tkn > &tknizer.tokens.back())
+        {
+            fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+            return map;
+        }
+
+        while(tkn->type == Parselib::Tokenizer::TOKEN_STRING)
+        {
+            key = tkn->val;
+            key.erase(0, 1);
+            key.pop_back();
+            tkn++;
+            if(tkn > &tknizer.tokens.back())
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                return map;
+            }
+
+            if(tkn->val != ":")
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: expected ':' after entity key.\n");
+                return map;
+            }
+            tkn++;
+            if(tkn > &tknizer.tokens.back())
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                return map;
+            }
+
+            if(tkn->type != Parselib::Tokenizer::TOKEN_STRING)
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: expected ':' after entity key.\n");
+                return map;
+            }
+            val = tkn->val;
+            val.erase(0, 1);
+            val.pop_back();
+            tkn++;
+            if(tkn > &tknizer.tokens.back())
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                return map;
+            }
+
+            ent.keys[key] = val;
+        }
+
+        while(tkn->val == "{")
+        {
+            br = {};
+
+            tkn++;
+            if(tkn > &tknizer.tokens.back())
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                return map;
+            }
+
+            while(tkn->val == "(")
+            {
+                pl = {};
+
+                for(i=0; i<3; i++)
+                {
+                    if(tkn->val != "(")
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: expected vector definition.\n");
+                        return map;
+                    }
+                    tkn++;
+                    if(tkn > &tknizer.tokens.back())
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                        return map;
+                    }
+
+                    for(j=0; j<3; j++)
+                    {
+                        if(tkn->type != Parselib::Tokenizer::TOKEN_NUMBER)
+                        {
+                            fprintf(stderr, "Maplib::MapFile::Load: expected vector entry.\n");
+                            return map;
+                        }
+
+                        pl.triplane[i][j] = std::stoi(tkn->val);
+                        tkn++;
+                        if(tkn > &tknizer.tokens.back())
+                        {
+                            fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                            return map;
+                        }
+                    }
+
+                    if(tkn->val != ")")
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: expected vector closure.\n");
+                        return map;
+                    }
+                    tkn++;
+                    if(tkn > &tknizer.tokens.back())
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                        return map;
+                    }
+                }
+
+                for(i=0; i<2; i++)
+                {
+                    if(tkn->val != "[")
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: expected vector definition.\n");
+                        return map;
+                    }
+                    tkn++;
+                    if(tkn > &tknizer.tokens.back())
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                        return map;
+                    }
+
+                    for(j=0; j<3; j++)
+                    {
+                        if(tkn->type != Parselib::Tokenizer::TOKEN_NUMBER)
+                        {
+                            fprintf(stderr, "Maplib::MapFile::Load: expected vector entry.\n");
+                            return map;
+                        }
+
+                        pl.texbasis[i][j] = std::stof(tkn->val);
+                        tkn++;
+                        if(tkn > &tknizer.tokens.back())
+                        {
+                            fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                            return map;
+                        }
+                    }
+
+                    if(tkn->type != Parselib::Tokenizer::TOKEN_NUMBER)
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: expected vector entry.\n");
+                        return map;
+                    }
+
+                    pl.texoffs[i] = std::stof(tkn->val);
+                    tkn++;
+                    if(tkn > &tknizer.tokens.back())
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                        return map;
+                    }
+
+                    if(tkn->val != "]")
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: expected vector closure.\n");
+                        return map;
+                    }
+                    tkn++;
+                    if(tkn > &tknizer.tokens.back())
+                    {
+                        fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                        return map;
+                    }
+                }
+
+                if(tkn->type != Parselib::Tokenizer::TOKEN_STRING)
+                {
+                    fprintf(stderr, "Maplib::MapFile::Load: expected string.\n");
+                    return map;
+                }
+
+                cur = tkn->val;
+                cur.erase(0, 1);
+                cur.pop_back();
+                pl.texname = cur;
+                tkn++;
+                if(tkn > &tknizer.tokens.back())
+                {
+                    fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                    return map;
+                }
+
+                br.planes.push_back(pl);
+            }
+
+            if(tkn->val != "}")
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: expected plane definition or brush closure.\n");
+                return map;
+            }
+            tkn++;
+            if(tkn > &tknizer.tokens.back())
+            {
+                fprintf(stderr, "Maplib::MapFile::Load: unexpected EOF.\n");
+                return map;
+            }
+
+            ent.brushes.push_back(br);
+        }
+
+        if(tkn->val != "}")
+        {
+            fprintf(stderr, "Maplib::MapFile::Load: expected key definition, brush definition, or entity definition closure.\n");
+            return map;
+        }
+        tkn++;
+
+        map.ents.push_back(ent);
     }
 
     return map;
