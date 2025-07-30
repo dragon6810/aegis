@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
+#include <ImGuiFileDialog.h>
 
 #include "Map.h"
 
@@ -87,6 +88,48 @@ void Gui::ApplyStyle(void)
 void Gui::ViewportInput(void)
 {
 
+}
+
+void Gui::DrawMenuBar(void)
+{
+    IGFD::FileDialogConfig config;
+
+    if (ImGui::BeginMainMenuBar()) 
+    {
+        if (ImGui::BeginMenu("File")) 
+        {
+            if (ImGui::MenuItem("New", "Ctrl+N")) 
+            {
+                map.NewMap();
+            }
+            if (ImGui::MenuItem("Save", "Ctrl+S"))
+            {
+                if(map.path == "")
+                {
+                    config = {};
+                    config.path = ".";
+		            ImGuiFileDialog::Instance()->OpenDialog("SaveMapFileKey", "Choose Map File", ".map", config);
+                }
+                else
+                {
+                    this->map.Save();
+                }
+            }
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    if (ImGuiFileDialog::Instance()->Display("SaveMapFileKey"))
+    {
+        if (ImGuiFileDialog::Instance()->IsOk())
+            this->map.path = ImGuiFileDialog::Instance()->GetFilePathName();
+        
+        this->map.Save();
+
+        ImGuiFileDialog::Instance()->Close();
+    }
 }
 
 void Gui::DrawViewports(float deltatime)
@@ -296,19 +339,7 @@ void Gui::Draw()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (ImGui::BeginMainMenuBar()) 
-    {
-        if (ImGui::BeginMenu("File")) 
-        {
-            if (ImGui::MenuItem("New", "Ctrl+N")) 
-            {
-                map.NewMap();
-            }
-
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
+    this->DrawMenuBar();
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 

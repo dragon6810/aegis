@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <maplib.h>
+
 void Map::SetupFrame(const Viewport& view)
 {
     Eigen::Vector3f pos, basis[3];
@@ -971,4 +973,54 @@ void Map::NewMap(void)
 
     this->SwitchTool(TOOL_SELECT);
     this->selectiontype = SELECT_BRUSH;
+}
+
+void Map::Save(void)
+{
+    int i;
+
+    int e, b, p;
+    Entity *ent;
+    Brush *br;
+    Plane *pl;
+
+    Maplib::MapFile file;
+    Maplib::entity_t *fent;
+    Maplib::brush_t *fbr;
+    Maplib::plane_t *fpl;
+    
+    file.ents.resize(this->entities.size());
+    for(e=0, ent=this->entities.data(); e<this->entities.size(); e++, ent++)
+    {
+        fent = &file.ents[e];
+        fent->keys = ent->pairs;
+
+        fent->brushes.resize(ent->brushes.size());
+        for(b=0, br=ent->brushes.data(); b<ent->brushes.size(); b++, br++)
+        {
+            fbr = &fent->brushes[b];
+
+            for(p=0, pl=br->planes.data(); p<br->planes.size(); p++, pl++)
+            {
+                if(pl->poly.size() < 3)
+                    continue;
+
+                fbr->planes.push_back({});
+                fpl = &fbr->planes.back();
+
+                for(i=0; i<3; i++)
+                    fpl->triplane[i] = pl->poly[i * (pl->poly.size() / 3)].cast<int>();
+
+                for(i=0; i<2; i++)
+                {
+                    fpl->texbasis[i] = Eigen::Vector3f(0, 0, 0);
+                    fpl->texoffs[i] = 0;
+                }
+
+                fpl->texname = "";
+            }
+        }
+    }
+
+    file.Write(this->path);
 }

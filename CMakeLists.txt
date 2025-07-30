@@ -14,6 +14,7 @@ add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/SFML)
 add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
+add_subdirectory(thirdparty/filedialog)
 add_subdirectory(thirdparty/googletest)
 
 # Libraries

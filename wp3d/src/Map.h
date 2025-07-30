@@ -60,6 +60,8 @@ public:
     tooltype_e tool;
     selectiontype_e selectiontype;
 
+    std::string path = "";
+
     std::vector<Entity> entities;
     std::unordered_set<int> entselection;
 
@@ -71,4 +73,5 @@ public:
     void Render(const Viewport& view);
 
     void NewMap(void);
+    void Save(void);
 };
