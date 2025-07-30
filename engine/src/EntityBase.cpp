@@ -50,4 +50,6 @@ Eigen::Vector3f EntityBase::LoadEuler(const std::unordered_map <std::string, std
 	game[0] = ent[2];
 	game[1] = -ent[0];
 	game[2] = ent[1];
+
+	return game;
 }

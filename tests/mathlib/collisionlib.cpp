@@ -30,6 +30,7 @@ TEST(RayCuboidTests, MissTests)
     o = Eigen::Vector3f(16, 0, 0);
     r = Eigen::Vector3f(1, 0, 0);
     radius = 1.0;
+    cube = Eigen::Vector3f(0.0, 0.0, 0.0);
     expect = { false, Eigen::Vector3f(0, 0, 0), Eigen::Vector3f(0, 0, 0) };
     out = Mathlib::RayCuboid(o, r, cube, radius);
     EXPECT_TRUE(testhitresult(out, expect));
@@ -43,8 +44,17 @@ TEST(RayCuboidTests, NominalTests)
 
     o = Eigen::Vector3f(16, 0, 0);
     r = Eigen::Vector3f(-1, 0, 0);
+    cube = Eigen::Vector3f(0.0, 0.0, 0.0);
     radius = 1.0;
-    expect = { false, Eigen::Vector3f(1, 0, 0), Eigen::Vector3f(1, 0, 0) };
+    expect = { true, Eigen::Vector3f(1, 0, 0), Eigen::Vector3f(1, 0, 0) };
+    out = Mathlib::RayCuboid(o, r, cube, radius);
+    EXPECT_TRUE(testhitresult(out, expect));
+
+    o = Eigen::Vector3f(0, 0, -16);
+    r = Eigen::Vector3f(0, 0, 1);
+    cube = Eigen::Vector3f(0.0, 0.0, 0.0);
+    radius = 1.0;
+    expect = { true, Eigen::Vector3f(0, 0, -1), Eigen::Vector3f(0, 0, -1) };
     out = Mathlib::RayCuboid(o, r, cube, radius);
     EXPECT_TRUE(testhitresult(out, expect));
 }

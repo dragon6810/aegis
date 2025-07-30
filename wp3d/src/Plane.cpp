@@ -56,74 +56,6 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
     glEnd();
 }
 
-bool Plane::PointRay(Eigen::Vector3f o, Eigen::Vector3f r, Eigen::Vector3f p)
-{
-    const float epsilon = 0.01;
-    const float pointradius = 0.5;
-
-    int i, j;
-
-    Eigen::Vector3f bb[2];
-    float t[2], bestt[2];
-
-    bb[0] = p - Eigen::Vector3f::Ones() * pointradius;
-    bb[1] = p + Eigen::Vector3f::Ones() * pointradius;
-
-    bestt[0] = -INFINITY;
-    bestt[1] = INFINITY;
-    for(i=0; i<3; i++)
-    {
-        if (fabs(r[i]) < epsilon)
-        {
-            if (o[i] < bb[0][i] || o[i] > bb[1][i])
-                return false;
-            continue;
-        }
-
-        for(j=0; j<2; j++)
-            t[j] = (bb[j][i] - o[i]) / r[i];
-        if(t[0] > t[1])
-            std::swap(t[0], t[1]);
-        
-        if(t[0] > bestt[0])
-            bestt[0] = t[0];
-        if(t[1] < bestt[1])
-            bestt[1] = t[1];
-
-        if(bestt[0] > bestt[1])
-            return false;
-    }
-
-    return true;
-}
-
-void Plane::UpdateTriplane(void)
-{
-    int i;
-
-    int pointstep;
-
-    if(this->poly.size() < 3)
-        return;
-
-    pointstep = this->poly.size() / 3;
-    for(i=0; i<3; i++)
-        this->triplane[i] = this->poly[i * pointstep];
-}
-
-void Plane::UpdateStandard(void)
-{
-    int i;
-
-    Eigen::Vector3f e[2];
-
-    for(i=0; i<2; i++)
-        e[i] = this->triplane[i+1] - this->triplane[0];
-    this->normal = e[0].cross(e[1]);
-    this->normal.normalize();
-    this->d = this->normal.dot(this->triplane[0]);
-}
-
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 {
     int i;
@@ -167,37 +99,33 @@ void Plane::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, i
         selection->erase(index);
 }
 
-void Plane::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r)
+void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, const Viewport& view)
 {
-    const float pointradius = 0.5;
+    const float pixelradius = 2.0;
 
     int i;
 
-    if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
-        this->triplaneselection.clear();
+    float worldradius;
+    Eigen::Vector3f basis[3];
+    float viewheight;
 
-    for(i=0; i<3; i++)
-    {
-        if(!PointRay(o, r, this->triplane[i]))
-            continue;
-
-        if(!this->triplaneselection.contains(i))
-            this->triplaneselection.insert(i);
-        else
-            this->triplaneselection.erase(i);
-    }
-}
-
-void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush)
-{
-    int i;
+    view.GetViewBasis(basis);
+    if(view.type == Viewport::FREECAM)
+        viewheight = tanf(DEG2RAD(view.fov) / 2.0) * 2.0;
+    else
+        viewheight = view.zoom * 2.0;
 
     if(!ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftShift))
         this->indexselection.clear();
 
     for(i=0; i<this->indices.size(); i++)
     {
-        if(!PointRay(o, r, brush.points[this->indices[i]]))
+        worldradius = pixelradius / (float) view.canvassize[1] * viewheight;
+
+        if(view.type == Viewport::FREECAM)
+            worldradius *= (brush.points[this->indices[i]] - view.pos).dot(basis[0]);
+
+        if(!Mathlib::RayCuboid(o, r, brush.points[this->indices[i]], worldradius).hit)
             continue;
 
         if(!this->indexselection.contains(i))
@@ -232,22 +160,6 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
         this->DrawWire(view, selected);
     else
         this->DrawShaded(view, selected);
-
-    if(selected && map.tool == Map::TOOL_PLANE)
-    {
-        glBegin(GL_POINTS);
-        
-        for(i=0; i<3; i++)
-        {
-            if(!this->triplaneselection.contains(i))
-                glColor3f(1, 1, 0);
-            else
-                glColor3f(1, 0, 0);
-            glVertex3f(this->triplane[i][0], this->triplane[i][1], this->triplane[i][2]);
-        }
-        
-        glEnd();
-    }
 
     if(selected && map.tool == Map::TOOL_VERTEX)
         map.entities[ent].brushes[brush].drawvertexpreview = true;

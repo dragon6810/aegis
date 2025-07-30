@@ -161,6 +161,8 @@ void Map::FinalizeBrush(void)
             bb[1][i] = brushcorners[1][i];
     }
 
+    //printf("bb: ( %f %f %f ), ( %f %f %f )\n", bb[0][0], bb[0][1], bb[0][2], bb[1][0], bb[1][1], bb[1][2]);
+
     this->entities[0].brushes.push_back({});
     br = &this->entities[0].brushes.back();
     br->planes.resize(6);
@@ -180,6 +182,67 @@ void Map::FinalizeBrush(void)
     br->MakeFaces();
 
     nbrushcorners = 0;
+}
+
+void Map::FinalizePlane(void)
+{
+    int i, j;
+    Entity *ent;
+
+    Eigen::Vector3f n;
+    float d;
+    bool pointent;
+    std::unordered_set<int> newentselection, newbrselection;
+    std::vector<Entity> newents;
+    std::vector<Brush> newbrs;
+
+    if(this->ntriplane != 3)
+        return;
+
+    n = (this->triplane[1] - this->triplane[0]).cross(this->triplane[2] - this->triplane[0]);
+    n.normalize();
+    d = n.dot(this->triplane[0]);
+
+    newentselection.clear();
+    newents.clear();
+    for(i=0; i<this->entities.size(); i++)
+    {
+        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
+            continue;
+
+        ent = &this->entities[i];
+        pointent = !ent->brushes.size();
+
+        newbrselection.clear();
+        newbrs.clear();
+        for(j=0; j<ent->brushes.size(); j++)
+        {
+            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+                continue;
+
+            ent->brushes[j].AddPlane(n, d);
+            if(!ent->brushes[j].points.size())
+                continue;
+
+            if(ent->brselection.contains(j))
+                newbrselection.insert(newbrs.size());
+            newbrs.push_back(ent->brushes[j]);
+        }
+        ent->brselection = newbrselection;
+        ent->brushes = newbrs;
+
+        if(ent->brushes.size() || pointent || (ent->pairs.contains("classname") && ent->pairs["classname"] == "worldspawn"))
+        {
+            if(this->entselection.contains(i))
+                this->entselection.insert(newents.size());
+            newents.push_back(*ent);
+        }
+    }
+    this->entselection = newentselection;
+    this->entities = newents;
+
+    this->ntriplane = 0;
+    this->drawingtriplane = false;
 }
 
 void Map::ClearSelection(void)
@@ -202,87 +265,6 @@ void Map::ClearSelection(void)
         
         for(j=0; j<this->entities[i].brushes.size(); j++)
             this->entities[i].brushes[j].plselection.clear();
-    }
-}
-
-void Map::SetupPlanePoints(bool allplanes)
-{
-    int i, j, k;
-    Entity *ent;
-    Brush *br;
-
-    for(i=0; i<this->entities.size(); i++)
-    {
-        if(!allplanes && this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
-            continue;
-
-        ent = &this->entities[i];
-        for(j=0; j<ent->brushes.size(); j++)
-        {
-            if(!allplanes && this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
-                continue;
-
-            br = &ent->brushes[j];
-            for(k=0; k<br->planes.size(); k++)
-            {
-                if(!allplanes && this->selectiontype == SELECT_PLANE && !br->plselection.contains(k))
-                    continue;
-                
-                br->planes[k].UpdateTriplane();
-            }
-        }
-    }
-}
-
-void Map::MovePlanePoints(Eigen::Vector3f add)
-{
-    int i, j, k, l;
-
-    Entity *ent;
-    Brush *br;
-    Plane *pl;
-
-    bool rebuildbr, rebuildpl;
-
-    for(i=0; i<this->entities.size(); i++)
-    {
-        if(this->selectiontype == SELECT_ENTITY && !this->entselection.contains(i))
-            continue;
-
-        ent = &this->entities[i];
-        for(j=0; j<ent->brushes.size(); j++)
-        {
-            if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
-                continue;
-
-            br = &ent->brushes[j];
-            rebuildbr = false;
-            for(k=0; k<br->planes.size(); k++)
-            {
-                if(this->selectiontype == SELECT_PLANE && !br->plselection.contains(k))
-                    continue;
-
-                pl = &br->planes[k];
-                rebuildpl = false;
-                for(l=0; l<3; l++)
-                {
-                    if(!pl->triplaneselection.contains(l))
-                        continue;
-
-                    rebuildpl = true;
-                    pl->triplane[l] += add;
-                }
-
-                if(rebuildpl)
-                {
-                    rebuildbr = true;
-                    pl->UpdateStandard();
-                }
-            }
-
-            if(rebuildbr)
-                br->MakeFaces();
-        }
     }
 }
 
@@ -474,6 +456,91 @@ void Map::DrawWorkingBrush(const Viewport& view)
     }
 }
 
+void Map::DrawTriplane(const Viewport& view)
+{
+    int i, j;
+
+    Eigen::Vector3f n, v[2];
+    float d;
+    Mathlib::Poly<3> poly;
+    Eigen::Vector3f bb[2];
+
+    if(!this->ntriplane)
+        return;
+
+    glPointSize(4.0);
+    glBegin(GL_POINTS);
+    for(i=0; i<this->ntriplane; i++)
+    {
+        if(this->triplaneselection.contains(i))
+            glColor3f(1, 0, 0);
+        else
+            glColor3f(1, 1, 0);
+        glVertex3f(this->triplane[i][0], this->triplane[i][1], this->triplane[i][2]);
+    }
+    glEnd();
+
+    if(this->ntriplane < 3)
+        return;
+
+    n = (this->triplane[1] - this->triplane[0]).cross(this->triplane[2] - this->triplane[0]);
+    n.normalize();
+    d = n.dot(this->triplane[0]);
+    poly = Mathlib::FromPlane(n, d, Map::max_map_size);
+    if(view.type == Viewport::FREECAM)
+    {
+        glColor4f(1, 1, 0, 0.5);
+        glEnable(GL_ALPHA_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_CULL_FACE);
+
+        glBegin(GL_POLYGON);
+        for(i=0; i<poly.size(); i++)
+            glVertex3f(poly[i][0], poly[i][1], poly[i][2]);
+        glEnd();
+
+        glColor4f(1, 1, 1, 1);
+        glDisable(GL_ALPHA_TEST);
+        glEnable(GL_CULL_FACE);
+    }
+    else
+    {
+        glColor3f(1, 1, 0);
+
+        glBegin(GL_LINES);
+        for(i=0; i<poly.size(); i++)
+        {
+            glVertex3f(poly[i][0], poly[i][1], poly[i][2]);
+            glVertex3f(poly[(i+1)%poly.size()][0], poly[(i+1)%poly.size()][1], poly[(i+1)%poly.size()][2]);
+        }
+        glEnd();
+
+        glColor3f(1, 1, 1);
+    }
+
+    for(i=0; i<this->ntriplane; i++)
+    {
+        for(j=0; j<3; j++)
+        {
+            if(!i || this->triplane[i][j] < bb[0][j])
+                bb[0][j] = this->triplane[i][j];
+            if(!i || this->triplane[i][j] > bb[1][j])
+                bb[1][j] = this->triplane[i][j];
+        }
+    }
+    v[0] = (bb[0] + bb[1]) / 2.0;
+    v[1] = v[0] + n * 32.0;
+
+    glBegin(GL_LINES);
+    glColor3f(1, 1, 0);
+
+    glVertex3f(v[0][0], v[0][1], v[0][2]);
+    glVertex3f(v[1][0], v[1][1], v[1][2]);
+
+    glColor3f(1, 1, 1);
+    glEnd();
+}
+
 void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
 {
     int i;
@@ -519,10 +586,11 @@ void Map::SwitchTool(tooltype_e type)
     if(type == this->tool)
         return;
 
-    if(type == TOOL_PLANE)
-        SetupPlanePoints(false);
-
     this->nbrushcorners = 0;
+    this->ntriplane = 0;
+    this->drawingtriplane = false;
+    if(type == TOOL_PLANE && this->selectiontype == SELECT_PLANE)
+        this->selectiontype = SELECT_BRUSH;
     this->tool = type;
 }
 
@@ -559,8 +627,12 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     const float minzoom = 8.0;
     const float maxzoom = max_map_size * 2;
 
+    int i;
+    std::unordered_set<int>::iterator it;
+
     Eigen::Vector3f basis[3], add;
     float gridsize;
+    std::unordered_set<int> newselection;
 
     // so that we dont get messed up by tool hotkeys
     if(ImGui::GetIO().KeyShift)
@@ -597,8 +669,15 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
         break;
     case ImGuiKey_Escape:
-        if(this->tool = TOOL_BRUSH)
+        if(this->tool == TOOL_BRUSH)
             nbrushcorners = 0;
+
+        if(this->tool == TOOL_PLANE)
+        {
+            this->ntriplane = 0;
+            this->drawingtriplane = false;
+            this->triplaneselection.clear();
+        }
 
         break;
     case ImGuiKey_Enter:
@@ -606,13 +685,31 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizeBrush();
         if(tool == TOOL_VERTEX)
             this->FinalizeVertexEdit();
+        if(tool == TOOL_PLANE)
+            this->FinalizePlane();
+
+        break;
+    case ImGuiKey_F:
+        if(tool == TOOL_PLANE)
+        {
+            std::swap(this->triplane[0], this->triplane[this->ntriplane-1]);
+            newselection.clear();
+            for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
+            {
+                if(*it > this->ntriplane)
+                    newselection.insert(*it);
+                else
+                    newselection.insert(this->ntriplane - 1 - *it);
+            }
+            this->triplaneselection = newselection;
+        }
 
         break;
     case ImGuiKey_UpArrow:
     case ImGuiKey_LeftArrow:
     case ImGuiKey_DownArrow:
     case ImGuiKey_RightArrow:
-        if(tool == TOOL_PLANE || tool == TOOL_VERTEX)
+        if(tool == TOOL_VERTEX || tool == TOOL_PLANE)
         {
             if(view.type == Viewport::FREECAM)
                 break;
@@ -627,11 +724,19 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
                 add = basis[2] * -gridsize;
             if(key == ImGuiKey::ImGuiKey_RightArrow)
                 add = basis[1] * gridsize;
-
-            if(tool == TOOL_PLANE)
-                MovePlanePoints(add);
-            else if(tool == TOOL_VERTEX)
+            
+            if(tool == TOOL_VERTEX)
+            {
                 MoveVertexPoints(add);
+            }
+            else
+            {
+                if(this->drawingtriplane)
+                    return;
+                
+                for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
+                    this->triplane[*it] += add;
+            }
         }
 
         break;
@@ -642,14 +747,17 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
 void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMouseButton_ button)
 {
+    const float pixelradius = 2.0;
+
     int i, j;
 
-    Eigen::Vector3f basis[3], clickpos, o, r;
+    Eigen::Vector3f basis[3], p, clickpos, o, r;
     Eigen::Vector2f camplane;
     int icorner;
     int realgridsize;
     float curdist, bestdist;
     int bestent;
+    float viewheight, worldradius;
 
     switch(this->tool)
     {
@@ -688,7 +796,64 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         {
             if(selectiontype == SELECT_ENTITY && !entselection.contains(i))
                 continue;
-            entities[i].SelectVertex(o, r, *this);
+            entities[i].SelectVertex(o, r, *this, view);
+        }
+
+        break;
+    case TOOL_PLANE:
+        if(!this->drawingtriplane && !this->ntriplane)
+        {
+            if(view.type == Viewport::FREECAM)
+                break;
+
+            view.GetViewBasis(basis);
+            basis[2] *= view.zoom;
+            basis[1] *= view.zoom * (float) view.canvassize[0] / (float) view.canvassize[1];
+            realgridsize = 1 << this->gridlevel;
+            p = view.pos + mousepos[0] * basis[1] + mousepos[1] * basis[2];
+            p[view.type] = 0;
+            for(i=0; i<3; i++)
+                p[i] = (roundf(p[i] / realgridsize)) * realgridsize;
+            this->triplane[0] = this->triplane[2] = p;
+            r = Eigen::Vector3f::Zero();
+            r[view.type] = 1 << this->gridlevel;
+            this->triplane[1] = this->triplane[0] + r;
+            this->ntriplane = 3;
+            this->drawingtriplane = true;
+        }
+        else if(this->drawingtriplane)
+        {
+            if(view.type == Viewport::FREECAM)
+                break;
+            this->drawingtriplane = false;
+        }
+        else
+        {
+            view.GetRay(mousepos, &o, &r);
+            if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
+                this->triplaneselection.clear();
+
+            view.GetViewBasis(basis);
+            if(view.type == Viewport::FREECAM)
+                viewheight = tanf(DEG2RAD(view.fov) / 2.0) * 2.0;
+            else
+                viewheight = view.zoom * 2.0;
+
+            for(i=0; i<this->ntriplane; i++)
+            {
+                worldradius = pixelradius / (float) view.canvassize[1] * viewheight;
+
+                if(view.type == Viewport::FREECAM)
+                    worldradius *= (this->triplane[i] - view.pos).dot(basis[0]);
+
+                if(!Mathlib::RayCuboid(o, r, this->triplane[i], worldradius).hit)
+                    continue;
+
+                if(!this->triplaneselection.contains(i))
+                    this->triplaneselection.insert(i);
+                else
+                    this->triplaneselection.erase(i);
+            }
         }
 
         break;
@@ -718,6 +883,36 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
         for(i=0; i<3; i++)
             this->brushcorners[icorner][i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
         
+        break;
+    }
+}
+
+void Map::MouseUpdate(const Viewport& view, const Eigen::Vector2f& mousepos)
+{
+    int i;
+
+    Eigen::Vector3f basis[3], p;
+    int realgridsize;
+
+    switch(this->tool)
+    {
+    case TOOL_PLANE:
+        if(!this->drawingtriplane)
+            break;
+        
+        if(view.type == Viewport::FREECAM)
+            break;
+
+        view.GetViewBasis(basis);
+        basis[2] *= view.zoom;
+        basis[1] *= view.zoom * (float) view.canvassize[0] / (float) view.canvassize[1];
+        realgridsize = 1 << this->gridlevel;
+        p = view.pos + mousepos[0] * basis[1] + mousepos[1] * basis[2];
+        p[view.type] = 0;
+        for(i=0; i<3; i++)
+            p[i] = (roundf(p[i] / realgridsize)) * realgridsize;
+        this->triplane[2] = p;
+
         break;
     }
 }
@@ -754,6 +949,7 @@ void Map::Render(const Viewport& view)
         this->entities[i].Draw(view, i, *this);
 
     DrawWorkingBrush(view);
+    DrawTriplane(view);
 
     glColor3f(1, 1, 1);
 

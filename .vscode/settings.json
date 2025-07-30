@@ -44,6 +44,9 @@
         "map": "cpp",
         "regex": "cpp",
         "set": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "forward_list": "cpp",
+        "hash_map": "cpp",
+        "valarray": "cpp"
     }
 }

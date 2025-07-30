@@ -1,21 +1,17 @@
 add_library(imgui STATIC
-    src/imgui_draw.cpp
-    src/imgui_tables.cpp
-    src/imgui_widgets.cpp
-    src/imgui.cpp
-    src/backends/imgui_impl_glfw.cpp
-    src/backends/imgui_impl_opengl2.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_tables.cpp
+    imgui/imgui_widgets.cpp
+    imgui/imgui.cpp
+    imgui/backends/imgui_impl_glfw.cpp
+    imgui/backends/imgui_impl_opengl2.cpp
 )
 
-target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
-target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public/backends)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends)
 
 if (APPLE)
-    if (DEBUG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    endif()
-
-    #find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
     
     target_link_libraries(imgui PRIVATE
@@ -24,7 +20,6 @@ if (APPLE)
     )
 elseif (UNIX)
     find_package(OpenGL REQUIRED)
-    find_package(GLEW REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(GLFW3 REQUIRED glfw3)
 
@@ -33,7 +28,6 @@ elseif (UNIX)
     add_definitions(${GLFW3_CFLAGS_OTHER})
 
     target_link_libraries(imgui PRIVATE
-        glm
         OpenGL::GL
         ${GLFW3_LIBRARIES}
     )

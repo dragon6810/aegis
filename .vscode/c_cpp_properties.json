@@ -6,11 +6,10 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/thirdparty/glew/public",
                 "${workspaceFolder}/thirdparty/glm/public",
-                "${workspaceFolder}/thirdparty/SFML/public",
-                "${workspaceFolder}/thirdparty/eigen/public",
-                "${workspaceFolder}/thirdparty/imgui/public",
+                "${workspaceFolder}/thirdparty/eigen",
+                "${workspaceFolder}/thirdparty/imgui/imgui",
                 "${workspaceFolder}/mathlib/public",
-                "${workspaceFolder}/thirdparty/imgui/public/backends"
+                "${workspaceFolder}/thirdparty/imgui/imgui/backends"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

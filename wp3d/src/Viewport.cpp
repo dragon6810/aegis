@@ -61,8 +61,6 @@ void Viewport::GetRay(Eigen::Vector2f clickpos, Eigen::Vector3f* outo, Eigen::Ve
         size[0] = size[1] * (float) this->canvassize[0] / (float) this->canvassize[1];
         r = basis[0];
         o = this->pos + size[0] * basis[1] * clickpos[0] + size[1] * basis[2] * clickpos[1];
-        printf("mouse (%f %f)\n", clickpos[0], clickpos[1]);
-        printf("o: (%f %f %f), r: (%f %f %f)\n", o[0], o[1], o[2], r[0], r[1], r[2]);
 
         break;
     default:

@@ -61,7 +61,7 @@ void Brush::DrawVertexPreview(const Map& map)
     if(this->geometryvalid)
         glColor3f(1, 1, 0);
     else
-        glColor3f(1, 0, 0);
+        glColor3f(0, 0, 1);
     for(eit=edges.begin(); eit!=edges.end(); eit++)
     {
         glVertex3f(this->points[std::get<0>(*eit)][0], this->points[std::get<0>(*eit)][1], this->points[std::get<0>(*eit)][2]);
@@ -69,6 +69,7 @@ void Brush::DrawVertexPreview(const Map& map)
     }
     glEnd();
 
+    glPointSize(4.0);
     glBegin(GL_POINTS);
     for(pit=activepoints.begin(); pit!=activepoints.end(); pit++)
     {
@@ -83,7 +84,11 @@ void Brush::DrawVertexPreview(const Map& map)
 
 void Brush::MakeFaces(void)
 {
-    int i, j;
+    const float epsilon = 0.01;
+
+    int i, j, k;
+    
+    std::vector<Plane> newplanes;
 
     for(i=0; i<this->planes.size(); i++)
     {
@@ -104,10 +109,31 @@ void Brush::MakeFaces(void)
         this->planes[i].indices.resize(this->planes[i].poly.size());
         for(j=0; j<this->planes[i].indices.size(); j++)
         {
-            this->planes[i].poly[j] = this->planes[i].poly[j].cast<int>().cast<float>();
+            for(k=0; k<3; k++)
+                this->planes[i].poly[j][k] = (int) (this->planes[i].poly[j][k] + epsilon * SIGN(this->planes[i].poly[j][k]));
             this->planes[i].indices[j] = FindVertex(this->planes[i].poly[j]);
         }
     }
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if(this->planes[i].poly.size() >= 3)
+            newplanes.push_back(this->planes[i]);
+    }
+
+    this->planes = newplanes;
+}
+
+void Brush::AddPlane(Eigen::Vector3f n, float d)
+{
+    Plane p;
+
+    p = Plane();
+    p.normal = n;
+    p.d = d;
+
+    this->planes.push_back(p);
+    this->MakeFaces();
 }
 
 void Brush::UpdateGeometryValid(void)
@@ -277,23 +303,7 @@ void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map
     this->planes[bestplane].Select(o, r, bestplane, index, ent, map);
 }
 
-void Brush::SelectTriplane(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
-{
-    int i;
-
-    for(i=0; i<this->planes.size(); i++)
-    {
-        if(map.selectiontype == Map::SELECT_PLANE && !this->plselection.contains(i))
-            continue;
-
-        if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
-            this->planes[i].triplaneselection.clear();
-
-        this->planes[i].SelectTriplane(o, r);
-    }
-}
-
-void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
+void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view)
 {
     int i;
     std::unordered_set<int>::iterator it;
@@ -306,7 +316,7 @@ void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map)
         if(!ImGui::IsKeyDown(ImGuiKey_LeftShift))
             this->planes[i].indexselection.clear();
 
-        this->planes[i].SelectVerts(o, r, *this);
+        this->planes[i].SelectVerts(o, r, *this, view);
     }
 
     this->pointselection.clear();
