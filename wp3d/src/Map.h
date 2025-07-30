@@ -74,4 +74,5 @@ public:
 
     void NewMap(void);
     void Save(void);
+    void Load(const std::string& path);
 };

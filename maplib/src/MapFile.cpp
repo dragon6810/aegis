@@ -1,6 +1,6 @@
 #include <maplib.h>
 
-#include <regex>
+#include <parselib/Tokenizer.h>
 
 Maplib::MapFile::MapFile()
 {
@@ -57,81 +57,21 @@ bool Maplib::MapFile::Write(std::string path)
 
 Maplib::MapFile Maplib::MapFile::Load(std::string path)
 {
-    int i, j;
-    std::sregex_iterator e, k, b, p;
+    int i;
 
     MapFile map;
-    FILE *ptr;
-    std::regex entregex, keyregex, brregex, plregex;
-    uint64_t size;
-    std::string content, entcontent, brcontent;
+    Parselib::Tokenizer tknizer;
     entity_t ent;
     brush_t br;
     plane_t pl;
 
     map = MapFile();
 
-    ptr = fopen(path.c_str(), "r");
-    if(!ptr)
+    tknizer.EatFile(path.c_str());
+    for(i=0; i<tknizer.tokens.size(); i++)
     {
-        fprintf(stderr, "Maplib::MapFile::Load: couldn't open file for reading \"%s\".\n", path.c_str());
-        return map;
+        printf("token: \"%s\".\n", tknizer.tokens[i].val.c_str());
     }
 
-    entregex = std::regex(R"(\{\s*([\s\S]*?)\s*\})");
-    keyregex = std::regex(R"REGEX("([^"]+)"\s*:\s*"([^"]*)")REGEX"); 
-    brregex = std::regex(R"(\{\s*((?:.|\n)*?)\s*\})"); 
-    plregex = std::regex
-    (
-        R"(\(\s*(-?\d+)\s+(-?\d+)\s+(-?\d+)\s*\)\s*"
-          R"\(\s*(-?\d+)\s+(-?\d+)\s+(-?\d+)\s*\)\s*"
-          R"\(\s*(-?\d+)\s+(-?\d+)\s+(-?\d+)\s*\)\s*"
-          R"\[\s*([-\d.eE]+)\s+([-\d.eE]+)\s+([-\d.eE]+)\s+([-\d.eE]+)\s*\]\s*"
-          R"\[\s*([-\d.eE]+)\s+([-\d.eE]+)\s+([-\d.eE]+)\s+([-\d.eE]+)\s*\]\s*"
-          R"\"([^\"]+)\")",
-        std::regex::optimize
-    );
-
-    for(e=std::sregex_iterator(content.begin(), content.end(), entregex); e!=std::sregex_iterator(); e++)
-    {
-        entcontent = (*e)[1];
-
-        ent = {};
-        
-        for(k=std::sregex_iterator(entcontent.begin(), entcontent.end(), keyregex); k!=std::sregex_iterator(); k++)
-            ent.keys[(*k)[1]] = (*k)[2];
-        
-        for(b=std::sregex_iterator(entcontent.begin(), entcontent.end(), brregex); b!=std::sregex_iterator(); b++)
-        {
-            brcontent = (*b)[1];
-
-            br = {};
-
-            for(p=std::sregex_iterator(brcontent.begin(), brcontent.end(), plregex); p!=std::sregex_iterator(); p++)
-            {
-                pl = {};
-
-                for(i=0; i<3; i++)
-                    for(j=0; j<3; j++)
-                        pl.triplane[i][j] = std::stoi((*p)[1 + i * 3 + j]);
-
-                for(i=0; i<2; i++)
-                {
-                    for(j=0; j<3; j++)
-                        pl.texbasis[i][j] = std::stof((*p)[10 + i * 4 + j]);
-                    pl.texoffs[i] = std::stof((*p)[10 + i * 4 + j]);
-                }
-                
-                pl.texname = (*p)[18];
-
-                br.planes.push_back(pl);
-            }
-
-            ent.brushes.push_back(br);
-        }
-        map.ents.push_back(ent);
-    }
-
-    fclose(ptr);
     return map;
 }

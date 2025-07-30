@@ -13,6 +13,8 @@
 #define MIN(a, b) (a < b ? a : b)
 #define MAX(a, b) (a > b ? a : b)
 #define SIGN(x) (x == 0 ? 0 : x < 0 ? -1 : 1)
+// inclusive
+#define INRANGE(min, max, x) ((x >= min) && (x <= max))
 #define TOHOMOGENOUS(v) (Eigen::Vector4f(v[0], v[1], v[2], 1.0))
 #define TOHOMOGENOUSZEXT(v) (Eigen::Vector4f(v[0], v[1], v[2], 0.0))
 

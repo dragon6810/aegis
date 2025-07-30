@@ -962,6 +962,8 @@ void Map::NewMap(void)
 {
     Entity *worldspawn;
 
+    this->path = "";
+
     this->entselection.clear();
 
     this->entities.resize(1);
@@ -1023,4 +1025,50 @@ void Map::Save(void)
     }
 
     file.Write(this->path);
+}
+
+void Map::Load(const std::string& path)
+{
+    int i;
+
+    int e, b, p;
+    Maplib::entity_t *fent;
+    Maplib::brush_t *fbr;
+    Maplib::plane_t *fpl;
+
+    Maplib::MapFile file;
+    Entity *ent;
+    Brush *br;
+    Plane *pl;
+
+    file = Maplib::MapFile::Load(path);
+    if(!file.ents.size())
+        return;
+
+    this->NewMap();
+    this->path = path;
+
+    this->entities.resize(file.ents.size());
+    for(e=0, fent=file.ents.data(); e<file.ents.size(); e++, fent++)
+    {
+        ent = &this->entities[e];
+        
+        ent->pairs = fent->keys;
+        ent->brushes.resize(fent->brushes.size());
+        for(b=0, fbr=fent->brushes.data(); b<fent->brushes.size(); b++, fbr++)
+        {
+            br = &ent->brushes[b];
+            
+            br->planes.resize(fbr->planes.size());
+            for(p=0, fpl=fbr->planes.data(); p<fbr->planes.size(); p++, fpl++)
+            {
+                pl = &br->planes[p];
+
+                pl->normal = ((fpl->triplane[1] - fpl->triplane[0]).cross(fpl->triplane[2] - fpl->triplane[0])).cast<float>();
+                pl->normal.normalize();
+                pl->d = pl->normal.dot(fpl->triplane[0].cast<float>());
+            }
+            br->MakeFaces();
+        }
+    }
 }

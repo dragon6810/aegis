@@ -115,18 +115,29 @@ void Gui::DrawMenuBar(void)
                     this->map.Save();
                 }
             }
+            if (ImGui::MenuItem("Open", "Ctrl+O"))
+            {
+                config = {};
+                config.path = ".";
+                ImGuiFileDialog::Instance()->OpenDialog("OpenMapFileKey", "Choose Map File", ".map", config);
+            }
 
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
-    if (ImGuiFileDialog::Instance()->Display("SaveMapFileKey"))
+    if (ImGuiFileDialog::Instance()->Display("SaveMapFileKey") && ImGuiFileDialog::Instance()->IsOk())
     {
-        if (ImGuiFileDialog::Instance()->IsOk())
-            this->map.path = ImGuiFileDialog::Instance()->GetFilePathName();
-        
+        this->map.path = ImGuiFileDialog::Instance()->GetFilePathName();
         this->map.Save();
+
+        ImGuiFileDialog::Instance()->Close();
+    }
+
+    if (ImGuiFileDialog::Instance()->Display("OpenMapFileKey") && ImGuiFileDialog::Instance()->IsOk())
+    {
+        this->map.Load(ImGuiFileDialog::Instance()->GetFilePathName());
 
         ImGuiFileDialog::Instance()->Close();
     }

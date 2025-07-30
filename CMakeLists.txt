@@ -19,6 +19,7 @@ add_subdirectory(thirdparty/googletest)
 
 # Libraries
 add_subdirectory(mathlib)
+add_subdirectory(parselib)
 add_subdirectory(maplib)
 
 # Executables
