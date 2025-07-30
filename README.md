@@ -12,10 +12,15 @@ Aegis follow a modular structure, where each folder apart from `.vscode/`, `asse
 
 Aegis uses CMake as its primary build system (again the exception here is `tools/`, which uses Make). Currently, only MacOS is supported, but Linux support should work in the near future. 
 
-First, you will need to install some dependencies. If you have homebrew, this can be done simply with the following commands:
+First, you will need to install some dependencies. This is platform specific:
     
-    brew install glew
-    brew install glfw
+### MacOS (brew):
+
+    brew install glew glfw
+
+### Ubuntu (apt):
+
+    sudo apt install libgl1-mesa-dev libglew-dev libglfw3-dev
 
 In order to build the project, run:
 
