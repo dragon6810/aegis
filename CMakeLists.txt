@@ -14,10 +14,13 @@ add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/SFML)
 add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
+add_subdirectory(thirdparty/filedialog)
 add_subdirectory(thirdparty/googletest)
 
 # Libraries
 add_subdirectory(mathlib)
+add_subdirectory(parselib)
+add_subdirectory(maplib)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")

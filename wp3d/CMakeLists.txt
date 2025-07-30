@@ -22,8 +22,10 @@ if (APPLE)
         glm
         glew 
         imgui
+        ImGuiFileDialog
         eigen
         mathlib
+        maplib
         GLEW::GLEW
         glfw
         "-framework OpenGL"
@@ -42,8 +44,10 @@ elseif (UNIX)
         glm
         glew
         imgui
+        ImGuiFileDialog
         eigen
         mathlib
+        maplib
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}
