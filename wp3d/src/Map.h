@@ -36,6 +36,7 @@ private:
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void FinalizeBrush(void);
+    void FinalizePlane(void);
     void ClearSelection(void);
     void MoveVertexPoints(Eigen::Vector3f add);
     void FinalizeVertexEdit(void);

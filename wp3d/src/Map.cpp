@@ -184,6 +184,15 @@ void Map::FinalizeBrush(void)
     nbrushcorners = 0;
 }
 
+void Map::FinalizePlane(void)
+{
+    if(this->ntriplane != 3)
+        return;
+    
+    this->ntriplane = 0;
+    this->drawingtriplane = false;
+}
+
 void Map::ClearSelection(void)
 {
     int i, j, k;
@@ -503,6 +512,8 @@ void Map::SwitchTool(tooltype_e type)
         return;
 
     this->nbrushcorners = 0;
+    this->ntriplane = 0;
+    this->drawingtriplane = false;
     this->tool = type;
 }
 
@@ -538,6 +549,9 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     const float zoomfactor = sqrtf(2.0);
     const float minzoom = 8.0;
     const float maxzoom = max_map_size * 2;
+
+    int i;
+    std::unordered_set<int>::iterator it;
 
     Eigen::Vector3f basis[3], add;
     float gridsize;
@@ -577,8 +591,15 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
         break;
     case ImGuiKey_Escape:
-        if(this->tool = TOOL_BRUSH)
+        if(this->tool == TOOL_BRUSH)
             nbrushcorners = 0;
+
+        if(this->tool == TOOL_PLANE)
+        {
+            this->ntriplane = 0;
+            this->drawingtriplane = false;
+            this->triplaneselection.clear();
+        }
 
         break;
     case ImGuiKey_Enter:
@@ -586,13 +607,15 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizeBrush();
         if(tool == TOOL_VERTEX)
             this->FinalizeVertexEdit();
+        if(tool == TOOL_PLANE)
+            this->FinalizePlane();
 
         break;
     case ImGuiKey_UpArrow:
     case ImGuiKey_LeftArrow:
     case ImGuiKey_DownArrow:
     case ImGuiKey_RightArrow:
-        if(tool == TOOL_VERTEX)
+        if(tool == TOOL_VERTEX || tool == TOOL_PLANE)
         {
             if(view.type == Viewport::FREECAM)
                 break;
@@ -608,7 +631,18 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             if(key == ImGuiKey::ImGuiKey_RightArrow)
                 add = basis[1] * gridsize;
             
-            MoveVertexPoints(add);
+            if(tool == TOOL_VERTEX)
+            {
+                MoveVertexPoints(add);
+            }
+            else
+            {
+                if(this->drawingtriplane)
+                    return;
+                
+                for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
+                    this->triplane[*it] += add;
+            }
         }
 
         break;
