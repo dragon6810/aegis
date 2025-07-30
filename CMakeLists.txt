@@ -18,6 +18,7 @@ add_subdirectory(thirdparty/googletest)
 
 # Libraries
 add_subdirectory(mathlib)
+add_subdirectory(maplib)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")
