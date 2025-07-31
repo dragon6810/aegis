@@ -15,6 +15,7 @@ namespace Parselib
             TOKEN_NUMBER,
             TOKEN_STRING,
             TOKEN_PUNCTUATION,
+            TOKEN_EOF,
             TOKEN_COUNT,
         } tokentype_e;
 
@@ -22,12 +23,14 @@ namespace Parselib
         {
             std::string val;
             tokentype_e type;
+            int posinfile;
+            std::string file;
         } token_t;
     private:
         static int TokenLength(char* str, tokentype_e type);
         static bool CharValidInToken(char* c, tokentype_e type, bool firstchar);
         static char* SkipWhitespace(char* c);
-        char* NextToken(char* c);
+        char* NextToken(char* c, const char* str, const char* file);
     public:
         std::vector<token_t> tokens;
 
@@ -36,5 +39,9 @@ namespace Parselib
             it will add onto the existing token array, so clear tokens ahead of time if you want that.
         */
         bool EatFile(const char* path);
+        static void SyntaxError(const token_t& tkn, const char* func, const char* message);
+        static bool ExpectValue(const token_t& tkn, std::string val, const char* func);
+        static bool ExpectType(const token_t& tkn, tokentype_e type, const char* func);
+        static bool ExpectNotEOF(const token_t& tkn, const char* func);
     };
 }
