@@ -8,6 +8,8 @@ add_executable (
     "src/Plane.cpp"
     "src/Entity.cpp"
     "src/Viewport.cpp"
+    "src/GuiElement.cpp"
+    "src/GuiElementViewport.cpp"
 )
 
 if (APPLE)

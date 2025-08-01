@@ -1,8 +1,8 @@
 @SolidClass = worldspawn : "Map Parameters"
 [
     title(string) : "Title" : "untitled" : "The title of the map to be displayed in the engine. Need not match the file name."
-    defaultlight(integer) : "Default Light Level" : 255 : "If lighting isn't generated, what light level should the geometry be at instead?"
     editorversion(string) : "Editor Version" : "wp3d_v1" : "The version of the editor the map was authored in."
+    defaultlight(integer) : "Default Light Level" : 255 : "If lighting isn't generated, what light level should the geometry be at instead?"
 ]
 
 @SolidClass = func_wall : "Func Wall"

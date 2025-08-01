@@ -9,6 +9,7 @@
 #include <imgui_stdlib.h>
 #include <ImGuiFileDialog.h>
 
+#include "GuiElementViewport.h"
 #include "Map.h"
 
 void Gui::Setup(GLFWwindow* win)
@@ -34,17 +35,7 @@ void Gui::Setup(GLFWwindow* win)
     map.NewMap();
 
     for(i=0; i<Viewport::NTYPES; i++)
-    {
-        this->viewports[i].fbo = 0;
-        this->viewports[i].tex = 0;
-        this->viewports[i].depth = 0;
-        this->viewports[i].canvassize = Eigen::Vector2i(0, 0);
-        this->viewports[i].type = (Viewport::viewporttype_e) i;
-        if(i != Viewport::FREECAM)
-            this->viewports[i].pos[i] = Map::max_map_size + 8.0;
-        else
-            this->viewports[i].wireframe = false;
-    }
+        this->elements.push_back(std::make_unique<GuiElementViewport>(GuiElementViewport(this->map, (Viewport::viewporttype_e) i)));
 }
 
 void Gui::ApplyStyle(void)
@@ -206,106 +197,6 @@ void Gui::DrawConfigMenu(void)
 
     if(!this->showconfigwindow)
         workingcfg = map.cfg;
-}
-
-void Gui::DrawViewports(float deltatime)
-{
-    int i, j;
-
-    std::string viewportname;
-    ImVec2 viewportsize, mousepos;
-
-    this->currentviewport = -1;
-    for(i=0; i<Viewport::NTYPES; i++)
-    {
-        viewportname = std::string("Viewport ") + std::to_string(i);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin(viewportname.c_str(), NULL, ImGuiWindowFlags_NoCollapse);
-
-        if(ImGui::IsWindowFocused())
-            this->currentviewport = i;
-
-        viewportsize = ImGui::GetContentRegionAvail();
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
-        if(this->viewports[i].canvassize.x() != viewportsize.x || this->viewports[i].canvassize.y() != viewportsize.y)
-        {
-            if (this->viewports[i].tex)
-                glDeleteTextures(1, &this->viewports[i].tex);
-            if (this->viewports[i].fbo)
-                glDeleteFramebuffersEXT(1, &this->viewports[i].fbo);
-            if (this->viewports[i].depth)
-                glDeleteRenderbuffersEXT(1, &this->viewports[i].depth);
-
-            glGenTextures(1, &this->viewports[i].tex);
-            glGenFramebuffersEXT(1, &this->viewports[i].fbo);
-            glGenRenderbuffersEXT(1, &this->viewports[i].depth);
-
-            glBindTexture(GL_TEXTURE_2D, this->viewports[i].tex);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, this->viewports[i].depth);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewportsize.x, viewportsize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, viewportsize.x, viewportsize.y);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, this->viewports[i].tex, 0);
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, this->viewports[i].depth);
-            
-            if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
-                fprintf(stderr, "error creating fbo for viewport %d with code %d\n", i, glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT));
-
-            this->viewports[i].canvassize = Eigen::Vector2i(viewportsize.x, viewportsize.y);
-        }
-
-        if(ImGui::IsWindowFocused())
-        {
-            for(j=ImGuiKey_NamedKey_BEGIN; j<ImGuiKey_NamedKey_END; j++)
-            {
-                if(ImGui::IsKeyPressed((ImGuiKey) j))
-                    map.KeyPress(this->viewports[i], (ImGuiKey) j);
-                if(ImGui::IsKeyDown((ImGuiKey) j))
-                    map.KeyDown(this->viewports[i], (ImGuiKey) j, deltatime);
-            }
-            
-            // mouse input only when the mouse is over the window
-            if(ImGui::IsWindowHovered())
-            {
-                mousepos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
-                mousepos.y = ImGui::GetMousePos().y - ImGui::GetWindowPos().y;
-                mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
-                mousepos.x /= viewportsize.x;
-                mousepos.y /= viewportsize.y;
-                mousepos.x =  (mousepos.x * 2.0 - 1.0);
-                mousepos.y = -(mousepos.y * 2.0 - 1.0);
-
-                this->map.MouseUpdate(this->viewports[i], Eigen::Vector2f(mousepos[0], mousepos[1]));
-
-                for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
-                {
-                    if (!ImGui::IsMouseClicked(j))
-                        continue;
-                    
-                    this->map.Click
-                    (
-                        this->viewports[i],
-                        Eigen::Vector2f(mousepos.x, mousepos.y), 
-                        (ImGuiMouseButton_) j
-                    );
-                }
-            }
-        }
-
-        map.Render(this->viewports[i]);
-
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        
-        ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize, {0, 1}, {1, 0});
-        ImGui::End();
-        ImGui::PopStyleVar();
-    }
 }
 
 void Gui::DrawToolBar(void)
@@ -658,6 +549,8 @@ void Gui::DrawRibbon(void)
 
 void Gui::Draw()
 {
+    int i;
+
     float deltatime;
     uint64_t curframe, msdelta;
     ImGuiDockNodeFlags dockspaceflags;
@@ -682,8 +575,9 @@ void Gui::Draw()
         lastframe = curframe;
     msdelta = curframe - lastframe;
     deltatime = (float) msdelta / 1000.0;
-
-    this->DrawViewports(deltatime);
+    
+    for(i=0; i<this->elements.size(); i++)
+        this->elements[i]->Draw();
 
     lastframe = curframe;
 }
