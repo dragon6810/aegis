@@ -26,6 +26,7 @@ if (APPLE)
         eigen
         mathlib
         maplib
+        fgdlib
         GLEW::GLEW
         glfw
         "-framework OpenGL"
@@ -48,6 +49,7 @@ elseif (UNIX)
         eigen
         mathlib
         maplib
+        fgdlib
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}

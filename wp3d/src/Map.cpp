@@ -972,6 +972,8 @@ void Map::NewMap(void)
     worldspawn->pairs["classname"] = "worldspawn";
     worldspawn->pairs["wp3dversion"] = "wp3d_v1";
     worldspawn->brushes.clear();
+    
+    this->fgd = Fgdlib::FgdFile::Load("aegis.fgd");
 
     this->SwitchTool(TOOL_SELECT);
     this->selectiontype = SELECT_BRUSH;

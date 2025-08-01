@@ -4,6 +4,8 @@
 
 #include <imgui.h>
 
+#include <fgdlib.h>
+
 #include "Entity.h"
 #include "Viewport.h"
 
@@ -61,6 +63,8 @@ public:
     selectiontype_e selectiontype;
 
     std::string path = "";
+
+    Fgdlib::FgdFile fgd;
 
     std::vector<Entity> entities;
     std::unordered_set<int> entselection;
