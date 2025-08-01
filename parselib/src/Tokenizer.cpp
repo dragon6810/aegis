@@ -134,6 +134,7 @@ bool Parselib::Tokenizer::EatFile(const char* path)
     if(!ptr)
     {
         fprintf(stderr, "Parselib::Tokenizer::EatFile: couldn't open file for reading \"%s\".\n", path);
+        this->tokens.push_back({ "", TOKEN_EOF, (int) filesize, std::string(path), });
         return false;
     }
 

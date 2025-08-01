@@ -124,6 +124,16 @@ void Gui::DrawMenuBar(void)
 
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Edit")) 
+        {
+            if (ImGui::MenuItem("Options")) 
+            {
+                this->showconfigwindow = true;
+                workingcfg = map.cfg;
+            }
+
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 
@@ -141,6 +151,50 @@ void Gui::DrawMenuBar(void)
 
         ImGuiFileDialog::Instance()->Close();
     }
+}
+
+void Gui::DrawConfigMenu(void)
+{
+    if(!this->showconfigwindow)
+        return;
+
+    Cfglib::CfgFile oldmapcfg;
+    IGFD::FileDialogConfig dialogconfig;
+
+    if (ImGui::Begin("Options", &this->showconfigwindow))
+    {
+        if(ImGui::Button("FGD File"))
+        {
+            dialogconfig = {};
+            if(workingcfg.pairs["fgd"] == "")
+                dialogconfig.path = ".";
+            else
+                dialogconfig.filePathName = workingcfg.pairs["fgd"];
+            ImGuiFileDialog::Instance()->OpenDialog("OpenFgdFileKey", "Choose FGD File", ".fgd", dialogconfig);
+        }
+        if(ImGui::Button("Apply"))
+        {
+            oldmapcfg = map.cfg;
+            map.cfg = workingcfg;
+            map.cfg.Write(map.cfgpath.c_str());
+            if(map.cfg.pairs["fgd"] != oldmapcfg.pairs["fgd"])
+                map.LoadFgd();
+        }
+        if(ImGui::Button("Cancel"))
+            this->showconfigwindow = false;
+
+        ImGui::End();
+
+        if (ImGuiFileDialog::Instance()->Display("OpenFgdFileKey") && ImGuiFileDialog::Instance()->IsOk())
+        {
+            workingcfg.pairs["fgd"] = ImGuiFileDialog::Instance()->GetFilePathName();
+
+            ImGuiFileDialog::Instance()->Close();
+        }
+    }
+
+    if(!this->showconfigwindow)
+        workingcfg = map.cfg;
 }
 
 void Gui::DrawViewports(float deltatime)
@@ -351,6 +405,7 @@ void Gui::Draw()
     ImGui::NewFrame();
 
     this->DrawMenuBar();
+    this->DrawConfigMenu();
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 

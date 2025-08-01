@@ -22,6 +22,7 @@ add_subdirectory(mathlib)
 add_subdirectory(parselib)
 add_subdirectory(maplib)
 add_subdirectory(fgdlib)
+add_subdirectory(cfglib)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")
