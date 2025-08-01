@@ -46,6 +46,16 @@ void Map::SetupFrame(const Viewport& view)
     glLoadMatrixf(&viewmat[0][0]);
 }
 
+void Map::LoadConfig(void)
+{
+    this->cfg = Cfglib::CfgFile();
+
+    this->cfg.LoadDefault("fgd", "");
+    this->cfg.Load(this->cfgpath.c_str());
+    if(this->cfg.pairs["fgd"] != "")
+        this->LoadFgd();
+}
+
 void Map::PanOrtho(Viewport& view, ImGuiKey key)
 {
     const float panspeed = 0.25;
@@ -962,6 +972,8 @@ void Map::NewMap(void)
 {
     Entity *worldspawn;
 
+    this->LoadConfig();
+
     this->path = "";
 
     this->entselection.clear();
@@ -970,7 +982,6 @@ void Map::NewMap(void)
     worldspawn = &this->entities.back();
 
     worldspawn->pairs["classname"] = "worldspawn";
-    worldspawn->pairs["wp3dversion"] = "wp3d_v1";
     worldspawn->brushes.clear();
 
     this->SwitchTool(TOOL_SELECT);
@@ -1071,4 +1082,9 @@ void Map::Load(const std::string& path)
             br->MakeFaces();
         }
     }
+}
+
+void Map::LoadFgd(void)
+{
+    this->fgd = Fgdlib::FgdFile::Load(this->cfg.pairs["fgd"]);
 }

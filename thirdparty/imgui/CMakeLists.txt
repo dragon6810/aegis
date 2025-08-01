@@ -6,10 +6,12 @@ add_library(imgui STATIC
     imgui/imgui.cpp
     imgui/backends/imgui_impl_glfw.cpp
     imgui/backends/imgui_impl_opengl2.cpp
+    imgui/misc/cpp/imgui_stdlib.cpp
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/misc/cpp)
 
 if (APPLE)
     find_package(GLFW3 REQUIRED)

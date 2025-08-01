@@ -4,6 +4,9 @@
 
 #include <imgui.h>
 
+#include <cfglib.h>
+#include <fgdlib.h>
+
 #include "Entity.h"
 #include "Viewport.h"
 
@@ -31,6 +34,7 @@ public:
     } selectiontype_e;
 private:
     void SetupFrame(const Viewport& view);
+    void LoadConfig(void);
 
     void PanOrtho(Viewport& view, ImGuiKey key);
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
@@ -62,6 +66,10 @@ public:
 
     std::string path = "";
 
+    const std::string cfgpath = "wp3d.cfg";
+    Cfglib::CfgFile cfg;
+    Fgdlib::FgdFile fgd;
+
     std::vector<Entity> entities;
     std::unordered_set<int> entselection;
 
@@ -75,4 +83,5 @@ public:
     void NewMap(void);
     void Save(void);
     void Load(const std::string& path);
+    void LoadFgd(void);
 };

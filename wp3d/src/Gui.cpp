@@ -6,8 +6,10 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
+#include <imgui_stdlib.h>
 #include <ImGuiFileDialog.h>
 
+#include "GuiElementViewport.h"
 #include "Map.h"
 
 void Gui::Setup(GLFWwindow* win)
@@ -33,17 +35,7 @@ void Gui::Setup(GLFWwindow* win)
     map.NewMap();
 
     for(i=0; i<Viewport::NTYPES; i++)
-    {
-        this->viewports[i].fbo = 0;
-        this->viewports[i].tex = 0;
-        this->viewports[i].depth = 0;
-        this->viewports[i].canvassize = Eigen::Vector2i(0, 0);
-        this->viewports[i].type = (Viewport::viewporttype_e) i;
-        if(i != Viewport::FREECAM)
-            this->viewports[i].pos[i] = Map::max_map_size + 8.0;
-        else
-            this->viewports[i].wireframe = false;
-    }
+        this->elements.push_back(std::make_unique<GuiElementViewport>(GuiElementViewport(this->map, (Viewport::viewporttype_e) i)));
 }
 
 void Gui::ApplyStyle(void)
@@ -124,6 +116,16 @@ void Gui::DrawMenuBar(void)
 
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Edit")) 
+        {
+            if (ImGui::MenuItem("Options")) 
+            {
+                this->showconfigwindow = true;
+                workingcfg = map.cfg;
+            }
+
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 
@@ -143,104 +145,58 @@ void Gui::DrawMenuBar(void)
     }
 }
 
-void Gui::DrawViewports(float deltatime)
+void Gui::DrawConfigMenu(void)
 {
-    int i, j;
+    if(!this->showconfigwindow)
+        return;
 
-    std::string viewportname;
-    ImVec2 viewportsize, mousepos;
+    Cfglib::CfgFile oldmapcfg;
+    std::string fgdlabel;
+    IGFD::FileDialogConfig dialogconfig;
 
-    this->currentviewport = -1;
-    for(i=0; i<Viewport::NTYPES; i++)
+    if (ImGui::Begin("Options", &this->showconfigwindow))
     {
-        viewportname = std::string("Viewport ") + std::to_string(i);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::Begin(viewportname.c_str(), NULL, ImGuiWindowFlags_NoCollapse);
-
-        if(ImGui::IsWindowFocused())
-            this->currentviewport = i;
-
-        viewportsize = ImGui::GetContentRegionAvail();
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
-        if(this->viewports[i].canvassize.x() != viewportsize.x || this->viewports[i].canvassize.y() != viewportsize.y)
+        fgdlabel = "FGD File: ";
+        if (!workingcfg.pairs["fgd"].empty())
+            fgdlabel += std::filesystem::path(workingcfg.pairs["fgd"]).filename().string();
+        else
+            fgdlabel += "<none>";
+        if(ImGui::Button(fgdlabel.c_str()))
         {
-            if (this->viewports[i].tex)
-                glDeleteTextures(1, &this->viewports[i].tex);
-            if (this->viewports[i].fbo)
-                glDeleteFramebuffersEXT(1, &this->viewports[i].fbo);
-            if (this->viewports[i].depth)
-                glDeleteRenderbuffersEXT(1, &this->viewports[i].depth);
-
-            glGenTextures(1, &this->viewports[i].tex);
-            glGenFramebuffersEXT(1, &this->viewports[i].fbo);
-            glGenRenderbuffersEXT(1, &this->viewports[i].depth);
-
-            glBindTexture(GL_TEXTURE_2D, this->viewports[i].tex);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, this->viewports[i].fbo);
-            glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, this->viewports[i].depth);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewportsize.x, viewportsize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-            glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, viewportsize.x, viewportsize.y);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, this->viewports[i].tex, 0);
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, this->viewports[i].depth);
-            
-            if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
-                fprintf(stderr, "error creating fbo for viewport %d with code %d\n", i, glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT));
-
-            this->viewports[i].canvassize = Eigen::Vector2i(viewportsize.x, viewportsize.y);
+            dialogconfig = {};
+            if(workingcfg.pairs["fgd"] == "")
+                dialogconfig.path = ".";
+            else
+                dialogconfig.filePathName = workingcfg.pairs["fgd"];
+            ImGuiFileDialog::Instance()->OpenDialog("OpenFgdFileKey", "Choose FGD File", ".fgd", dialogconfig);
         }
 
-        if(ImGui::IsWindowFocused())
+        ImGui::Separator();
+
+        if(ImGui::Button("Apply"))
         {
-            for(j=ImGuiKey_NamedKey_BEGIN; j<ImGuiKey_NamedKey_END; j++)
-            {
-                if(ImGui::IsKeyPressed((ImGuiKey) j))
-                    map.KeyPress(this->viewports[i], (ImGuiKey) j);
-                if(ImGui::IsKeyDown((ImGuiKey) j))
-                    map.KeyDown(this->viewports[i], (ImGuiKey) j, deltatime);
-            }
-            
-            // mouse input only when the mouse is over the window
-            if(ImGui::IsWindowHovered())
-            {
-                mousepos.x = ImGui::GetMousePos().x - ImGui::GetWindowPos().x;
-                mousepos.y = ImGui::GetMousePos().y - ImGui::GetWindowPos().y;
-                mousepos.y -= ImGui::GetWindowSize().y - viewportsize.y;
-                mousepos.x /= viewportsize.x;
-                mousepos.y /= viewportsize.y;
-                mousepos.x =  (mousepos.x * 2.0 - 1.0);
-                mousepos.y = -(mousepos.y * 2.0 - 1.0);
-
-                this->map.MouseUpdate(this->viewports[i], Eigen::Vector2f(mousepos[0], mousepos[1]));
-
-                for(j=ImGuiMouseButton_Left; j<ImGuiMouseButton_Middle; j++)
-                {
-                    if (!ImGui::IsMouseClicked(j))
-                        continue;
-                    
-                    this->map.Click
-                    (
-                        this->viewports[i],
-                        Eigen::Vector2f(mousepos.x, mousepos.y), 
-                        (ImGuiMouseButton_) j
-                    );
-                }
-            }
+            oldmapcfg = map.cfg;
+            map.cfg = workingcfg;
+            map.cfg.Write(map.cfgpath.c_str());
+            if(map.cfg.pairs["fgd"] != oldmapcfg.pairs["fgd"])
+                map.LoadFgd();
         }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel"))
+            this->showconfigwindow = false;
 
-        map.Render(this->viewports[i]);
-
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        
-        ImGui::Image((ImTextureID)(intptr_t)this->viewports[i].tex, viewportsize, {0, 1}, {1, 0});
         ImGui::End();
-        ImGui::PopStyleVar();
+
+        if (ImGuiFileDialog::Instance()->Display("OpenFgdFileKey") && ImGuiFileDialog::Instance()->IsOk())
+        {
+            workingcfg.pairs["fgd"] = ImGuiFileDialog::Instance()->GetFilePathName();
+
+            ImGuiFileDialog::Instance()->Close();
+        }
     }
+
+    if(!this->showconfigwindow)
+        workingcfg = map.cfg;
 }
 
 void Gui::DrawToolBar(void)
@@ -334,6 +290,257 @@ void Gui::DrawToolSettings(void)
     ImGui::End();
 }
 
+void Gui::DrawEntityPairs(void)
+{
+    int i, j;
+    std::map<std::string, std::string>::iterator it;
+
+    static std::string newkey = "";
+    static int selectedrow = -1;
+
+    Entity *ent;
+    int idef;
+    Fgdlib::EntityDef *def;
+    std::map<std::string, std::string> newpairs;
+    std::string displayname;
+
+    ent = &this->map.entities[0];
+    if(this->map.selectiontype == Map::SELECT_ENTITY && this->map.entselection.size())
+        ent = &this->map.entities[*this->map.entselection.begin()];
+
+    ImGui::Begin("Entity Pairs", NULL, ImGuiWindowFlags_NoCollapse);
+
+    ImGui::Checkbox("Smart Edit", &this->smarteedit);
+
+    if(smarteedit)
+    {
+        if(ent->pairs.find("classname") == ent->pairs.end())
+        {
+            ImGui::End();
+            return;
+        }
+        
+        for(i=0, def=map.fgd.ents.data(); i<map.fgd.ents.size(); i++, def++)
+            if(def->classname == ent->pairs["classname"])
+                break;
+        if(i >= map.fgd.ents.size())
+        {
+            ImGui::End();
+            return;
+        }
+        idef = i;
+
+        if(ent->pairs["classname"] == "worldspawn")
+            ImGui::BeginDisabled();
+        ImGui::PushItemWidth(-FLT_MIN);
+        if(ImGui::BeginCombo("##classdropdown", map.fgd.ents[idef].classname.c_str()))
+        {
+            for(i=0; i<map.fgd.ents.size(); i++)
+            {
+                if(map.fgd.ents[i].classname == "worldspawn")
+                    ImGui::BeginDisabled();
+
+                if(ImGui::Selectable(map.fgd.ents[i].classname.c_str(), i == idef))
+                {
+                    idef = i;
+                    def = &map.fgd.ents[idef];
+                    newpairs.clear();
+                    for(it=ent->pairs.begin(); it!=ent->pairs.end(); it++)
+                    {
+                        if(it->first == "classname")
+                            continue;
+
+                        for(j=0; j<def->pairs.size(); j++)
+                            if(def->pairs[j].keyname == it->first)
+                                break;
+                        
+                        if(j >= def->pairs.size())
+                            continue;
+                        
+                        newpairs[it->first] = it->second;
+                    }
+
+                    newpairs["classname"] = def->classname;
+                    ent->pairs = newpairs;
+
+                    this->selectedpair = -1;
+                }
+
+                if(map.fgd.ents[i].classname == "worldspawn")
+                    ImGui::EndDisabled();
+            }
+
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        if(ent->pairs["classname"] == "worldspawn")
+            ImGui::EndDisabled();
+
+        ImGui::Separator();
+
+        if(ImGui::BeginTable("smartpairs", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            def = &map.fgd.ents[idef];
+            for(i=0; i<def->pairs.size(); i++)
+            {
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                if(def->pairs[i].displayname.size())
+                    displayname = def->pairs[i].displayname;
+                else
+                    displayname = def->pairs[i].keyname;
+
+                if(ImGui::Selectable(displayname.c_str(), this->selectedpair == i))
+                    this->selectedpair = i;
+                
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushItemWidth(-FLT_MIN);
+                switch(def->pairs[i].type)
+                {
+                case Fgdlib::EntityPair::VALTYPE_STRING:
+                    if(ent->pairs.find(def->pairs[i].keyname) == ent->pairs.end())
+                        ent->pairs[def->pairs[i].keyname] = def->pairs[i].defstring;
+
+                    ImGui::InputText(("##" + displayname).c_str(), &ent->pairs[def->pairs[i].keyname]);
+                    break;
+                case Fgdlib::EntityPair::VALTYPE_INTEGER:
+                    if(ent->pairs.find(def->pairs[i].keyname) == ent->pairs.end())
+                        ent->pairs[def->pairs[i].keyname] = std::to_string(def->pairs[i].defint);
+
+                    ImGui::InputText(("##" + displayname).c_str(), &ent->pairs[def->pairs[i].keyname]);
+                    break;
+                default:
+                    break;
+                }
+                ImGui::PopItemWidth();
+            }
+
+            ImGui::EndTable();
+        }
+    }
+    else
+    {
+        this->selectedpair = -1;
+
+        if (ImGui::BeginTable("kvpairs", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            for(it=ent->pairs.begin(), i=0; it!=ent->pairs.end(); it++, i++)
+            {
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                if(ImGui::Selectable(it->first.c_str(), selectedrow == i))
+                {
+                    if(selectedrow == i)
+                        selectedrow = -1;
+                    else
+                        selectedrow = i;
+                }
+                
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushItemWidth(-FLT_MIN);
+                ImGui::InputText(("##val_" + it->first).c_str(), &it->second);
+                ImGui::PopItemWidth();
+            }
+
+            ImGui::EndTable();
+        }
+
+        if(ImGui::Button("Add Pair"))
+            ImGui::OpenPopup("Add Entity Pair");
+
+        ImGui::SameLine();
+        if (selectedrow >= 0)
+        {
+            ImGui::SameLine();
+            if(ImGui::Button("Delete Pair"))
+            {
+                it = ent->pairs.begin();
+                std::advance(it, selectedrow);
+                ent->pairs.erase(it);
+                selectedrow = -1;
+            }
+        }
+    
+        if (ImGui::BeginPopupModal("Add Entity Pair", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::InputText("New Key", &newkey);
+
+            if (ImGui::Button("Confirm"))
+            {
+                if(newkey.size())
+                    ent->pairs[newkey] = "";
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    ImGui::End();
+}
+
+void Gui::DrawPairHelper(void)
+{
+    int i;
+
+    Entity *ent;
+    Fgdlib::EntityDef *def;
+
+    ImGui::Begin("Entity Pair Helper", NULL, ImGuiWindowFlags_NoCollapse);
+    
+    if(!this->smarteedit)
+    {
+        ImGui::End();
+        return;
+    }
+
+    ent = &this->map.entities[0];
+    if(this->map.selectiontype == Map::SELECT_ENTITY && this->map.entselection.size())
+        ent = &this->map.entities[*this->map.entselection.begin()];
+
+    if(ent->pairs.find("classname") == ent->pairs.end())
+    {
+        ImGui::End();
+        return;
+    }
+
+    for(i=0; i<map.fgd.ents.size(); i++)
+        if(map.fgd.ents[i].classname == ent->pairs["classname"])
+            break;
+
+    if(i >= map.fgd.ents.size())
+    {
+        ImGui::End();
+        return;
+    }
+
+    def = &map.fgd.ents[i];
+
+    ImGui::TextUnformatted(def->classname.c_str());
+    if(def->description.size())
+    {
+        ImGui::Separator();
+        ImGui::TextUnformatted(def->description.c_str());
+    }
+
+    if(this->selectedpair < 0)
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Separator();
+    ImGui::TextWrapped(map.fgd.ents[i].pairs[this->selectedpair].description.c_str());
+
+    ImGui::End();
+}
+
 void Gui::DrawRibbon(void)
 {
     ImGui::Begin("Ribbon", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
@@ -342,6 +549,8 @@ void Gui::DrawRibbon(void)
 
 void Gui::Draw()
 {
+    int i;
+
     float deltatime;
     uint64_t curframe, msdelta;
     ImGuiDockNodeFlags dockspaceflags;
@@ -351,20 +560,24 @@ void Gui::Draw()
     ImGui::NewFrame();
 
     this->DrawMenuBar();
+    this->DrawConfigMenu();
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
     DrawRibbon();
     DrawToolBar();
     DrawToolSettings();
+    DrawEntityPairs();
+    DrawPairHelper();
 
     curframe = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if(!lastframe)
         lastframe = curframe;
     msdelta = curframe - lastframe;
     deltatime = (float) msdelta / 1000.0;
-
-    this->DrawViewports(deltatime);
+    
+    for(i=0; i<this->elements.size(); i++)
+        this->elements[i]->Draw();
 
     lastframe = curframe;
 }
