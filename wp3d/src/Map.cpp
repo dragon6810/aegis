@@ -982,7 +982,6 @@ void Map::NewMap(void)
     worldspawn = &this->entities.back();
 
     worldspawn->pairs["classname"] = "worldspawn";
-    worldspawn->pairs["wp3dversion"] = "wp3d_v1";
     worldspawn->brushes.clear();
 
     this->SwitchTool(TOOL_SELECT);

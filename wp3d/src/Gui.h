@@ -24,6 +24,7 @@ private:
     bool showconfigwindow = false;
     Cfglib::CfgFile workingcfg;
     bool smarteedit = true;
+    int selectedpair = -1;
     std::unordered_map<std::string, std::vector<char>> valedit;
     std::unordered_map<std::string, std::vector<char>> keyedit;
 
@@ -36,6 +37,7 @@ private:
     void DrawToolBar(void);
     void DrawToolSettings(void);
     void DrawEntityPairs(void);
+    void DrawPairHelper(void);
     void DrawRibbon(void);
     void ViewportInput(void);
 public:
