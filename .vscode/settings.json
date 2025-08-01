@@ -47,6 +47,7 @@
         "complex": "cpp",
         "forward_list": "cpp",
         "hash_map": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "alignedvector3": "cpp"
     }
 }

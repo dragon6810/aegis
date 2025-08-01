@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -23,7 +23,7 @@ namespace Maplib
 
     typedef struct
     {
-        std::unordered_map<std::string, std::string> keys;
+        std::map<std::string, std::string> keys;
         std::vector<brush_t> brushes;
     } entity_t;
 

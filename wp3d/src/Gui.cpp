@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
+#include <imgui_stdlib.h>
 #include <ImGuiFileDialog.h>
 
 #include "Map.h"
@@ -159,11 +160,17 @@ void Gui::DrawConfigMenu(void)
         return;
 
     Cfglib::CfgFile oldmapcfg;
+    std::string fgdlabel;
     IGFD::FileDialogConfig dialogconfig;
 
     if (ImGui::Begin("Options", &this->showconfigwindow))
     {
-        if(ImGui::Button("FGD File"))
+        fgdlabel = "FGD File: ";
+        if (!workingcfg.pairs["fgd"].empty())
+            fgdlabel += std::filesystem::path(workingcfg.pairs["fgd"]).filename().string();
+        else
+            fgdlabel += "<none>";
+        if(ImGui::Button(fgdlabel.c_str()))
         {
             dialogconfig = {};
             if(workingcfg.pairs["fgd"] == "")
@@ -172,6 +179,9 @@ void Gui::DrawConfigMenu(void)
                 dialogconfig.filePathName = workingcfg.pairs["fgd"];
             ImGuiFileDialog::Instance()->OpenDialog("OpenFgdFileKey", "Choose FGD File", ".fgd", dialogconfig);
         }
+
+        ImGui::Separator();
+
         if(ImGui::Button("Apply"))
         {
             oldmapcfg = map.cfg;
@@ -180,6 +190,7 @@ void Gui::DrawConfigMenu(void)
             if(map.cfg.pairs["fgd"] != oldmapcfg.pairs["fgd"])
                 map.LoadFgd();
         }
+        ImGui::SameLine();
         if(ImGui::Button("Cancel"))
             this->showconfigwindow = false;
 
@@ -388,6 +399,45 @@ void Gui::DrawToolSettings(void)
     ImGui::End();
 }
 
+void Gui::DrawEntityPairs(void)
+{
+    std::map<std::string, std::string>::iterator it;
+
+    Entity *ent;
+
+    ImGui::Begin("Entity Pairs", NULL, ImGuiWindowFlags_NoCollapse);
+
+    ImGui::Checkbox("Smart Edit", &this->smarteedit);
+
+    // TODO: Smart Edit
+    if(!smarteedit)
+    {
+        ent = &this->map.entities[0];
+        if(this->map.selectiontype == Map::SELECT_ENTITY && this->map.entselection.size())
+            ent = &this->map.entities[*this->map.entselection.begin()];
+
+        if (ImGui::BeginTable("kvpairs", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            for(it=ent->pairs.begin(); it!=ent->pairs.end(); it++)
+            {
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted(it->first.c_str());
+                
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushItemWidth(-FLT_MIN);
+                ImGui::InputText(("##val_" + it->first).c_str(), &it->second);
+                ImGui::PopItemWidth();
+            }
+
+            ImGui::EndTable();
+        }
+    }
+
+    ImGui::End();
+}
+
 void Gui::DrawRibbon(void)
 {
     ImGui::Begin("Ribbon", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
@@ -412,6 +462,7 @@ void Gui::Draw()
     DrawRibbon();
     DrawToolBar();
     DrawToolSettings();
+    DrawEntityPairs();
 
     curframe = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if(!lastframe)

@@ -10,7 +10,7 @@ Maplib::MapFile::MapFile()
 bool Maplib::MapFile::Write(std::string path)
 {
     int i, e, b, p;
-    std::unordered_map<std::string, std::string>::iterator it;
+    std::map<std::string, std::string>::iterator it;
     entity_t *ent;
     brush_t *br;
     plane_t *pl;
