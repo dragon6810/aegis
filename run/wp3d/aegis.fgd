@@ -2,3 +2,8 @@
 [
     title(string) : "Title" : "untitled" : "The title of the map to be displayed in the engine. Need not match the file name."
 ]
+
+@SolidClass = func_wall : "Func Wall"
+[
+    
+]

@@ -53,7 +53,7 @@ void Map::LoadConfig(void)
     this->cfg.LoadDefault("fgd", "");
     this->cfg.Load(this->cfgpath.c_str());
     if(this->cfg.pairs["fgd"] != "")
-        this->fgd.Load(this->cfg.pairs["fgd"]);
+        this->LoadFgd();
 }
 
 void Map::PanOrtho(Viewport& view, ImGuiKey key)

@@ -401,29 +401,112 @@ void Gui::DrawToolSettings(void)
 
 void Gui::DrawEntityPairs(void)
 {
+    int i;
     std::map<std::string, std::string>::iterator it;
 
+    static std::string newkey = "";
+    static int selectedrow = -1;
+
     Entity *ent;
+    int idef;
+    Fgdlib::EntityDef *def;
+    std::vector<const char*> classnames;
+    std::map<std::string, std::string> newpairs;
+    std::string displayname;
+
+    ent = &this->map.entities[0];
+    if(this->map.selectiontype == Map::SELECT_ENTITY && this->map.entselection.size())
+        ent = &this->map.entities[*this->map.entselection.begin()];
 
     ImGui::Begin("Entity Pairs", NULL, ImGuiWindowFlags_NoCollapse);
 
     ImGui::Checkbox("Smart Edit", &this->smarteedit);
 
-    // TODO: Smart Edit
-    if(!smarteedit)
+    if(smarteedit)
     {
-        ent = &this->map.entities[0];
-        if(this->map.selectiontype == Map::SELECT_ENTITY && this->map.entselection.size())
-            ent = &this->map.entities[*this->map.entselection.begin()];
+        if(ent->pairs.find("classname") == ent->pairs.end())
+            return;
+        
+        for(i=0, def=map.fgd.ents.data(); i<map.fgd.ents.size(); i++, def++)
+            if(def->classname == ent->pairs["classname"])
+                break;
+        if(i >= map.fgd.ents.size())
+        {
+            ImGui::End();
+            return;
+        }
+        idef = i;
+        
+        classnames.resize(map.fgd.ents.size());
+        for(i=0, def=map.fgd.ents.data(); i<map.fgd.ents.size(); i++, def++)
+            classnames[i] = map.fgd.ents[i].classname.c_str();
+        
+        ImGui::TextUnformatted("Class");
+        ImGui::SameLine();
+        if(ImGui::Combo("##classdropdown", &idef, classnames.data(), classnames.size()))
+        {
+            def = &map.fgd.ents[idef];
+            newpairs.clear();
+            for(it=ent->pairs.begin(); it!=ent->pairs.end(); it++)
+            {
+                if(it->first == "classname")
+                    continue;
 
+                for(i=0; i<def->pairs.size(); i++)
+                    if(def->pairs[i].keyname == it->first)
+                        break;
+                
+                if(i >= def->pairs.size())
+                    continue;
+                
+                newpairs[it->first] = it->second;
+            }
+
+            newpairs["classname"] = def->classname;
+            ent->pairs = newpairs;
+        }
+
+        def = &map.fgd.ents[idef];
+        for(i=0; i<def->pairs.size(); i++)
+        {
+            if(def->pairs[i].displayname.size())
+                displayname = def->pairs[i].displayname;
+            else
+                displayname = def->pairs[i].keyname;
+            
+            switch(def->pairs[i].type)
+            {
+            case Fgdlib::EntityPair::VALTYPE_STRING:
+                if(ent->pairs.find(def->pairs[i].keyname) == ent->pairs.end())
+                    ent->pairs[def->pairs[i].keyname] = def->pairs[i].defstring;
+                ImGui::TextUnformatted(displayname.c_str());
+                if(def->pairs[i].description.size() && ImGui::IsItemHovered())
+                    ImGui::SetTooltip(def->pairs[i].description.c_str());
+                    
+                ImGui::SameLine();
+                ImGui::InputText(("##" + displayname).c_str(), &ent->pairs[def->pairs[i].keyname]);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    else
+    {
         if (ImGui::BeginTable("kvpairs", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
-            for(it=ent->pairs.begin(); it!=ent->pairs.end(); it++)
+            for(it=ent->pairs.begin(), i=0; it!=ent->pairs.end(); it++, i++)
             {
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
-                ImGui::TextUnformatted(it->first.c_str());
+                if(ImGui::Selectable(it->first.c_str(), selectedrow == i))
+                {
+                    if(selectedrow == i)
+                        selectedrow = -1;
+                    else
+                        selectedrow = i;
+                }
                 
                 ImGui::TableSetColumnIndex(1);
                 ImGui::PushItemWidth(-FLT_MIN);
@@ -432,6 +515,40 @@ void Gui::DrawEntityPairs(void)
             }
 
             ImGui::EndTable();
+        }
+
+        if(ImGui::Button("Add Pair"))
+            ImGui::OpenPopup("Add Entity Pair");
+
+        ImGui::SameLine();
+        if (selectedrow >= 0)
+        {
+            ImGui::SameLine();
+            if(ImGui::Button("Delete Pair"))
+            {
+                it = ent->pairs.begin();
+                std::advance(it, selectedrow);
+                ent->pairs.erase(it);
+                selectedrow = -1;
+            }
+        }
+    
+        if (ImGui::BeginPopupModal("Add Entity Pair", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::InputText("New Key", &newkey);
+
+            if (ImGui::Button("Confirm"))
+            {
+                if(newkey.size())
+                    ent->pairs[newkey] = "";
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
         }
     }
 
