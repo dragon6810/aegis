@@ -52,6 +52,7 @@ private:
 public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
     static constexpr int max_grid_level = 10; // 2^10 = 1024
+    static constexpr std::string cfgpath = "wp3d.cfg";
 
     unsigned int gridlevel = 4; // 0 to max_grid_level
 
@@ -66,7 +67,6 @@ public:
 
     std::string path = "";
 
-    const std::string cfgpath = "wp3d.cfg";
     Cfglib::CfgFile cfg;
     Fgdlib::FgdFile fgd;
 

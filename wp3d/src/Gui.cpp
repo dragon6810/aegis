@@ -10,6 +10,7 @@
 #include <ImGuiFileDialog.h>
 
 #include "GuiElementViewport.h"
+#include "GuiElementMenuBar.h"
 #include "Map.h"
 
 void Gui::Setup(GLFWwindow* win)
@@ -36,6 +37,7 @@ void Gui::Setup(GLFWwindow* win)
 
     for(i=0; i<Viewport::NTYPES; i++)
         this->elements.push_back(std::make_unique<GuiElementViewport>(GuiElementViewport(this->map, (Viewport::viewporttype_e) i)));
+    this->elements.push_back(std::make_unique<GuiElementMenuBar>(GuiElementMenuBar(this->map)));
 }
 
 void Gui::ApplyStyle(void)
@@ -75,128 +77,6 @@ void Gui::ApplyStyle(void)
     style->WindowMenuButtonPosition = ImGuiDir_None;
     style->TabBarOverlineSize = 0;
     style->TabBorderSize = 1;
-}
-
-void Gui::ViewportInput(void)
-{
-
-}
-
-void Gui::DrawMenuBar(void)
-{
-    IGFD::FileDialogConfig config;
-
-    if (ImGui::BeginMainMenuBar()) 
-    {
-        if (ImGui::BeginMenu("File")) 
-        {
-            if (ImGui::MenuItem("New", "Ctrl+N")) 
-            {
-                map.NewMap();
-            }
-            if (ImGui::MenuItem("Save", "Ctrl+S"))
-            {
-                if(map.path == "")
-                {
-                    config = {};
-                    config.path = ".";
-		            ImGuiFileDialog::Instance()->OpenDialog("SaveMapFileKey", "Choose Map File", ".map", config);
-                }
-                else
-                {
-                    this->map.Save();
-                }
-            }
-            if (ImGui::MenuItem("Open", "Ctrl+O"))
-            {
-                config = {};
-                config.path = ".";
-                ImGuiFileDialog::Instance()->OpenDialog("OpenMapFileKey", "Choose Map File", ".map", config);
-            }
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Edit")) 
-        {
-            if (ImGui::MenuItem("Options")) 
-            {
-                this->showconfigwindow = true;
-                workingcfg = map.cfg;
-            }
-
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
-    if (ImGuiFileDialog::Instance()->Display("SaveMapFileKey") && ImGuiFileDialog::Instance()->IsOk())
-    {
-        this->map.path = ImGuiFileDialog::Instance()->GetFilePathName();
-        this->map.Save();
-
-        ImGuiFileDialog::Instance()->Close();
-    }
-
-    if (ImGuiFileDialog::Instance()->Display("OpenMapFileKey") && ImGuiFileDialog::Instance()->IsOk())
-    {
-        this->map.Load(ImGuiFileDialog::Instance()->GetFilePathName());
-
-        ImGuiFileDialog::Instance()->Close();
-    }
-}
-
-void Gui::DrawConfigMenu(void)
-{
-    if(!this->showconfigwindow)
-        return;
-
-    Cfglib::CfgFile oldmapcfg;
-    std::string fgdlabel;
-    IGFD::FileDialogConfig dialogconfig;
-
-    if (ImGui::Begin("Options", &this->showconfigwindow))
-    {
-        fgdlabel = "FGD File: ";
-        if (!workingcfg.pairs["fgd"].empty())
-            fgdlabel += std::filesystem::path(workingcfg.pairs["fgd"]).filename().string();
-        else
-            fgdlabel += "<none>";
-        if(ImGui::Button(fgdlabel.c_str()))
-        {
-            dialogconfig = {};
-            if(workingcfg.pairs["fgd"] == "")
-                dialogconfig.path = ".";
-            else
-                dialogconfig.filePathName = workingcfg.pairs["fgd"];
-            ImGuiFileDialog::Instance()->OpenDialog("OpenFgdFileKey", "Choose FGD File", ".fgd", dialogconfig);
-        }
-
-        ImGui::Separator();
-
-        if(ImGui::Button("Apply"))
-        {
-            oldmapcfg = map.cfg;
-            map.cfg = workingcfg;
-            map.cfg.Write(map.cfgpath.c_str());
-            if(map.cfg.pairs["fgd"] != oldmapcfg.pairs["fgd"])
-                map.LoadFgd();
-        }
-        ImGui::SameLine();
-        if(ImGui::Button("Cancel"))
-            this->showconfigwindow = false;
-
-        ImGui::End();
-
-        if (ImGuiFileDialog::Instance()->Display("OpenFgdFileKey") && ImGuiFileDialog::Instance()->IsOk())
-        {
-            workingcfg.pairs["fgd"] = ImGuiFileDialog::Instance()->GetFilePathName();
-
-            ImGuiFileDialog::Instance()->Close();
-        }
-    }
-
-    if(!this->showconfigwindow)
-        workingcfg = map.cfg;
 }
 
 void Gui::DrawToolBar(void)
@@ -559,9 +439,6 @@ void Gui::Draw()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    this->DrawMenuBar();
-    this->DrawConfigMenu();
-
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
     DrawRibbon();
@@ -575,7 +452,7 @@ void Gui::Draw()
         lastframe = curframe;
     msdelta = curframe - lastframe;
     deltatime = (float) msdelta / 1000.0;
-    
+
     for(i=0; i<this->elements.size(); i++)
         this->elements[i]->Draw();
 

@@ -10,17 +10,17 @@
 #include "Map.h"
 #include "Viewport.h"
 
+#ifdef __MACOS
+    #define GUI_CONTROL_STRING "Cmd"
+    #define GUI_ALT_STRING "Opt"
+#else
+    #define GUI_CONTROL_STRING "Ctrl"
+    #define GUI_ALT_STRING "Alt"
+#endif
+
 class Gui
 {
-public:
-    static Gui& GetGui()
-    {
-        static Gui instance;
-        return instance;
-    }
 private:
-    Gui() {}
-
     Map map;
     std::vector<std::unique_ptr<GuiElement>> elements;
 
@@ -34,14 +34,11 @@ private:
     uint64_t lastframe = 0;
 
     void ApplyStyle(void);
-    void DrawMenuBar(void);
-    void DrawConfigMenu(void);
     void DrawToolBar(void);
     void DrawToolSettings(void);
     void DrawEntityPairs(void);
     void DrawPairHelper(void);
     void DrawRibbon(void);
-    void ViewportInput(void);
 public:
     void Setup(GLFWwindow* win);
     void Draw();

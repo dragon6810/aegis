@@ -10,12 +10,16 @@ add_executable (
     "src/Viewport.cpp"
     "src/GuiElement.cpp"
     "src/GuiElementViewport.cpp"
+    "src/GuiElementMenuBar.cpp"
+    "src/GuiElementConfigMenu.cpp"
 )
 
 if (APPLE)
     if (DEBUG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     endif()
+
+    target_compile_definitions(wp3d PRIVATE __MACOS)
 
     find_package(GLEW REQUIRED)
     find_package(GLFW3 REQUIRED)
@@ -35,6 +39,8 @@ if (APPLE)
         "-framework OpenGL"
     )
 elseif (UNIX)
+    target_compile_definitions(wp3d PRIVATE __LINUX)
+
     find_package(OpenGL REQUIRED)
     find_package(GLEW REQUIRED)
     find_package(PkgConfig REQUIRED)
