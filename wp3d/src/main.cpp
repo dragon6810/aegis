@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 {
     GLFWwindow *win;
     int w, h;
+    Gui gui;
 
     glfwSetErrorCallback(errorcallback);
     printf("GLFW Version: %s\n", glfwGetVersionString());
@@ -47,7 +48,8 @@ int main(int argc, char** argv)
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 
-    Gui::GetGui().Setup(win);
+    gui = Gui();
+    gui.Setup(win);
 
     while(!glfwWindowShouldClose(win))
     {
@@ -56,12 +58,12 @@ int main(int argc, char** argv)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        Gui::GetGui().Draw();
+        gui.Draw();
 
         glfwGetFramebufferSize(win, &w, &h);
         glViewport(0, 0, w, h);
 
-        Gui::GetGui().FinishFrame();
+        gui.FinishFrame();
 
         glfwSwapBuffers(win);
     }

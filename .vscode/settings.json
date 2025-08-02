@@ -50,6 +50,7 @@
         "valarray": "cpp",
         "alignedvector3": "cpp",
         "any": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "ios": "cpp"
     }
 }
