@@ -267,8 +267,6 @@ bool Brush::RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 
 void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map)
 {
-    // TODO: also stop duplicating code here! what's gotten into you!?
-
     int i;
 
     std::unordered_set<int> *selection;
@@ -282,6 +280,8 @@ void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map
             selection->insert(index);
         else
             selection->erase(index);
+
+        return;
     }
 
     bestplane = -1;
