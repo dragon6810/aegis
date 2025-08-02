@@ -36,9 +36,10 @@ void GuiElementToolBar::Draw(void)
     if (shift && ImGui::IsKeyPressed(ImGuiKey_W)) map.SwitchTool(Map::TOOL_TRANSLATE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_E)) map.SwitchTool(Map::TOOL_ROTATE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_R)) map.SwitchTool(Map::TOOL_SCALE);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_Z)) map.SwitchTool(Map::TOOL_VERTEX);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_V)) map.SwitchTool(Map::TOOL_VERTEX);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_X)) map.SwitchTool(Map::TOOL_PLANE);
     if (shift && ImGui::IsKeyPressed(ImGuiKey_B)) map.SwitchTool(Map::TOOL_BRUSH);
+    if (shift && ImGui::IsKeyPressed(ImGuiKey_Z)) map.SwitchTool(Map::TOOL_ENTITY);
 
     ImGui::Begin("Tool Bar", NULL, ImGuiWindowFlags_NoCollapse);
 
@@ -49,6 +50,7 @@ void GuiElementToolBar::Draw(void)
     DrawToolButton("Vertex Editing", Map::TOOL_VERTEX,    "Shift V", "Can be used to modify vertex geometry");
     DrawToolButton("Plane",          Map::TOOL_PLANE,     "Shift X", "Can be used to create new planes");
     DrawToolButton("Brush",          Map::TOOL_BRUSH,     "Shift B", "Can be used to create new brushes");
+    DrawToolButton("Entity",         Map::TOOL_ENTITY,    "Shift Z", "Can be used to create new point entities");
 
     ImGui::End();
 }

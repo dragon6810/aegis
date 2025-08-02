@@ -403,6 +403,32 @@ void Map::DrawGrid(const Viewport& view)
     glColor3f(1, 1, 1);
 }
 
+void Map::DrawWorkingEnt(const Viewport& view)
+{
+    int i;
+
+    Eigen::Vector3i e[2];
+
+    if(!this->placingentity)
+        return;
+
+    glColor3f(1, 1, 0);
+
+    glBegin(GL_LINES);
+    for(i=0; i<3; i++)
+    {
+        e[0] = e[1] = workingentity;
+        e[0][i] = -max_map_size;
+        e[1][i] = max_map_size;
+
+        glVertex3f(e[0][0], e[0][1], e[0][2]);
+        glVertex3f(e[1][0], e[1][1], e[1][2]);
+    }
+    glEnd();
+
+    glColor3f(1, 1, 1);
+}
+
 void Map::DrawWorkingBrush(const Viewport& view)
 {
     const Eigen::Vector3f cornercolors[2] = { Eigen::Vector3f(1, 0, 0), Eigen::Vector3f(0, 1, 0) };
@@ -896,6 +922,26 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
             this->brushcorners[icorner][i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
         
         break;
+    case TOOL_ENTITY:
+        if(view.type == Viewport::FREECAM)
+            return;
+
+        if(button != ImGuiMouseButton_Left)
+            return;
+
+        view.GetRay(mousepos, &o, NULL);
+        if(!placingentity)
+            o[view.type] = 0;
+        else
+            o[view.type] = workingentity[view.type];
+
+        realgridsize = 1 << gridlevel;
+        for(i=0; i<3; i++)
+            workingentity[i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
+        
+        placingentity = true;
+        
+        break;
     }
 }
 
@@ -960,6 +1006,7 @@ void Map::Render(const Viewport& view)
     for(i=0; i<this->entities.size(); i++)
         this->entities[i].Draw(view, i, *this);
 
+    DrawWorkingEnt(view);
     DrawWorkingBrush(view);
     DrawTriplane(view);
 

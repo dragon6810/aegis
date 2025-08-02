@@ -22,6 +22,7 @@ public:
         TOOL_VERTEX,
         TOOL_PLANE,
         TOOL_BRUSH,
+        TOOL_ENTITY,
         TOOL_COUNT,
     } tooltype_e;
 
@@ -46,6 +47,7 @@ private:
     void FinalizeVertexEdit(void);
 
     void DrawGrid(const Viewport& view);
+    void DrawWorkingEnt(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
     void DrawTriplane(const Viewport& view);
     void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
@@ -64,6 +66,9 @@ public:
     std::unordered_set<int> triplaneselection;
     tooltype_e tool;
     selectiontype_e selectiontype;
+    Eigen::Vector3i workingentity;
+    bool placingentity = false;
+    int workingenttype;
 
     std::string path = "";
 
