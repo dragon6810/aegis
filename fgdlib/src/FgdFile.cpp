@@ -5,6 +5,27 @@ Fgdlib::FgdFile::FgdFile()
     this->ents.clear();
 }
 
+int Fgdlib::FgdFile::FindBaseClass(const char* name) const
+{
+    int i;
+
+    for(i=0; i<this->ents.size(); i++)
+    {
+        if(ents[i].type != EntityDef::ENTTYPE_BASE)
+            continue;
+        
+        if(strcmp(name, this->ents[i].classname.c_str()))
+            continue;
+
+        break;
+    }
+
+    if(i >= this->ents.size())
+        return -1;
+
+    return i;
+}
+
 Fgdlib::FgdFile Fgdlib::FgdFile::Load(std::string path)
 {
     Parselib::Tokenizer::token_t *tkn;
@@ -21,7 +42,7 @@ Fgdlib::FgdFile Fgdlib::FgdFile::Load(std::string path)
 
     while(tkn->type != Parselib::Tokenizer::TOKEN_EOF)
     {
-        ent = EntityDef::Load(&tkn);
+        ent = EntityDef::Load(&tkn, file);
         if(!ent.has_value())
             return file;
         file.ents.push_back(ent.value());

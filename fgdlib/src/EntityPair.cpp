@@ -9,6 +9,8 @@ std::optional<Fgdlib::EntityPair> Fgdlib::EntityPair::Load(Parselib::Tokenizer::
 {
     const char *funcname = "Fgdlib::EntityDef::Load";
 
+    int i;
+
     EntityPair pair;
 
     if(!Parselib::Tokenizer::ExpectType(**tkn, Parselib::Tokenizer::TOKEN_IDENTIFIER, funcname))
@@ -41,6 +43,8 @@ std::optional<Fgdlib::EntityPair> Fgdlib::EntityPair::Load(Parselib::Tokenizer::
         return std::optional<EntityPair>();
         pair.type = VALTYPE_CHOICES;
     }
+    else if((*tkn)->val == "integer3")
+        pair.type = VALTYPE_INT3;
     else
     {
         Parselib::Tokenizer::SyntaxError(**tkn, funcname, "expected valid value type.");
@@ -90,7 +94,20 @@ std::optional<Fgdlib::EntityPair> Fgdlib::EntityPair::Load(Parselib::Tokenizer::
             (*tkn)++;
         }
         break;
+    case VALTYPE_INT3:
+        if((*tkn)->type != Parselib::Tokenizer::TOKEN_NUMBER)
+            break;
+
+        for(i=0; i<3; i++)
+        {
+            if(!Parselib::Tokenizer::ExpectType(**tkn, Parselib::Tokenizer::TOKEN_NUMBER, funcname))
+                return std::optional<Fgdlib::EntityPair>();
+            pair.defint3[i] = std::stoi((*tkn)->val);
+            (*tkn)++;
+        }
+        break;
     default:
+        Parselib::Tokenizer::SyntaxError(**tkn, funcname, "unsupported default type.");
         return std::optional<EntityPair>();
         break;
     };

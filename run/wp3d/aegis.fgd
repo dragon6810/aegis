@@ -5,6 +5,21 @@
     defaultlight(integer) : "Default Light Level" : 255 : "If lighting isn't generated, what light level should the geometry be at instead?"
 ]
 
+@BaseClass = Origin
+[
+    origin(integer3) : "Origin" : 0 0 0 : "The position of the entity."
+]
+
+@BaseClass = Light
+[
+    falloff(float) : "Falloff Mulitplier" : 1 : "The falloff mulitplier. A higher value means quicker falloff. A value of 0 means no falloff."
+]
+
+@PointClass base(Origin, Light) = light_omni
+[
+    
+]
+
 @SolidClass = func_wall : "Func Wall"
 [
     

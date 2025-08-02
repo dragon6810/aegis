@@ -3,10 +3,14 @@
 #include <optional>
 #include <string>
 
+#include <Eigen/Dense>
+
 #include <parselib/Tokenizer.h>
 
 namespace Fgdlib
 {
+    class FgdFile;
+
     class EntityPair
     {
     public:
@@ -17,6 +21,7 @@ namespace Fgdlib
             VALTYPE_FLOAT,
             VALTYPE_FLAGS,
             VALTYPE_CHOICES,
+            VALTYPE_INT3,
             VALTYPE_COUNT,
         } valtype_e;
     public:
@@ -27,6 +32,7 @@ namespace Fgdlib
         float deffloat;
         int defflags;
         int defchoices;
+        Eigen::Vector3i defint3;
 
         std::string keyname;
         valtype_e type;
@@ -45,6 +51,7 @@ namespace Fgdlib
         {
             ENTTYPE_POINT=0,
             ENTTYPE_SOLID,
+            ENTTYPE_BASE,
             ENTTYPE_COUNT,
         } enttype_e;
     public:
@@ -55,7 +62,7 @@ namespace Fgdlib
 
         EntityDef();
 
-        static std::optional<EntityDef> Load(Parselib::Tokenizer::token_t **tkn);
+        static std::optional<EntityDef> Load(Parselib::Tokenizer::token_t **tkn, const FgdFile& file);
     };
 
     class FgdFile
@@ -65,6 +72,7 @@ namespace Fgdlib
 
         std::vector<EntityDef> ents;
 
+        int FindBaseClass(const char* name) const;
         static FgdFile Load(std::string path);
     };
 };

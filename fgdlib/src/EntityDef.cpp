@@ -8,12 +8,15 @@ Fgdlib::EntityDef::EntityDef()
     this->pairs.clear();
 }
 
-std::optional<Fgdlib::EntityDef> Fgdlib::EntityDef::Load(Parselib::Tokenizer::token_t **tkn)
+std::optional<Fgdlib::EntityDef> Fgdlib::EntityDef::Load(Parselib::Tokenizer::token_t **tkn, const FgdFile& file)
 {
     const char *funcname = "Fgdlib::EntityDef::Load";
 
+    int i;
+
     EntityDef entdef;
     std::optional<EntityPair> pair;
+    int baseclass;
 
     if(!Parselib::Tokenizer::ExpectValue(**tkn, "@", funcname))
         return std::optional<EntityDef>();
@@ -26,6 +29,8 @@ std::optional<Fgdlib::EntityDef> Fgdlib::EntityDef::Load(Parselib::Tokenizer::to
         entdef.type = ENTTYPE_POINT;
     else if((*tkn)->val == "SolidClass")
         entdef.type = ENTTYPE_SOLID;
+    else if((*tkn)->val == "BaseClass")
+        entdef.type = ENTTYPE_BASE;
     else
     {
         Parselib::Tokenizer::SyntaxError(**tkn, funcname, "expected valid class type.");
@@ -34,7 +39,46 @@ std::optional<Fgdlib::EntityDef> Fgdlib::EntityDef::Load(Parselib::Tokenizer::to
 
     (*tkn)++;
 
-    // TODO: Class Properties
+    while((*tkn)->type == Parselib::Tokenizer::TOKEN_IDENTIFIER)
+    {
+        if((*tkn)->val == "base")
+        {
+            (*tkn)++;
+            if(!Parselib::Tokenizer::ExpectValue(**tkn, "(", funcname))
+                return std::optional<EntityDef>();
+            (*tkn)++;
+
+            while((*tkn)->type == Parselib::Tokenizer::TOKEN_IDENTIFIER)
+            {
+                baseclass = file.FindBaseClass((*tkn)->val.c_str());
+                if(baseclass < 0)
+                {
+                    Parselib::Tokenizer::SyntaxError(**tkn, funcname, "undefined base class.");
+                    return std::optional<EntityDef>();
+                }
+
+                (*tkn)++;
+
+                entdef.pairs.insert(entdef.pairs.end(), file.ents[baseclass].pairs.begin(), file.ents[baseclass].pairs.end());
+
+                if((*tkn)->val != ")")
+                {
+                    if(!Parselib::Tokenizer::ExpectValue(**tkn, ",", funcname))
+                        return std::optional<EntityDef>();
+                    (*tkn)++;
+                }
+            }
+
+            if(!Parselib::Tokenizer::ExpectValue(**tkn, ")", funcname))
+                return std::optional<EntityDef>();
+            (*tkn)++;
+        }
+        else
+        {
+            Parselib::Tokenizer::SyntaxError(**tkn, funcname, "unknown property.");
+            return std::optional<EntityDef>();
+        }
+    }
 
     if(!Parselib::Tokenizer::ExpectValue(**tkn, "=", funcname))
         return std::optional<EntityDef>();
