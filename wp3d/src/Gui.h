@@ -24,18 +24,7 @@ private:
     Map map;
     std::vector<std::unique_ptr<GuiElement>> elements;
 
-    bool showconfigwindow = false;
-    Cfglib::CfgFile workingcfg;
-    bool smarteedit = true;
-    int selectedpair = -1;
-    std::unordered_map<std::string, std::vector<char>> valedit;
-    std::unordered_map<std::string, std::vector<char>> keyedit;
-
-    uint64_t lastframe = 0;
-
     void ApplyStyle(void);
-    void DrawEntityPairs(void);
-    void DrawPairHelper(void);
 public:
     void Setup(GLFWwindow* win);
     void Draw();
