@@ -12,6 +12,8 @@ add_executable (
     "src/GuiElementViewport.cpp"
     "src/GuiElementMenuBar.cpp"
     "src/GuiElementConfigMenu.cpp"
+    "src/GuiElementToolBar.cpp"
+    "src/GuiElementToolSettings.cpp"
 )
 
 if (APPLE)

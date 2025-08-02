@@ -34,11 +34,8 @@ private:
     uint64_t lastframe = 0;
 
     void ApplyStyle(void);
-    void DrawToolBar(void);
-    void DrawToolSettings(void);
     void DrawEntityPairs(void);
     void DrawPairHelper(void);
-    void DrawRibbon(void);
 public:
     void Setup(GLFWwindow* win);
     void Draw();

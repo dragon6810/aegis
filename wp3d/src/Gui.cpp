@@ -9,8 +9,10 @@
 #include <imgui_stdlib.h>
 #include <ImGuiFileDialog.h>
 
-#include "GuiElementViewport.h"
 #include "GuiElementMenuBar.h"
+#include "GuiElementToolBar.h"
+#include "GuiElementToolSettings.h"
+#include "GuiElementViewport.h"
 #include "Map.h"
 
 void Gui::Setup(GLFWwindow* win)
@@ -35,9 +37,11 @@ void Gui::Setup(GLFWwindow* win)
 
     map.NewMap();
 
+    this->elements.push_back(std::make_unique<GuiElementMenuBar>(GuiElementMenuBar(this->map)));
+    this->elements.push_back(std::make_unique<GuiElementToolBar>(GuiElementToolBar(this->map)));
+    this->elements.push_back(std::make_unique<GuiElementToolSettings>(GuiElementToolSettings(this->map)));
     for(i=0; i<Viewport::NTYPES; i++)
         this->elements.push_back(std::make_unique<GuiElementViewport>(GuiElementViewport(this->map, (Viewport::viewporttype_e) i)));
-    this->elements.push_back(std::make_unique<GuiElementMenuBar>(GuiElementMenuBar(this->map)));
 }
 
 void Gui::ApplyStyle(void)
@@ -77,97 +81,6 @@ void Gui::ApplyStyle(void)
     style->WindowMenuButtonPosition = ImGuiDir_None;
     style->TabBarOverlineSize = 0;
     style->TabBorderSize = 1;
-}
-
-void Gui::DrawToolBar(void)
-{
-    const auto tool = [&](const char* label, Map::tooltype_e toolId, const char* shortcut, const char* description)
-    {
-        if (map.tool == toolId)
-            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
-        else
-            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-
-        if (ImGui::Button(label, ImVec2(ImGui::GetContentRegionAvail().x, 0.0)))
-            map.SwitchTool(toolId);
-
-        ImGui::PopStyleColor();
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::BeginTooltip();
-            ImGui::TextUnformatted(shortcut);
-            ImGui::TextUnformatted(description);
-            ImGui::EndTooltip();
-        }
-    };
-
-    bool shift;
-
-    shift = ImGui::GetIO().KeyShift;
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_S)) map.SwitchTool(Map::TOOL_SELECT);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_W)) map.SwitchTool(Map::TOOL_TRANSLATE);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_E)) map.SwitchTool(Map::TOOL_ROTATE);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_R)) map.SwitchTool(Map::TOOL_SCALE);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_Z)) map.SwitchTool(Map::TOOL_VERTEX);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_X)) map.SwitchTool(Map::TOOL_PLANE);
-    if (shift && ImGui::IsKeyPressed(ImGuiKey_B)) map.SwitchTool(Map::TOOL_BRUSH);
-
-    ImGui::Begin("Tool Bar", NULL, ImGuiWindowFlags_NoCollapse);
-
-    tool("Select",         Map::TOOL_SELECT,    "Select Tool (Shift + S)", "Can be used to select vertices,\nplanes, brushes, or entities");
-    tool("Translate",      Map::TOOL_TRANSLATE, "Translate Tool (Shift + W)", "Can be used to translate vertices,\nplanes, brushes, or entities");
-    tool("Rotate",         Map::TOOL_ROTATE,    "Rotate Tool (Shift + E)", "Can be used to rotate brushes or\nentities");
-    tool("Scale",          Map::TOOL_SCALE,     "Scale Tool (Shift + R)", "Can be used to scale brushes");
-    tool("Vertex Editing", Map::TOOL_VERTEX,    "Vertex Editing Tool (Shift + Z)", "Can be used to modify vertex geometry");
-    tool("Plane",          Map::TOOL_PLANE,     "Plane Tool (Shift + X)", "Can be used to create new planes");
-    tool("Brush",          Map::TOOL_BRUSH,     "Brush Tool (Shift + B)", "Can be used to create new brushes");
-
-    ImGui::End();
-}
-
-void Gui::DrawToolSettings(void)
-{
-    const char *selecttypenames[] = { "Select Planes", "Select Brushes", "Select Entities", };
-
-    int i;
-
-    int selectiontype;
-
-    ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
-
-    switch(map.tool)
-    {
-    case Map::TOOL_SELECT:
-        ImGui::Text("Selection Mode");
-
-        for(i=0; i<(int) Map::SELECT_COUNT; i++)
-            if(ImGui::IsKeyPressed((ImGuiKey) ((int) ImGuiKey_1 + i)))
-                    map.selectiontype = (Map::selectiontype_e) i;
-
-        selectiontype = (int) map.selectiontype;
-        if (ImGui::BeginCombo("##SelectionModeDropdown", selecttypenames[selectiontype]))
-        {
-            for (i=0; i<(int) Map::SELECT_COUNT; i++)
-            {
-                if (ImGui::Selectable(selecttypenames[i], selectiontype == i))
-                    selectiontype = i;
-                if (selectiontype == i)
-                    ImGui::SetItemDefaultFocus();
-
-                if (ImGui::IsItemHovered())
-                    ImGui::SetTooltip((std::string(selecttypenames[i]) + " (" + std::to_string(i+1) + ")").c_str());
-            }
-            ImGui::EndCombo();
-            map.selectiontype = (Map::selectiontype_e) selectiontype;
-        }
-
-        break;
-    default:
-        break;
-    }
-
-    ImGui::End();
 }
 
 void Gui::DrawEntityPairs(void)
@@ -421,12 +334,6 @@ void Gui::DrawPairHelper(void)
     ImGui::End();
 }
 
-void Gui::DrawRibbon(void)
-{
-    ImGui::Begin("Ribbon", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
-    ImGui::End();
-}
-
 void Gui::Draw()
 {
     int i;
@@ -441,9 +348,6 @@ void Gui::Draw()
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID);
 
-    DrawRibbon();
-    DrawToolBar();
-    DrawToolSettings();
     DrawEntityPairs();
     DrawPairHelper();
 
