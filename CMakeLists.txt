@@ -21,9 +21,11 @@ add_subdirectory(thirdparty/zlib)
 # Libraries
 add_subdirectory(mathlib)
 add_subdirectory(parselib)
+add_subdirectory(scriptlib)
 add_subdirectory(maplib)
 add_subdirectory(fgdlib)
 add_subdirectory(cfglib)
+add_subdirectory(tpklib)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")
@@ -37,4 +39,8 @@ endif()
 
 if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "wp3d")
     add_subdirectory(wp3d)
+endif()
+
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "tpkgen")
+    add_subdirectory(tpkgen)
 endif()

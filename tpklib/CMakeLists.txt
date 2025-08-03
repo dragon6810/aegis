@@ -4,7 +4,7 @@ add_library(tpklib STATIC
 
 target_include_directories(tpklib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(fgdlib PUBLIC
+target_link_libraries(tpklib PUBLIC
     eigen
     zlib
 )
