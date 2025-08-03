@@ -849,7 +849,7 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     case ImGuiKey_LeftArrow:
     case ImGuiKey_DownArrow:
     case ImGuiKey_RightArrow:
-        if(tool == TOOL_VERTEX || tool == TOOL_PLANE)
+        if(tool == TOOL_VERTEX || tool == TOOL_PLANE || tool == TOOL_SELECT)
         {
             if(view.type == Viewport::FREECAM)
                 break;
@@ -869,13 +869,26 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             {
                 MoveVertexPoints(add);
             }
-            else
+            else if(tool == TOOL_PLANE)
             {
                 if(this->drawingtriplane)
                     return;
                 
                 for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
                     this->triplane[*it] += add;
+            }
+            else if(tool == TOOL_SELECT)
+            {
+                if(this->selectiontype == SELECT_ENTITY)
+                {
+                    for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+                        this->entities[*it].Move(add);
+                }
+                else
+                {
+                    for(i=0; i<this->entities.size(); i++)
+                        this->entities[i].MoveSelected(*this, add);
+                }
             }
         }
 

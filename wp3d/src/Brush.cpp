@@ -361,6 +361,28 @@ void Brush::DeleteSelected()
     this->MakeFaces();
 }
 
+void Brush::MoveSelected(Eigen::Vector3f add)
+{
+    std::unordered_set<int>::iterator it;
+
+    printf("Brush::MoveSelected\n");
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        this->planes[*it].Move(add);
+    this->MakeFaces();
+}
+
+void Brush::Move(Eigen::Vector3f add)
+{
+    int i;
+
+    printf("Brush::Move\n");
+
+    for(i=0; i<this->planes.size(); i++)
+        this->planes[i].Move(add);
+    this->MakeFaces();
+}
+
 void Brush::Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected)
 {
     int i;

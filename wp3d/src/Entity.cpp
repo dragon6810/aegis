@@ -246,6 +246,46 @@ void Entity::DeleteSelected(Map& map)
     }
 }
 
+void Entity::MoveSelected(Map& map, Eigen::Vector3f add)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    printf("Entity::Selected\n");
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+            this->brushes[*it].Move(add);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].MoveSelected(add);
+}
+
+void Entity::Move(Eigen::Vector3f add)
+{
+    int i;
+
+    Eigen::Vector3i origin;
+
+    printf("Entity::Move\n");
+
+    if(this->pairs.find("origin") != this->pairs.end())
+    {
+        origin = (this->GetOrigin() + add).cast<int>();
+        this->pairs["origin"] =
+            std::to_string(origin[0]) + " " +
+            std::to_string(origin[1]) + " " +
+            std::to_string(origin[2]);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].Move(add);
+}
+
 void Entity::Draw(const Viewport& view, int index, Map& map, bool drawselected)
 {
     int i;

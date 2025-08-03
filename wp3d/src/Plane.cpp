@@ -138,6 +138,12 @@ void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, cons
     }
 }
 
+void Plane::Move(Eigen::Vector3f add)
+{
+    printf("Plane::Move\n");
+    this->d += this->normal.dot(add);
+}
+
 void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map, bool drawselected)
 {
     int i;
