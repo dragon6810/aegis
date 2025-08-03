@@ -15,7 +15,7 @@
     falloff(float) : "Falloff Mulitplier" : 1 : "The falloff mulitplier. A higher value means quicker falloff. A value of 0 means no falloff."
 ]
 
-@PointClass base(Origin, Light) = light_omni
+@PointClass base(Origin, Light) = light_omni : "Light Omni"
 [
     
 ]

@@ -45,6 +45,7 @@ Fgdlib::FgdFile Fgdlib::FgdFile::Load(std::string path)
         ent = EntityDef::Load(&tkn, file);
         if(!ent.has_value())
             return file;
+        file.entclasses[ent.value().type].insert(file.ents.size());
         file.ents.push_back(ent.value());
     }
 

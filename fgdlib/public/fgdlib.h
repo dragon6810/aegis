@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <set>
 #include <string>
 
 #include <Eigen/Dense>
@@ -71,6 +72,7 @@ namespace Fgdlib
         FgdFile();
 
         std::vector<EntityDef> ents;
+        std::set<int> entclasses[EntityDef::ENTTYPE_COUNT];
 
         int FindBaseClass(const char* name) const;
         static FgdFile Load(std::string path);

@@ -40,6 +40,7 @@ private:
     void PanOrtho(Viewport& view, ImGuiKey key);
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
+    void FinalizeEntity(void);
     void FinalizeBrush(void);
     void FinalizePlane(void);
     void ClearSelection(void);
@@ -68,7 +69,7 @@ public:
     selectiontype_e selectiontype;
     Eigen::Vector3i workingentity;
     bool placingentity = false;
-    int workingenttype;
+    int workingenttype = 0;
 
     std::string path = "";
 

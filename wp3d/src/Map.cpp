@@ -153,6 +153,35 @@ void Map::LookFreecam(Viewport& view, ImGuiKey key, float deltatime)
         view.rot[1] = -M_PI_2;
 }
 
+void Map::FinalizeEntity(void)
+{
+    Entity ent;
+    std::set<int>::iterator it;
+
+    if(!this->placingentity)
+        return;
+
+    ent = Entity();
+    if(this->fgd.entclasses[Fgdlib::EntityDef::ENTTYPE_POINT].size())
+    {
+        it = this->fgd.entclasses[Fgdlib::EntityDef::ENTTYPE_POINT].begin();
+        std::advance(it, this->workingenttype);
+        ent.FillDefaultPairs(&this->fgd.ents[*it], true);
+        ent.pairs["classname"] = this->fgd.ents[*it].classname;
+        if(ent.pairs.find("origin") != ent.pairs.end())
+            ent.pairs["origin"] = 
+                std::to_string(this->workingentity[0]) + " " +
+                std::to_string(this->workingentity[1]) + " " +
+                std::to_string(this->workingentity[2]) + " ";
+    }
+
+    this->entities.push_back(ent);
+    this->placingentity = false;
+    this->selectiontype = SELECT_ENTITY;
+    this->SwitchTool(TOOL_SELECT);
+    this->entselection.insert(this->entities.size() - 1);
+}
+
 void Map::FinalizeBrush(void)
 {
     int i, j;
@@ -707,6 +736,9 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
         break;
     case ImGuiKey_Escape:
+        if(this->tool == TOOL_ENTITY)
+            this->placingentity = false;
+
         if(this->tool == TOOL_BRUSH)
             nbrushcorners = 0;
 
@@ -725,6 +757,8 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizeVertexEdit();
         if(tool == TOOL_PLANE)
             this->FinalizePlane();
+        if(tool == TOOL_ENTITY)
+            this->FinalizeEntity();
 
         break;
     case ImGuiKey_F:

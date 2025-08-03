@@ -36,6 +36,36 @@ void GuiElementToolSettings::SettingsSelect(void)
     }
 }
 
+void GuiElementToolSettings::SettingsEntity(void)
+{
+    int i;
+    std::set<int>::iterator it;
+
+    Fgdlib::FgdFile *fgd;
+    std::set<int> *pointents;
+
+    ImGui::Text("Entity Class");
+
+    fgd = &map.fgd;
+    pointents = &fgd->entclasses[Fgdlib::EntityDef::ENTTYPE_POINT];
+    it = pointents->begin();
+    std::advance(it, map.workingenttype);
+    if (ImGui::BeginCombo("##SelectionModeDropdown", fgd->ents[*it].classname.c_str()))
+    {
+        for (it=pointents->begin(), i=0; it!=pointents->end(); it++, i++)
+        {
+            if (ImGui::Selectable(fgd->ents[*it].classname.c_str(), map.workingenttype == i))
+                map.workingenttype = i;
+            if (map.workingenttype == i)
+                ImGui::SetItemDefaultFocus();
+
+            if (ImGui::IsItemHovered() && fgd->ents[*it].description.size())
+                ImGui::SetTooltip(fgd->ents[*it].description.c_str());
+        }
+        ImGui::EndCombo();
+    }
+}
+
 void GuiElementToolSettings::Draw(void)
 {
     ImGui::Begin("Tool Settings", NULL, ImGuiWindowFlags_NoCollapse);
@@ -44,6 +74,9 @@ void GuiElementToolSettings::Draw(void)
     {
     case Map::TOOL_SELECT:
         this->SettingsSelect();
+        break;
+    case Map::TOOL_ENTITY:
+        this->SettingsEntity();
         break;
     default:
         break;
