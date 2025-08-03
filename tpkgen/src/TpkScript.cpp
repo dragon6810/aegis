@@ -96,6 +96,7 @@ std::optional<Tpklib::TpkTex> TpkScript::LoadBmp(const char* filename, const cha
     tex.size[1] = dimensions[1];
     strcpy(tex.name, texname);
     tex.palettedata.resize(dimensions[0] * dimensions[1]);
+    fseek(ptr, datastart, SEEK_SET);
     fread(tex.palettedata.data(), tex.palettedata.size(), 1, ptr);
 
     fclose(ptr);

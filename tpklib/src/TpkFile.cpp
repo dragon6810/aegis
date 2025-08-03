@@ -49,8 +49,6 @@ std::optional<Tpklib::TpkTex> Tpklib::TpkFile::GenTexture(const std::vector<uint
     }
 
     memcpy(tex.palette, header.palette, sizeof(header.palette));
-    for(i=0; i<palette_size; i++)
-        printf("palette[%d] = %hhu %hhu %hhu\n", i, tex.palette[i][0], tex.palette[i][1], tex.palette[i][2]);
 
     tex.size[0] = header.size[0];
     tex.size[1] = header.size[1];
