@@ -267,8 +267,6 @@ bool Brush::RayIntersect(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
 
 void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map)
 {
-    // TODO: also stop duplicating code here! what's gotten into you!?
-
     int i;
 
     std::unordered_set<int> *selection;
@@ -282,6 +280,8 @@ void Brush::Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map
             selection->insert(index);
         else
             selection->erase(index);
+
+        return;
     }
 
     bestplane = -1;
@@ -330,13 +330,44 @@ void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, co
     }
 }
 
-void Brush::Draw(const Viewport& view, int index, int ent, Map& map)
+void Brush::DeleteSelected()
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    std::vector<int> toremove;
+    std::unordered_set<int> newselection;
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        toremove.push_back(*it);
+
+    std::sort(toremove.begin(), toremove.end());
+    for(i=toremove.size()-1; i>=0; i--)
+    {
+        newselection.clear();
+        for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        {
+            if(*it == toremove[i])
+                continue;
+            if(*it > toremove[i])
+                newselection.insert(*it + 1);
+            else
+                newselection.insert(*it);
+        }
+        this->plselection = newselection;
+        this->planes.erase(this->planes.begin() + toremove[i]);
+    }
+
+    this->MakeFaces();
+}
+
+void Brush::Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected)
 {
     int i;
 
     this->drawvertexpreview = false;
     for(i=0; i<this->planes.size(); i++)
-        this->planes[i].Draw(view, i, index, ent, map);
+        this->planes[i].Draw(view, i, index, ent, map, drawselected);
 
     if(!this->drawvertexpreview)
         return;

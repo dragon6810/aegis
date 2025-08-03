@@ -8,6 +8,7 @@ private:
     Map& map;
 
     void SettingsSelect(void);
+    void SettingsEntity(void);
 public:
     GuiElementToolSettings(Map& map);
 

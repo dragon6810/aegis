@@ -153,6 +153,35 @@ void Map::LookFreecam(Viewport& view, ImGuiKey key, float deltatime)
         view.rot[1] = -M_PI_2;
 }
 
+void Map::FinalizeEntity(void)
+{
+    Entity ent;
+    std::set<int>::iterator it;
+
+    if(!this->placingentity)
+        return;
+
+    ent = Entity();
+    if(this->fgd.entclasses[Fgdlib::EntityDef::ENTTYPE_POINT].size())
+    {
+        it = this->fgd.entclasses[Fgdlib::EntityDef::ENTTYPE_POINT].begin();
+        std::advance(it, this->workingenttype);
+        ent.FillDefaultPairs(&this->fgd.ents[*it], true);
+        ent.pairs["classname"] = this->fgd.ents[*it].classname;
+        if(ent.pairs.find("origin") != ent.pairs.end())
+            ent.pairs["origin"] = 
+                std::to_string(this->workingentity[0]) + " " +
+                std::to_string(this->workingentity[1]) + " " +
+                std::to_string(this->workingentity[2]) + " ";
+    }
+
+    this->entities.push_back(ent);
+    this->placingentity = false;
+    this->selectiontype = SELECT_ENTITY;
+    this->SwitchTool(TOOL_SELECT);
+    this->entselection.insert(this->entities.size() - 1);
+}
+
 void Map::FinalizeBrush(void)
 {
     int i, j;
@@ -230,7 +259,10 @@ void Map::FinalizePlane(void)
         for(j=0; j<ent->brushes.size(); j++)
         {
             if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+            {
+                newbrs.push_back(ent->brushes[j]);
                 continue;
+            }
 
             ent->brushes[j].AddPlane(n, d);
             if(!ent->brushes[j].points.size())
@@ -329,6 +361,60 @@ void Map::FinalizeVertexEdit(void)
     }
 }
 
+void Map::DeleteSelected(void)
+{
+    int i;
+    std::unordered_set<int>::iterator it, _it;
+
+    Fgdlib::EntityDef *def;
+    std::vector<int> toremove;
+    std::unordered_set<int> newselection;
+    int newindex;
+
+    if(this->selectiontype == SELECT_ENTITY)
+    {
+        for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+        {
+            if(!*it)
+                this->entities[*it].brushes.clear();
+            else
+                toremove.push_back(*it);
+        }
+    }
+    else
+    {
+        for(i=0; i<this->entities.size(); i++)
+        {
+            this->entities[i].DeleteSelected(*this);
+            if(!i || this->entities[i].brushes.size())
+                continue;
+
+            def = this->entities[i].GetDef(&this->fgd);
+            if(!def || def->type != Fgdlib::EntityDef::ENTTYPE_SOLID)
+                continue;
+            
+            toremove.push_back(i);
+        }
+    }
+
+    std::sort(toremove.begin(), toremove.end());
+    for(i=toremove.size()-1; i>=0; i--)
+    {
+        newselection.clear();
+        for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+        {
+            if(*it == toremove[i])
+                continue;
+            if(*it > toremove[i])
+                newselection.insert(*it + 1);
+            else
+                newselection.insert(*it);
+        }
+        this->entselection = newselection;
+        this->entities.erase(this->entities.begin() + toremove[i]);
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -367,6 +453,9 @@ void Map::DrawGrid(const Viewport& view)
     camsize[0] = view.zoom * ((float) view.canvassize[0] / (float) view.canvassize[1]);
     camsize[1] = view.zoom;
 
+    glEnable(GL_ALPHA_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glBegin(GL_LINES);
     for(i=firstlevel; i<=max_grid_level; i++)
     {
@@ -374,7 +463,7 @@ void Map::DrawGrid(const Viewport& view)
         brightness = 1.0 / (float) colcycle * (float) ((i % (colcycle)) + 1);
         brightness *= (maxbrightness - minbrightness);
         brightness += minbrightness;
-        glColor3f(brightness, brightness, brightness);
+        glColor4f(brightness, brightness, brightness, 0.5);
         for(j=0; j<2; j++)
         {
             min = basis[j+1].dot(view.pos - (camsize[j] + linedistance) * (basis[j+1]));
@@ -397,6 +486,34 @@ void Map::DrawGrid(const Viewport& view)
                     glVertex3f(seg[l][0], seg[l][1], seg[l][2]);
             }
         }
+    }
+    glEnd();
+
+    glDisable(GL_ALPHA_TEST);
+
+    glColor3f(1, 1, 1);
+}
+
+void Map::DrawWorkingEnt(const Viewport& view)
+{
+    int i;
+
+    Eigen::Vector3i e[2];
+
+    if(!this->placingentity)
+        return;
+
+    glColor3f(1, 1, 0);
+
+    glBegin(GL_LINES);
+    for(i=0; i<3; i++)
+    {
+        e[0] = e[1] = workingentity;
+        e[0][i] = -max_map_size;
+        e[1][i] = max_map_size;
+
+        glVertex3f(e[0][0], e[0][1], e[0][2]);
+        glVertex3f(e[1][0], e[1][1], e[1][2]);
     }
     glEnd();
 
@@ -681,6 +798,9 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
 
         break;
     case ImGuiKey_Escape:
+        if(this->tool == TOOL_ENTITY)
+            this->placingentity = false;
+
         if(this->tool == TOOL_BRUSH)
             nbrushcorners = 0;
 
@@ -699,6 +819,14 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizeVertexEdit();
         if(tool == TOOL_PLANE)
             this->FinalizePlane();
+        if(tool == TOOL_ENTITY)
+            this->FinalizeEntity();
+
+        break;
+    case ImGuiKey_Backspace:
+    case ImGuiKey_Delete:
+        if(this->tool == TOOL_SELECT)
+            this->DeleteSelected();
 
         break;
     case ImGuiKey_F:
@@ -896,6 +1024,26 @@ void Map::Click(const Viewport& view, const Eigen::Vector2f& mousepos, ImGuiMous
             this->brushcorners[icorner][i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
         
         break;
+    case TOOL_ENTITY:
+        if(view.type == Viewport::FREECAM)
+            return;
+
+        if(button != ImGuiMouseButton_Left)
+            return;
+
+        view.GetRay(mousepos, &o, NULL);
+        if(!placingentity)
+            o[view.type] = 0;
+        else
+            o[view.type] = workingentity[view.type];
+
+        realgridsize = 1 << gridlevel;
+        for(i=0; i<3; i++)
+            workingentity[i] = ((int) roundf(o[i] / (float) realgridsize)) << gridlevel;
+        
+        placingentity = true;
+        
+        break;
     }
 }
 
@@ -940,6 +1088,13 @@ void Map::Render(const Viewport& view)
 
     glDisable(GL_DEPTH_TEST);
     DrawGrid(view);
+    glEnable(GL_DEPTH_TEST);
+
+    // since in wireframe selected things should appear over unselected things
+    for(i=0; i<this->entities.size(); i++)
+        this->entities[i].Draw(view, i, *this, false);
+
+    glDisable(GL_DEPTH_TEST);
 
     glPointSize(4.0);
 
@@ -958,8 +1113,8 @@ void Map::Render(const Viewport& view)
     glEnable(GL_DEPTH_TEST);
 
     for(i=0; i<this->entities.size(); i++)
-        this->entities[i].Draw(view, i, *this);
-
+        this->entities[i].Draw(view, i, *this, true);
+    DrawWorkingEnt(view);
     DrawWorkingBrush(view);
     DrawTriplane(view);
 
@@ -977,7 +1132,6 @@ void Map::NewMap(void)
     this->path = "";
 
     this->entselection.clear();
-
     this->entities.resize(1);
     worldspawn = &this->entities.back();
 
@@ -1059,6 +1213,7 @@ void Map::Load(const std::string& path)
     this->NewMap();
     this->path = path;
 
+    this->entselection.clear();
     this->entities.resize(file.ents.size());
     for(e=0, fent=file.ents.data(); e<file.ents.size(); e++, fent++)
     {

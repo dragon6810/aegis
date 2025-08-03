@@ -22,6 +22,7 @@ public:
         TOOL_VERTEX,
         TOOL_PLANE,
         TOOL_BRUSH,
+        TOOL_ENTITY,
         TOOL_COUNT,
     } tooltype_e;
 
@@ -39,13 +40,16 @@ private:
     void PanOrtho(Viewport& view, ImGuiKey key);
     void MoveFreecam(Viewport& view, ImGuiKey key, float deltatime);
     void LookFreecam(Viewport& view, ImGuiKey key, float deltatime);
+    void FinalizeEntity(void);
     void FinalizeBrush(void);
     void FinalizePlane(void);
     void ClearSelection(void);
     void MoveVertexPoints(Eigen::Vector3f add);
     void FinalizeVertexEdit(void);
+    void DeleteSelected(void);
 
     void DrawGrid(const Viewport& view);
+    void DrawWorkingEnt(const Viewport& view);
     void DrawWorkingBrush(const Viewport& view);
     void DrawTriplane(const Viewport& view);
     void DrawDashedLine(Eigen::Vector3i l[2], float dashlen);
@@ -53,6 +57,8 @@ public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
     static constexpr int max_grid_level = 10; // 2^10 = 1024
     static constexpr std::string cfgpath = "wp3d.cfg";
+    inline static const Eigen::Vector3f light_dir = Eigen::Vector3f(1, 1.5, 2.0).normalized();
+    static constexpr float light_ambient = 0.75;
 
     unsigned int gridlevel = 4; // 0 to max_grid_level
 
@@ -64,6 +70,9 @@ public:
     std::unordered_set<int> triplaneselection;
     tooltype_e tool;
     selectiontype_e selectiontype;
+    Eigen::Vector3i workingentity;
+    bool placingentity = false;
+    int workingenttype = 0;
 
     std::string path = "";
 

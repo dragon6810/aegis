@@ -27,5 +27,5 @@ public:
     bool RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist);
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int brush, int ent, Map& map);
     void SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, const Viewport& view);
-    void Draw(const Viewport& view, int index, int brush, int ent, Map& map);
+    void Draw(const Viewport& view, int index, int brush, int ent, Map& map, bool drawselected);
 };

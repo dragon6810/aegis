@@ -13,6 +13,9 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
     else
         glColor3f(1, 1, 1);
 
+    if(drawselected)
+        glDisable(GL_DEPTH_TEST);
+
     glBegin(GL_LINES);
 
     for(i=0; i<this->poly.size(); i++)
@@ -23,19 +26,19 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
         glVertex3f(l[1][0], l[1][1], l[1][2]);
     }
 
+    if(drawselected)
+        glEnable(GL_DEPTH_TEST);
+
     glEnd();
 }
 
 void Plane::DrawShaded(const Viewport& view, bool drawselected)
 {
-    const Eigen::Vector3f lightdir = Eigen::Vector3f(1, 1.25, 1.5).normalized();
-    const float ambient = 0.75;
-
     int i;
 
     float brightness;
 
-    brightness = (this->normal.dot(lightdir) / 2.0 + 0.5) * (1.0 - ambient) + ambient;
+    brightness = (this->normal.dot(Map::light_dir) / 2.0 + 0.5) * (1.0 - Map::light_ambient) + Map::light_ambient;
     if(brightness > 1)
         brightness = 1;
     if(brightness < 0)
@@ -135,7 +138,7 @@ void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, cons
     }
 }
 
-void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
+void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map, bool drawselected)
 {
     int i;
 
@@ -155,6 +158,9 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
     default:
         selected = false;
     }
+
+    if(drawselected != selected)
+        return;
 
     if(view.wireframe)
         this->DrawWire(view, selected);
