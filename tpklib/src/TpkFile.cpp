@@ -135,6 +135,8 @@ bool Tpklib::TpkFile::Write(const char* filename, int compress)
                 (float) datacompressed.size() / (float) it->second.palettedata.size(), 
                 it->second.palettedata.size(), datacompressed.size(), 
                 it->second.name);
+            if(datacompressed.size() > it->second.palettedata.size())
+                printf("warning: compression ratio > 1 for texture \"%s\". consider disabling compression.\n", texheader.name);
 
             break;
         default:
