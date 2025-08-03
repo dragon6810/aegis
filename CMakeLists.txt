@@ -16,6 +16,7 @@ add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/filedialog)
 add_subdirectory(thirdparty/googletest)
+add_subdirectory(thirdparty/zlib)
 
 # Libraries
 add_subdirectory(mathlib)
