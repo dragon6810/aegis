@@ -50,6 +50,7 @@ std::optional<Tpklib::TpkTex> Tpklib::TpkFile::GenTexture(const std::vector<uint
 
     memcpy(tex.palette, header.palette, sizeof(header.palette));
 
+    strcpy(tex.name, header.name);
     tex.size[0] = header.size[0];
     tex.size[1] = header.size[1];
     tex.data.resize(tex.palettedata.size());

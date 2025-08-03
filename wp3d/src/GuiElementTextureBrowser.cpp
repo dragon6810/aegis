@@ -40,7 +40,7 @@ void GuiElementTextureBrowser::GenTextures(void)
 
 void GuiElementTextureBrowser::ReloadTpk(void)
 {
-    std::unordered_map<std::string, GLuint>::iterator it;
+    std::map<std::string, GLuint>::iterator it;
 
     for(it=this->gltex.begin(); it!=this->gltex.end(); it++)
         glDeleteTextures(1, &it->second);
@@ -54,23 +54,69 @@ void GuiElementTextureBrowser::ReloadTpk(void)
     this->GenTextures();
 }
 
-void GuiElementTextureBrowser::DrawTex(Tpklib::TpkTex* tex, GLuint glid)
+void GuiElementTextureBrowser::DrawTex(Tpklib::TpkTex* tex, GLuint glid, float width, int id)
 {
-    ImVec2 size;
+    const float pad = 4.0;
 
-    size.x = tex->size[0];
-    size.y = tex->size[1];
+    ImVec2 size, pos, min, max, bgmin, bgmax, textsize, textpos;
+    float scalefactor;
+    ImDrawList *drawlist;
+    bool selected;
+
+    ImGui::PushID(id);
+
+    ImGui::SetItemAllowOverlap();
+
+    pos = ImGui::GetCursorPos();
+
+    scalefactor = width / (float) tex->size[0];
+
+    size.x = (float) tex->size[0] * scalefactor;
+    size.y = (float) tex->size[1] * scalefactor;
+
+    selected = id == this->selected;
+    if(ImGui::Selectable((std::string("##texbrowser_") + tex->name).c_str(), &selected, 0, size))
+        this->selected = id;
+
+    ImGui::SetCursorPos(pos);
     ImGui::Image((ImTextureID)(intptr_t)glid, size, {0, 1}, {1, 0});
+
+    drawlist = ImGui::GetWindowDrawList();
+    min = ImGui::GetItemRectMin();
+    max = ImGui::GetItemRectMax();
+
+    textsize = ImGui::CalcTextSize(tex->name);
+
+    textpos.x = max.x - textsize.x - pad;
+    textpos.y = max.y - textsize.y - pad;
+
+    bgmin.x = textpos.x - pad;
+    bgmin.y = textpos.y - pad;
+    bgmax.x = textpos.x + textsize.x + pad;
+    bgmax.y = textpos.y + textsize.y + pad;
+
+    drawlist->AddRectFilled(bgmin, bgmax, IM_COL32(0, 0, 0, 192));
+    drawlist->AddText(textpos, IM_COL32(255, 255, 255, 255), tex->name);
+
+    ImGui::PopID();
 }
 
 void GuiElementTextureBrowser::Draw(void)
 {
-    std::unordered_map<std::string, GLuint>::iterator it;
+    int i;
+    std::map<std::string, GLuint>::iterator it;
+    float width;
 
     ImGui::Begin("Texture Browser", NULL, ImGuiWindowFlags_NoCollapse);
 
-    for(it=this->gltex.begin(); it!=this->gltex.end(); it++)
-        this->DrawTex(&this->tpk.tex[it->first], it->second);
+    for(it=this->gltex.begin(), i=0; it!=this->gltex.end(); it++, i++)
+    {
+        if(i & 1)
+            ImGui::SameLine();
+        else
+            width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0f;
+        this->DrawTex(&this->tpk.tex[it->first], it->second, width, i);
+    }
 
     ImGui::End();
 }

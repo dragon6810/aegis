@@ -12,11 +12,12 @@ private:
     Map& map;
 
     Tpklib::TpkFile tpk;
-    std::unordered_map<std::string, GLuint> gltex;
+    std::map<std::string, GLuint> gltex;
+    int selected = -1;
 
     void GenTextures(void);
     void ReloadTpk(void);
-    void DrawTex(Tpklib::TpkTex* tex, GLuint glid);
+    void DrawTex(Tpklib::TpkTex* tex, GLuint glid, float width, int id);
 public:
     GuiElementTextureBrowser(Map& map);
 
