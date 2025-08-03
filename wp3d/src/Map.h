@@ -46,6 +46,7 @@ private:
     void ClearSelection(void);
     void MoveVertexPoints(Eigen::Vector3f add);
     void FinalizeVertexEdit(void);
+    void DeleteSelected(void);
 
     void DrawGrid(const Viewport& view);
     void DrawWorkingEnt(const Viewport& view);

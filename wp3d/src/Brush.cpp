@@ -330,6 +330,37 @@ void Brush::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, co
     }
 }
 
+void Brush::DeleteSelected()
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    std::vector<int> toremove;
+    std::unordered_set<int> newselection;
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        toremove.push_back(*it);
+
+    std::sort(toremove.begin(), toremove.end());
+    for(i=toremove.size()-1; i>=0; i--)
+    {
+        newselection.clear();
+        for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        {
+            if(*it == toremove[i])
+                continue;
+            if(*it > toremove[i])
+                newselection.insert(*it + 1);
+            else
+                newselection.insert(*it);
+        }
+        this->plselection = newselection;
+        this->planes.erase(this->planes.begin() + toremove[i]);
+    }
+
+    this->MakeFaces();
+}
+
 void Brush::Draw(const Viewport& view, int index, int ent, Map& map)
 {
     int i;

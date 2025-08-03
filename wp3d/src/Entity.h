@@ -25,5 +25,7 @@ public:
     bool RayIntersects(Eigen::Vector3f o, Eigen::Vector3f r, float* dist);
     void FillDefaultPairs(Fgdlib::EntityDef* def, bool overwrite=false);
     Eigen::Vector3f GetOrigin(void);
+    Fgdlib::EntityDef* GetDef(Fgdlib::FgdFile* file);
+    void DeleteSelected(Map& map);
     void Draw(const Viewport& view, int index, Map& map);
 };

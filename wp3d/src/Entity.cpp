@@ -180,6 +180,69 @@ void Entity::FillDefaultPairs(Fgdlib::EntityDef* def, bool overwrite)
     }
 }
 
+Fgdlib::EntityDef* Entity::GetDef(Fgdlib::FgdFile* file)
+{
+    int i;
+
+    if(!file)
+        return NULL;
+
+    if(this->pairs.find("classname") == this->pairs.end())
+        return NULL;
+
+    for(i=0; i<file->ents.size(); i++)
+        if(file->ents[i].classname == this->pairs["classname"])
+            break;
+
+    if(i >= file->ents.size())
+        return NULL;
+
+    return &file->ents[i];
+}
+
+void Entity::DeleteSelected(Map& map)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    std::vector<int> toremove;
+    std::unordered_set<int> newselection;
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+            toremove.push_back(*it);
+    }
+    else
+    {
+        for(i=0; i<this->brushes.size(); i++)
+        {
+            this->brushes[i].DeleteSelected();
+            if(this->brushes[i].planes.size())
+                continue;
+            
+            toremove.push_back(i);
+        }
+    }
+
+    std::sort(toremove.begin(), toremove.end());
+    for(i=toremove.size()-1; i>=0; i--)
+    {
+        newselection.clear();
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+        {
+            if(*it == toremove[i])
+                continue;
+            if(*it > toremove[i])
+                newselection.insert(*it + 1);
+            else
+                newselection.insert(*it);
+        }
+        this->brselection = newselection;
+        this->brushes.erase(this->brushes.begin() + toremove[i]);
+    }
+}
+
 void Entity::Draw(const Viewport& view, int index, Map& map)
 {
     int i;

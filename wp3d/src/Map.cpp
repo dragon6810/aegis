@@ -358,6 +358,60 @@ void Map::FinalizeVertexEdit(void)
     }
 }
 
+void Map::DeleteSelected(void)
+{
+    int i;
+    std::unordered_set<int>::iterator it, _it;
+
+    Fgdlib::EntityDef *def;
+    std::vector<int> toremove;
+    std::unordered_set<int> newselection;
+    int newindex;
+
+    if(this->selectiontype == SELECT_ENTITY)
+    {
+        for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+        {
+            if(!*it)
+                this->entities[*it].brushes.clear();
+            else
+                toremove.push_back(*it);
+        }
+    }
+    else
+    {
+        for(i=0; i<this->entities.size(); i++)
+        {
+            this->entities[i].DeleteSelected(*this);
+            if(!i || this->entities[i].brushes.size())
+                continue;
+
+            def = this->entities[i].GetDef(&this->fgd);
+            if(!def || def->type != Fgdlib::EntityDef::ENTTYPE_SOLID)
+                continue;
+            
+            toremove.push_back(i);
+        }
+    }
+
+    std::sort(toremove.begin(), toremove.end());
+    for(i=toremove.size()-1; i>=0; i--)
+    {
+        newselection.clear();
+        for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+        {
+            if(*it == toremove[i])
+                continue;
+            if(*it > toremove[i])
+                newselection.insert(*it + 1);
+            else
+                newselection.insert(*it);
+        }
+        this->entselection = newselection;
+        this->entities.erase(this->entities.begin() + toremove[i]);
+    }
+}
+
 void Map::DrawGrid(const Viewport& view)
 {
     const int colcycle = max_grid_level + 1;
@@ -759,6 +813,12 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             this->FinalizePlane();
         if(tool == TOOL_ENTITY)
             this->FinalizeEntity();
+
+        break;
+    case ImGuiKey_Backspace:
+    case ImGuiKey_Delete:
+        if(this->tool == TOOL_SELECT)
+            this->DeleteSelected();
 
         break;
     case ImGuiKey_F:
