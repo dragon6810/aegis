@@ -21,6 +21,8 @@ int Parselib::Tokenizer::TokenLength(char* str, tokentype_e type)
 
         return c - str;
     case TOKEN_STRING:
+        if(*str != '"')
+            return 0;
         c = str + 1;
         while(*c != '"' && *c)
             c++;
@@ -40,7 +42,7 @@ bool Parselib::Tokenizer::CharValidInToken(char* c, tokentype_e type, bool first
     switch(type)
     {
     case TOKEN_IDENTIFIER:
-        if(INRANGE('a', 'z', *c) || INRANGE('A', 'Z', *c) || *c == '_' || *c == '$')
+        if(INRANGE('a', 'z', *c) || INRANGE('A', 'Z', *c) || *c == '_')
             return true;
 
         if(!firstchar && INRANGE('0', '9', *c))
@@ -221,7 +223,7 @@ bool Parselib::Tokenizer::ExpectType(const token_t& tkn, tokentype_e type, const
     if(tkn.type == type)
         return true;
 
-    msg = std::string("expected \"");
+    msg = std::string("expected ");
     switch(type)
     {
     case TOKEN_IDENTIFIER:
@@ -243,7 +245,7 @@ bool Parselib::Tokenizer::ExpectType(const token_t& tkn, tokentype_e type, const
         msg += "(invalid)";
         break;
     }
-    msg += std::string("\".");
+    msg += std::string(".");
 
     SyntaxError(tkn, func, msg.c_str());
     return false;

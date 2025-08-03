@@ -29,10 +29,10 @@ std::optional<Scriptlib::ScriptStatement> Scriptlib::ScriptStatement::Parse(Pars
     case STATEMENT_ASSIGN:
         if(!Parselib::Tokenizer::ExpectValue(**tkn, "=", funcname))
             return std::optional<Scriptlib::ScriptStatement>(); 
-        (*tkn++);
+        (*tkn)++;
 
         if(!Parselib::Tokenizer::ExpectType(**tkn, Parselib::Tokenizer::TOKEN_STRING, funcname))
-            return std::optional<Scriptlib::ScriptStatement>(); 
+            return std::optional<Scriptlib::ScriptStatement>();
         statement.args.resize(1);
         statement.args[0] = (*tkn)->val;
         statement.args[0].erase(0, 1);
@@ -43,7 +43,7 @@ std::optional<Scriptlib::ScriptStatement> Scriptlib::ScriptStatement::Parse(Pars
     case STATEMENT_CALL:
         if(!Parselib::Tokenizer::ExpectValue(**tkn, "(", funcname))
             return std::optional<Scriptlib::ScriptStatement>(); 
-        (*tkn++);
+        (*tkn)++;
 
         statement.args.clear();
         while((*tkn)->type == Parselib::Tokenizer::TOKEN_STRING)
@@ -58,13 +58,13 @@ std::optional<Scriptlib::ScriptStatement> Scriptlib::ScriptStatement::Parse(Pars
             {
                 if(!Parselib::Tokenizer::ExpectValue(**tkn, ",", funcname))
                     return std::optional<Scriptlib::ScriptStatement>(); 
-                (*tkn++);
+                (*tkn)++;
             }
         }
 
         if(!Parselib::Tokenizer::ExpectValue(**tkn, ")", funcname))
             return std::optional<Scriptlib::ScriptStatement>(); 
-        (*tkn++);
+        (*tkn)++;
 
         break;
     default:
@@ -72,7 +72,8 @@ std::optional<Scriptlib::ScriptStatement> Scriptlib::ScriptStatement::Parse(Pars
     }
 
     if(!Parselib::Tokenizer::ExpectValue(**tkn, ";", funcname))
-            return std::optional<Scriptlib::ScriptStatement>(); 
+        return std::optional<Scriptlib::ScriptStatement>(); 
+    (*tkn)++;
 
     return std::optional<Scriptlib::ScriptStatement>(statement); 
 }

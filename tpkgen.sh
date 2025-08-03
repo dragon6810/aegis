@@ -5,7 +5,7 @@ cd build
 if cmake .. -DEXEC_TARGET=tpkgen; then
     if cmake --build .; then
         cd ../run/tpkgen
-        ../../build/bin/tpkgen
+        ../../build/bin/tpkgen maketex.ascript
         exit 0
     fi
 fi

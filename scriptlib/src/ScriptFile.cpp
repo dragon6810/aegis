@@ -2,6 +2,8 @@
 
 bool Scriptlib::ScriptFile::ParseFile(const char* path)
 {
+    int i;
+
     Parselib::Tokenizer tknizer;
     Parselib::Tokenizer::token_t *tkn;
     std::optional<ScriptStatement> statement;
