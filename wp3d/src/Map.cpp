@@ -259,7 +259,10 @@ void Map::FinalizePlane(void)
         for(j=0; j<ent->brushes.size(); j++)
         {
             if(this->selectiontype == SELECT_BRUSH && !ent->brselection.contains(j))
+            {
+                newbrs.push_back(ent->brushes[j]);
                 continue;
+            }
 
             ent->brushes[j].AddPlane(n, d);
             if(!ent->brushes[j].points.size())
@@ -1118,7 +1121,6 @@ void Map::NewMap(void)
     this->path = "";
 
     this->entselection.clear();
-
     this->entities.resize(1);
     worldspawn = &this->entities.back();
 
@@ -1200,6 +1202,7 @@ void Map::Load(const std::string& path)
     this->NewMap();
     this->path = path;
 
+    this->entselection.clear();
     this->entities.resize(file.ents.size());
     for(e=0, fent=file.ents.data(); e<file.ents.size(); e++, fent++)
     {

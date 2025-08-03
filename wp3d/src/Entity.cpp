@@ -7,13 +7,10 @@ void Entity::DrawCuboid(bool selected)
     int i, j, k;
 
     Eigen::Vector3f origin, basis[3], f[4];
+    float brightness;
 
     origin = this->GetOrigin();
 
-    if(selected)
-        glColor3f(1, 0, 0);
-    else
-        glColor3f(1, 0, 1);
     glBegin(GL_QUADS);
     for(i=0; i<3; i++)
     {
@@ -31,6 +28,12 @@ void Entity::DrawCuboid(bool selected)
             f[1] = origin + (basis[0] + basis[1] - basis[2]) * this->default_draw_radius;
             f[2] = origin + (basis[0] + basis[1] + basis[2]) * this->default_draw_radius;
             f[3] = origin + (basis[0] - basis[1] + basis[2]) * this->default_draw_radius;
+
+            brightness = (basis[0].dot(Map::light_dir) / 2.0 - 0.5) * (1.0 - Map::light_ambient) + Map::light_ambient;
+            if(selected)
+                glColor3f(brightness, 0, 0);
+            else
+                glColor3f(brightness, 0, brightness);
 
             glVertex3f(f[0][0], f[0][1], f[0][2]);
             glVertex3f(f[1][0], f[1][1], f[1][2]);

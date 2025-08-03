@@ -28,14 +28,11 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
 
 void Plane::DrawShaded(const Viewport& view, bool drawselected)
 {
-    const Eigen::Vector3f lightdir = Eigen::Vector3f(1, 1.25, 1.5).normalized();
-    const float ambient = 0.75;
-
     int i;
 
     float brightness;
 
-    brightness = (this->normal.dot(lightdir) / 2.0 + 0.5) * (1.0 - ambient) + ambient;
+    brightness = (this->normal.dot(Map::light_dir) / 2.0 + 0.5) * (1.0 - Map::light_ambient) + Map::light_ambient;
     if(brightness > 1)
         brightness = 1;
     if(brightness < 0)

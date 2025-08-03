@@ -57,6 +57,8 @@ public:
     static constexpr float max_map_size = 8192.0f; // Maximum size of the map in any direction
     static constexpr int max_grid_level = 10; // 2^10 = 1024
     static constexpr std::string cfgpath = "wp3d.cfg";
+    inline static const Eigen::Vector3f light_dir = Eigen::Vector3f(1, 1.5, 2.0).normalized();
+    static constexpr float light_ambient = 0.75;
 
     unsigned int gridlevel = 4; // 0 to max_grid_level
 
