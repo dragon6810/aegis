@@ -13,3 +13,6 @@
 [submodule "thirdparty/filedialog/ImGuiFileDialog"]
 	path = thirdparty/filedialog/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog.git
+[submodule "thirdparty/zlib"]
+	path = thirdparty/zlib
+	url = https://github.com/madler/zlib.git
