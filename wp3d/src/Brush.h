@@ -30,5 +30,5 @@ public:
     void Select(Eigen::Vector3f o, Eigen::Vector3f r, int index, int ent, Map& map);
     void SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, const Map& map, const Viewport& view);
     void DeleteSelected();
-    void Draw(const Viewport& view, int index, int ent, Map& map);
+    void Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected);
 };

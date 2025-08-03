@@ -361,13 +361,13 @@ void Brush::DeleteSelected()
     this->MakeFaces();
 }
 
-void Brush::Draw(const Viewport& view, int index, int ent, Map& map)
+void Brush::Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected)
 {
     int i;
 
     this->drawvertexpreview = false;
     for(i=0; i<this->planes.size(); i++)
-        this->planes[i].Draw(view, i, index, ent, map);
+        this->planes[i].Draw(view, i, index, ent, map, drawselected);
 
     if(!this->drawvertexpreview)
         return;

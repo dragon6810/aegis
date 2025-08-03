@@ -453,6 +453,9 @@ void Map::DrawGrid(const Viewport& view)
     camsize[0] = view.zoom * ((float) view.canvassize[0] / (float) view.canvassize[1]);
     camsize[1] = view.zoom;
 
+    glEnable(GL_ALPHA_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glBegin(GL_LINES);
     for(i=firstlevel; i<=max_grid_level; i++)
     {
@@ -460,7 +463,7 @@ void Map::DrawGrid(const Viewport& view)
         brightness = 1.0 / (float) colcycle * (float) ((i % (colcycle)) + 1);
         brightness *= (maxbrightness - minbrightness);
         brightness += minbrightness;
-        glColor3f(brightness, brightness, brightness);
+        glColor4f(brightness, brightness, brightness, 0.5);
         for(j=0; j<2; j++)
         {
             min = basis[j+1].dot(view.pos - (camsize[j] + linedistance) * (basis[j+1]));
@@ -485,6 +488,8 @@ void Map::DrawGrid(const Viewport& view)
         }
     }
     glEnd();
+
+    glDisable(GL_ALPHA_TEST);
 
     glColor3f(1, 1, 1);
 }
@@ -1083,6 +1088,13 @@ void Map::Render(const Viewport& view)
 
     glDisable(GL_DEPTH_TEST);
     DrawGrid(view);
+    glEnable(GL_DEPTH_TEST);
+
+    // since in wireframe selected things should appear over unselected things
+    for(i=0; i<this->entities.size(); i++)
+        this->entities[i].Draw(view, i, *this, false);
+
+    glDisable(GL_DEPTH_TEST);
 
     glPointSize(4.0);
 
@@ -1101,8 +1113,7 @@ void Map::Render(const Viewport& view)
     glEnable(GL_DEPTH_TEST);
 
     for(i=0; i<this->entities.size(); i++)
-        this->entities[i].Draw(view, i, *this);
-
+        this->entities[i].Draw(view, i, *this, true);
     DrawWorkingEnt(view);
     DrawWorkingBrush(view);
     DrawTriplane(view);

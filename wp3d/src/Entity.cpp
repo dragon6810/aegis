@@ -246,7 +246,7 @@ void Entity::DeleteSelected(Map& map)
     }
 }
 
-void Entity::Draw(const Viewport& view, int index, Map& map)
+void Entity::Draw(const Viewport& view, int index, Map& map, bool drawselected)
 {
     int i;
 
@@ -256,5 +256,5 @@ void Entity::Draw(const Viewport& view, int index, Map& map)
         this->DrawCuboid(map.entselection.contains(index));
 
     for(i=0; i<this->brushes.size(); i++)
-        this->brushes[i].Draw(view, i, index, map);
+        this->brushes[i].Draw(view, i, index, map, drawselected);
 }

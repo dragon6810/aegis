@@ -27,5 +27,6 @@ public:
     Eigen::Vector3f GetOrigin(void);
     Fgdlib::EntityDef* GetDef(Fgdlib::FgdFile* file);
     void DeleteSelected(Map& map);
-    void Draw(const Viewport& view, int index, Map& map);
+    // by default, it will only draw unselected geometry. if drawselected is true, it will draw only selected geometry.
+    void Draw(const Viewport& view, int index, Map& map, bool drawselected);
 };

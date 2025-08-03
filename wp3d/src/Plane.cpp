@@ -13,6 +13,9 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
     else
         glColor3f(1, 1, 1);
 
+    if(drawselected)
+        glDisable(GL_DEPTH_TEST);
+
     glBegin(GL_LINES);
 
     for(i=0; i<this->poly.size(); i++)
@@ -22,6 +25,9 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
         glVertex3f(l[0][0], l[0][1], l[0][2]);
         glVertex3f(l[1][0], l[1][1], l[1][2]);
     }
+
+    if(drawselected)
+        glEnable(GL_DEPTH_TEST);
 
     glEnd();
 }
@@ -132,7 +138,7 @@ void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, cons
     }
 }
 
-void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
+void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map, bool drawselected)
 {
     int i;
 
@@ -152,6 +158,9 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map)
     default:
         selected = false;
     }
+
+    if(drawselected != selected)
+        return;
 
     if(view.wireframe)
         this->DrawWire(view, selected);
