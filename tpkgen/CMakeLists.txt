@@ -5,11 +5,9 @@ add_executable (
     "src/TpkScript.cpp"
 )
 
-if (APPLE)
-    if (DEBUG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    endif()
-endif()
+#if (APPLE)
+    
+#endif()
 
 
 target_link_libraries(tpkgen PRIVATE

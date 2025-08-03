@@ -15,6 +15,7 @@ namespace Tpklib
     class TpkTex
     {
     public:
+        char name[max_tex_name];
         Eigen::Vector2i size;
         std::vector<uint32_t> data; // ARGB
         std::vector<uint8_t> palettedata;
@@ -24,7 +25,7 @@ namespace Tpklib
     class TpkFile
     {
     private:
-        static constexpr char magic[4] = "TPK";
+        static constexpr char magic[4] = { 'T', 'P', 'K', '\0', };
         static constexpr uint32_t version = 1;
 
         std::string path = "";
@@ -56,6 +57,7 @@ namespace Tpklib
         std::string dirname = "";
         std::unordered_map<std::string, TpkTex> tex;
 
+        bool Write(const char* filename, int compress=1);
         bool Open(const char* filename);
         void Close(bool cleartextures=false);
         // if name is "", it will load every texture

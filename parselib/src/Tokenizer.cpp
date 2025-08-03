@@ -148,6 +148,7 @@ bool Parselib::Tokenizer::EatFile(const char* path)
     fread(data.data(), 1, filesize, ptr);
     data[filesize] = 0;
     c = data.data();
+    fclose(ptr);
 
     c = this->SkipWhitespace(c);
     while(*c)
