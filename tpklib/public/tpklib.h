@@ -44,7 +44,7 @@ namespace Tpklib
         {
             char name[max_tex_name];
             uint16_t size[2]; // width, height
-            int compression; // 0 is uncompressed, 1 is Flate.
+            uint8_t compression; // 0 is uncompressed, 1 is Flate.
             uint64_t compressedsize;
             uint64_t uncompressedsize;
             uint64_t dataloc; // Location of data in the file

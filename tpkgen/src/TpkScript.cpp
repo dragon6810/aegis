@@ -38,7 +38,6 @@ std::optional<Tpklib::TpkTex> TpkScript::LoadBmp(const char* filename, const cha
     uint32_t dimensions[2];
     uint16_t bitdepth;
     uint32_t compression;
-    uint32_t ncolors;
     uint32_t col;
 
     ptr = fopen(filename, "rb");
@@ -83,24 +82,21 @@ std::optional<Tpklib::TpkTex> TpkScript::LoadBmp(const char* filename, const cha
         fclose(ptr);
         return std::optional<Tpklib::TpkTex>();
     }
-    fseek(ptr, 12, SEEK_CUR);
-    fread(&ncolors, sizeof(ncolors), 1, ptr);
-    fseek(ptr, 4, SEEK_CUR);
+    fseek(ptr, 20, SEEK_CUR);
 
-    for(i=0; i<ncolors; i++)
+    for(i=0; i<Tpklib::palette_size; i++)
     {
         fread(&col, sizeof(col), 1, ptr);
-        tex.palette[i][0] = (col & 0x0000FF00) >>  8;
-        tex.palette[i][1] = (col & 0x00FF0000) >> 16;
-        tex.palette[i][2] = (col & 0xFF000000) >> 24;
+        tex.palette[i][0] = (col & 0x000000FF) >>  0;
+        tex.palette[i][1] = (col & 0x0000FF00) >>  8;
+        tex.palette[i][2] = (col & 0x00FF0000) >> 16;
     }
 
     tex.size[0] = dimensions[0];
     tex.size[1] = dimensions[1];
     strcpy(tex.name, texname);
     tex.palettedata.resize(dimensions[0] * dimensions[1]);
-    fseek(ptr, datastart, SEEK_SET);
-    fread(tex.palettedata.data(), dimensions[0] * dimensions[1], 1, ptr);
+    fread(tex.palettedata.data(), tex.palettedata.size(), 1, ptr);
 
     fclose(ptr);
 

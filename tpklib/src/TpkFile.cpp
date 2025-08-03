@@ -49,7 +49,11 @@ std::optional<Tpklib::TpkTex> Tpklib::TpkFile::GenTexture(const std::vector<uint
     }
 
     memcpy(tex.palette, header.palette, sizeof(header.palette));
+    for(i=0; i<palette_size; i++)
+        printf("palette[%d] = %hhu %hhu %hhu\n", i, tex.palette[i][0], tex.palette[i][1], tex.palette[i][2]);
 
+    tex.size[0] = header.size[0];
+    tex.size[1] = header.size[1];
     tex.data.resize(tex.palettedata.size());
     for(i=0; i<tex.palettedata.size(); i++)
     {
@@ -66,6 +70,7 @@ std::optional<Tpklib::TpkTex> Tpklib::TpkFile::GenTexture(const std::vector<uint
 
 bool Tpklib::TpkFile::Write(const char* filename, int compress)
 {
+    int i;
     std::unordered_map<std::string, TpkTex>::iterator it;
 
     FILE *ptr;

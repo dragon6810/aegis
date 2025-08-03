@@ -1,6 +1,7 @@
 $curfile = "aegis.tpk";
-$compress = "1";
+$compress = "0";
 
 @addtex("tex/-0NMLUSH1.bmp", "-0NMLUSH1");
+@addtex("tex/-0TEMPLATE.bmp", "-0TEMPLATE");
 
 @writefile();
