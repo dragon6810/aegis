@@ -13,15 +13,10 @@ private:
 
     Map& map;
 
-    Tpklib::TpkFile tpk;
-    std::map<std::string, GLuint> gltex;
-    std::map<std::string, std::string> dirnames;
     int selected = -1;
     ImGuiTextFilter filter;
 
-    void GenTextures(void);
-    void ReloadTpk(void);
-    void DrawTex(Tpklib::TpkTex* tex, GLuint glid, float width, int id, int column, int row, int ncolumns);
+    void DrawTex(TextureManager::texture_t* tex, float width, int id, int column, int row, int ncolumns);
 public:
     GuiElementTextureBrowser(Map& map);
 

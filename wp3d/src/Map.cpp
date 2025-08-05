@@ -1153,6 +1153,9 @@ void Map::NewMap(void)
 
     this->SwitchTool(TOOL_SELECT);
     this->selectiontype = SELECT_BRUSH;
+
+    this->texarchives.push_back("aegis.tpk");
+    this->LoadTextures();
 }
 
 void Map::Save(void)
@@ -1255,4 +1258,13 @@ void Map::Load(const std::string& path)
 void Map::LoadFgd(void)
 {
     this->fgd = Fgdlib::FgdFile::Load(this->cfg.pairs["fgd"]);
+}
+
+void Map::LoadTextures(void)
+{
+    int i;
+
+    this->texmanager.ClearAll();
+    for(i=0; i<this->texarchives.size(); i++)
+        this->texmanager.LoadArchive(this->texarchives[i].c_str());
 }

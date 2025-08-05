@@ -8,6 +8,7 @@
 #include <fgdlib.h>
 
 #include "Entity.h"
+#include "TextureManager.h"
 #include "Viewport.h"
 
 class Map
@@ -75,9 +76,11 @@ public:
     int workingenttype = 0;
 
     std::string path = "";
+    std::vector<std::string> texarchives;
 
     Cfglib::CfgFile cfg;
     Fgdlib::FgdFile fgd;
+    TextureManager texmanager;
 
     std::vector<Entity> entities;
     std::unordered_set<int> entselection;
@@ -93,4 +96,5 @@ public:
     void Save(void);
     void Load(const std::string& path);
     void LoadFgd(void);
+    void LoadTextures(void);
 };
