@@ -782,6 +782,8 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     std::unordered_set<int>::iterator it;
 
     Eigen::Vector3f basis[3], add;
+    TextureManager::texture_t *tex;
+    std::string texname;
     float gridsize;
     std::unordered_set<int> newselection;
 
@@ -864,6 +866,24 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
                     newselection.insert(this->ntriplane - 1 - *it);
             }
             this->triplaneselection = newselection;
+        }
+
+        break;
+    case ImGuiKey_T:
+        tex = this->GetSelectedTextureID();
+        if(!tex)
+            break;
+
+        texname = tex->name;
+        if(this->selectiontype == SELECT_ENTITY)
+        {
+            for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+                this->entities[*it].ApplyTexture(texname.c_str());
+        }
+        else
+        {
+            for(i=0; i<this->entities.size(); i++)
+                this->entities[i].ApplyTextureToSelected(*this, texname.c_str());
         }
 
         break;

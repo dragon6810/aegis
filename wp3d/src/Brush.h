@@ -32,5 +32,7 @@ public:
     void DeleteSelected();
     void MoveSelected(Eigen::Vector3f add);
     void Move(Eigen::Vector3f add);
+    void ApplyTextureToSelected(const char* name);
+    void ApplyTexture(const char* name);
     void Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected);
 };

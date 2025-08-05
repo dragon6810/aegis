@@ -377,6 +377,22 @@ void Brush::Move(Eigen::Vector3f add)
     this->MakeFaces();
 }
 
+void Brush::ApplyTextureToSelected(const char* name)
+{
+    std::unordered_set<int>::iterator it;
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        this->planes[*it].texname = name;
+}
+
+void Brush::ApplyTexture(const char* name)
+{
+    int i;
+
+    for(i=0; i<this->planes.size(); i++)
+        this->planes[i].texname = name;
+}
+
 void Brush::Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected)
 {
     int i;

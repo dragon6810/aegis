@@ -282,6 +282,30 @@ void Entity::Move(Eigen::Vector3f add)
         this->brushes[i].Move(add);
 }
 
+void Entity::ApplyTextureToSelected(Map& map, const char* name)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+            this->brushes[*it].ApplyTexture(name);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].ApplyTextureToSelected(name);
+}
+
+void Entity::ApplyTexture(const char* name)
+{
+    int i;
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].ApplyTexture(name);
+}
+
 void Entity::Draw(const Viewport& view, int index, Map& map, bool drawselected)
 {
     int i;
