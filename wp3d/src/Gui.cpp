@@ -99,6 +99,8 @@ void Gui::Draw()
 
     for(i=0; i<this->elements.size(); i++)
         this->elements[i]->Draw();
+
+    // ImGui::ShowDemoWindow();
 }
 
 void Gui::FinishFrame()

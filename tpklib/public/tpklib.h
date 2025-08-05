@@ -15,6 +15,8 @@ namespace Tpklib
     class TpkTex
     {
     public:
+        std::string filename;
+
         char name[max_tex_name];
         Eigen::Vector2i size;
         std::vector<uint32_t> data; // ARGB
@@ -54,7 +56,6 @@ namespace Tpklib
 
         std::optional<TpkTex> GenTexture(const std::vector<uint8_t>& data, const textureindex_t& header);
     public:
-        std::string dirname = "";
         std::unordered_map<std::string, TpkTex> tex;
 
         bool Write(const char* filename, int compress=1);

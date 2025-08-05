@@ -1,5 +1,7 @@
 #include "GuiElementTextureBrowser.h"
 
+#include <filesystem>
+
 GuiElementTextureBrowser::GuiElementTextureBrowser(Map& map) : GuiElement(map), map(map)
 {
     this->ReloadTpk();
@@ -54,38 +56,44 @@ void GuiElementTextureBrowser::ReloadTpk(void)
     this->GenTextures();
 }
 
-void GuiElementTextureBrowser::DrawTex(Tpklib::TpkTex* tex, GLuint glid, float width, int id)
+void GuiElementTextureBrowser::DrawTex(Tpklib::TpkTex* tex, GLuint glid, float width, int id, int column, int row, int ncolumns)
 {
-    const float pad = 4.0;
-
     ImVec2 size, pos, min, max, bgmin, bgmax, textsize, textpos;
     float scalefactor;
     ImDrawList *drawlist;
     bool selected;
+    std::string dirname, displayname;
 
-    ImGui::PushID(id);
+    dirname = std::filesystem::path(tex->filename).stem().string();
+    if(dirname.size())
+        displayname = dirname + "/" + tex->name;
+    else
+        displayname = tex->name;
 
-    ImGui::SetItemAllowOverlap();
-
-    pos = ImGui::GetCursorPos();
+    pos = { column * width, row * width };
+    ImGui::SetCursorPos(pos);
 
     scalefactor = width / (float) tex->size[0];
 
     size.x = (float) tex->size[0] * scalefactor;
     size.y = (float) tex->size[1] * scalefactor;
-
     selected = id == this->selected;
-    if(ImGui::Selectable((std::string("##texbrowser_") + tex->name).c_str(), &selected, 0, size))
+    if(ImGui::Selectable((std::string("##texbrowser_") + displayname).c_str(), &selected, 0, size))
         this->selected = id;
 
+    pos.x += pad;
+    pos.y += pad;
+
     ImGui::SetCursorPos(pos);
-    ImGui::Image((ImTextureID)(intptr_t)glid, size, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(intptr_t)glid, {size.x - pad * 2, size.y - pad * 2 }, {0, 1}, {1, 0});
 
     drawlist = ImGui::GetWindowDrawList();
     min = ImGui::GetItemRectMin();
     max = ImGui::GetItemRectMax();
 
-    textsize = ImGui::CalcTextSize(tex->name);
+    ImGui::PushFont(NULL, 12);
+
+    textsize = ImGui::CalcTextSize(displayname.c_str());
 
     textpos.x = max.x - textsize.x - pad;
     textpos.y = max.y - textsize.y - pad;
@@ -96,9 +104,9 @@ void GuiElementTextureBrowser::DrawTex(Tpklib::TpkTex* tex, GLuint glid, float w
     bgmax.y = textpos.y + textsize.y + pad;
 
     drawlist->AddRectFilled(bgmin, bgmax, IM_COL32(0, 0, 0, 192));
-    drawlist->AddText(textpos, IM_COL32(255, 255, 255, 255), tex->name);
+    drawlist->AddText(textpos, IM_COL32(255, 255, 255, 255), displayname.c_str());
 
-    ImGui::PopID();
+    ImGui::PopFont();
 }
 
 void GuiElementTextureBrowser::Draw(void)
@@ -108,15 +116,32 @@ void GuiElementTextureBrowser::Draw(void)
     float width;
 
     ImGui::Begin("Texture Browser", NULL, ImGuiWindowFlags_NoCollapse);
+    
+    ImGui::BeginChild("TextureList", 
+        { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing() });
 
-    for(it=this->gltex.begin(), i=0; it!=this->gltex.end(); it++, i++)
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
+    width = (ImGui::GetContentRegionAvail().x) / 2.0;
+
+    for(it=this->gltex.begin(), i=0; it!=this->gltex.end(); it++)
     {
-        if(i & 1)
-            ImGui::SameLine();
-        else
-            width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0f;
-        this->DrawTex(&this->tpk.tex[it->first], it->second, width, i);
+        if(!filter.PassFilter(it->first.c_str()))
+            continue;
+        
+        this->DrawTex(&this->tpk.tex[it->first], it->second, width, i, i & 1, i / 2, 2);
+        i++;
     }
+
+    ImGui::Dummy({0, 0});
+
+    ImGui::PopStyleVar();
+
+    ImGui::EndChild();
+
+    ImGui::PushItemWidth(-FLT_MIN);
+    filter.Draw("##texbrowserfilter");
+    ImGui::PopItemWidth();
 
     ImGui::End();
 }

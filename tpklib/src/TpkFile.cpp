@@ -241,6 +241,7 @@ bool Tpklib::TpkFile::LoadTex(const char* name)
         if(!tex.has_value())
             continue;
 
+        tex.value().filename = std::string(this->path);
         this->tex[std::string(texindex.name)] = tex.value();
 
         foundtex = true;
