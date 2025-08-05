@@ -31,6 +31,7 @@ public:
     std::vector<archive_t> archives;
 
     texture_t* FindTexture(const char* name);
+    GLuint GetMissingTextureID(void);
 
     void LoadArchive(const char* path);
     void ReloadArchive(const char* path);

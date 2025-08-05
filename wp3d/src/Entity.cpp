@@ -251,8 +251,6 @@ void Entity::MoveSelected(Map& map, Eigen::Vector3f add)
     int i;
     std::unordered_set<int>::iterator it;
 
-    printf("Entity::Selected\n");
-
     if(map.selectiontype == Map::SELECT_BRUSH)
     {
         for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
@@ -269,8 +267,6 @@ void Entity::Move(Eigen::Vector3f add)
     int i;
 
     Eigen::Vector3i origin;
-
-    printf("Entity::Move\n");
 
     if(this->pairs.find("origin") != this->pairs.end())
     {

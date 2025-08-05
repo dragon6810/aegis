@@ -40,6 +40,12 @@ TextureManager::texture_t* TextureManager::FindTexture(const char* name)
     return NULL;
 }
 
+GLuint TextureManager::GetMissingTextureID(void)
+{
+    // TODO: return an actual error texture
+    return 0;
+}
+
 void TextureManager::LoadArchive(const char* path)
 {
     Tpklib::TpkFile file;

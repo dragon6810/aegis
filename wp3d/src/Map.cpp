@@ -210,14 +210,18 @@ void Map::FinalizeBrush(void)
     for(i=0; i<3; i++)
     {
         pl = &br->planes[i * 2 + 0];
+        *pl = Plane(*this);
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = -1;
         pl->d = -bb[0][i];
+        pl->DefaultTexBasis();
 
         pl = &br->planes[i * 2 + 1];
+        *pl = Plane(*this);
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = 1;
         pl->d = bb[1][i];
+        pl->DefaultTexBasis();
     }
 
     br->MakeFaces();
@@ -264,7 +268,7 @@ void Map::FinalizePlane(void)
                 continue;
             }
 
-            ent->brushes[j].AddPlane(n, d);
+            ent->brushes[j].AddPlane(n, d, *this);
             if(!ent->brushes[j].points.size())
                 continue;
 
@@ -710,6 +714,24 @@ void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
     glEnd();
 }
 
+TextureManager::texture_t* Map::GetSelectedTextureID(void)
+{
+    TextureManager::archive_t *archive;
+    std::map<std::string, TextureManager::texture_t>::iterator it;
+
+    if(selectedtexarchive >= this->texmanager.archives.size())
+        return NULL;
+    
+    archive = &this->texmanager.archives[selectedtexarchive];
+
+    if(selectedtex >= archive->textures.size())
+        return NULL;
+
+    it = archive->textures.begin();
+    std::advance(it, selectedtex);
+    return &it->second;
+}
+
 void Map::SwitchTool(tooltype_e type)
 {
     if(type == this->tool)
@@ -1142,6 +1164,10 @@ void Map::NewMap(void)
 
     this->LoadConfig();
 
+    this->texarchives.clear();
+    this->texarchives.push_back("aegis.tpk");
+    this->LoadTextures();
+
     this->path = "";
 
     this->entselection.clear();
@@ -1153,9 +1179,6 @@ void Map::NewMap(void)
 
     this->SwitchTool(TOOL_SELECT);
     this->selectiontype = SELECT_BRUSH;
-
-    this->texarchives.push_back("aegis.tpk");
-    this->LoadTextures();
 }
 
 void Map::Save(void)

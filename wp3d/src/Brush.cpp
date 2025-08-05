@@ -124,11 +124,10 @@ void Brush::MakeFaces(void)
     this->planes = newplanes;
 }
 
-void Brush::AddPlane(Eigen::Vector3f n, float d)
+void Brush::AddPlane(Eigen::Vector3f n, float d, Map& map)
 {
-    Plane p;
+    Plane p(map);
 
-    p = Plane();
     p.normal = n;
     p.d = d;
 
@@ -226,9 +225,8 @@ void Brush::FinalizeVertexEdit(void)
         d = n.dot(this->points[this->planes[i].indices[0]]);
 
         newplanemapping[i] = newplanes.size();
-        newplanes.push_back(Plane());
+        newplanes.push_back(this->planes[i]);
         pl = &newplanes.back();
-        *pl = this->planes[i];
         pl->normal = n;
         pl->d = d;
     }
@@ -365,8 +363,6 @@ void Brush::MoveSelected(Eigen::Vector3f add)
 {
     std::unordered_set<int>::iterator it;
 
-    printf("Brush::MoveSelected\n");
-
     for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
         this->planes[*it].Move(add);
     this->MakeFaces();
@@ -375,8 +371,6 @@ void Brush::MoveSelected(Eigen::Vector3f add)
 void Brush::Move(Eigen::Vector3f add)
 {
     int i;
-
-    printf("Brush::Move\n");
 
     for(i=0; i<this->planes.size(); i++)
         this->planes[i].Move(add);

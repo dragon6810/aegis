@@ -7,7 +7,7 @@ GuiElementTextureBrowser::GuiElementTextureBrowser(Map& map) : GuiElement(map), 
     
 }
 
-void GuiElementTextureBrowser::DrawTex(TextureManager::texture_t* tex, float width, int id, int column, int row, int ncolumns)
+void GuiElementTextureBrowser::DrawTex(TextureManager::texture_t* tex, float width, int iarchive, int id, int column, int row, int ncolumns)
 {
     ImVec2 size, pos, min, max, bgmin, bgmax, textsize, textpos;
     float scalefactor;
@@ -24,9 +24,12 @@ void GuiElementTextureBrowser::DrawTex(TextureManager::texture_t* tex, float wid
 
     size.x = (float) tex->size[0] * scalefactor;
     size.y = (float) tex->size[1] * scalefactor;
-    selected = id == this->selected;
+    selected = map.selectedtexarchive == iarchive && map.selectedtex == id;
     if(ImGui::Selectable((std::string("##texbrowser_") + displayname).c_str(), &selected, 0, size))
-        this->selected = id;
+    {
+        map.selectedtexarchive = iarchive;
+        map.selectedtex = id;
+    }
 
     pos.x += pad;
     pos.y += pad;
@@ -80,7 +83,7 @@ void GuiElementTextureBrowser::Draw(void)
             if(!filter.PassFilter(it->first.c_str()))
                 continue;
 
-            this->DrawTex(&it->second, width, id, j & 1, j / 2, 2);
+            this->DrawTex(&it->second, width, i, id, j & 1, j / 2, 2);
             j++;
         }
     }
