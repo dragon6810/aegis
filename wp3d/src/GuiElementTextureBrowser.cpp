@@ -59,6 +59,35 @@ void GuiElementTextureBrowser::DrawTex(TextureManager::texture_t* tex, float wid
     ImGui::PopFont();
 }
 
+void GuiElementTextureBrowser::ApplyTex(void)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    TextureManager::archive_t *archive;
+    TextureManager::texture_t *selectedtex;
+    std::map<std::string, TextureManager::texture_t>::iterator texit;
+
+    if(map.selectedtexarchive >= map.texmanager.archives.size())
+        return;
+    archive = &map.texmanager.archives[map.selectedtexarchive];
+    if(map.selectedtex >= archive->textures.size())
+        return;
+    texit = archive->textures.begin();
+    std::advance(texit, map.selectedtex);
+    selectedtex = &texit->second;
+
+    if(this->map.selectiontype == Map::SELECT_ENTITY)
+    {
+        for(it=this->map.entselection.begin(); it!=this->map.entselection.end(); it++)
+            this->map.entities[*it].ApplyTexture(selectedtex->name.c_str());
+        return;
+    }
+
+    for(i=0; i<this->map.entities.size(); i++)
+        this->map.entities[i].ApplyTextureToSelected(map, selectedtex->name.c_str());
+}
+
 void GuiElementTextureBrowser::Draw(void)
 {
     int i, j, id;
@@ -70,7 +99,7 @@ void GuiElementTextureBrowser::Draw(void)
     ImGui::Begin("Texture Browser", NULL, ImGuiWindowFlags_NoCollapse);
     
     ImGui::BeginChild("TextureList", 
-        { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing() });
+        { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing() * 2 });
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
@@ -96,7 +125,21 @@ void GuiElementTextureBrowser::Draw(void)
 
     ImGui::PushItemWidth(-FLT_MIN);
     filter.Draw("##texbrowserfilter");
+    if(ImGui::Button("Apply Texture"))
+        this->ApplyTex();
     ImGui::PopItemWidth();
 
+    if(ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::TextUnformatted("Apply Texture (Shift T)");
+        ImGui::Separator();
+        ImGui::TextUnformatted("Applies the selected texture to selection.");
+        ImGui::EndTooltip();
+    }
+
     ImGui::End();
+
+    if(ImGui::IsKeyDown(ImGuiKey_ModShift) && ImGui::IsKeyDown(ImGuiKey_T))
+        this->ApplyTex();
 }

@@ -214,14 +214,14 @@ void Map::FinalizeBrush(void)
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = -1;
         pl->d = -bb[0][i];
-        pl->DefaultTexBasis();
+        pl->AlignTexGrid();
 
         pl = &br->planes[i * 2 + 1];
         *pl = Plane(*this);
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = 1;
         pl->d = bb[1][i];
-        pl->DefaultTexBasis();
+        pl->AlignTexGrid();
     }
 
     br->MakeFaces();
@@ -866,24 +866,6 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
                     newselection.insert(this->ntriplane - 1 - *it);
             }
             this->triplaneselection = newselection;
-        }
-
-        break;
-    case ImGuiKey_T:
-        tex = this->GetSelectedTextureID();
-        if(!tex)
-            break;
-
-        texname = tex->name;
-        if(this->selectiontype == SELECT_ENTITY)
-        {
-            for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
-                this->entities[*it].ApplyTexture(texname.c_str());
-        }
-        else
-        {
-            for(i=0; i<this->entities.size(); i++)
-                this->entities[i].ApplyTextureToSelected(*this, texname.c_str());
         }
 
         break;

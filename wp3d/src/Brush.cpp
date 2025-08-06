@@ -126,10 +126,12 @@ void Brush::MakeFaces(void)
 
 void Brush::AddPlane(Eigen::Vector3f n, float d, Map& map)
 {
-    Plane p(map);
+    Plane p;
 
+    p = Plane(map);
     p.normal = n;
     p.d = d;
+    p.AlignTexGrid();
 
     this->planes.push_back(p);
     this->MakeFaces();

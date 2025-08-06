@@ -17,6 +17,7 @@ private:
     ImGuiTextFilter filter;
 
     void DrawTex(TextureManager::texture_t* tex, float width, int iarchive, int id, int column, int row, int ncolumns);
+    void ApplyTex(void);
 public:
     GuiElementTextureBrowser(Map& map);
 

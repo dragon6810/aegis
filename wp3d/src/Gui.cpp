@@ -12,6 +12,7 @@
 #include "GuiElementEntityEditor.h"
 #include "GuiElementMenuBar.h"
 #include "GuiElementTextureBrowser.h"
+#include "GuiElementTextureMapping.h"
 #include "GuiElementToolBar.h"
 #include "GuiElementToolSettings.h"
 #include "GuiElementViewport.h"
@@ -44,6 +45,7 @@ void Gui::Setup(GLFWwindow* win)
     this->elements.push_back(std::make_unique<GuiElementToolSettings>(GuiElementToolSettings(this->map)));
     this->elements.push_back(std::make_unique<GuiElementEntityEditor>(GuiElementEntityEditor(this->map)));
     this->elements.push_back(std::make_unique<GuiElementTextureBrowser>(GuiElementTextureBrowser(this->map)));
+    this->elements.push_back(std::make_unique<GuiElementTextureMapping>(GuiElementTextureMapping(this->map)));
     for(i=0; i<Viewport::NTYPES; i++)
         this->elements.push_back(std::make_unique<GuiElementViewport>(GuiElementViewport(this->map, (Viewport::viewporttype_e) i)));
 }

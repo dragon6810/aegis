@@ -96,7 +96,7 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected, Map& map)
         glDisable(GL_TEXTURE_2D);
 }
 
-void Plane::DefaultTexBasis(void)
+void Plane::AlignTexGrid(void)
 {
     int i;
 
@@ -117,24 +117,33 @@ void Plane::DefaultTexBasis(void)
     switch(axis)
     {
     case 0:
-        this->texbasis[0] = Eigen::Vector3f::UnitY();
+        this->texbasis[0] =  Eigen::Vector3f::UnitY();
+        this->texbasis[1] =  Eigen::Vector3f::UnitZ();
         break;
     case 1:
         this->texbasis[0] = -Eigen::Vector3f::UnitX();
+        this->texbasis[1] =  Eigen::Vector3f::UnitZ();
         break;
     case 2:
-        this->texbasis[0] = Eigen::Vector3f::UnitX();
+        this->texbasis[0] =  Eigen::Vector3f::UnitX();
+        this->texbasis[1] =  Eigen::Vector3f::UnitY();
         break;
     default:
         break;
     }
 
-    this->texbasis[1] = this->normal.cross(this->texbasis[0]);
-    this->texbasis[0] = this->texbasis[1].cross(this->normal);
     this->texshift[0] = this->texshift[1] = 0;
     
     if(flip)
         this->texbasis[0] = -this->texbasis[0];
+}
+
+void Plane::AlignTexFace(void)
+{
+    this->AlignTexGrid();
+
+    this->texbasis[0] = this->texbasis[1].cross(this->normal);
+    this->texbasis[1] = this->normal.cross(this->texbasis[0]);
 }
 
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)

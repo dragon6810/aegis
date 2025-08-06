@@ -17,6 +17,7 @@ add_executable (
     "src/GuiElementEntityEditor.cpp"
     "src/GuiElementTextureBrowser.cpp"
     "src/TextureManager.cpp"
+    "src/GuiElementTextureMapping.cpp"
 )
 
 if (APPLE)
