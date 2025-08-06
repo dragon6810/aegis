@@ -1221,11 +1221,11 @@ void Map::Save(void)
 
                 for(i=0; i<2; i++)
                 {
-                    fpl->texbasis[i] = Eigen::Vector3f(0, 0, 0);
-                    fpl->texoffs[i] = 0;
+                    fpl->texbasis[i] = pl->texbasis[i];
+                    fpl->texoffs[i] = pl->texshift[i];;
                 }
 
-                fpl->texname = "";
+                fpl->texname = pl->texname;
             }
         }
     }
@@ -1274,6 +1274,12 @@ void Map::Load(const std::string& path)
                 pl->normal = ((fpl->triplane[1] - fpl->triplane[0]).cross(fpl->triplane[2] - fpl->triplane[0])).cast<float>();
                 pl->normal.normalize();
                 pl->d = pl->normal.dot(fpl->triplane[0].cast<float>());
+                pl->texname = fpl->texname;
+                for(i=0; i<2; i++)
+                {
+                    pl->texbasis[i] = fpl->texbasis[i];
+                    pl->texshift[i] = fpl->texoffs[i];
+                }
             }
             br->MakeFaces();
         }
