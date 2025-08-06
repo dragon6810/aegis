@@ -84,35 +84,43 @@ void GuiElementTextureMapping::Scale(Eigen::Vector2f scale)
             planes[i]->texbasis[j] *= scale[j];
 }
 
+void GuiElementTextureMapping::Rotate(float degrees)
+{
+    int i, j;
+
+    float radians;
+    Eigen::Quaternionf q;
+    Eigen::Matrix3f rot;
+
+    std::vector<Plane*> planes;
+
+    radians = DEG2RAD(degrees);
+
+    planes = this->GetSelectedFaces();
+    for(i=0; i<planes.size(); i++)
+    {
+        q = Eigen::Quaternionf(Eigen::AngleAxisf(radians, planes[i]->normal));
+        rot = q.toRotationMatrix();
+        for(j=0; j<2; j++)
+            planes[i]->texbasis[j] = rot * planes[i]->texbasis[j];
+    }
+}
+
 void GuiElementTextureMapping::DrawQuickActions(void)
 {
     int shiftamount;
+    float width;
+    ImVec2 btnsize;
+    float degrees;
 
-    if(ImGui::Button("Align to Grid"))
+    width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+    btnsize = { width, 0 };
+
+    if(ImGui::Button("Align to Grid", btnsize))
         this->AlignGrid();
-    
-    if(ImGui::IsItemHovered())
-    {
-        ImGui::BeginTooltip();
-        ImGui::TextUnformatted("Align to Grid");
-        ImGui::Separator();
-        ImGui::TextUnformatted("Aligns texture to the closest cardinal direction.");
-        ImGui::EndTooltip();
-    }
-
     ImGui::SameLine();
-
-    if(ImGui::Button("Align to Face"))
+    if(ImGui::Button("Align to Face", btnsize))
         this->AlignFace();
-
-    if(ImGui::IsItemHovered())
-    {
-        ImGui::BeginTooltip();
-        ImGui::TextUnformatted("Align to Face");
-        ImGui::Separator();
-        ImGui::TextUnformatted("Aligns texture to the normal.");
-        ImGui::EndTooltip();
-    }
 
     shiftamount = 2;
     if(ImGui::IsKeyDown(ImGuiKey_ModCtrl))
@@ -120,27 +128,39 @@ void GuiElementTextureMapping::DrawQuickActions(void)
     if(ImGui::IsKeyDown(ImGuiKey_ModShift))
         shiftamount <<= 1;
 
-    if(ImGui::Button("Shift Left"))
+    if(ImGui::Button("Shift Left", btnsize))
         this->Shift(Eigen::Vector2i(shiftamount, 0));
     ImGui::SameLine();
-    if(ImGui::Button("Shift Right"))
+    if(ImGui::Button("Shift Right", btnsize))
         this->Shift(Eigen::Vector2i(-shiftamount, 0));
-    if(ImGui::Button("Shift Down"))
+    if(ImGui::Button("Shift Down", btnsize))
         this->Shift(Eigen::Vector2i(0, shiftamount));
     ImGui::SameLine();
-    if(ImGui::Button("Shift Up"))
+    if(ImGui::Button("Shift Up", btnsize))
         this->Shift(Eigen::Vector2i(0, -shiftamount));
 
-    if(ImGui::Button("Shrink X"))
+    if(ImGui::Button("Shrink X", btnsize))
         this->Scale(Eigen::Vector2f(2.0, 1));
     ImGui::SameLine();
-    if(ImGui::Button("Stretch X"))
+    if(ImGui::Button("Stretch X", btnsize))
         this->Scale(Eigen::Vector2f(0.5, 1));
-    if(ImGui::Button("Shrink Y"))
+    if(ImGui::Button("Shrink Y", btnsize))
         this->Scale(Eigen::Vector2f(1, 2.0));
     ImGui::SameLine();
-    if(ImGui::Button("Stretch Y"))
+    if(ImGui::Button("Stretch Y", btnsize))
         this->Scale(Eigen::Vector2f(1, 0.5));
+
+    degrees = 15;
+    if(ImGui::IsKeyDown(ImGuiKey_ModCtrl))
+        degrees /= 3.0;
+    if(ImGui::IsKeyDown(ImGuiKey_ModShift))
+        degrees *= 3.0;
+
+    if(ImGui::Button("Rotate CCW", btnsize))
+        this->Rotate(degrees);
+    ImGui::SameLine();
+    if(ImGui::Button("Rotate CW", btnsize))
+        this->Rotate(-degrees);
 }
 
 void GuiElementTextureMapping::Draw(void)
