@@ -9,7 +9,8 @@
                 "${workspaceFolder}/thirdparty/eigen",
                 "${workspaceFolder}/thirdparty/imgui/imgui",
                 "${workspaceFolder}/mathlib/public",
-                "${workspaceFolder}/thirdparty/imgui/imgui/backends"
+                "${workspaceFolder}/thirdparty/imgui/imgui/backends",
+                "${workspaceFolder}/utilslib/public"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

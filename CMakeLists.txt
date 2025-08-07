@@ -26,6 +26,7 @@ add_subdirectory(thirdparty/argparse)
 
 # Libraries
 add_subdirectory(mathlib)
+add_subdirectory(utilslib)
 add_subdirectory(parselib)
 add_subdirectory(scriptlib)
 add_subdirectory(maplib)
