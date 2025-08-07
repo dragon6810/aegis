@@ -17,7 +17,6 @@ endif()
 # Third-party
 add_subdirectory(thirdparty/glew)
 add_subdirectory(thirdparty/glm)
-add_subdirectory(thirdparty/SFML)
 add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/filedialog)
@@ -34,7 +33,7 @@ add_subdirectory(cfglib)
 add_subdirectory(tpklib)
 
 # Executables
-set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d)")
+set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d, tpkgen, bspgen)")
 if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "tests")
     add_subdirectory(tests)
 endif()
@@ -49,4 +48,8 @@ endif()
 
 if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "tpkgen")
     add_subdirectory(tpkgen)
+endif()
+
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "bspgen")
+    add_subdirectory(bspgen)
 endif()

@@ -1,5 +1,5 @@
 add_library(parselib STATIC
-    src/Tokenizer
+    src/Tokenizer.cpp
 )
 
 target_link_libraries(parselib PUBLIC

@@ -34,7 +34,6 @@ if (APPLE)
     target_link_libraries(engine PRIVATE
         glm
         glew 
-        SFML::Audio
         eigen
         mathlib
         GLEW::GLEW
@@ -54,7 +53,6 @@ elseif (UNIX)
     target_link_libraries(engine PRIVATE
         glm
         glew
-        SFML::Audio
         eigen
         mathlib
         OpenGL::GL
