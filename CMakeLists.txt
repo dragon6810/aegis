@@ -22,6 +22,7 @@ add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/filedialog)
 add_subdirectory(thirdparty/googletest)
 add_subdirectory(thirdparty/zlib)
+add_subdirectory(thirdparty/argparse)
 
 # Libraries
 add_subdirectory(mathlib)

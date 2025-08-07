@@ -6,7 +6,7 @@ if cmake .. -DEXEC_TARGET=bspgen; then
     if cmake --build .; then
         mkdir -p ../run/bspgen
         cd ../run/bspgen
-        ../../build/bin/bspgen
+        ../../build/bin/bspgen -v
         exit 0
     fi
 fi
