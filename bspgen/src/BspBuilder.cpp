@@ -101,7 +101,7 @@ void BspBuilder::WriteCSGFaces(void)
         {
             fprintf(ptr, "f ");
             for(v=0; v<indices[f].size(); v++)
-                fprintf(ptr, "%d ", indices[f][v]);
+                fprintf(ptr, "%d ", indices[f][v] + 1);
             fprintf(ptr, "\n");
         }
 
