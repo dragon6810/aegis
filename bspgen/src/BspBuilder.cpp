@@ -20,9 +20,10 @@ void BspBuilder::ExpandHulls(void)
 
 void BspBuilder::CullInterior(void)
 {
-    int i;
+    int i, h;
 
     uint64_t startt, endt;
+    int hullcounts[Bsplib::n_hulls];
 
     startt = TIMEMS;
 
@@ -31,6 +32,81 @@ void BspBuilder::CullInterior(void)
 
     endt = TIMEMS;
     printf("interior face culling done in %llums.\n", endt - startt);
+
+    if(verbose)
+    {
+        for(h=0; h<Bsplib::n_hulls; h++)
+        {
+            if(h < Bsplib::n_hulls - 1)
+                printf("|- hull %d\n", h);
+            else
+                printf("`- hull %d\n", h);
+
+            hullcounts[h] = 0;
+            for(i=0; i<this->ents.size(); i++)
+                hullcounts[h] += this->ents[i].geometry[h].size();
+            
+            if(h < Bsplib::n_hulls - 1)
+                printf("|");
+            else
+                printf(" ");
+
+            printf("  `- %d faces\n", hullcounts[h]);
+        }
+    }
+}
+
+void BspBuilder::WriteCSGFaces(void)
+{
+    int h, e, f, v;
+
+    std::string filename;
+    FILE *ptr;
+    std::vector<Mathlib::Poly<3>> *curgeo;
+    std::vector<Eigen::Vector3f> vertices;
+    std::vector<std::vector<int>> indices;
+
+    if(!this->csgoutput.size())
+        return;
+
+    for(h=0; h<Bsplib::n_hulls; h++)
+    {
+        filename = Utilslib::StripExtension(this->csgoutput.c_str());
+        filename = filename + "_" + std::to_string(h);
+        filename = Utilslib::AddExtension(filename.c_str(), "obj");
+        ptr = fopen(filename.c_str(), "w");
+        if(!ptr)
+        {
+            fprintf(stderr, "can't open file for writing \"%s\".\n", filename.c_str());
+            continue;
+        }
+
+        for(e=0; e<this->ents.size(); e++)
+        {
+            curgeo = &this->ents[e].geometry[h];
+            for(f=0; f<curgeo->size(); f++)
+            {
+                indices.push_back({});
+                for(v=0; v<(*curgeo)[f].size(); v++)
+                {
+                    indices.back().push_back(vertices.size());
+                    vertices.push_back((*curgeo)[f][v]);
+                }
+            }
+        }
+
+        for(v=0; v<vertices.size(); v++)
+            fprintf(ptr, "v %f %f %f\n", vertices[v][0], vertices[v][1], vertices[v][2]);
+        for(f=0; f<indices.size(); f++)
+        {
+            fprintf(ptr, "f ");
+            for(v=0; v<indices[f].size(); v++)
+                fprintf(ptr, "%d ", indices[f][v]);
+            fprintf(ptr, "\n");
+        }
+
+        fclose(ptr);
+    }
 }
 
 void BspBuilder::LoadMapFile(const char* path)
@@ -104,4 +180,5 @@ void BspBuilder::CSG(void)
 {
     this->ExpandHulls();
     this->CullInterior();
+    this->WriteCSGFaces();
 }

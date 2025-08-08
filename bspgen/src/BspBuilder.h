@@ -8,6 +8,7 @@ class BspBuilder
 private:
     void ExpandHulls(void);
     void CullInterior(void);
+    void WriteCSGFaces(void);
 public:
     bool verbose = false;
     std::string csgoutput = "";

@@ -180,6 +180,25 @@ TEST(PolySideTests, OnTests)
     EXPECT_EQ(Mathlib::PolySide(in, n, d), expect);
 }
 
+TEST(PolySideTests, PartialOnTests)
+{
+    Mathlib::Poly<2> in;
+    Eigen::Vector2f n;
+    float d;
+    Mathlib::planeside_e expect;
+
+    in = 
+    {
+        { -1, -1, },
+        { 1, -1, },
+        { 1, 1, },
+    };
+    n = { 1, 0, };
+    d = 1;
+    expect = Mathlib::SIDE_BACK;
+    EXPECT_EQ(Mathlib::PolySide(in, n, d), expect);
+}
+
 TEST(FromPlaneTests, AxialTests)
 {
     Mathlib::Poly<3> out, expect;
