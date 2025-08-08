@@ -52,6 +52,7 @@
         "any": "cpp",
         "*.inc": "cpp",
         "ios": "cpp",
-        "nnls": "cpp"
+        "nnls": "cpp",
+        "mprealsupport": "cpp"
     }
 }

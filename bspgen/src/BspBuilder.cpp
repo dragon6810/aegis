@@ -71,6 +71,9 @@ void BspBuilder::WriteCSGFaces(void)
 
     for(h=0; h<Bsplib::n_hulls; h++)
     {
+        vertices.clear();
+        indices.clear();
+        
         filename = Utilslib::StripExtension(this->csgoutput.c_str());
         filename = filename + "_" + std::to_string(h);
         filename = Utilslib::AddExtension(filename.c_str(), "obj");

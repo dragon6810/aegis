@@ -20,6 +20,7 @@ void Brush::Polygonize(void)
     }
 
     this->planes.clear();
+    this->planes.reserve(newplanes.size());
     for(i=0; i<newplanes.size(); i++)
     {
         if(!newplanes[i].poly.size())
@@ -59,7 +60,8 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
     BrFace newface;
     int sizebeforebb;
 
-    this->Polygonize();
+    this->Polygonize(); // solely for bounding box
+
     for(i=0; i<this->planes.size(); i++)
     {
         corner = Eigen::Vector3f::Zero();
@@ -82,23 +84,18 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
         {
             newface = BrFace();
             newface.n[i] = j * 2 - 1;
-            newface.d = (this->bb[j][i] * (j * 2 - 1)) + hull[j][i];
+            newface.d = (this->bb[j][i] + hull[j][i]) * (j * 2 - 1);
 
             // it really fucks things up if you add a coplanar face, so dont add it if it exists already
             for(k=0; k<sizebeforebb; k++)
-            {
-                if((this->planes[k].n - newface.n).squaredNorm() > epsilon * epsilon)
-                    continue;
-                if(fabsf(this->planes[k].d - newface.d) > epsilon)
-                    continue;
+                if((this->planes[k].n - newface.n).squaredNorm() < epsilon * epsilon && 
+                    fabsf(this->planes[k].d - newface.d) < epsilon)
+                    break;
 
-                break;
-            }
-
-            if(k >= sizebeforebb)
+            if(k < sizebeforebb)
                 continue;
 
-            this->planes.emplace_back(newface);
+            this->planes.push_back(newface);
         }
     }
 
@@ -134,6 +131,8 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
     int f, p;
 
     Mathlib::planeside_e side;
+    const Eigen::Vector3f *n;
+    const float *d;
     Mathlib::Poly<3> back, front;
 
     this->interior = this->exterior;
@@ -143,9 +142,12 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
     {
         for(f=0; f<this->interior.size(); f++)
         {
-            side = Mathlib::PolySide(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d);
+            n = &otherbrush.planes[p].n;
+            d = &otherbrush.planes[p].d;
+
+            side = Mathlib::PolySide(this->interior[f], *n, *d);
             
-            // entirely back
+            // entirely inside
             if(side == Mathlib::SIDE_BACK)
                 continue;
 
@@ -154,7 +156,7 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
                 if(side == Mathlib::SIDE_ON && priority)
                     continue;
 
-                // entirely front
+                // entirely outside
                 this->exterior.push_back(this->interior[f]);
                 this->interior.erase(this->interior.begin() + f);
                 f--;
@@ -162,8 +164,9 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
             }
 
             // cross
-            this->exterior.push_back(Mathlib::ClipPoly(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d, Mathlib::SIDE_FRONT));
-            this->interior[f] = Mathlib::ClipPoly(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d, Mathlib::SIDE_BACK);
+            this->exterior.push_back(this->interior[f]);
+            this->exterior.back() = Mathlib::ClipPoly(this->exterior.back(), *n, *d, Mathlib::SIDE_FRONT);
+            this->interior[f] = Mathlib::ClipPoly(this->interior[f], *n, *d, Mathlib::SIDE_BACK);
         }
     }
 }

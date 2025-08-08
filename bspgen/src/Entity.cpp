@@ -27,9 +27,10 @@ void Entity::CullInterior(void)
         for(b1=0; b1<this->brushes[h].size(); b1++)
         {
             this->brushes[h][b1].PopulateExterior();
+
             for(b2=0; b2<this->brushes[h].size(); b2++)
             {
-                if(b1 == b2 || !this->brushes[h][b1].Overlaps(this->brushes[h][b2]))
+                if(!this->brushes[h][b1].Overlaps(this->brushes[h][b2]) || b1 == b2)
                     continue;
 
                 this->brushes[h][b1].SeperateInOut(this->brushes[h][b2], b2 > b1);
