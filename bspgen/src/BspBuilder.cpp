@@ -3,6 +3,14 @@
 #include <maplib.h>
 #include <utilslib.h>
 
+void BspBuilder::ExpandHulls(void)
+{
+    int i;
+
+    for(i=0; i<this->ents.size(); i++)
+        this->ents[i].ExpandBrushes(this->hulldef);
+}
+
 void BspBuilder::LoadMapFile(const char* path)
 {
     int i, e, b, f;
@@ -32,11 +40,11 @@ void BspBuilder::LoadMapFile(const char* path)
         ent = &this->ents[e];
 
         ent->pairs = fent->keys;
-        ent->brushes.resize(fent->brushes.size());
-        for(b=0; b<ent->brushes.size(); b++, nbrush++)
+        ent->brushes[0].resize(fent->brushes.size());
+        for(b=0; b<ent->brushes[0].size(); b++, nbrush++)
         {
             fbr = &fent->brushes[b];
-            br = &ent->brushes[b];
+            br = &ent->brushes[0][b];
 
             br->planes.resize(fbr->planes.size());
             for(f=0; f<br->planes.size(); f++, nface++)
@@ -72,5 +80,5 @@ void BspBuilder::LoadMapFile(const char* path)
 
 void BspBuilder::CSG(void)
 {
-
+    this->ExpandHulls();
 }
