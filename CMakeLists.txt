@@ -33,6 +33,7 @@ add_subdirectory(maplib)
 add_subdirectory(fgdlib)
 add_subdirectory(cfglib)
 add_subdirectory(tpklib)
+add_subdirectory(bsplib)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d, tpkgen, bspgen)")
