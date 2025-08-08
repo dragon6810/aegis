@@ -7,8 +7,15 @@ void BspBuilder::ExpandHulls(void)
 {
     int i;
 
+    uint64_t startt, endt;
+
+    startt = TIMEMS;
+
     for(i=0; i<this->ents.size(); i++)
         this->ents[i].ExpandBrushes(this->hulldef);
+
+    endt = TIMEMS;
+    printf("hull brush expansion done in %llums.\n", endt - startt);
 }
 
 void BspBuilder::LoadMapFile(const char* path)

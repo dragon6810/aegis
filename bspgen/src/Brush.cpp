@@ -53,10 +53,11 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
 {
     const float epsilon = 0.01;
 
-    int i, j;
+    int i, j, k;
 
     Eigen::Vector3f corner;
     BrFace newface;
+    int sizebeforebb;
 
     this->Polygonize();
     for(i=0; i<this->planes.size(); i++)
@@ -73,6 +74,8 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
         this->planes[i].d += this->planes[i].n.dot(corner);
     }
 
+    sizebeforebb = this->planes.size();
+    this->planes.reserve(sizebeforebb + 6); // this is probably unnecessary because reallocation is improbable for most brushes
     for(i=0; i<3; i++)
     {
         for(j=0; j<2; j++)
@@ -80,8 +83,40 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
             newface = BrFace();
             newface.n[i] = j * 2 - 1;
             newface.d = (this->bb[j][i] * (j * 2 - 1)) + hull[j][i];
+
+            // it really fucks things up if you add a coplanar face, so dont add it if it exists already
+            for(k=0; k<sizebeforebb; k++)
+            {
+                if((this->planes[k].n - newface.n).squaredNorm() > epsilon * epsilon)
+                    continue;
+                if(fabsf(this->planes[k].d - newface.d) > epsilon)
+                    continue;
+
+                break;
+            }
+
+            if(k >= sizebeforebb)
+                continue;
+
+            this->planes.emplace_back(newface);
         }
     }
 
     this->Polygonize();
+}
+
+void Brush::SeperateInOut(const Brush& otherbrush)
+{
+    int f, p;
+
+    Mathlib::planeside_e side;
+    Mathlib::Poly<3> back, front;
+
+    for(p=0; p<otherbrush.planes.size(); p++)
+    {
+        for(f=0; f<this->interior.size(); f++)
+        {
+            
+        }
+    }
 }
