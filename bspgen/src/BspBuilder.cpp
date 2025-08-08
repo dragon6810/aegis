@@ -18,6 +18,21 @@ void BspBuilder::ExpandHulls(void)
     printf("hull brush expansion done in %llums.\n", endt - startt);
 }
 
+void BspBuilder::CullInterior(void)
+{
+    int i;
+
+    uint64_t startt, endt;
+
+    startt = TIMEMS;
+
+    for(i=0; i<this->ents.size(); i++)
+        this->ents[i].CullInterior();
+
+    endt = TIMEMS;
+    printf("interior face culling done in %llums.\n", endt - startt);
+}
+
 void BspBuilder::LoadMapFile(const char* path)
 {
     int i, e, b, f;
@@ -88,4 +103,5 @@ void BspBuilder::LoadMapFile(const char* path)
 void BspBuilder::CSG(void)
 {
     this->ExpandHulls();
+    this->CullInterior();
 }

@@ -105,18 +105,65 @@ void Brush::Expand(const Eigen::Vector3f hull[2])
     this->Polygonize();
 }
 
-void Brush::SeperateInOut(const Brush& otherbrush)
+bool Brush::Overlaps(const Brush& otherbrush)
+{
+    int i;
+
+    for(i=0; i<3; i++)
+    {
+        if(this->bb[0][i] > otherbrush.bb[1][i])
+            return false;
+        if(this->bb[1][i] < otherbrush.bb[0][i])
+            return false;
+    }
+
+    return true;
+}
+
+void Brush::PopulateExterior(void)
+{
+    int i;
+
+    this->exterior.resize(this->planes.size());
+    for(i=0; i<this->planes.size(); i++)
+        this->exterior[i] = this->planes[i].poly;
+}
+
+void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
 {
     int f, p;
 
     Mathlib::planeside_e side;
     Mathlib::Poly<3> back, front;
 
+    this->interior = this->exterior;
+    this->exterior.clear();
+
     for(p=0; p<otherbrush.planes.size(); p++)
     {
         for(f=0; f<this->interior.size(); f++)
         {
+            side = Mathlib::PolySide(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d);
             
+            // entirely back
+            if(side == Mathlib::SIDE_BACK)
+                continue;
+
+            if(side == Mathlib::SIDE_ON || side == Mathlib::SIDE_FRONT)
+            {
+                if(side == Mathlib::SIDE_ON && priority)
+                    continue;
+
+                // entirely front
+                this->exterior.push_back(this->interior[f]);
+                this->interior.erase(this->interior.begin() + f);
+                f--;
+                continue;
+            }
+
+            // cross
+            this->exterior.push_back(Mathlib::ClipPoly(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d, Mathlib::SIDE_FRONT));
+            this->interior[f] = Mathlib::ClipPoly(this->interior[f], otherbrush.planes[p].n, otherbrush.planes[p].d, Mathlib::SIDE_BACK);
         }
     }
 }

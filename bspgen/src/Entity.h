@@ -14,4 +14,5 @@ public:
     std::vector<Brush> brushes[Bsplib::n_hulls];
 
     void ExpandBrushes(const HullDef& hulls);
+    void CullInterior(void);
 };

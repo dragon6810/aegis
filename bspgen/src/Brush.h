@@ -15,7 +15,11 @@ public:
     void Polygonize(void);
     void FindBB(void);
     void Expand(const Eigen::Vector3f hull[2]);
+    // assumes up-to-date bbs on both brushes
+    bool Overlaps(const Brush& otherbrush);
+    // assumes up-to-date polygonization
+    void PopulateExterior(void);
     // if priorty is set to true, otherbrush will get priority on coplanar faces.
-    // assumes interior is already populated.
-    void SeperateInOut(const Brush& otherbrush);
+    // assumes exterior is already populated.
+    void SeperateInOut(const Brush& otherbrush, bool priority);
 };
