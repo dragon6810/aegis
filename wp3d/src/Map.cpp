@@ -210,14 +210,18 @@ void Map::FinalizeBrush(void)
     for(i=0; i<3; i++)
     {
         pl = &br->planes[i * 2 + 0];
+        *pl = Plane(*this);
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = -1;
         pl->d = -bb[0][i];
+        pl->AlignTexGrid();
 
         pl = &br->planes[i * 2 + 1];
+        *pl = Plane(*this);
         pl->normal = Eigen::Vector3f(0, 0, 0);
         pl->normal[i] = 1;
         pl->d = bb[1][i];
+        pl->AlignTexGrid();
     }
 
     br->MakeFaces();
@@ -264,7 +268,7 @@ void Map::FinalizePlane(void)
                 continue;
             }
 
-            ent->brushes[j].AddPlane(n, d);
+            ent->brushes[j].AddPlane(n, d, *this);
             if(!ent->brushes[j].points.size())
                 continue;
 
@@ -710,6 +714,24 @@ void Map::DrawDashedLine(Eigen::Vector3i l[2], float dashlen)
     glEnd();
 }
 
+TextureManager::texture_t* Map::GetSelectedTextureID(void)
+{
+    TextureManager::archive_t *archive;
+    std::map<std::string, TextureManager::texture_t>::iterator it;
+
+    if(selectedtexarchive >= this->texmanager.archives.size())
+        return NULL;
+    
+    archive = &this->texmanager.archives[selectedtexarchive];
+
+    if(selectedtex >= archive->textures.size())
+        return NULL;
+
+    it = archive->textures.begin();
+    std::advance(it, selectedtex);
+    return &it->second;
+}
+
 void Map::SwitchTool(tooltype_e type)
 {
     if(type == this->tool)
@@ -760,6 +782,8 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     std::unordered_set<int>::iterator it;
 
     Eigen::Vector3f basis[3], add;
+    TextureManager::texture_t *tex;
+    std::string texname;
     float gridsize;
     std::unordered_set<int> newselection;
 
@@ -849,7 +873,7 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
     case ImGuiKey_LeftArrow:
     case ImGuiKey_DownArrow:
     case ImGuiKey_RightArrow:
-        if(tool == TOOL_VERTEX || tool == TOOL_PLANE)
+        if(tool == TOOL_VERTEX || tool == TOOL_PLANE || tool == TOOL_SELECT)
         {
             if(view.type == Viewport::FREECAM)
                 break;
@@ -869,13 +893,26 @@ void Map::KeyPress(Viewport& view, ImGuiKey key)
             {
                 MoveVertexPoints(add);
             }
-            else
+            else if(tool == TOOL_PLANE)
             {
                 if(this->drawingtriplane)
                     return;
                 
                 for(it=this->triplaneselection.begin(); it!=this->triplaneselection.end(); it++)
                     this->triplane[*it] += add;
+            }
+            else if(tool == TOOL_SELECT)
+            {
+                if(this->selectiontype == SELECT_ENTITY)
+                {
+                    for(it=this->entselection.begin(); it!=this->entselection.end(); it++)
+                        this->entities[*it].Move(add);
+                }
+                else
+                {
+                    for(i=0; i<this->entities.size(); i++)
+                        this->entities[i].MoveSelected(*this, add);
+                }
             }
         }
 
@@ -1129,6 +1166,10 @@ void Map::NewMap(void)
 
     this->LoadConfig();
 
+    this->texarchives.clear();
+    this->texarchives.push_back("aegis.tpk");
+    this->LoadTextures();
+
     this->path = "";
 
     this->entselection.clear();
@@ -1180,11 +1221,11 @@ void Map::Save(void)
 
                 for(i=0; i<2; i++)
                 {
-                    fpl->texbasis[i] = Eigen::Vector3f(0, 0, 0);
-                    fpl->texoffs[i] = 0;
+                    fpl->texbasis[i] = pl->texbasis[i];
+                    fpl->texoffs[i] = pl->texshift[i];;
                 }
 
-                fpl->texname = "";
+                fpl->texname = pl->texname;
             }
         }
     }
@@ -1233,6 +1274,12 @@ void Map::Load(const std::string& path)
                 pl->normal = ((fpl->triplane[1] - fpl->triplane[0]).cross(fpl->triplane[2] - fpl->triplane[0])).cast<float>();
                 pl->normal.normalize();
                 pl->d = pl->normal.dot(fpl->triplane[0].cast<float>());
+                pl->texname = fpl->texname;
+                for(i=0; i<2; i++)
+                {
+                    pl->texbasis[i] = fpl->texbasis[i];
+                    pl->texshift[i] = fpl->texoffs[i];
+                }
             }
             br->MakeFaces();
         }
@@ -1242,4 +1289,13 @@ void Map::Load(const std::string& path)
 void Map::LoadFgd(void)
 {
     this->fgd = Fgdlib::FgdFile::Load(this->cfg.pairs["fgd"]);
+}
+
+void Map::LoadTextures(void)
+{
+    int i;
+
+    this->texmanager.ClearAll();
+    for(i=0; i<this->texarchives.size(); i++)
+        this->texmanager.LoadArchive(this->texarchives[i].c_str());
 }

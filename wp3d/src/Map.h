@@ -8,6 +8,7 @@
 #include <fgdlib.h>
 
 #include "Entity.h"
+#include "TextureManager.h"
 #include "Viewport.h"
 
 class Map
@@ -73,14 +74,21 @@ public:
     Eigen::Vector3i workingentity;
     bool placingentity = false;
     int workingenttype = 0;
+    int selectedtexarchive = 0;
+    int selectedtex = 0;
 
     std::string path = "";
+    std::vector<std::string> texarchives;
 
     Cfglib::CfgFile cfg;
     Fgdlib::FgdFile fgd;
+    TextureManager texmanager;
 
     std::vector<Entity> entities;
     std::unordered_set<int> entselection;
+
+    // this can become dangling, don't hold onto it!
+    TextureManager::texture_t* GetSelectedTextureID(void);
 
     void SwitchTool(tooltype_e type);
     void KeyDown(Viewport& view, ImGuiKey key, float deltatime);
@@ -93,4 +101,5 @@ public:
     void Save(void);
     void Load(const std::string& path);
     void LoadFgd(void);
+    void LoadTextures(void);
 };

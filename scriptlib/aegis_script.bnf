@@ -1,0 +1,13 @@
+<translation-unit> ::= {<statement>}*
+
+<statement> ::= <statement-body> ;
+
+<statement-body> ::= <statement-assign> 
+                   | <statement-call>
+
+<statement-assign> ::= $ <identifier> = <string>
+
+<statement-call> ::= @ <identifer> ( <argument-list> )
+
+<argument-list> ::= <string>
+                  | <argument-list>, <string>

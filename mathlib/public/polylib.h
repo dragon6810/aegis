@@ -39,6 +39,12 @@ namespace Mathlib
     bool EquivalentPolys(Poly<R> a, Poly<R> b, float epsilon=0.01);
 
     /*
+        what side of the given seperator is the poly on?
+    */
+    template <int R>
+    planeside_e PolySide(const Poly<R>& poly, const Eigen::Vector<float, R> n, float d, float epsilon=0.01);
+
+    /*
         creates a quad with radius maxrange along the given plane.
         wound counter-clockwise.
     */

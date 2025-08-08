@@ -92,3 +92,41 @@ bool Mathlib::EquivalentPolys(Mathlib::Poly<R> a, Mathlib::Poly<R> b, float epsi
 
     return true;
 }
+
+template<int R>
+Mathlib::planeside_e Mathlib::PolySide(const Poly<R>& poly, const Eigen::Vector<float, R> n, float d, float epsilon)
+{
+    int i;
+
+    planeside_e side;
+    float pdist;
+
+    assert(poly.size() && "poly has 0 points!");
+
+    for(i=0; i<poly.size(); i++)
+    {
+        pdist = n.dot(poly[i]) - d;
+        if(!i)
+        {
+            if(pdist > epsilon)
+                side = SIDE_FRONT;
+            else if(pdist < -epsilon)
+                side = SIDE_BACK;
+            else
+                side = SIDE_ON;
+
+            continue;
+        }
+
+        if((side == SIDE_FRONT && pdist < -epsilon) || (side == SIDE_BACK && pdist > epsilon))
+            return SIDE_CROSS;
+        
+        if(pdist > epsilon)
+            side = SIDE_FRONT;
+        else if(pdist < -epsilon)
+            side = SIDE_BACK;
+        // dont do SIDE_ON, because every point needs to be on for that and SIDE_ON is set for the first point
+    }
+
+    return side;
+}
