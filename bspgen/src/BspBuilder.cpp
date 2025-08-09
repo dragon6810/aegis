@@ -44,7 +44,7 @@ void BspBuilder::CullInterior(void)
 
             hullcounts[h] = 0;
             for(i=0; i<this->ents.size(); i++)
-                hullcounts[h] += this->ents[i].geometry[h].size();
+                hullcounts[h] += this->ents[i].bsp[h].faces.size();
             
             if(h < Bsplib::n_hulls - 1)
                 printf("|");
@@ -62,7 +62,7 @@ void BspBuilder::WriteCSGFaces(void)
 
     std::string filename;
     FILE *ptr;
-    std::vector<Mathlib::Poly<3>> *curgeo;
+    std::vector<BspFace> *curgeo;
     std::vector<Eigen::Vector3f> vertices;
     std::vector<std::vector<int>> indices;
 
@@ -73,7 +73,7 @@ void BspBuilder::WriteCSGFaces(void)
     {
         vertices.clear();
         indices.clear();
-        
+
         filename = Utilslib::StripExtension(this->csgoutput.c_str());
         filename = filename + "_" + std::to_string(h);
         filename = Utilslib::AddExtension(filename.c_str(), "obj");
@@ -86,14 +86,14 @@ void BspBuilder::WriteCSGFaces(void)
 
         for(e=0; e<this->ents.size(); e++)
         {
-            curgeo = &this->ents[e].geometry[h];
+            curgeo = &this->ents[e].bsp[h].faces;
             for(f=0; f<curgeo->size(); f++)
             {
                 indices.push_back({});
-                for(v=0; v<(*curgeo)[f].size(); v++)
+                for(v=0; v<(*curgeo)[f].poly.size(); v++)
                 {
                     indices.back().push_back(vertices.size());
-                    vertices.push_back((*curgeo)[f][v]);
+                    vertices.push_back((*curgeo)[f].poly[v]);
                 }
             }
         }
@@ -110,6 +110,70 @@ void BspBuilder::WriteCSGFaces(void)
 
         fclose(ptr);
     }
+}
+
+int BspBuilder::FindPlaneNum(Eigen::Vector3f n, float d)
+{
+    const float epsilon = 0.1;
+
+    int i;
+
+    bool flip;
+
+    for(i=0; i<this->planes.size(); i++)
+    {
+        if((this->planes[i].n - n).squaredNorm() < epsilon * epsilon)
+            flip = false;
+        else if((this->planes[i].n + n).squaredNorm() < epsilon * epsilon)
+            flip = true;
+        else
+            continue;
+
+        if(!flip && fabsf(this->planes[i].d - d) > epsilon)
+            continue;
+        if(flip && fabsf(this->planes[i].d + d) > epsilon)
+            continue;
+
+        if(!flip)
+            return i;
+        return ~i;
+    }
+
+    this->planes.push_back(BspPlane());
+    this->planes.back().n = n;
+    this->planes.back().d = d;
+    return this->planes.size() - 1;
+}
+
+int BspBuilder::FindTexinfoNum(const char* name, Eigen::Vector3f s, Eigen::Vector3f t, float sshift, float tshift)
+{
+    const float epsilon = 0.1;
+
+    int i;
+
+    assert(strlen(name) < Tpklib::max_tex_name && "name too long!");
+
+    for(i=0; i<this->texinfos.size(); i++)
+    {
+        if(fabsf(this->texinfos[i].shift[0] - sshift) > epsilon)
+            continue;
+        if(fabsf(this->texinfos[i].shift[1] - tshift) > epsilon)
+            continue;
+        if((this->texinfos[i].basis[0] - s).squaredNorm() > epsilon * epsilon)
+            continue;
+        if((this->texinfos[i].basis[1] - t).squaredNorm() > epsilon * epsilon)
+            continue;
+        if(strcmp(this->texinfos[i].name, name))
+            continue;
+    }
+
+    this->texinfos.push_back(TexInfo());
+    strcpy(this->texinfos.back().name, name);
+    this->texinfos.back().basis[0] = s;
+    this->texinfos.back().basis[1] = t;
+    this->texinfos.back().shift[0] = sshift;
+    this->texinfos.back().shift[1] = tshift;
+    return this->texinfos.size() - 1;
 }
 
 void BspBuilder::LoadMapFile(const char* path)
@@ -134,7 +198,7 @@ void BspBuilder::LoadMapFile(const char* path)
 
     nent = nbrush = nface = 0;
 
-    this->ents.resize(mapfile.ents.size());
+    this->ents.resize(mapfile.ents.size(), Entity(*this));
     for(e=0; e<this->ents.size(); e++, nent++)
     {
         fent = &mapfile.ents[e];

@@ -1,5 +1,12 @@
 #include "Entity.h"
 
+#include "BspBuilder.h"
+
+Entity::Entity(BspBuilder& builder) : builder(builder)
+{
+
+}
+
 void Entity::ExpandBrushes(const HullDef& hulls)
 {
     int i, j;
@@ -23,7 +30,7 @@ void Entity::CullInterior(void)
 
     for(h=0; h<Bsplib::n_hulls; h++)
     {
-        this->geometry[h].clear();
+        this->bsp[h].faces.clear();
         for(b1=0; b1<this->brushes[h].size(); b1++)
         {
             this->brushes[h][b1].PopulateExterior();
@@ -36,9 +43,9 @@ void Entity::CullInterior(void)
                 this->brushes[h][b1].SeperateInOut(this->brushes[h][b2], b2 > b1);
             }
         
-            this->geometry[h].reserve(this->geometry[h].size() + this->brushes[h][b1].exterior.size());
+            this->bsp[h].faces.reserve(this->bsp[h].faces.size() + this->brushes[h][b1].exterior.size());
             for(f=0; f<this->brushes[h][b1].exterior.size(); f++)
-                this->geometry[h].push_back(this->brushes[h][b1].exterior[f]);
+                this->bsp[h].faces.push_back(BspFace(this->brushes[h][b1].exterior[f], &builder));
         }
     }
 }

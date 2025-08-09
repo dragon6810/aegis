@@ -9,8 +9,8 @@ public:
     Eigen::Vector3f bb[2];
 
     // used when culling interior faces. dont touch unless you know what you're doing
-    std::vector<Mathlib::Poly<3>> interior;
-    std::vector<Mathlib::Poly<3>> exterior;
+    std::vector<BrFace> interior;
+    std::vector<BrFace> exterior;
 
     void Polygonize(void);
     void FindBB(void);

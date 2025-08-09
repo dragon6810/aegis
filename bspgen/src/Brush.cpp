@@ -123,7 +123,7 @@ void Brush::PopulateExterior(void)
 
     this->exterior.resize(this->planes.size());
     for(i=0; i<this->planes.size(); i++)
-        this->exterior[i] = this->planes[i].poly;
+        this->exterior[i] = this->planes[i];
 }
 
 void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
@@ -145,7 +145,7 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
             n = &otherbrush.planes[p].n;
             d = &otherbrush.planes[p].d;
 
-            side = Mathlib::PolySide(this->interior[f], *n, *d);
+            side = Mathlib::PolySide(this->interior[f].poly, *n, *d);
             
             // entirely inside
             if(side == Mathlib::SIDE_BACK)
@@ -165,8 +165,8 @@ void Brush::SeperateInOut(const Brush& otherbrush, bool priority)
 
             // cross
             this->exterior.push_back(this->interior[f]);
-            this->exterior.back() = Mathlib::ClipPoly(this->exterior.back(), *n, *d, Mathlib::SIDE_FRONT);
-            this->interior[f] = Mathlib::ClipPoly(this->interior[f], *n, *d, Mathlib::SIDE_BACK);
+            this->exterior.back().poly = Mathlib::ClipPoly(this->exterior.back().poly, *n, *d, Mathlib::SIDE_FRONT);
+            this->interior[f].poly = Mathlib::ClipPoly(this->interior[f].poly, *n, *d, Mathlib::SIDE_BACK);
         }
     }
 }
