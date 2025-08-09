@@ -16,19 +16,12 @@ int FindPlane(Eigen::Vector3f n, float d)
 
     int i;
 
-    bool flip;
-
     for(i=0; i<planes.size(); i++)
     {
-        if((n - planes[i].n).squaredNorm() < epsilon * epsilon && d - planes[i].d < epsilon)
-            flip = true;
-        else if((n + planes[i].n).squaredNorm() < epsilon * epsilon && d + planes[i].d < epsilon)
-            flip = false;
-
-        if(flip)
-            return ~i;
-        else
+        if((planes[i].n - n).squaredNorm() < epsilon * epsilon && fabsf(planes[i].d - d) < epsilon)
             return i;
+        if((planes[i].n + n).squaredNorm() < epsilon * epsilon && fabsf(planes[i].d + d) < epsilon)
+            return ~i;
     }
 
     planes.push_back({});

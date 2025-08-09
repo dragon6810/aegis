@@ -107,8 +107,7 @@ void LoadMap(const char* file)
     ents.reserve(map.ents.size());
     for(i=0; i<map.ents.size(); i++)
         LoadEnt(&map.ents[i]);
-
-
+    
     endt = TIMEMS;
     printf("LoadMap done in %llums.\n", endt - startt);
     
@@ -170,7 +169,7 @@ int main(int argc, char** argv)
     }
 
     LoadMap(infile.c_str());
-    //bsp.CSG();
+    CsgMap();
 
     return 0;
 }
