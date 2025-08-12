@@ -64,6 +64,122 @@ void WriteObjs(void)
     }
 }
 
+std::vector<face_t> interior, exterior;
+
+void FindExteriorByBrush(brush_t *b1, brush_t *b2, bool b2priority)
+{
+    int p, f;
+
+    plane_t pl, fpl;
+    Mathlib::planeside_e side;
+
+    assert(b1);
+    assert(b2);
+
+    for(p=0; p<b2->faces.size(); p++)
+    {
+        pl = planes[b2->faces[p].planenum];
+        if(b2->faces[p].flip)
+        {
+            pl.n = -pl.n;
+            pl.d = -pl.d;
+        }
+
+        for(f=0; f<interior.size(); f++)
+        {
+            side = Mathlib::PolySide(interior[f].poly, pl.n, pl.d);
+            switch(side)
+            {
+            case Mathlib::SIDE_BACK:
+                break;
+            case Mathlib::SIDE_ON:
+                fpl = planes[interior[f].planenum];
+                if(interior[f].flip)
+                {
+                    fpl.n = -fpl.n;
+                    fpl.d = -fpl.d;
+                }
+
+                if(fpl.n.dot(pl.n) < 0)
+                    break;
+                
+                if(b2priority)
+                    break;
+
+            case Mathlib::SIDE_FRONT:
+                exterior.push_back(interior[f]);
+                interior.erase(interior.begin() + f);
+                f--;
+                break;
+            case Mathlib::SIDE_CROSS:
+                exterior.push_back(interior[f]);
+                exterior.back().poly = Mathlib::ClipPoly(exterior.back().poly, pl.n, pl.d, Mathlib::SIDE_FRONT);
+                interior[f].poly = Mathlib::ClipPoly(interior[f].poly, pl.n, pl.d, Mathlib::SIDE_BACK);
+                break;
+            default:
+                break;
+            };
+        }
+    }
+}
+
+void PopulateExteriorBrush(brush_t *br)
+{
+    int i;
+
+    interior.clear();
+    exterior.clear();
+
+    exterior.resize(br->faces.size());
+    for(i=0; i<br->faces.size(); i++)
+    {
+        exterior[i] = {};
+        exterior[i].planenum = br->faces[i].planenum;
+        exterior[i].flip = br->faces[i].flip;
+        exterior[i].nodenum = -1;
+        exterior[i].texinfo = br->faces[i].texinfo;
+        exterior[i].poly = br->faces[i].poly;
+    }
+}
+
+void CullInteriorFaces(model_t *mdl)
+{
+    int i, h, b1, b2, f;
+
+    brush_t *pb1, *pb2;
+
+    for(h=0; h<Bsplib::n_hulls; h++)
+    {
+        mdl->faces[h].clear();
+        for(b1=0, pb1=mdl->brushes[h].data(); b1<mdl->brushes[h].size(); b1++, pb1++)
+        {
+            PopulateExteriorBrush(pb1);
+
+            for(b2=0, pb2=mdl->brushes[h].data(); b2<mdl->brushes[h].size(); b2++, pb2++)
+            {
+                if(b1 == b2)
+                    continue;
+
+                for(i=0; i<3; i++)
+                    if(pb1->bb[0][i] > pb2->bb[1][i] || pb1->bb[1][i] < pb2->bb[0][i])
+                        break;
+                if(i < 3)
+                    continue;
+
+                interior = exterior;
+                exterior.clear();
+                FindExteriorByBrush(pb1, pb2, b2 > b1);
+            }
+        
+            /*
+            this->bsp[h].faces.reserve(this->bsp[h].faces.size() + this->brushes[h][b1].exterior.size());
+            for(f=0; f<this->brushes[h][b1].exterior.size(); f++)
+                this->bsp[h].faces.push_back(BspFace(this->brushes[h][b1].exterior[f], &builder));
+            */
+        }
+    }
+}
+
 void PolygonizeBrush(brush_t *br)
 {
     int i, j, k;
@@ -208,6 +324,7 @@ void CsgModel(model_t *mdl)
     int i, h;
 
     uint64_t expandstartt, expandendt;
+    uint64_t cullstartt, cullendt;
 
     assert(mdl);
 
@@ -223,7 +340,15 @@ void CsgModel(model_t *mdl)
     }
 
     expandendt = TIMEMS;
+
     printf("%d brushes expanded in %llums.\n", nexpand, expandendt - expandstartt);
+
+    cullstartt = TIMEMS;
+
+    CullInteriorFaces(mdl);
+
+    cullendt = TIMEMS;
+    printf("interior faces culled in %llums.\n", cullendt - cullstartt);
 }
 
 void CsgMap(void)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utilslib.h>
+
 template <int R>
 Mathlib::Poly<R> Mathlib::ClipPoly(Mathlib::Poly<R> poly, Eigen::Vector<float, R> n, float d, planeside_e side)
 {
@@ -13,7 +15,7 @@ Mathlib::Poly<R> Mathlib::ClipPoly(Mathlib::Poly<R> poly, Eigen::Vector<float, R
     Eigen::Vector<float, R> e[2], dir;
     float t;
 
-    assert(side == SIDE_BACK || side == SIDE_FRONT);
+    UTILS_ASSERT(side == SIDE_BACK || side == SIDE_FRONT);
 
     if(side == SIDE_FRONT)
     {
@@ -101,7 +103,7 @@ Mathlib::planeside_e Mathlib::PolySide(const Poly<R>& poly, const Eigen::Vector<
     planeside_e side;
     float pdist;
 
-    assert(poly.size() && "poly has 0 points!");
+    UTILS_ASSERT(poly.size() && "poly has 0 points!");
 
     for(i=0; i<poly.size(); i++)
     {

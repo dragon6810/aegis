@@ -10,4 +10,12 @@ namespace Utilslib
     std::string StripExtension(const char* str);
     std::string AddExtension(const char* str, const char* ext);
     std::string DefaultExtension(const char* str, const char* ext);
+
+    void UtilsAssertImpl(const char* expr, const char* file, int linenum);
 };
+
+#ifdef DEBUG
+#define UTILS_ASSERT(expr) switch(expr) {case 0: Utilslib::UtilsAssertImpl(#expr, __FILE__, __LINE__); default: break;}
+#else
+#define UTILS_ASSERT(expr)
+#endif

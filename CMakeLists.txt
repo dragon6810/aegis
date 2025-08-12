@@ -14,6 +14,10 @@ if (APPLE)
     endif()
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+endif()
+
 # Third-party
 add_subdirectory(thirdparty/glew)
 add_subdirectory(thirdparty/glm)
@@ -21,6 +25,7 @@ add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/filedialog)
 add_subdirectory(thirdparty/googletest)
+add_subdirectory(thirdparty/cpptrace)
 add_subdirectory(thirdparty/zlib)
 add_subdirectory(thirdparty/argparse)
 

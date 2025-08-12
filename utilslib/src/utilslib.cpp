@@ -1,12 +1,12 @@
 #include <utilslib.h>
 
-#include <assert.h>
+#include <cpptrace/cpptrace.hpp>
 
 std::string Utilslib::StripExtension(const char* str)
 {
     std::string stripped;
 
-    assert(str && "Stdlib::StripExtension: str is NULL!");
+    UTILS_ASSERT(str && "Stdlib::StripExtension: str is NULL!");
 
     const char *c;
 
@@ -24,7 +24,7 @@ std::string Utilslib::AddExtension(const char* str, const char* ext)
 {
     std::string withext;
 
-    assert(str && "Stdlib::AddExtension: str is NULL!");
+    UTILS_ASSERT(str && "Stdlib::AddExtension: str is NULL!");
 
     withext = std::string(str) + "." + std::string(ext);
     return withext;
@@ -34,11 +34,19 @@ std::string Utilslib::DefaultExtension(const char* str, const char* ext)
 {
     std::string stripped;
 
-    assert(str && "Stdlib::DefaultExtension: str is NULL!");
+    UTILS_ASSERT(str && "Stdlib::DefaultExtension: str is NULL!");
 
     stripped = StripExtension(str);
     if(strcmp(stripped.c_str(), str))
         return str;
 
     return stripped + "." + ext;
+}
+
+void Utilslib::UtilsAssertImpl(const char* expr, const char* file, int linenum)
+{
+    fprintf(stderr, "Assertion failed in %s:%d\n", file, linenum);
+    fprintf(stderr, "%s\n", expr);
+    cpptrace::generate_trace().print();
+    abort();
 }
