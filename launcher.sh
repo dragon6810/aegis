@@ -2,10 +2,10 @@
 
 mkdir -p build
 cd build
-if cmake .. -DEXEC_TARGET=engine; then
+if cmake .. -DEXEC_TARGET=launcher; then
     if cmake --build .; then
-        cd ../run/engine
-        ../../build/bin/engine
+        cd ../run/launcher
+        ../../build/bin/launcher
         exit 0
     fi
 fi

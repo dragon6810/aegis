@@ -39,15 +39,17 @@ add_subdirectory(fgdlib)
 add_subdirectory(cfglib)
 add_subdirectory(tpklib)
 add_subdirectory(bsplib)
+add_subdirectory(engine)
+add_subdirectory(game)
 
 # Executables
-set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, engine, wp3d, tpkgen, bspgen)")
+set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, launcher, wp3d, tpkgen, bspgen)")
 if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "tests")
     add_subdirectory(tests)
 endif()
 
-if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "engine")
-    add_subdirectory(engine)
+if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "launcher")
+    add_subdirectory(launcher)
 endif()
 
 if(EXEC_TARGET STREQUAL "ALL" OR EXEC_TARGET STREQUAL "wp3d")
