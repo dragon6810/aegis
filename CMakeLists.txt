@@ -40,7 +40,7 @@ add_subdirectory(cfglib)
 add_subdirectory(tpklib)
 add_subdirectory(bsplib)
 add_subdirectory(engine)
-add_subdirectory(game)
+add_subdirectory(game/grunge)
 
 # Executables
 set(EXEC_TARGET "ALL" CACHE STRING "Executable to build (ALL, tests, launcher, wp3d, tpkgen, bspgen)")
