@@ -2,8 +2,6 @@
 
 #include <utilslib.h>
 
-#include "Bsp.h"
-
 std::string objout = "";
 
 void WriteObjs(void)
@@ -63,6 +61,7 @@ void WriteObjs(void)
 }
 
 std::vector<face_t> interior, exterior;
+int nculled = 0;
 
 void FindExteriorByBrush(brush_t *b1, brush_t *b2, bool b2priority)
 {
@@ -165,6 +164,7 @@ void CullInteriorFaces(model_t *mdl)
                 if(i < 3)
                     continue;
 
+                nculled += interior.size();
                 interior = exterior;
                 exterior.clear();
                 FindExteriorByBrush(pb1, pb2, b2 > b1);
@@ -326,10 +326,15 @@ void CsgModel(model_t *mdl)
 
     uint64_t expandstartt, expandendt;
     uint64_t cullstartt, cullendt;
+    uint64_t startt, endt;
+
+    startt = TIMEMS;
 
     assert(mdl);
 
-    expandstartt = TIMEMS;
+    printf("---- CsgModel ----\n");
+
+    startt = expandstartt = TIMEMS;
 
     for(h=1; h<Bsplib::n_hulls; h++)
         mdl->brushes[h] = mdl->brushes[0];
@@ -349,25 +354,11 @@ void CsgModel(model_t *mdl)
     CullInteriorFaces(mdl);
 
     cullendt = TIMEMS;
-    printf("interior faces culled in %llums.\n", cullendt - cullstartt);
-}
-
-void CsgMap(void)
-{
-    int i;
-
-    uint64_t startt, endt;
-
-    startt = TIMEMS;
-
-    printf("---- CsgMap ----\n");
-
-    for(i=0; i<models.size(); i++)
-        CsgModel(&models[i]);
+    printf("%d interior faces culled in %llums.\n", nculled, cullendt - cullstartt);
 
     if(objout.size())
         WriteObjs();
 
     endt = TIMEMS;
-    printf("CsgMap done in %llums.\n", endt - startt);
+    printf("CsgModel done in %llums.\n", endt - startt);
 }

@@ -88,4 +88,5 @@ extern std::vector<texinfo_t> texinfos;
 // if negative, flipped and bitwise inverse
 int FindPlane(Eigen::Vector3f n, float d);
 int FindTexinfo(const char* name, Eigen::Vector3f basis[2], float shift[2]);
-void ProcessEntity(int ent);
+
+void BspModel(model_t *model);

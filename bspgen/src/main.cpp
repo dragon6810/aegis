@@ -11,6 +11,12 @@
 int nbrush = 0;
 int nbrface = 0;
 
+void ProcessModel(model_t *mdl, bool world)
+{
+    CsgModel(mdl);
+    BspModel(mdl);
+}
+
 void LoadBrush(Maplib::brush_t *fbr, brush_t *outbr)
 {
     int i;
@@ -122,6 +128,8 @@ void LoadMap(const char* file)
 
 int main(int argc, char** argv)
 {
+    int i;
+
     argparse::ArgumentParser argparser("bspgen", "0.1.0", argparse::default_arguments::help, false);
     std::string infile, outfile, hullfile;
 
@@ -169,7 +177,8 @@ int main(int argc, char** argv)
     }
 
     LoadMap(infile.c_str());
-    CsgMap();
+    for(i=0; i<models.size(); i++)
+        ProcessModel(&models[i], !i);
 
     return 0;
 }
