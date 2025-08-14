@@ -135,14 +135,17 @@ void FindSurflistBB(const std::vector<int>& surfs, Eigen::Vector3f outbb[2])
     }
 }
 
-int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
+int nnodes, nleafs;
+
+int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs, int plside)
 {
     int i, j, k;
 
     int splitsurf;
     plane_t *psplitpl;
-    int inode;
+    int inode, ileaf;
     node_t *pnode;
+    leaf_t *leaf;
     Mathlib::planeside_e side;
     std::vector<int> sides[2];
     face_t face;
@@ -150,8 +153,18 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
     splitsurf = FindBestSplitter(surfs);
     if(splitsurf < 0)
     {
-        printf("TODO: leaves\n");
-        return -1;
+        UTILS_ASSERT(side == 0 || side == 1);
+
+        ileaf = leaves.size();
+        leaves.push_back({});
+        leaf = &leaves.back();
+
+        leaf->content = plside;
+        leaf->faces = surfs;
+        FindSurflistBB(surfs, leaf->bb);
+        
+        nleafs++;
+        return ~ileaf;
     }
 
     psplitpl = &planes[faces[surfs[splitsurf]].planenum];
@@ -207,10 +220,11 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
         for(j=0; j<pnode->faces.size(); j++)
             sides[i].push_back(pnode->faces[j]);
 
-        nodes[inode].children[i] = BspModel_R(model, hullnum, sides[i]);
+        nodes[inode].children[i] = BspModel_R(model, hullnum, sides[i], i);
         pnode = &nodes[inode]; // children can make this a dangling pointer
     }
 
+    nnodes++;
     return inode;
 }
 
@@ -226,8 +240,12 @@ void BspModel(model_t *model)
 
     startt = TIMEMS;
 
+    nnodes = nleafs = 0;
     for(h=0; h<Bsplib::n_hulls; h++)
-        model->headnodes[h] = BspModel_R(model, h, model->faces[h]);
+        model->headnodes[h] = BspModel_R(model, h, model->faces[h], -1);
+
+    printf("%d nodes.\n", nnodes);
+    printf("%d leaves.\n", nleafs);
 
     endt = TIMEMS;
     printf("BspModel done in %llums.\n", endt - startt);
