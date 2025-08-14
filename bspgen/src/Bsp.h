@@ -64,6 +64,7 @@ typedef struct
 {
     int planenum;
     bool flip;
+    int nodenum;
     int leafnums[2]; // if -1, outside.
     Mathlib::Poly<3> poly;
 
