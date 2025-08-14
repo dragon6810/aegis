@@ -7,6 +7,7 @@
 
 #include "Bsp.h"
 #include "Csg.h"
+#include "Portals.h"
 
 int nbrush = 0;
 int nbrface = 0;
@@ -15,6 +16,7 @@ void ProcessModel(model_t *mdl, bool world)
 {
     CsgModel(mdl);
     BspModel(mdl);
+    Portalize(mdl);
 }
 
 void LoadBrush(Maplib::brush_t *fbr, brush_t *outbr)

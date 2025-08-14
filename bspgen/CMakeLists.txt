@@ -3,6 +3,7 @@ add_executable(bspgen
     src/HullDef.cpp
     src/Bsp.cpp
     src/Csg.cpp
+    src/Portals.cpp
 )
 
 target_include_directories(bspgen PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -47,6 +47,7 @@ typedef struct
 {
     int planenum;
     Eigen::Vector3f bb[2];
+    std::vector<int> portals;
     std::vector<int> faces;
     int children[2]; // if negative, bitwise not into leaves
 } node_t;
@@ -58,6 +59,16 @@ typedef struct
     std::vector<int> faces;
     std::vector<int> portals;
 } leaf_t;
+
+typedef struct
+{
+    int planenum;
+    bool flip;
+    int leafnums[2]; // if -1, outside.
+    Mathlib::Poly<3> poly;
+
+    int curside; // used during portalization
+} portal_t;
 
 typedef struct
 {
@@ -83,6 +94,7 @@ extern std::vector<model_t> models;
 extern std::vector<plane_t> planes;
 extern std::vector<node_t> nodes;
 extern std::vector<leaf_t> leaves;
+extern std::vector<portal_t> portals;
 extern std::vector<face_t> faces;
 extern std::vector<texinfo_t> texinfos;
 

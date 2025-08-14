@@ -7,6 +7,7 @@ std::vector<model_t> models = {};
 std::vector<plane_t> planes = {};
 std::vector<node_t> nodes = {};
 std::vector<leaf_t> leaves = {};
+std::vector<portal_t> portals = {};
 std::vector<face_t> faces = {};
 std::vector<texinfo_t> texinfos = {};
 
