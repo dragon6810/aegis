@@ -60,16 +60,13 @@ void engine::Console::ExecStr(const char* str)
         while(*c <= 32 && *c)
             c++;
 
+        argstart = c;
+
         if(!*c)
-        {
-            if(c - argstart)
-                args.push_back(std::string(argstart, c - argstart));
             break;
-        }
 
         // TODO: quoted args should be tolerable to whitespace, then unqote the arg.
 
-        argstart = c;
         while(*c > 32)
             c++;
         args.push_back(std::string(argstart, c - argstart));
@@ -86,9 +83,15 @@ void engine::Console::ExecStr(const char* str)
     }
     if(console.cvars.find(args[0]) != console.cvars.end())
     {
+        if(args.size() == 1)
+        {
+            Print("%s = \"%s\"\n", args[0].c_str(), console.cvars[args[0]]->strval.c_str());
+            return;
+        }
+
         if(args.size() != 2)
         {
-            Print("expected exactly 1 argument after CVar.\n");
+            Print("expected exactly 0 or 1 argument after CVar.\n");
             return;
         }
         console.cvars[args[0]]->strval = args[1];
@@ -111,30 +114,28 @@ void engine::Console::LaunchTerm(void)
 {
     console.termthread = std::thread([]
     {
-        char *buf;
+        char buf[256];
 
         while(1)
         {
-            scanf("%ms", &buf);
-            if(!buf)
-                continue;
+            scanf("%255[^\n]%*c", buf);
 
             console.termmtx.lock();
             console.termcmds.push_back(buf);
             console.termmtx.unlock();
-
-            free(buf);
         }
     });
 }
 
 void engine::Console::ExecTerm(void)
 {
+    console.termmtx.lock();
     while(console.termcmds.size())
     {
         ExecStr(console.termcmds.front().c_str());
         console.termcmds.pop_front();
     }
+    console.termmtx.unlock();
 }
 
 void engine::Console::KillTerm(void)

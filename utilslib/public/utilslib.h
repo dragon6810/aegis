@@ -16,7 +16,7 @@ namespace Utilslib
 };
 
 #ifdef DEBUG
-#define UTILS_ASSERT(expr) switch(expr) {case 0: Utilslib::UtilsAssertImpl(#expr, __FILE__, __LINE__); default: break;}
+#define UTILS_ASSERT(expr) {if(!(expr)) Utilslib::UtilsAssertImpl(#expr, __FILE__, __LINE__);}
 #else
 #define UTILS_ASSERT(expr)
 #endif
