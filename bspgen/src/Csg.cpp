@@ -8,10 +8,9 @@ std::string objout = "";
 
 void WriteObjs(void)
 {
-    int i, j, h, m, b, f, v;
+    int i, j, h, m, f, v;
     model_t *mdl;
-    brush_t *br;
-    brface_t *face;
+    face_t *face;
 
     FILE *ptr;
     std::string name;
@@ -25,16 +24,15 @@ void WriteObjs(void)
 
         for(m=0, mdl=models.data(); m<models.size(); m++, mdl++)
         {
-            for(b=0, br=mdl->brushes[h].data(); b<mdl->brushes[h].size(); b++, br++)
+            for(f=0; f<mdl->faces[h].size(); f++)
             {
-                for(f=0, face=br->faces.data(); f<br->faces.size(); f++, face++)
+                face = &faces[mdl->faces[h][f]];
+
+                index.push_back({});
+                for(v=0; v<face->poly.size(); v++)
                 {
-                    index.push_back({});
-                    for(v=0; v<face->poly.size(); v++)
-                    {
-                        index.back().push_back(verts.size());
-                        verts.push_back(face->poly[v]);
-                    }
+                    index.back().push_back(verts.size());
+                    verts.push_back(face->poly[v]);
                 }
             }
         }
@@ -147,6 +145,7 @@ void CullInteriorFaces(model_t *mdl)
     int i, h, b1, b2, f;
 
     brush_t *pb1, *pb2;
+    int faceoffs;
 
     for(h=0; h<Bsplib::n_hulls; h++)
     {
@@ -171,11 +170,13 @@ void CullInteriorFaces(model_t *mdl)
                 FindExteriorByBrush(pb1, pb2, b2 > b1);
             }
         
-            /*
-            this->bsp[h].faces.reserve(this->bsp[h].faces.size() + this->brushes[h][b1].exterior.size());
-            for(f=0; f<this->brushes[h][b1].exterior.size(); f++)
-                this->bsp[h].faces.push_back(BspFace(this->brushes[h][b1].exterior[f], &builder));
-            */
+            mdl->faces[h].reserve(mdl->faces[h].size() + exterior.size());
+            faces.reserve(faces.size() + exterior.size());
+            for(i=0; i<exterior.size(); i++)
+            {
+                mdl->faces[h].push_back(faces.size());
+                faces.push_back(exterior[i]);
+            }
         }
     }
 }
