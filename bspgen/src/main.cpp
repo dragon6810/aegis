@@ -17,6 +17,11 @@ void ProcessModel(model_t *mdl, bool world)
     CsgModel(mdl);
     BspModel(mdl);
     Portalize(mdl);
+
+    if(world)
+    {
+        FillModel(mdl);
+    }
 }
 
 void LoadBrush(Maplib::brush_t *fbr, brush_t *outbr)

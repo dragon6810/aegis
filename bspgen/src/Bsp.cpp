@@ -247,6 +247,44 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
     return inode;
 }
 
+Eigen::Vector3f GetEntOrigin(entity_t* ent)
+{
+    std::string originstr;
+    Eigen::Vector3f origin;
+
+    UTILS_ASSERT(ent);
+
+    if(ent->pairs.find("origin") == ent->pairs.end())
+        return Eigen::Vector3f::Zero();
+    
+    originstr = ent->pairs["origin"];
+    if(sscanf(originstr.c_str(), "%f %f %f", &origin[0], &origin[1], &origin[2]) != 3)
+        return Eigen::Vector3f::Zero();
+        
+    return origin;
+}
+
+int FindLeaf(int headnode, Eigen::Vector3f p)
+{
+    node_t *node;
+    plane_t *pl;
+    float d;
+
+    while(headnode >= 0)
+    {
+        node = &nodes[headnode];
+        pl = &planes[node->planenum];
+
+        d = pl->n.dot(p) - pl->d;
+        if(d < 0)
+            headnode = node->children[0];
+        else
+            headnode = node->children[1];
+    }
+
+    return ~headnode;
+}
+
 void BspModel(model_t *model)
 {
     int h;

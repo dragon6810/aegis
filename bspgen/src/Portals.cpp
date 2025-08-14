@@ -1,5 +1,7 @@
 #include "Portals.h"
 
+#include <unordered_set>
+
 void Portalize_r(int nodenum, const std::vector<int>& prts)
 {
     int i, j;
@@ -46,7 +48,7 @@ void Portalize_r(int nodenum, const std::vector<int>& prts)
             fpl.n = -fpl.n;
             fpl.d = -fpl.d;
         }
-        
+
         UTILS_ASSERT(portals[prts[i]].curside == 0 || portals[prts[i]].curside == 1);
 
         if(portals[prts[i]].curside)
@@ -169,6 +171,7 @@ void Portalize(model_t* mdl)
 
     uint64_t startt, endt;
     std::vector<int> prts;
+    int startsize;
 
     UTILS_ASSERT(mdl);
 
@@ -176,6 +179,7 @@ void Portalize(model_t* mdl)
 
     startt = TIMEMS;
 
+    startsize = portals.size();
     for(h=0; h<Bsplib::n_hulls; h++)
     {
         nodes[mdl->headnodes[h]].portals = BoundingPortals(mdl->headnodes[h]);
@@ -183,6 +187,69 @@ void Portalize(model_t* mdl)
         Portalize_r(mdl->headnodes[h], prts);
     }
 
+    printf("%d portals.\n", portals.size() - startsize);
+
     endt = TIMEMS;
     printf("Portalize done in %llums.\n", endt - startt);
+}
+
+std::unordered_set<int> filled;
+
+bool FillModel_r(int leafnum)
+{
+    int i, j;
+
+    leaf_t *leaf;
+    portal_t *prt;
+
+    printf("leafnum: %d\n", leafnum);
+
+    if(leafnum < 0)
+    {
+        printf("leak found!\n");
+        return false;
+    }
+
+    leaf = &leaves[leafnum];
+    if(leaf->contents != CONTENTS_EMPTY)
+        return true;
+
+    if(filled.contains(leafnum))
+        return true;
+    filled.insert(leafnum);
+
+    for(i=0; i<leaf->portals.size(); i++)
+    {
+        prt = &portals[leaf->portals[i]];
+        printf("prt: [ %d %d ]\n", prt->leafnums[0], prt->leafnums[1]);
+        for(j=0; j<2; j++)
+            if(!FillModel_r(prt->leafnums[j]))
+                return false;
+    }
+
+    return true;
+}
+
+void FillModel(model_t* mdl)
+{
+    int h, i;
+
+    uint64_t startt, endt;
+
+    printf("---- FillModel ----\n");
+
+    startt = TIMEMS;
+
+    for(h=0; h<Bsplib::n_hulls; h++)
+    {
+        for(i=1; i<ents.size(); i++)
+        {
+            filled.clear();
+            if(!FillModel_r(FindLeaf(mdl->headnodes[h], GetEntOrigin(&ents[i]))))
+                exit(1);
+        }
+    }
+
+    endt = TIMEMS;
+    printf("FillModel done in %llums.\n", endt - startt);
 }

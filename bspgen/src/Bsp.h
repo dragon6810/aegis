@@ -103,4 +103,7 @@ extern std::vector<texinfo_t> texinfos;
 int FindPlane(Eigen::Vector3f n, float d);
 int FindTexinfo(const char* name, Eigen::Vector3f basis[2], float shift[2]);
 
+Eigen::Vector3f GetEntOrigin(entity_t* ent);
+int FindLeaf(int headnode, Eigen::Vector3f p);
+
 void BspModel(model_t *model);
