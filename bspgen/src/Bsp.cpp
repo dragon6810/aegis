@@ -137,7 +137,25 @@ void FindSurflistBB(const std::vector<int>& surfs, Eigen::Vector3f outbb[2])
 
 int nnodes, nleafs;
 
-int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs, int plside)
+void AssignLeafContent(leaf_t* leaf)
+{
+    int i;
+
+    face_t *face;
+
+    UTILS_ASSERT(leaf);
+    
+    leaf->contents = CONTENTS_SOLID;
+    for(i=0; i<leaf->faces.size(); i++)
+    {
+        face = &faces[leaf->faces[i]];
+        if(!i)
+            leaf->contents = face->contents[1];
+        UTILS_ASSERT(leaf->contents == face->contents[1]);
+    }
+}
+
+int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
 {
     int i, j, k;
 
@@ -159,9 +177,9 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs, int p
         leaves.push_back({});
         leaf = &leaves.back();
 
-        leaf->content = plside;
         leaf->faces = surfs;
         FindSurflistBB(surfs, leaf->bb);
+        AssignLeafContent(leaf);
         
         nleafs++;
         return ~ileaf;
@@ -220,7 +238,7 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs, int p
         for(j=0; j<pnode->faces.size(); j++)
             sides[i].push_back(pnode->faces[j]);
 
-        nodes[inode].children[i] = BspModel_R(model, hullnum, sides[i], i);
+        nodes[inode].children[i] = BspModel_R(model, hullnum, sides[i]);
         pnode = &nodes[inode]; // children can make this a dangling pointer
     }
 
@@ -242,7 +260,7 @@ void BspModel(model_t *model)
 
     nnodes = nleafs = 0;
     for(h=0; h<Bsplib::n_hulls; h++)
-        model->headnodes[h] = BspModel_R(model, h, model->faces[h], -1);
+        model->headnodes[h] = BspModel_R(model, h, model->faces[h]);
 
     printf("%d nodes.\n", nnodes);
     printf("%d leaves.\n", nleafs);

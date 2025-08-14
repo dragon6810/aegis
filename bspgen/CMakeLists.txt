@@ -1,8 +1,5 @@
 add_executable(bspgen
     src/main.cpp
-    src/Entity.cpp
-    src/Brush.cpp
-    src/BrFace.cpp
     src/HullDef.cpp
     src/Bsp.cpp
     src/Csg.cpp

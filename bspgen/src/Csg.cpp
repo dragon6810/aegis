@@ -174,6 +174,9 @@ void CullInteriorFaces(model_t *mdl)
             faces.reserve(faces.size() + exterior.size());
             for(i=0; i<exterior.size(); i++)
             {
+                exterior[i].contents[0] = CONTENTS_SOLID;
+                exterior[i].contents[1] = CONTENTS_EMPTY;
+
                 mdl->faces[h].push_back(faces.size());
                 faces.push_back(exterior[i]);
             }

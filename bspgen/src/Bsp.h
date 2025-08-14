@@ -53,7 +53,7 @@ typedef struct
 
 typedef struct
 {
-    int content;
+    int contents;
     Eigen::Vector3f bb[2];
     std::vector<int> faces;
     std::vector<int> portals;
@@ -66,6 +66,7 @@ typedef struct
     int nodenum;
     int texinfo;
     Mathlib::Poly<3> poly;
+    int contents[2];
 } face_t;
 
 typedef struct
