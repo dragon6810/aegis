@@ -43,7 +43,7 @@ namespace engine
         std::deque<std::string> termcmds;
     public:
         static void RegisterCVar(cvar_t *cvar);
-        static void RegisterCCmd(ccmd_s *ccmd);
+        static void RegisterCCmd(ccmd_t *ccmd);
         static void ExecStr(const char* str);
         static void Print(const char* fmt, ...);
 

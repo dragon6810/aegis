@@ -7,12 +7,28 @@
 
 #include <engine/Console.h>
 
+engine::sv::Server server;
+
+engine::sv::Server* engine::sv::Server::GetServer()
+{
+    return &server;
+}
+
+void engine::sv::Server::sv_socketinfo(const std::vector<std::string>& args)
+{
+    if(args.size() != 1)
+    {
+        Console::Print("expected 0 args to sv_socketinfo.\n");
+        return;
+    }
+
+    
+}
+
 void engine::sv::Server::Setup(void)
 {
 
 }
-
-engine::Console::cvar_t testvar = { "sv_testvar", engine::Console::CPERM_ANYONE, "0", };
 
 int engine::sv::Server::Run(void)
 {
@@ -20,8 +36,6 @@ int engine::sv::Server::Run(void)
 
     // TODO: this is quite imprecise and slow by a few ms per tick.
     // find a better way to do this.
-
-    Console::RegisterCVar(&testvar);
 
     Console::LaunchTerm();
 

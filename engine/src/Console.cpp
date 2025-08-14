@@ -24,7 +24,7 @@ void engine::Console::RegisterCVar(cvar_t *cvar)
     console.cvars[cvar->name] = cvar;
 }
 
-void engine::Console::RegisterCCmd(ccmd_s *ccmd)
+void engine::Console::RegisterCCmd(ccmd_t *ccmd)
 {
     UTILS_ASSERT(ccmd);
     UTILS_ASSERT(ccmd->name);
@@ -114,11 +114,11 @@ void engine::Console::LaunchTerm(void)
 {
     console.termthread = std::thread([]
     {
-        char buf[256];
+        char buf[1024];
 
         while(1)
         {
-            scanf("%255[^\n]%*c", buf);
+            scanf("%1023[^\n]%*c", buf);
 
             console.termmtx.lock();
             console.termcmds.push_back(buf);
