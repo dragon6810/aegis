@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <string>
 
 #define BASECLASSDEF(basename, classname) typedef basename basedef; typedef classname classdef;

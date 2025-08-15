@@ -8,6 +8,7 @@
 #include "Bsp.h"
 #include "Csg.h"
 #include "Portals.h"
+#include "Write.h"
 
 int nbrush = 0;
 int nbrface = 0;
@@ -198,6 +199,7 @@ int main(int argc, char** argv)
     LoadMap(infile.c_str());
     for(i=0; i<models.size(); i++)
         ProcessModel(&models[i], !i);
+    Write(outfile.c_str());
 
     return 0;
 }
