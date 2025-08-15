@@ -17,6 +17,7 @@ typedef enum
     LUMP_RLEAFS,
     LUMP_MRSURFS,
     LUMP_RSURFS,
+    LUMP_TEXINFOS,
     LUMP_MVERTS,
     LUMP_VERTS,
     LUMP_ENTSTRING,
@@ -62,7 +63,7 @@ void Bsplib::BspFile::Write(const char* path)
     header.lumps[(lump)].size = (len);    \
     curoffs += (len)
 
-    curoffs = 0;
+    curoffs = sizeof(header_t);
     LUMP_OFFS(LUMP_INFO, sizeof(bspinfo_t));
     LUMP_OFFS(LUMP_MODELS, models.size() * sizeof(model_t));
     LUMP_OFFS(LUMP_CNODES, cnodes.size() * sizeof(cnode_t));
@@ -73,6 +74,7 @@ void Bsplib::BspFile::Write(const char* path)
     LUMP_OFFS(LUMP_RLEAFS, rleafs.size() * sizeof(rleaf_t));
     LUMP_OFFS(LUMP_MRSURFS, mrsurfs.size() * sizeof(mrsurf_t));
     LUMP_OFFS(LUMP_RSURFS, rsurfs.size() * sizeof(rsurf_t));
+    LUMP_OFFS(LUMP_TEXINFOS, texinfos.size() * sizeof(texinfo_t));
     LUMP_OFFS(LUMP_MVERTS, mverts.size() * sizeof(mvert_t));
     LUMP_OFFS(LUMP_VERTS, verts.size() * sizeof(vec_t));
     LUMP_OFFS(LUMP_ENTSTRING, entstring.size() + 1);
@@ -82,16 +84,17 @@ void Bsplib::BspFile::Write(const char* path)
     fwrite(&header, sizeof(header), 1, ptr);
     fwrite(&info, sizeof(bspinfo_t), 1, ptr);
     fwrite(models.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(cnodes.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(cleaves.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(mportals.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(portals.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(rnodes.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(rleafs.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(mrsurfs.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(rsurfs.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(mverts.data(), sizeof(model_t), models.size(), ptr);
-    fwrite(verts.data(), sizeof(model_t), models.size(), ptr);
+    fwrite(cnodes.data(), sizeof(cnode_t), cnodes.size(), ptr);
+    fwrite(cleaves.data(), sizeof(cleaf_t), cleaves.size(), ptr);
+    fwrite(mportals.data(), sizeof(mportal_t), mportals.size(), ptr);
+    fwrite(portals.data(), sizeof(portal_t), portals.size(), ptr);
+    fwrite(rnodes.data(), sizeof(rnode_t), rnodes.size(), ptr);
+    fwrite(rleafs.data(), sizeof(rleaf_t), rleafs.size(), ptr);
+    fwrite(mrsurfs.data(), sizeof(mrsurf_t), mrsurfs.size(), ptr);
+    fwrite(rsurfs.data(), sizeof(rsurf_t), rsurfs.size(), ptr);
+    fwrite(texinfos.data(), sizeof(texinfo_t), texinfos.size(), ptr);
+    fwrite(mverts.data(), sizeof(mvert_t), mverts.size(), ptr);
+    fwrite(verts.data(), sizeof(vec_t), verts.size(), ptr);
     fwrite(entstring.data(), 1, entstring.size(), ptr);
     fwrite(&nullterm, 1, 1, ptr);
 

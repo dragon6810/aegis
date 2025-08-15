@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <tpklib.h>
+
 #define CONTENTS_EMPTY -1
 #define CONTENTS_SOLID -2
 
@@ -16,6 +18,13 @@ namespace Bsplib
         typedef float vec_t[3];
 
         typedef uint32_t mvert_t;
+
+        typedef struct texinfo_s
+        {
+            char name[Tpklib::max_tex_name];
+            vec_t basis[2];
+            float shift[2];
+        } texinfo_t;
 
         typedef struct rsurf_s
         {
@@ -94,6 +103,7 @@ namespace Bsplib
         std::vector<rleaf_t> rleafs;
         std::vector<mrsurf_t> mrsurfs;
         std::vector<rsurf_t> rsurfs;
+        std::vector<texinfo_t> texinfos;
         std::vector<mvert_t> mverts;
         std::vector<vec_t> verts;
         std::string entstring;

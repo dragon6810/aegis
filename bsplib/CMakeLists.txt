@@ -11,6 +11,7 @@ target_link_libraries(bsplib PUBLIC
 target_link_libraries(bsplib PRIVATE
     parselib
     utilslib
+    tpklib
 )
 
 target_include_directories(bsplib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)
