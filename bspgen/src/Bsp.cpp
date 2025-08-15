@@ -292,6 +292,25 @@ int FindLeaf(int headnode, Eigen::Vector3f p)
     return ~headnode;
 }
 
+void CollectFaces(int nodenum, std::vector<int>* faces)
+{
+    int i;
+
+    node_t *node;
+
+    if(nodenum < 0)
+        return;
+
+    node = &nodes[nodenum];
+
+    faces->reserve(faces->size() + node->faces.size());
+    for(i=0; i<node->faces.size(); i++)
+        faces->push_back(node->faces[i]);
+
+    for(i=0; i<2; i++)
+        CollectFaces(node->children[i], faces);
+}
+
 void BspModel(model_t *mdl)
 {
     int h, i;
@@ -316,6 +335,8 @@ void BspModel(model_t *mdl)
         }
 
         mdl->headnodes[h] = BspModel_R(mdl, h, mdl->faces[h]);
+        mdl->faces[h].clear();
+        CollectFaces(mdl->headnodes[h], &mdl->faces[h]);
     }
 
     printf("%d nodes.\n", nnodes);
