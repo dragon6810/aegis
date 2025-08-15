@@ -17,6 +17,7 @@ typedef enum
     LUMP_RLEAFS,
     LUMP_MRSURFS,
     LUMP_RSURFS,
+    LUMP_PLANES,
     LUMP_TEXINFOS,
     LUMP_MVERTS,
     LUMP_VERTS,
@@ -74,6 +75,7 @@ void Bsplib::BspFile::Write(const char* path)
     LUMP_OFFS(LUMP_RLEAFS, rleafs.size() * sizeof(rleaf_t));
     LUMP_OFFS(LUMP_MRSURFS, mrsurfs.size() * sizeof(mrsurf_t));
     LUMP_OFFS(LUMP_RSURFS, rsurfs.size() * sizeof(rsurf_t));
+    LUMP_OFFS(LUMP_PLANES, planes.size() * sizeof(plane_t));
     LUMP_OFFS(LUMP_TEXINFOS, texinfos.size() * sizeof(texinfo_t));
     LUMP_OFFS(LUMP_MVERTS, mverts.size() * sizeof(mvert_t));
     LUMP_OFFS(LUMP_VERTS, verts.size() * sizeof(vec_t));
@@ -92,6 +94,7 @@ void Bsplib::BspFile::Write(const char* path)
     fwrite(rleafs.data(), sizeof(rleaf_t), rleafs.size(), ptr);
     fwrite(mrsurfs.data(), sizeof(mrsurf_t), mrsurfs.size(), ptr);
     fwrite(rsurfs.data(), sizeof(rsurf_t), rsurfs.size(), ptr);
+    fwrite(planes.data(), sizeof(plane_t), planes.size(), ptr);
     fwrite(texinfos.data(), sizeof(texinfo_t), texinfos.size(), ptr);
     fwrite(mverts.data(), sizeof(mvert_t), mverts.size(), ptr);
     fwrite(verts.data(), sizeof(vec_t), verts.size(), ptr);

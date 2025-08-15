@@ -15,7 +15,10 @@ namespace Bsplib
     class BspFile
     {
     public:
-        typedef float vec_t[3];
+        typedef struct vec_s
+        {
+            float v[3];
+        } vec_t;
 
         typedef uint32_t mvert_t;
 
@@ -25,6 +28,13 @@ namespace Bsplib
             vec_t basis[2];
             float shift[2];
         } texinfo_t;
+
+        typedef struct plane_s
+        {
+            vec_t n;
+            float d;
+            uint8_t axis; // < 3 = axis, else not axially aligned
+        } plane_t;
 
         typedef struct rsurf_s
         {
@@ -67,7 +77,7 @@ namespace Bsplib
         typedef struct cleaf_s
         {
             int8_t contents;
-            uint32_t firstportal;
+            uint32_t firstmportal;
             uint16_t nportals;
         } cleaf_t;
 
@@ -103,6 +113,7 @@ namespace Bsplib
         std::vector<rleaf_t> rleafs;
         std::vector<mrsurf_t> mrsurfs;
         std::vector<rsurf_t> rsurfs;
+        std::vector<plane_t> planes;
         std::vector<texinfo_t> texinfos;
         std::vector<mvert_t> mverts;
         std::vector<vec_t> verts;

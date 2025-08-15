@@ -12,6 +12,145 @@ Bsplib::BspFile file;
 std::unordered_map<int, int> facelookup;
 std::unordered_map<int, int> rnodelookup;
 std::unordered_map<int, int> texinfolookup;
+std::unordered_map<int, int> cnodelookup;
+std::unordered_map<int, int> prtlookup;
+std::unordered_map<int, int> pllookup; // planes are leftover from culled faces, so not all are included in file
+
+int FindPlane(int plnum)
+{
+    const float epsilon = 0.01;
+
+    int i;
+
+    plane_t *pl;
+    Bsplib::BspFile::plane_t *newpl;
+
+    if(pllookup.find(plnum) != pllookup.end())
+        return pllookup[plnum];
+
+    pl = &planes[plnum];
+    file.planes.push_back({});
+    newpl = &file.planes.back();
+
+    newpl->axis = 4;
+    for(i=0; i<3; i++)
+    {
+        newpl->n.v[i] = pl->n[i];
+        if(fabsf(pl->n[i]) > 1 - epsilon)
+            newpl->axis = i;
+    }
+    newpl->d = pl->d;
+
+    pllookup[plnum] = file.planes.size() - 1;
+    return file.planes.size() - 1;
+}
+
+int FindVert(Eigen::Vector3f v, float epsilon=0.1)
+{
+    int i, j;
+
+    Bsplib::BspFile::vec_t newv;
+
+    for(i=0; i<file.verts.size(); i++)
+    {
+        for(j=0; j<3; j++)
+            if(fabsf(file.verts[i].v[j] - v[j]) > epsilon)
+                break;
+        if(j >= 3)
+            return i;
+    }
+
+    for(i=0; i<3; i++)
+        newv.v[i] = v[i];
+    file.verts.push_back(newv);
+    return file.verts.size() - 1;
+}
+
+void WritePortal(int prtnum)
+{
+    int i;
+
+    int iprt;
+    Bsplib::BspFile::portal_s *fprt;
+    portal_t *prt;
+
+    prt = &portals[prtnum];
+
+    iprt = file.portals.size();
+    file.portals.push_back({});
+    fprt = &file.portals.back();
+
+    prtlookup[prtnum] = iprt;
+
+    fprt->plnum = FindPlane(prt->planenum);
+    UTILS_ASSERT(cnodelookup.find(prt->nodenum) != cnodelookup.end());
+    fprt->cnode = cnodelookup[prt->nodenum];
+    fprt->firstmvert = file.mverts.size();
+    fprt->nverts = prt->poly.size();
+
+    file.mverts.reserve(file.mverts.size() + prt->poly.size());
+    for(i=0; i<prt->poly.size(); i++)
+        file.mverts.push_back(FindVert(prt->poly[i]));
+}
+
+int32_t WriteCLeaf(int leafnum)
+{
+    int i;
+
+    int ileaf;
+    Bsplib::BspFile::cleaf_t *fleaf;
+    leaf_t *leaf;
+
+    leaf = &leaves[leafnum];
+
+    ileaf = file.cleaves.size();
+    file.cleaves.push_back({});
+    fleaf = &file.cleaves.back();
+
+    fleaf->contents = leaf->contents;
+    fleaf->firstmportal = file.mportals.size();
+    fleaf->nportals = leaf->portals.size();
+
+    file.mportals.reserve(file.mportals.size() + leaf->portals.size());
+    for(i=0; i<leaf->portals.size(); i++)
+    {
+        UTILS_ASSERT(prtlookup.find(leaf->portals[i]) != prtlookup.end());
+        file.mportals.push_back(prtlookup[leaf->portals[i]]);
+    }
+
+    return ileaf;
+}
+
+int32_t WriteCNode(int nodenum)
+{
+    int i, j;
+
+    int inode;
+    Bsplib::BspFile::cnode_t *fnode;
+    node_t *node;
+
+    if(nodenum < 0)
+        return ~WriteCLeaf(~nodenum);
+
+    node = &nodes[nodenum];
+
+    inode = file.cnodes.size();
+    file.cnodes.push_back({});
+    fnode = &file.cnodes.back();
+
+    cnodelookup[nodenum] = inode;
+
+    fnode->plnum = FindPlane(node->planenum);
+
+    file.portals.reserve(file.portals.size() + node->portals.size());
+    for(i=0; i<node->portals.size(); i++)
+        WritePortal(node->portals[i]);
+
+    for(i=0; i<2; i++)
+        file.cnodes[inode].children[i] = WriteCNode(node->children[i]);
+
+    return inode;
+}
 
 int FindTexinfo(int texnum)
 {
@@ -34,7 +173,7 @@ int FindTexinfo(int texnum)
     for(i=0; i<2; i++)
     {
         for(j=0; j<3; j++)
-            ftexinfo->basis[i][j] = texinfo->basis[i][j];
+            ftexinfo->basis[i].v[j] = texinfo->basis[i][j];
         ftexinfo->shift[i] = texinfo->shift[i];
     }
 
@@ -44,6 +183,8 @@ int FindTexinfo(int texnum)
 
 void LoadRSurf(int facenum)
 {
+    int i;
+
     int isurf;
     Bsplib::BspFile::rsurf_t *fsurf;
     face_t *face;
@@ -56,12 +197,16 @@ void LoadRSurf(int facenum)
 
     facelookup[facenum] = isurf;
 
-    fsurf->plnum = face->planenum;
+    fsurf->plnum = FindPlane(face->planenum);
     UTILS_ASSERT(rnodelookup.find(face->nodenum) != rnodelookup.end());
     fsurf->nodenum = rnodelookup[face->nodenum];
     fsurf->texinfo = FindTexinfo(face->texinfo);
     fsurf->firstmvert = file.mverts.size();
     fsurf->nverts = face->poly.size();
+
+    file.mverts.reserve(file.mverts.size() + face->poly.size());
+    for(i=0; i<face->poly.size(); i++)
+        file.mverts.push_back(FindVert(face->poly[i]));
 }
 
 int32_t LoadRLeaf(int leafnum)
@@ -111,12 +256,12 @@ int32_t WriteRNode(int nodenum)
 
     rnodelookup[nodenum] = inode;
 
-    fnode->plnum = node->planenum;
+    fnode->plnum = FindPlane(node->planenum);
     fnode->firstrsurf = file.rsurfs.size();
     fnode->nsurfs = node->faces.size();
     for(i=0; i<2; i++)
         for(j=0; j<3; j++)
-            fnode->bb[i][j] = node->bb[i][j];
+            fnode->bb[i].v[j] = node->bb[i][j];
 
     file.rsurfs.reserve(file.rsurfs.size() + node->faces.size());
     for(i=0; i<node->faces.size(); i++)
@@ -130,12 +275,16 @@ int32_t WriteRNode(int nodenum)
 
 void WriteModel(model_t *mdl)
 {
+    int h;
+
     Bsplib::BspFile::model_t *fmdl;
 
     file.models.push_back({});
     fmdl = &file.models.back();
 
-    fmdl->firstrleaf = WriteRNode(mdl->headnodes[0]);
+    fmdl->rheadnode = WriteRNode(mdl->headnodes[0]);
+    for(h=0; h<Bsplib::n_hulls; h++)
+        fmdl->cheadnodes[h] = WriteCNode(mdl->headnodes[h]);
 }
 
 void MakeEntString(void)
