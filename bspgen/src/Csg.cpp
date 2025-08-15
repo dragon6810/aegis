@@ -170,15 +170,14 @@ void CullInteriorFaces(model_t *mdl)
                 FindExteriorByBrush(pb1, pb2, b2 > b1);
             }
         
-            mdl->faces[h].reserve(mdl->faces[h].size() + exterior.size());
-            faces.reserve(faces.size() + exterior.size());
+            mdl->uncut[h].reserve(mdl->uncut[h].size() + exterior.size());
             for(i=0; i<exterior.size(); i++)
             {
                 exterior[i].contents[0] = CONTENTS_SOLID;
                 exterior[i].contents[1] = CONTENTS_EMPTY;
+                exterior[i].uncutnum = mdl->uncut[h].size();
 
-                mdl->faces[h].push_back(faces.size());
-                faces.push_back(exterior[i]);
+                mdl->uncut[h].push_back(exterior[i]);
             }
         }
     }

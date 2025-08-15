@@ -150,9 +150,10 @@ void AssignLeafContent(leaf_t* leaf)
     for(i=0; i<leaf->faces.size(); i++)
     {
         face = &faces[leaf->faces[i]];
+        UTILS_ASSERT(face->curside == 0 || face->curside == 1);
         if(!i)
-            leaf->contents = face->contents[1];
-        UTILS_ASSERT(leaf->contents == face->contents[1]);
+            leaf->contents = face->contents[face->curside];
+        UTILS_ASSERT(leaf->contents == face->contents[face->curside]);
     }
 }
 
@@ -237,7 +238,13 @@ int BspModel_R(model_t *model, int hullnum, const std::vector<int>& surfs)
     {
         sides[i].reserve(sides[i].size() + pnode->faces.size());
         for(j=0; j<pnode->faces.size(); j++)
+        {
+            if(faces[pnode->faces[j]].flip)
+                faces[pnode->faces[j]].curside = !i;
+            else
+                faces[pnode->faces[j]].curside = i;
             sides[i].push_back(pnode->faces[j]);
+        }
 
         nodes[inode].children[i] = BspModel_R(model, hullnum, sides[i]);
         pnode = &nodes[inode]; // children can make this a dangling pointer
@@ -260,7 +267,7 @@ Eigen::Vector3f GetEntOrigin(entity_t* ent)
     originstr = ent->pairs["origin"];
     if(sscanf(originstr.c_str(), "%f %f %f", &origin[0], &origin[1], &origin[2]) != 3)
         return Eigen::Vector3f::Zero();
-        
+
     return origin;
 }
 
@@ -285,13 +292,13 @@ int FindLeaf(int headnode, Eigen::Vector3f p)
     return ~headnode;
 }
 
-void BspModel(model_t *model)
+void BspModel(model_t *mdl)
 {
-    int h;
+    int h, i;
 
     uint64_t startt, endt;
 
-    UTILS_ASSERT(model);
+    UTILS_ASSERT(mdl);
 
     printf("---- BspModel ----\n");
 
@@ -299,7 +306,17 @@ void BspModel(model_t *model)
 
     nnodes = nleafs = 0;
     for(h=0; h<Bsplib::n_hulls; h++)
-        model->headnodes[h] = BspModel_R(model, h, model->faces[h]);
+    {
+        mdl->faces[h].resize(mdl->uncut[h].size());
+        faces.reserve(faces.size() + mdl->uncut[h].size());
+        for(i=0; i<mdl->uncut[h].size(); i++)
+        {
+            mdl->faces[h][i] = faces.size();
+            faces.push_back(mdl->uncut[h][i]);
+        }
+
+        mdl->headnodes[h] = BspModel_R(mdl, h, mdl->faces[h]);
+    }
 
     printf("%d nodes.\n", nnodes);
     printf("%d leaves.\n", nleafs);

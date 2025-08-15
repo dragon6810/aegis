@@ -19,12 +19,9 @@ void Portalize_r(int nodenum, const std::vector<int>& prts)
     {
         leafnum = ~nodenum;
         leaf = &leaves[leafnum];
-        leaf->portals.resize(prts.size());
+        leaf->portals = prts;
         for(i=0; i<prts.size(); i++)
-        {
-            leaf->portals[i] = prts[i];
             portals[prts[i]].leafnums[portals[prts[i]].curside] = leafnum;
-        }
 
         return;
     }
@@ -39,7 +36,7 @@ void Portalize_r(int nodenum, const std::vector<int>& prts)
     newprt->nodenum = nodenum;
     newprt->leafnums[0] = newprt->leafnums[1] = -1;
 
-    newprt->poly = Mathlib::FromPlane(planes[node->planenum].n, planes[node->planenum].d);
+    newprt->poly = Mathlib::FromPlane(planes[newprt->planenum].n, planes[newprt->planenum].d);
     for(i=0; i<prts.size(); i++)
     {
         fpl = planes[portals[prts[i]].planenum];
@@ -76,14 +73,10 @@ void Portalize_r(int nodenum, const std::vector<int>& prts)
             continue;
         }
 
-        if(portals[prts[i]].nodenum >= 0)
-            nodes[portals[prts[i]].nodenum].portals.push_back(portals.size());
+        nodes[portals[prts[i]].nodenum].portals.push_back(portals.size());
         for(j=0; j<2; j++)
-        {
-            if(portals[prts[i]].leafnums[j] < 0)
-                continue;
-            leaves[portals[prts[i]].leafnums[j]].portals.push_back(portals.size());
-        }
+            if(portals[prts[i]].leafnums[j] >= 0)
+                leaves[portals[prts[i]].leafnums[j]].portals.push_back(portals.size());
         sides[0].push_back(prts[i]);
         sides[1].push_back(portals.size());
 
@@ -99,9 +92,11 @@ void Portalize_r(int nodenum, const std::vector<int>& prts)
     {
         for(j=0; j<node->portals.size(); j++)
         {
-            // dont flip bportals curside!
-            if(portals[node->portals[j]].planenum == node->planenum)
-                portals[node->portals[j]].curside = i;
+            // this doesnt apply to bportals.
+            if(portals[node->portals[j]].planenum != node->planenum)
+                continue;
+            
+            portals[node->portals[j]].curside = i;
             sides[i].push_back(node->portals[j]);
         }
         Portalize_r(node->children[i], sides[i]);
@@ -193,7 +188,8 @@ void Portalize(model_t* mdl)
     printf("Portalize done in %llums.\n", endt - startt);
 }
 
-std::unordered_set<int> filled;
+int nexplored;
+std::unordered_set<int> markeduncut;
 
 bool FillModel_r(int leafnum)
 {
@@ -201,8 +197,6 @@ bool FillModel_r(int leafnum)
 
     leaf_t *leaf;
     portal_t *prt;
-
-    printf("leafnum: %d\n", leafnum);
 
     if(leafnum < 0)
     {
@@ -214,14 +208,17 @@ bool FillModel_r(int leafnum)
     if(leaf->contents != CONTENTS_EMPTY)
         return true;
 
-    if(filled.contains(leafnum))
+    if(leaf->marked)
         return true;
-    filled.insert(leafnum);
+    leaf->marked = true;
+    nexplored++;
+
+    for(i=0; i<leaf->faces.size(); i++)
+        markeduncut.insert(faces[leaf->faces[i]].uncutnum);
 
     for(i=0; i<leaf->portals.size(); i++)
     {
         prt = &portals[leaf->portals[i]];
-        printf("prt: [ %d %d ]\n", prt->leafnums[0], prt->leafnums[1]);
         for(j=0; j<2; j++)
             if(!FillModel_r(prt->leafnums[j]))
                 return false;
@@ -235,20 +232,32 @@ void FillModel(model_t* mdl)
     int h, i;
 
     uint64_t startt, endt;
+    std::vector<int> uncuttoremove;
+    int nremoved;
 
     printf("---- FillModel ----\n");
 
     startt = TIMEMS;
 
+    nexplored = nremoved = 0;
     for(h=0; h<Bsplib::n_hulls; h++)
     {
+        markeduncut.clear();
         for(i=1; i<ents.size(); i++)
         {
-            filled.clear();
             if(!FillModel_r(FindLeaf(mdl->headnodes[h], GetEntOrigin(&ents[i]))))
                 exit(1);
         }
+
+        uncuttoremove.reserve(mdl->uncut[h].size() - markeduncut.size());
+        for(i=0; i<mdl->uncut[h].size(); i++)
+            if(!markeduncut.contains(i))
+                uncuttoremove.push_back(i);
+        nremoved += uncuttoremove.size();
     }
+
+    printf("%d leaves filled.\n", nexplored);
+    printf("%d outside faces culled.\n", nremoved);
 
     endt = TIMEMS;
     printf("FillModel done in %llums.\n", endt - startt);
