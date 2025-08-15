@@ -249,11 +249,19 @@ void FillModel(model_t* mdl)
                 exit(1);
         }
 
+        uncuttoremove.clear();
         uncuttoremove.reserve(mdl->uncut[h].size() - markeduncut.size());
         for(i=0; i<mdl->uncut[h].size(); i++)
             if(!markeduncut.contains(i))
                 uncuttoremove.push_back(i);
         nremoved += uncuttoremove.size();
+
+        std::sort(uncuttoremove.begin(), uncuttoremove.end());
+        for(i=uncuttoremove.size()-1; i>=0; i--)
+            mdl->uncut[h].erase(mdl->uncut[h].begin() + uncuttoremove[i]);
+        
+        for(i=0; i<mdl->uncut[h].size(); i++)
+            mdl->uncut[h][i].uncutnum = i;
     }
 
     printf("%d leaves filled.\n", nexplored);

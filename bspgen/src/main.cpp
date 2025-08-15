@@ -14,13 +14,25 @@ int nbrface = 0;
 
 void ProcessModel(model_t *mdl, bool world)
 {
+    int beforenodes, beforeleaves, beforefaces, beforeportals;
+
     CsgModel(mdl);
+    beforenodes = nodes.size();
+    beforeleaves = leaves.size();
+    beforefaces = faces.size();
+    beforeportals = portals.size();
     BspModel(mdl);
     Portalize(mdl);
 
     if(world)
     {
         FillModel(mdl);
+        nodes.resize(beforenodes);
+        leaves.resize(beforeleaves);
+        faces.resize(beforefaces);
+        portals.resize(beforeportals);
+        BspModel(mdl);
+        Portalize(mdl);
     }
 }
 
