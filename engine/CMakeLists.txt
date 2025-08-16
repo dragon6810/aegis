@@ -5,6 +5,7 @@ add_library(engine STATIC
     "src/cl_PlayerInput.cpp"
     "src/cl_Input.cpp"
     "src/Player.cpp"
+    "src/sv_NetClient.cpp"
 )
 
 target_link_libraries(engine PRIVATE

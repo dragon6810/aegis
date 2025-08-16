@@ -38,7 +38,7 @@ void engine::sv::Server::InitNet(void)
         Console::Print("error binding socket on server.\n");
         exit(1);
     }
-    
+
     fcntl(this->clsocket, F_SETFL, fcntl(this->clsocket, F_GETFL, 0) | O_NONBLOCK);
 
     Console::Print("server open on port %hu.\n", ENGINE_DEFAULTPORT);
@@ -55,12 +55,65 @@ void engine::sv::Server::Cleanup(void)
         close(this->clsocket);
 }
 
+void engine::sv::Server::ProcessHandshake(const packet::clsv_handshake_t* packet, const uint8_t addr[4])
+{
+    int icl;
+    NetClient *newcl;
+    struct sockaddr_in claddr;
+    packet::svcl_handshake_t response;
+
+    if(packet->version != ntohl(ENGINE_PACKET_PROTOCOL_VERSION))
+        return;
+
+    if(strnlen(packet->username, ENGINE_PACKET_MAXPLAYERNAME) >= ENGINE_PACKET_MAXPLAYERNAME)
+        return;
+
+    icl = this->ClientByAddr(addr);
+    if(nclients < MAX_NETCLIENT || icl >= 0)
+    {
+        Console::Print("send response\n");
+        claddr = {};
+        claddr.sin_family = AF_INET;
+        claddr.sin_port = htons(ENGINE_DEFAULTPORT);
+        claddr.sin_addr.s_addr = *((uint32_t*)addr);
+
+        response = {};
+        strcpy(response.message, packet::clsv_handshake_message);
+        response.version = htonl(ENGINE_PACKET_PROTOCOL_VERSION);
+
+        sendto(this->clsocket, &response, sizeof(response), 0, (struct sockaddr*) &claddr, sizeof(claddr));
+    }
+
+    // don't make another client for the same one.
+    if(icl >= 0)
+        return;
+
+    icl = FindFreeClient();
+    if(icl < 0)
+    {
+        Console::Print("rejected connection from %hhu.%hhu.%hhu.%hhu because server was full.\n", 
+            addr[0], addr[1], addr[2], addr[3]);
+        return;
+    }
+
+    nclients++;
+    newcl = &clients[icl];
+
+    newcl->state = NetClient::NETCLIENT_CONNECTED;
+    memcpy(newcl->ipv4, addr, 4);
+    strcpy(newcl->username, packet->username);
+
+    Console::Print("accepted client from %hhu.%hhu.%hhu.%hhu under the username \"%s\".\n",
+        addr[0], addr[1], addr[2], addr[3], packet->username);
+}
+
 void engine::sv::Server::ProcessRecieved(void)
 {
     uint8_t buf[MAX_PACKET_SIZE];
     int buflen;
     struct sockaddr_in claddr;
     socklen_t claddrlen;
+    uint8_t *ipv4;
 
     do
     {
@@ -76,8 +129,45 @@ void engine::sv::Server::ProcessRecieved(void)
             break;
         }
 
-        Console::Print("potential handshake.\n");
+        ipv4 = (uint8_t*) &claddr.sin_addr.s_addr;
+        if(buflen == sizeof(packet::clsv_handshake_t) &&
+           !strncmp((char*) buf, packet::clsv_handshake_message, sizeof(packet::clsv_handshake_message)))
+        {
+            ProcessHandshake((packet::clsv_handshake_t*) buf, ipv4);
+            continue;
+        }
     } while(1);
+}
+
+int engine::sv::Server::ClientByAddr(const uint8_t addr[4])
+{
+    int i;
+
+    int found;
+
+    for(i=found=0; i<MAX_NETCLIENT && found<nclients; i++)
+    {
+        if(this->clients[i].state == NetClient::NETCLIENT_FREE)
+            continue;
+
+        found++;
+
+        if(!memcmp(this->clients[i].ipv4, addr, 4))
+            return i;
+    }
+
+    return -1;
+}
+
+int engine::sv::Server::FindFreeClient(void)
+{
+    int i;
+
+    for(i=0; i<MAX_NETCLIENT; i++)
+        if(this->clients[i].state == NetClient::NETCLIENT_FREE)
+            return i;
+
+    return -1;
 }
 
 void engine::sv::Server::Setup(void)

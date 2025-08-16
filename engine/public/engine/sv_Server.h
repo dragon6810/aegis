@@ -1,5 +1,8 @@
 #pragma once
 
+#include <engine/sv_NetClient.h>
+#include <engine/Packets.h>
+
 namespace engine::sv
 {
     class Server
@@ -12,14 +15,23 @@ namespace engine::sv
         int clsocket = -1;
     public:
         bool lasttick = false;
+        int nclients = 0;
+        NetClient clients[MAX_NETCLIENT];
     public:
         static Server* GetServer();
     private:
         void InitNet(void);
         void Init(void);
         void Cleanup(void);
+        void ProcessHandshake(const packet::clsv_handshake_t* packet, const uint8_t addr[4]);
         void ProcessRecieved(void);
     public:
+        // returns -1 if no client
+        int ClientByAddr(const uint8_t addr[4]);
+
+        // returns -1 if full
+        int FindFreeClient(void);
+
         void Setup(void);
         int Run(void);
     };
