@@ -1,7 +1,5 @@
 #include "cl_Input.h"
 
-#include <SDL3/SDL.h>
-
 #include <engine/Console.h>
 
 std::unordered_map<SDL_Scancode, std::string> scancodestr = 
@@ -127,4 +125,37 @@ void BindCmd(const std::vector<std::string>& args)
 void engine::cl::InputInit(void)
 {
     Console::RegisterCCmd( { "bind", BindCmd } );
+}
+
+void engine::cl::KeyDown(SDL_Scancode scancode)
+{
+    std::string keyname, cmdname;
+
+    if(scancodestr.find(scancode) == scancodestr.end())
+        return;
+
+    keyname = scancodestr[scancode];
+    if(keymapping.find(keyname) == keymapping.end())
+        return;
+    cmdname = keymapping[keyname];
+
+    Console::SubmitStr(cmdname.c_str());
+}
+
+void engine::cl::KeyUp(SDL_Scancode scancode)
+{
+    std::string keyname, cmdname;
+
+    if(scancodestr.find(scancode) == scancodestr.end())
+        return;
+
+    keyname = scancodestr[scancode];
+    if(keymapping.find(keyname) == keymapping.end())
+        return;
+    cmdname = keymapping[keyname];
+    if(!cmdname.size() || cmdname[0] != '+')
+        return;
+    cmdname[0] = '-';
+
+    Console::SubmitStr(cmdname.c_str());
 }

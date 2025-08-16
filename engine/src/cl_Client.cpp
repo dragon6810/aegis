@@ -20,6 +20,12 @@ void engine::cl::Client::PollWindow(void)
         case SDL_EVENT_QUIT:
             this->lastframe = true;
             break;
+        case SDL_EVENT_KEY_DOWN:
+            KeyDown(event.key.scancode);
+            break;
+        case SDL_EVENT_KEY_UP:
+            KeyUp(event.key.scancode);
+            break;
         default:
             break;
         }
