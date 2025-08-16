@@ -9,6 +9,9 @@ add_library(engine STATIC
 
 target_link_libraries(engine PRIVATE
     utilslib
+)
+
+target_link_libraries(engine PUBLIC
     SDL3::SDL3
 )
 
