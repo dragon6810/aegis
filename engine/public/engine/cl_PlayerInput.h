@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Packets.h"
+
 namespace engine::cl
 {
     // if you're a game, you can override this.
@@ -13,6 +15,8 @@ namespace engine::cl
         bool back;
         bool left;
         bool right;
+
+        virtual packet::playercmd_t GenerateCmd(void);
 
         void Init(void);
     };

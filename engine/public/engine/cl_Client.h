@@ -6,6 +6,8 @@
 
 #include <engine/cl_PlayerInput.h>
 
+#include "Player.h"
+
 namespace engine::cl
 {
     class Client
@@ -22,6 +24,7 @@ namespace engine::cl
 
         // games: set this to your own input class if you want to.
         std::unique_ptr<PlayerInput> pinput;
+        Player player;
 
         void Setup(void);
         int Run(void);

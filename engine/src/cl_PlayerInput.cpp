@@ -19,6 +19,23 @@ void engine::cl::PlayerInput::InitClient(void)
     Console::SubmitStr("bind d +right");
 }
 
+engine::packet::playercmd_t engine::cl::PlayerInput::GenerateCmd(void)
+{
+    packet::playercmd_t cmd;
+
+    cmd = {};
+    if(left)
+        cmd.move |= 0x8;
+    if(right)
+        cmd.move |= 0x4;
+    if(back)
+        cmd.move |= 0x2;
+    if(forward)
+        cmd.move |= 0x1;
+
+    return cmd;
+}
+
 void engine::cl::PlayerInput::Init(void)
 {
     InitClient();

@@ -1,5 +1,7 @@
 #include <engine/cl_Client.h>
 
+#include <utilslib.h>
+
 #include <engine/Console.h>
 
 #include "cl_Input.h"
@@ -51,15 +53,28 @@ void engine::cl::Client::Setup(void)
 
 int engine::cl::Client::Run(void)
 {
-    SDL_Event event;
+    uint64_t lastframe, thisframe;
+    float frametime;
 
     Init();
 
     this->MakeWindow();
+    lastframe = 0;
     while(!this->lastframe)
     {
+        thisframe = TIMEMS;
+        if(!lastframe)
+            lastframe = thisframe;
+        frametime = (float) (thisframe - lastframe) / 1000.0;
+
         this->PollWindow();
         Console::ExecTerm();
+
+        this->player.ParseCmd(this->pinput->GenerateCmd());
+        this->player.Move(frametime);
+        Console::Print("Player position: ( %f %f ).\n", this->player.pos[0], this->player.pos[1]);
+
+        lastframe = thisframe;
     }
     this->DestroyWindow();
 
