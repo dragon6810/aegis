@@ -12,7 +12,7 @@ namespace engine
         Eigen::Vector2f pos = Eigen::Vector2f::Zero();
         Eigen::Vector2f wishdir = Eigen::Vector2f::Zero();
 
-        void ParseCmd(packet::playercmd_t cmd);
+        void ParseCmd(packet::clsv_playercmd_t cmd);
         void Move(float frametime);
     };
 }

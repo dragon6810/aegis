@@ -16,7 +16,7 @@ namespace engine::cl
         bool left;
         bool right;
 
-        virtual packet::playercmd_t GenerateCmd(void);
+        virtual packet::clsv_playercmd_t GenerateCmd(void);
 
         void Init(void);
     };

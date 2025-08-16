@@ -1,5 +1,6 @@
 #include <engine/cl_Client.h>
 
+#include <netinet/in.h>
 #include <unistd.h>
 #include <sys/socket.h>
 
@@ -59,6 +60,10 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
 void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
 {
     Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", svaddr[0], svaddr[1], svaddr[2], svaddr[3], port);
+    memcpy(this->serveraddr, svaddr, 4);
+    this->serverport = port;
+    this->connectstart = TIMEMS;
+    this->tryconnect = true;
 }
 
 void engine::cl::Client::ConnectStr(const std::string& str)
@@ -107,11 +112,52 @@ void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
     ConnectStr(args[1]);
 }
 
+// how long to try to connect to a server before giving up, in ms
+engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout", "2000" };
+
+void engine::cl::Client::TryConnection(void)
+{
+    int iconnectiontimeout;
+    struct sockaddr_in svaddr;
+    packet::clsv_handshake_t handshake;
+
+    iconnectiontimeout = std::stoi(cl_connection_timeout.strval);
+    if(TIMEMS - connectstart > iconnectiontimeout)
+    {
+        Console::Print("connection attempt to server %hhu.%hhu.%hhu.%hhu on port %d timed out.\n",
+            serveraddr[0], serveraddr[1], serveraddr[2], serveraddr[3], serverport);
+        this->tryconnect = false;
+    }
+
+    if(this->svsocket < 0)
+    {
+        this->svsocket = socket(PF_INET, SOCK_DGRAM, 0);
+        if(this->svsocket < 0)
+        {
+            Console::Print("error creating UDP socket.\n");
+            return;
+        }
+    }
+
+    svaddr = {};
+    svaddr.sin_family = AF_INET;
+    svaddr.sin_port = htons(this->serverport);
+    svaddr.sin_addr.s_addr = *((uint32_t*)this->serveraddr);
+
+    handshake = {};
+    strcpy(handshake.message, packet::clsv_handshake_message);
+    handshake.version = htonl(ENGINE_PACKET_PROTOCOL_VERSION);
+    strcpy(handshake.username, "client");
+
+    sendto(this->svsocket, &handshake, sizeof(handshake), 0, (struct sockaddr*) &svaddr, sizeof(svaddr));
+}
+
 void engine::cl::Client::Init(void)
 {
     InputInit();
     this->pinput->Init();
 
+    Console::RegisterCVar(&cl_connection_timeout);
     Console::RegisterCCmd({ "connect", [this](const std::vector<std::string>& args){ConnectCmd(args);}, });
 }
 
@@ -121,7 +167,6 @@ void engine::cl::Client::Cleanup(void)
     {
         close(this->svsocket);
         this->svsocket = -1;
-        this->svconnection = -1;
     }
 }
 
@@ -151,6 +196,9 @@ int engine::cl::Client::Run(void)
 
         this->PollWindow();
         Console::ExecTerm();
+
+        if(this->tryconnect)
+            this->TryConnection();
 
         this->player.ParseCmd(this->pinput->GenerateCmd());
         this->player.Move(frametime);

@@ -1,6 +1,6 @@
 #include <engine/Player.h>
 
-void engine::Player::ParseCmd(packet::playercmd_t cmd)
+void engine::Player::ParseCmd(packet::clsv_playercmd_t cmd)
 {
     Eigen::Vector2f rightvec, forwardvec;
 
