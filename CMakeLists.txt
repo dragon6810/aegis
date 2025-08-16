@@ -21,6 +21,7 @@ endif()
 # Third-party
 add_subdirectory(thirdparty/glew)
 add_subdirectory(thirdparty/glm)
+add_subdirectory(thirdparty/sdl)
 add_subdirectory(thirdparty/eigen)
 add_subdirectory(thirdparty/imgui)
 add_subdirectory(thirdparty/filedialog)

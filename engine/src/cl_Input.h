@@ -4,7 +4,7 @@
 
 namespace engine::cl
 {
-extern std::unordered_map<short, std::string> keymapping; // unicode character to CCmd name
+extern std::unordered_map<std::string, std::string> keymapping; // name to CCmd name
 
 void InputInit(void);
 };
