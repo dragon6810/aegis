@@ -14,17 +14,6 @@ engine::sv::Server* engine::sv::Server::GetServer()
     return &server;
 }
 
-void engine::sv::Server::sv_socketinfo(const std::vector<std::string>& args)
-{
-    if(args.size() != 1)
-    {
-        Console::Print("expected 0 args to sv_socketinfo.\n");
-        return;
-    }
-
-    
-}
-
 void engine::sv::Server::Setup(void)
 {
 

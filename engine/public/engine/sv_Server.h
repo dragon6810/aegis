@@ -11,9 +11,6 @@ namespace engine::sv
     public:
         static Server* GetServer();
     public:
-        int socket;
-
-        static void sv_socketinfo(const std::vector<std::string>& args);
 
         void Setup(void);
         int Run(void);

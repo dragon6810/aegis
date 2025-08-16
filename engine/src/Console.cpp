@@ -24,25 +24,23 @@ void engine::Console::RegisterCVar(cvar_t *cvar)
     console.cvars[cvar->name] = cvar;
 }
 
-void engine::Console::RegisterCCmd(ccmd_t *ccmd)
+void engine::Console::RegisterCCmd(const ccmd_t& ccmd)
 {
-    UTILS_ASSERT(ccmd);
-    UTILS_ASSERT(ccmd->name);
-    UTILS_ASSERT(ccmd->func);
+    UTILS_ASSERT(ccmd.name);
 
-    if(console.ccmds.find(ccmd->name) != console.ccmds.end())
+    if(console.ccmds.find(ccmd.name) != console.ccmds.end())
     {
-        Print("can't add cvar for it already exists as CCmd \"%s\".\n", ccmd->name);
+        Print("can't add cvar for it already exists as CCmd \"%s\".\n", ccmd.name);
         return;
     }
 
-    if(console.cvars.find(ccmd->name) != console.cvars.end())
+    if(console.cvars.find(ccmd.name) != console.cvars.end())
     {
-        Print("can't add cvar for it already exists as CVar \"%s\".\n", ccmd->name);
+        Print("can't add cvar for it already exists as CVar \"%s\".\n", ccmd.name);
         return;
     }
 
-    console.ccmds[ccmd->name] = ccmd;
+    console.ccmds[ccmd.name] = ccmd;
 }
 
 void engine::Console::ExecStr(const char* str)
@@ -78,7 +76,7 @@ void engine::Console::ExecStr(const char* str)
 
     if(console.ccmds.find(args[0]) != console.ccmds.end())
     {
-        console.ccmds[args[0]]->func(args);
+        console.ccmds[args[0]].func(args);
         return;
     }
     if(console.cvars.find(args[0]) != console.cvars.end())
@@ -101,6 +99,13 @@ void engine::Console::ExecStr(const char* str)
     Print("unknown CCmd/CVar \"%s\".\n", str);
 }
 
+void engine::Console::SubmitStr(const char* str)
+{
+    console.termmtx.lock();
+    console.termcmds.push_back(str);
+    console.termmtx.unlock();
+}
+
 void engine::Console::Print(const char* fmt, ...)
 {
     va_list		args;
@@ -120,9 +125,7 @@ void engine::Console::LaunchTerm(void)
         {
             scanf("%1023[^\n]%*c", buf);
 
-            console.termmtx.lock();
-            console.termcmds.push_back(buf);
-            console.termmtx.unlock();
+            SubmitStr(buf);
         }
     });
 }
