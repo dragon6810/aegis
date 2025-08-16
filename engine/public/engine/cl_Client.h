@@ -18,6 +18,7 @@ namespace engine::cl
         void MakeWindow(void);
         void PollWindow(void);
         void DestroyWindow(void);
+        void DrawClients(SDL_Renderer* render);
         void Init(void);
     public:
         bool lastframe = false;

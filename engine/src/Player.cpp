@@ -8,10 +8,14 @@ void engine::Player::ParseCmd(packet::playercmd_t cmd)
     forwardvec = Eigen::Vector2f::UnitY();
 
     this->wishdir = Eigen::Vector2f::Zero();
-    this->wishdir -=   rightvec * (cmd.move & 0x8);
-    this->wishdir +=   rightvec * (cmd.move & 0x4);
-    this->wishdir -= forwardvec * (cmd.move & 0x2);
-    this->wishdir += forwardvec * (cmd.move & 0x1);
+    if(cmd.move & 0x8)
+        this->wishdir -= rightvec;
+    if(cmd.move & 0x4)
+        this->wishdir += rightvec;
+    if(cmd.move & 0x2)
+        this->wishdir -= forwardvec;
+    if(cmd.move & 0x1)
+        this->wishdir += forwardvec;
 }
 
 void engine::Player::Move(float frametime)

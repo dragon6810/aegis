@@ -40,6 +40,18 @@ void engine::cl::Client::DestroyWindow(void)
     this->win = NULL;
 }
 
+void engine::cl::Client::DrawClients(SDL_Renderer* render)
+{
+    SDL_FRect playersquare;
+
+    playersquare = {};
+    SDL_RenderCoordinatesFromWindow(render, this->player.pos[0], -this->player.pos[1], &playersquare.x, &playersquare.y);
+    playersquare.w = 16;
+    playersquare.h = 16;
+    SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
+    SDL_RenderFillRect(render, &playersquare);
+}
+
 void engine::cl::Client::Init(void)
 {
     InputInit();
@@ -53,12 +65,15 @@ void engine::cl::Client::Setup(void)
 
 int engine::cl::Client::Run(void)
 {
+    // temporary until 3d
+    SDL_Renderer *render;
     uint64_t lastframe, thisframe;
     float frametime;
 
     Init();
 
     this->MakeWindow();
+    render = SDL_CreateRenderer(this->win, NULL);
     lastframe = 0;
     while(!this->lastframe)
     {
@@ -72,10 +87,17 @@ int engine::cl::Client::Run(void)
 
         this->player.ParseCmd(this->pinput->GenerateCmd());
         this->player.Move(frametime);
-        Console::Print("Player position: ( %f %f ).\n", this->player.pos[0], this->player.pos[1]);
+
+        SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+        SDL_RenderClear(render);
+
+        this->DrawClients(render);
+
+        SDL_RenderPresent(render);
 
         lastframe = thisframe;
     }
+    SDL_DestroyRenderer(render);
     this->DestroyWindow();
 
     return 0;
