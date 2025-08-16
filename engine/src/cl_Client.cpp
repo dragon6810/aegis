@@ -1,5 +1,9 @@
 #include <engine/cl_Client.h>
 
+#include <unistd.h>
+#include <sys/socket.h>
+
+#include <mathlib.h>
 #include <utilslib.h>
 
 #include <engine/Console.h>
@@ -52,10 +56,73 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
     SDL_RenderFillRect(render, &playersquare);
 }
 
+void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
+{
+    Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", svaddr[0], svaddr[1], svaddr[2], svaddr[3], port);
+}
+
+void engine::cl::Client::ConnectStr(const std::string& str)
+{
+    size_t icolon;
+    std::string ipstr, portstr;
+    uint8_t ipv4[4];
+    int portnum;
+
+    icolon = str.find(':');
+    if(icolon == std::string::npos)
+    {
+        ipstr = str;
+        portstr = "";
+        portnum = ENGINE_DEFAULTPORT;
+    }
+    else
+    {
+        ipstr = str.substr(0, icolon);
+        portstr = str.substr(icolon + 1);
+        portnum = std::stoi(portstr);
+        if(!INRANGE(1, 65535, portnum))
+        {
+            Console::Print("invalid port number.\n");
+            return;
+        }
+    }
+
+    if(sscanf(ipstr.c_str(), " %hhu.%hhu.%hhu.%hhu", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) != 4)
+    {
+        Console::Print("invald ipv4 address.\n");
+        return;
+    }
+
+    Connect(ipv4, portnum);
+}
+
+void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
+{
+    if(args.size() != 2)
+    {
+        Console::Print("expected exactly 1 arg.\n");
+        return;
+    }
+
+    ConnectStr(args[1]);
+}
+
 void engine::cl::Client::Init(void)
 {
     InputInit();
     this->pinput->Init();
+
+    Console::RegisterCCmd({ "connect", [this](const std::vector<std::string>& args){ConnectCmd(args);}, });
+}
+
+void engine::cl::Client::Cleanup(void)
+{
+    if(this->svsocket >= 0)
+    {
+        close(this->svsocket);
+        this->svsocket = -1;
+        this->svconnection = -1;
+    }
 }
 
 void engine::cl::Client::Setup(void)

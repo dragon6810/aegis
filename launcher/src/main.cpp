@@ -3,25 +3,34 @@
 #include <argparse/argparse.hpp>
 
 #include <engine/cl_Client.h>
+#include <engine/Console.h>
 #include <engine/sv_Server.h>
 #include <game/Game.h>
 
 int Server(void)
 {
+    int res;
     engine::sv::Server server;
 
+    engine::Console::LaunchTerm();
     server.Setup();
     Game::HookServer(&server);
-    return server.Run();
+    res = server.Run();
+    engine::Console::KillTerm();
+    return res;
 }
 
 int Client(void)
 {
+    int res;
     engine::cl::Client client;
 
+    engine::Console::LaunchTerm();
     client.Setup();
     Game::HookClient(&client);
-    return client.Run();
+    res = client.Run();
+    engine::Console::KillTerm();
+    return res;
 }
 
 int main(int argc, char** argv)

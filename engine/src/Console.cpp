@@ -143,5 +143,5 @@ void engine::Console::ExecTerm(void)
 
 void engine::Console::KillTerm(void)
 {
-    console.termthread.join();
+    console.termthread.detach();
 }

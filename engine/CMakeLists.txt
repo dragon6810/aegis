@@ -9,6 +9,7 @@ add_library(engine STATIC
 
 target_link_libraries(engine PRIVATE
     utilslib
+    mathlib
 )
 
 target_link_libraries(engine PUBLIC

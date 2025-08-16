@@ -26,8 +26,6 @@ int engine::sv::Server::Run(void)
     // TODO: this is quite imprecise and slow by a few ms per tick.
     // find a better way to do this.
 
-    Console::LaunchTerm();
-
     lastframe = TIMEMS;
     while(1)
     {
@@ -44,8 +42,6 @@ int engine::sv::Server::Run(void)
         if(now < nextframe)
             usleep((nextframe - now) * 1000);
     }
-
-    Console::KillTerm();
 
     return 0;
 }
