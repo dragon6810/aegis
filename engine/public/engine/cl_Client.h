@@ -6,6 +6,7 @@
 
 #include <engine/cl_PlayerInput.h>
 #include <engine/NetChan.h>
+#include <engine/Packets.h>
 
 #include "Player.h"
 
@@ -24,6 +25,8 @@ namespace engine::cl
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
         void TryConnection(void);
+        void ProcessHandshakeResponse(const packet::svcl_handshake_t* packet);
+        void ProcessRecieved(void);
         void Init(void);
         void Cleanup(void);
     public:

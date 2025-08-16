@@ -60,6 +60,13 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
 void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
 {
     Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", svaddr[0], svaddr[1], svaddr[2], svaddr[3], port);
+
+    if(this->svsocket >= 0)
+    {
+        close(this->svsocket);
+        this->svsocket = -1;
+    }
+
     memcpy(this->serveraddr, svaddr, 4);
     this->serverport = port;
     this->connectstart = TIMEMS;
@@ -78,7 +85,7 @@ void engine::cl::Client::ConnectStr(const std::string& str)
     {
         ipstr = str;
         portstr = "";
-        portnum = ENGINE_DEFAULTPORT;
+        portnum = ENGINE_DEFAULTSVPORT;
     }
     else
     {
@@ -129,20 +136,28 @@ void engine::cl::Client::TryConnection(void)
         this->tryconnect = false;
     }
 
+    svaddr = {};
+    svaddr.sin_family = AF_INET;
+    svaddr.sin_port = htons(ENGINE_DEFAULTCLPORT);
+    svaddr.sin_addr.s_addr = *((uint32_t*)this->serveraddr);
+
     if(this->svsocket < 0)
     {
         this->svsocket = socket(PF_INET, SOCK_DGRAM, 0);
         if(this->svsocket < 0)
         {
-            Console::Print("error creating UDP socket.\n");
+            Console::Print("error creating UDP socket on client.\n");
             return;
+        }
+
+        if(bind(this->svsocket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
+        {
+            Console::Print("error binding socket on client.\n");
+            exit(1);
         }
     }
 
-    svaddr = {};
-    svaddr.sin_family = AF_INET;
-    svaddr.sin_port = htons(this->serverport);
-    svaddr.sin_addr.s_addr = *((uint32_t*)this->serveraddr);
+    svaddr.sin_port = htons(ENGINE_DEFAULTSVPORT);
 
     handshake = {};
     strcpy(handshake.message, packet::clsv_handshake_message);
@@ -150,6 +165,46 @@ void engine::cl::Client::TryConnection(void)
     strcpy(handshake.username, "client");
 
     sendto(this->svsocket, &handshake, sizeof(handshake), 0, (struct sockaddr*) &svaddr, sizeof(svaddr));
+}
+
+void engine::cl::Client::ProcessHandshakeResponse(const packet::svcl_handshake_t* packet)
+{
+    this->tryconnect = false;
+
+    Console::Print("handshake with server complete.\n");
+}
+
+void engine::cl::Client::ProcessRecieved(void)
+{
+    uint8_t buf[MAX_PACKET_SIZE];
+    int buflen;
+    struct sockaddr_in claddr;
+    socklen_t claddrlen;
+
+    if(this->svsocket < 0)
+        return;
+
+    do
+    {
+        claddrlen = sizeof(claddr);
+        buflen = recvfrom(this->svsocket, buf, MAX_PACKET_SIZE, 0, (sockaddr*) &claddr, &claddrlen);
+        if(!buflen)
+            continue;
+        if(buflen < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break;
+            Console::Print("warning: error with recvfrom on client.\n");
+            break;
+        }
+
+        if(buflen == sizeof(packet::svcl_handshake_t) &&
+           !strncmp((char*) buf, packet::clsv_handshake_message, sizeof(packet::clsv_handshake_message)))
+        {
+            ProcessHandshakeResponse((packet::svcl_handshake_t*) buf);
+            continue;
+        }
+    } while(1);
 }
 
 void engine::cl::Client::Init(void)
@@ -199,6 +254,7 @@ int engine::cl::Client::Run(void)
 
         if(this->tryconnect)
             this->TryConnection();
+        this->ProcessRecieved();
 
         this->player.ParseCmd(this->pinput->GenerateCmd());
         this->player.Move(frametime);

@@ -32,7 +32,7 @@ void engine::sv::Server::InitNet(void)
     svaddr = {};
     svaddr.sin_family = AF_INET;
     svaddr.sin_addr.s_addr = INADDR_ANY;
-    svaddr.sin_port = htons(ENGINE_DEFAULTPORT);
+    svaddr.sin_port = htons(ENGINE_DEFAULTSVPORT);
     if(bind(this->clsocket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
     {
         Console::Print("error binding socket on server.\n");
@@ -41,7 +41,7 @@ void engine::sv::Server::InitNet(void)
 
     fcntl(this->clsocket, F_SETFL, fcntl(this->clsocket, F_GETFL, 0) | O_NONBLOCK);
 
-    Console::Print("server open on port %hu.\n", ENGINE_DEFAULTPORT);
+    Console::Print("server open on port %hu.\n", ENGINE_DEFAULTSVPORT);
 }
 
 void engine::sv::Server::Init(void)
@@ -71,10 +71,9 @@ void engine::sv::Server::ProcessHandshake(const packet::clsv_handshake_t* packet
     icl = this->ClientByAddr(addr);
     if(nclients < MAX_NETCLIENT || icl >= 0)
     {
-        Console::Print("send response\n");
         claddr = {};
         claddr.sin_family = AF_INET;
-        claddr.sin_port = htons(ENGINE_DEFAULTPORT);
+        claddr.sin_port = htons(ENGINE_DEFAULTCLPORT);
         claddr.sin_addr.s_addr = *((uint32_t*)addr);
 
         response = {};
@@ -125,7 +124,7 @@ void engine::sv::Server::ProcessRecieved(void)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
                 break;
-            Console::Print("warning: error with recvfrom.\n");
+            Console::Print("warning: error with recvfrom on server.\n");
             break;
         }
 
