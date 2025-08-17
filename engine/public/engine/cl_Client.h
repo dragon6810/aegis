@@ -23,23 +23,18 @@ namespace engine::cl
         void DestroyWindow(void);
         void DrawClients(SDL_Renderer* render);
         void SendPackets(void);
-        void Connect(const uint8_t svaddr[4], int port);
+        void Connect(void);
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
-        void TryConnection(void);
-        void ProcessPacket(void);
-        void ProcessHandshakeResponse(const packet::svcl_handshake_t* packet);
+        bool ProcessPacket(void);
+        void ProcessHandshakeResponse(void);
         void ProcessRecieved(void);
         void Init(void);
         void Cleanup(void);
     public:
         bool lastframe = false;
-
-        int svsocket = -1;
         
         bool tryconnect = false;
-        uint8_t serveraddr[4];
-        int serverport;
         int clport;
         uint64_t connectstart;
 

@@ -19,6 +19,7 @@ namespace engine::packet
 typedef enum
 {
     TYPE_INVALIDPACKET=0,
+    TYPE_HANDSHAKE,
     TYPE_PLAYERCMD,
     TYPE_SVCL_PLAYERSTATE,
 } type_e;

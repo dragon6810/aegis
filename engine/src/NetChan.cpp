@@ -23,7 +23,7 @@ std::vector<uint8_t>* engine::NetChan::GetBuf(bool unreliable)
 
 uint8_t engine::NetChan::NextUByte(void)
 {
-    if(this->dragmpos > this->dgram.size() - sizeof(uint8_t))
+    if(this->dragmpos + sizeof(uint8_t) > this->dgram.size() + 1)
         return 0;
 
     return this->dgram[this->dragmpos++];
@@ -33,7 +33,7 @@ uint16_t engine::NetChan::NextUShort(void)
 {
     uint16_t ushort;
 
-    if(this->dragmpos > this->dgram.size() - sizeof(uint16_t))
+    if(this->dragmpos + sizeof(uint16_t) > this->dgram.size())
         return 0;
 
     ushort = 0;
@@ -47,7 +47,7 @@ uint32_t engine::NetChan::NextUInt(void)
 {
     uint32_t uint;
 
-    if(this->dragmpos > this->dgram.size() - sizeof(uint32_t))
+    if(this->dragmpos + sizeof(uint32_t)> this->dgram.size())
         return 0;
 
     uint = 0;
@@ -71,9 +71,39 @@ float engine::NetChan::NextFloat(void)
     return intfloat.f;
 }
 
+void engine::NetChan::NextString(char* dest, int len)
+{
+    if(this->dragmpos + len > this->dgram.size())
+    {
+        if(dest)
+            memset(dest, 0, len);
+        return;
+    }
+
+    if(strnlen((char*) &dgram[dragmpos], len) >= len)
+    {
+        // not null-terminated
+        memset(dest, 0, len);
+        return;
+    }
+
+    if(dest)
+        memcpy(dest, &dgram[dragmpos], len);
+    dragmpos += len;
+}
+
 void engine::NetChan::ClearUnreliable(void)
 {
     this->unreliablebuf.clear();
+}
+
+bool engine::NetChan::NewReliable(void)
+{
+    if(this->reliablequeue.size() >= MAX_RELIABLE)
+        return false;
+
+    this->reliablequeue.push_back({});
+    return true;
 }
 
 void engine::NetChan::WriteUByte(uint8_t ubyte, bool unreliable)
@@ -117,6 +147,18 @@ void engine::NetChan::WriteFloat(float f, bool unreliable)
     WriteUInt(*((uint32_t*) &f), unreliable);
 }
 
+void engine::NetChan::WriteString(const char* c, int size, bool unreliable)
+{
+    std::vector<uint8_t> *buf;
+
+    UTILS_ASSERT(c);
+
+    if(!(buf = this->GetBuf(unreliable)))
+        return;
+
+    buf->resize(buf->size() + size);
+    memcpy(buf->data() + buf->size() - size, c, size);
+}
 
 void engine::NetChan::Send(void)
 {
@@ -201,7 +243,6 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
     {
         Console::Print("packet from %hhu.%hhu.%hhu.%hhu:%hu contains invalid netchan header! ignoring.\n",
             this->ipv4[0], this->ipv4[1], this->ipv4[2], this->ipv4[3], this->port);
-        Console::Print("seq: %d.\n lastseen: %d.\n", header.seq, this->lastseen);
         return false;
     }
 
@@ -211,6 +252,8 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
         nlost += header.seq;
 
     this->lastseen = header.seq;
+
+    //Console::Print("seq: %d, ack: %d.\n", reliableseq, header.ack);
 
     // our current reliable command was acknowledged
     if(this->reliableseq >= 0 && header.ack >= this->reliableseq)

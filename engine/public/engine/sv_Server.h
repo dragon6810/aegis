@@ -23,7 +23,7 @@ namespace engine::sv
         void InitNet(void);
         void Init(void);
         void Cleanup(void);
-        void ProcessHandshake(const packet::clsv_handshake_t* packet, const uint8_t addr[4]);
+        void ProcessUnknownPacket(const uint8_t* data, int datalen, const uint8_t addr[4], int port);
         void ProcessClientPacket(int icl, const void* data, int datalen);
         void ProcessRecieved(void);
         void SendPackets(void);

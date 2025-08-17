@@ -69,32 +69,66 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
 
 void engine::cl::Client::SendPackets(void)
 {
-    if(!this->connected)
+    if(!this->connected && !this->tryconnect)
         return;
 
-    this->netchan.ClearUnreliable();
-    this->netchan.WriteUShort(this->pinput->cmd.type, true);
-    this->netchan.WriteUShort(this->pinput->cmd.len, true);
-    this->netchan.WriteUShort(this->pinput->cmd.time, true);
-    this->netchan.WriteUByte(this->pinput->cmd.move, true);
+    if(this->connected)
+    {
+        this->netchan.ClearUnreliable();
+        this->netchan.WriteUShort(this->pinput->cmd.type, true);
+        this->netchan.WriteUShort(this->pinput->cmd.len, true);
+        this->netchan.WriteUShort(this->pinput->cmd.time, true);
+        this->netchan.WriteUByte(this->pinput->cmd.move, true);
+    }
 
     this->netchan.Send();
 }
 
-void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
+void engine::cl::Client::Connect(void)
 {
-    Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", svaddr[0], svaddr[1], svaddr[2], svaddr[3], port);
+    const char username[ENGINE_PACKET_MAXPLAYERNAME] = "client";
 
-    if(this->svsocket >= 0)
+    struct sockaddr_in svaddr;
+    socklen_t addrlen;
+
+    Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", 
+        netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+
+    // set up connection
+    if(this->netchan.socket >= 0)
+        close(this->netchan.socket);
+
+    this->netchan.socket = socket(PF_INET, SOCK_DGRAM, 0);
+    if(this->netchan.socket < 0)
     {
-        close(this->svsocket);
-        this->svsocket = -1;
+        Console::Print("error %d creating UDP socket on client.\n", errno);
+        return;
     }
 
-    memcpy(this->serveraddr, svaddr, 4);
-    this->serverport = port;
-    this->connectstart = TIMEMS;
+    if(bind(this->netchan.socket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
+    {
+        Console::Print("error %d binding socket on client.\n", errno);
+        exit(1);
+    }
+
+    if(getsockname(this->netchan.socket, (struct sockaddr*) &svaddr, &addrlen) < 0)
+    {
+        Console::Print("error %d with getsockname.\n", errno);
+        exit(1);
+    }
+
+    this->clport = ntohs(svaddr.sin_port);
+    Console::Print("bound socket on port %d.\n", this->clport);
+
+    fcntl(netchan.socket, F_SETFL, fcntl(netchan.socket, F_GETFL, 0) | O_NONBLOCK);
+
     this->tryconnect = true;
+
+    // write the packet (reliable)
+    netchan.NewReliable();
+    netchan.WriteUShort(packet::TYPE_HANDSHAKE, false);
+    netchan.WriteUInt(ENGINE_PACKET_PROTOCOL_VERSION, false);
+    netchan.WriteString(username, ENGINE_PACKET_MAXPLAYERNAME, false);
 }
 
 void engine::cl::Client::ConnectStr(const std::string& str)
@@ -129,7 +163,10 @@ void engine::cl::Client::ConnectStr(const std::string& str)
         return;
     }
 
-    Connect(ipv4, portnum);
+    this->netchan = NetChan();
+    memcpy(this->netchan.ipv4, ipv4, 4);
+    this->netchan.port = portnum;
+    Connect();
 }
 
 void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
@@ -144,67 +181,9 @@ void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
 }
 
 // how long to try to connect to a server before giving up, in ms
-engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout", "2000" };
+engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout_ms", "2000" };
 
-void engine::cl::Client::TryConnection(void)
-{
-    int iconnectiontimeout;
-    struct sockaddr_in svaddr;
-    socklen_t addrlen;
-    packet::clsv_handshake_t handshake;
-
-    iconnectiontimeout = std::stoi(cl_connection_timeout.strval);
-    if(TIMEMS - connectstart > iconnectiontimeout)
-    {
-        Console::Print("connection attempt to server %hhu.%hhu.%hhu.%hhu on port %d timed out.\n",
-            serveraddr[0], serveraddr[1], serveraddr[2], serveraddr[3], serverport);
-        this->tryconnect = false;
-    }
-
-    svaddr = {};
-    svaddr.sin_family = AF_INET;
-    svaddr.sin_port = 0;
-    svaddr.sin_addr.s_addr = *((uint32_t*)this->serveraddr);
-
-    if(this->svsocket < 0)
-    {
-        this->svsocket = socket(PF_INET, SOCK_DGRAM, 0);
-        if(this->svsocket < 0)
-        {
-            Console::Print("error creating UDP socket on client.\n");
-            return;
-        }
-
-        if(bind(this->svsocket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
-        {
-            Console::Print("error binding socket on client.\n");
-            exit(1);
-        }
-
-        if(getsockname(this->svsocket, (struct sockaddr*) &svaddr, &addrlen) < 0)
-        {
-            Console::Print("error %d with getsockname.\n", errno);
-            exit(1);
-        }
-
-        this->clport = ntohs(svaddr.sin_port);
-        Console::Print("bound socket on port %d.\n", this->clport);
-
-        fcntl(this->svsocket, F_SETFL, fcntl(this->svsocket, F_GETFL, 0) | O_NONBLOCK);
-    }
-
-    svaddr.sin_port = htons(ENGINE_DEFAULTSVPORT);
-
-    handshake = {};
-    strcpy(handshake.message, packet::clsv_handshake_message);
-    handshake.version = htonl(ENGINE_PACKET_PROTOCOL_VERSION);
-    handshake.port = htons(this->clport);
-    strcpy(handshake.username, "client");
-
-    sendto(this->svsocket, &handshake, sizeof(handshake), 0, (struct sockaddr*) &svaddr, sizeof(svaddr));
-}
-
-void engine::cl::Client::ProcessPacket(void)
+bool engine::cl::Client::ProcessPacket(void)
 {
     uint16_t type, len;
     packet::svcl_playerstate_t playerstate;
@@ -214,6 +193,9 @@ void engine::cl::Client::ProcessPacket(void)
 
     switch(type)
     {
+    case packet::TYPE_HANDSHAKE:
+        netchan.NextUByte();
+        break;
     case packet::TYPE_SVCL_PLAYERSTATE:
         playerstate = {};
         playerstate.id = netchan.NextUByte();
@@ -221,7 +203,7 @@ void engine::cl::Client::ProcessPacket(void)
         playerstate.y = netchan.NextFloat();
 
         if(playerstate.id >= MAX_PLAYER)
-            return;
+            return false;
 
         this->svclients[playerstate.id].player.pos[0] = playerstate.x;
         this->svclients[playerstate.id].player.pos[1] = playerstate.y;
@@ -231,27 +213,23 @@ void engine::cl::Client::ProcessPacket(void)
 
         break;
     default:
-        goto invalidpacket;
+        Console::Print("invalid packet from server.\n");
+        return false;
     }
 
-    return;
-
-invalidpacket:
-
-    Console::Print("invalid packet from server.\n");
+    return true;
 }
 
-void engine::cl::Client::ProcessHandshakeResponse(const packet::svcl_handshake_t* packet)
+void engine::cl::Client::ProcessHandshakeResponse(void)
 {
+    Console::Print("check for handshake\n");
+    if(netchan.NextUShort() != packet::TYPE_HANDSHAKE)
+        return;
+
+    this->clientid = netchan.NextUByte();
+
     this->tryconnect = false;
-
     this->connected = true;
-    this->netchan = NetChan();
-    this->netchan.socket = this->svsocket;
-    memcpy(this->netchan.ipv4, this->serveraddr, 4);
-    this->netchan.port = this->serverport;
-    this->clientid = packet->clid;
-
     Console::Print("handshake with server complete.\n");
 }
 
@@ -262,15 +240,13 @@ void engine::cl::Client::ProcessRecieved(void)
     struct sockaddr_in claddr;
     socklen_t claddrlen;
 
-    if(this->svsocket < 0)
+    if(this->netchan.socket < 0)
         return;
 
     do
     {
         claddrlen = sizeof(claddr);
-        buflen = recvfrom(this->svsocket, buf, MAX_PACKET_SIZE, 0, (sockaddr*) &claddr, &claddrlen);
-        if(!buflen)
-            continue;
+        buflen = recvfrom(this->netchan.socket, buf, MAX_PACKET_SIZE, 0, (sockaddr*) &claddr, &claddrlen);
         if(buflen < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -279,23 +255,25 @@ void engine::cl::Client::ProcessRecieved(void)
             break;
         }
 
-        // check for handshake response if you're trying to connect to the server.
-        if(tryconnect &&
-           buflen == sizeof(packet::svcl_handshake_t) &&
-           !strncmp((char*) buf, packet::clsv_handshake_message, sizeof(packet::clsv_handshake_message)))
-        {
-            ProcessHandshakeResponse((packet::svcl_handshake_t*) buf);
+        if(!buflen)
             continue;
-        }
-
-        if(tryconnect)
-            continue;
-
+            
         if(!netchan.Recieve(buf, buflen))
             continue;
 
+        if(!netchan.dgram.size())
+            continue;
+
+        // check for handshake response if you're trying to connect to the server.
+        if(tryconnect)
+        {
+            ProcessHandshakeResponse();
+            continue;
+        }
+
         while(netchan.dragmpos < netchan.dgram.size())
-            ProcessPacket();
+            if(!ProcessPacket())
+                break;
     } while(1);
 }
 
@@ -310,10 +288,10 @@ void engine::cl::Client::Init(void)
 
 void engine::cl::Client::Cleanup(void)
 {
-    if(this->svsocket >= 0)
+    if(this->netchan.socket >= 0)
     {
-        close(this->svsocket);
-        this->svsocket = -1;
+        close(this->netchan.socket);
+        this->netchan.socket = -1;
     }
 }
 
@@ -343,9 +321,6 @@ int engine::cl::Client::Run(void)
 
         this->PollWindow();
         Console::ExecTerm();
-
-        if(this->tryconnect)
-            this->TryConnection();
 
         this->ProcessRecieved();
 

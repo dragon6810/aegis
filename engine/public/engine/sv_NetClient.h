@@ -20,7 +20,7 @@ public:
     state_e state = NETCLIENT_FREE;
     NetChan netchan = NetChan();
     
-    Player player;
-    char username[ENGINE_PACKET_MAXPLAYERNAME];
+    Player player = Player();
+    char username[ENGINE_PACKET_MAXPLAYERNAME] = "";
 };
 }

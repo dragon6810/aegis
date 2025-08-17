@@ -52,13 +52,17 @@ public:
     uint16_t NextUShort(void);
     uint32_t NextUInt(void);
     float NextFloat(void);
+    void NextString(char* dest, int len);
 
     void ClearUnreliable(void);
+    bool NewReliable(void);
+
     // if unreliable is false, write to the newest reliable. else write to unreliable buf
     void WriteUByte(uint8_t ubyte, bool unreliable);
     void WriteUShort(uint16_t ushort, bool unreliable);
     void WriteUInt(uint32_t uint, bool unreliable);
     void WriteFloat(float f, bool unreliable);
+    void WriteString(const char* c, int size, bool unreliable);
 
     void Send(void);
     bool Recieve(const void* data, int datalen);
