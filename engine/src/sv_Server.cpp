@@ -166,10 +166,7 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         if(playercmd.move & 0x1)
             cl->player.wishdir[1] += 1;
         if(cl->player.wishdir.squaredNorm() > 0.01)
-        {
-            Console::Print("player %d move.\n", icl);
             cl->player.wishdir.normalize();
-        }
 
         cl->player.Move((float) playercmd.time / 1000.0);
         break;
@@ -232,45 +229,30 @@ void engine::sv::Server::ProcessRecieved(void)
 
 void engine::sv::Server::SendPackets(void)
 {
-    int i;
-    NetClient *cl;
-
-    std::vector<uint8_t> unreliable;
-    packet::svcl_playerstate_t playerstate;
-    union
-    {
-        uint32_t uint;
-        float f;
-    } intfloat;
+    int i, j;
+    NetClient *cl, *othercl;
 
     for(i=0, cl=this->clients; i<MAX_PLAYER; i++, cl++)
     {
         if(cl->state != NetClient::NETCLIENT_CONNECTED)
             continue;
-        
-        playerstate = {};
-        playerstate.type = htons(packet::TYPE_SVCL_PLAYERSTATE);
-        playerstate.len = sizeof(playerstate) - 4;
-        
-        playerstate.id = i;
 
-        intfloat.f = cl->player.pos[0];
-        intfloat.uint = htonl(intfloat.uint);
-        playerstate.x = intfloat.f;
-        intfloat.f = cl->player.pos[1];
-        intfloat.uint = htonl(intfloat.uint);
-        playerstate.y = intfloat.f;
+        cl->netchan.ClearUnreliable();
 
-        unreliable.resize(unreliable.size() + sizeof(playerstate));
-        memcpy(unreliable.data() + unreliable.size() - sizeof(playerstate), &playerstate, sizeof(playerstate));
-    }
+        // TODO: check against the client's pvs
+        for(j=0, othercl=this->clients; j<MAX_PLAYER; j++, othercl++)
+        {
+            if(othercl->state != NetClient::NETCLIENT_CONNECTED)
+                continue;
 
-    for(i=0, cl=this->clients; i<MAX_PLAYER; i++, cl++)
-    {
-        if(cl->state != NetClient::NETCLIENT_CONNECTED)
-            continue;
+            cl->netchan.WriteUShort(packet::TYPE_SVCL_PLAYERSTATE, true);
+            cl->netchan.WriteUShort(sizeof(packet::svcl_playerstate_t) - 4, true);
+            cl->netchan.WriteUByte(j, true);
+            cl->netchan.WriteFloat(othercl->player.pos[0], true);
+            cl->netchan.WriteFloat(othercl->player.pos[1], true);
+        }
         
-        cl->netchan.Send(unreliable.data(), unreliable.size());
+        cl->netchan.Send();
     }
 }
 

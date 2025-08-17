@@ -23,6 +23,9 @@ public:
         int32_t seq;
         int32_t ack;
     } header_t;
+private:
+    // returns null if non-existent
+    std::vector<uint8_t>* GetBuf(bool unreliable);
 public:
     // NetChan is not responsible for creation or destruction of network properties.
     int socket = -1;
@@ -37,6 +40,7 @@ public:
     // does NOT count how many packets have been lost from your end to the other end.
     uint32_t nlost = 0;
 
+    std::vector<uint8_t> unreliablebuf;
     std::deque<std::vector<uint8_t>> reliablequeue;
 
     // last recieved packet
@@ -49,7 +53,14 @@ public:
     uint32_t NextUInt(void);
     float NextFloat(void);
 
-    void Send(const void* unreliabledata, int unreliablelen);
+    void ClearUnreliable(void);
+    // if unreliable is false, write to the newest reliable. else write to unreliable buf
+    void WriteUByte(uint8_t ubyte, bool unreliable);
+    void WriteUShort(uint16_t ushort, bool unreliable);
+    void WriteUInt(uint32_t uint, bool unreliable);
+    void WriteFloat(float f, bool unreliable);
+
+    void Send(void);
     bool Recieve(const void* data, int datalen);
 };
 };

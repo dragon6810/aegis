@@ -7,6 +7,20 @@
 
 #include <engine/Console.h>
 
+std::vector<uint8_t>* engine::NetChan::GetBuf(bool unreliable)
+{
+    if(unreliable)
+        return &this->unreliablebuf;
+
+    if(!this->reliablequeue.size())
+    {
+        Console::Print("attempting to find non-existend reliable buffer!\n");
+        return NULL;
+    }
+
+    return &this->reliablequeue.back();
+}
+
 uint8_t engine::NetChan::NextUByte(void)
 {
     if(this->dragmpos > this->dgram.size() - sizeof(uint8_t))
@@ -57,13 +71,59 @@ float engine::NetChan::NextFloat(void)
     return intfloat.f;
 }
 
-void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
+void engine::NetChan::ClearUnreliable(void)
+{
+    this->unreliablebuf.clear();
+}
+
+void engine::NetChan::WriteUByte(uint8_t ubyte, bool unreliable)
+{
+    std::vector<uint8_t> *buf;
+
+    if(!(buf = this->GetBuf(unreliable)))
+        return;
+
+    buf->push_back(ubyte);
+}
+
+void engine::NetChan::WriteUShort(uint16_t ushort, bool unreliable)
+{
+    std::vector<uint8_t> *buf;
+
+    if(!(buf = this->GetBuf(unreliable)))
+        return;
+
+    buf->reserve(buf->size() + sizeof(uint16_t));
+    buf->push_back((ushort & 0xFF00) >> 8);
+    buf->push_back((ushort & 0xFF));
+}
+
+void engine::NetChan::WriteUInt(uint32_t uint, bool unreliable)
+{
+    std::vector<uint8_t> *buf;
+
+    if(!(buf = this->GetBuf(unreliable)))
+        return;
+
+    buf->reserve(buf->size() + sizeof(uint32_t));
+    buf->push_back((uint & 0xFF000000) >> 24);
+    buf->push_back((uint & 0xFF0000) >> 16);
+    buf->push_back((uint & 0xFF00) >> 8);
+    buf->push_back((uint & 0xFF));
+}
+
+void engine::NetChan::WriteFloat(float f, bool unreliable)
+{
+    WriteUInt(*((uint32_t*) &f), unreliable);
+}
+
+
+void engine::NetChan::Send(void)
 {
     header_t *header;
     struct sockaddr_in sockaddr;
 
     std::vector<uint8_t> message;
-    std::vector<uint8_t> unreliable;
 
     if(socket < 0)
     {
@@ -88,12 +148,7 @@ void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
         message.append_range(this->reliablequeue.front());
     }
 
-    if(unreliablelen)
-    {
-        unreliable.resize(unreliablelen);
-        memcpy(unreliable.data(), unreliabledata, unreliablelen);
-        message.append_range(unreliable);
-    }
+    message.append_range(this->unreliablebuf);
 
     if(message.size() > MAX_PACKET_SIZE)
     {

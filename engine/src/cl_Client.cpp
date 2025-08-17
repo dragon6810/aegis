@@ -69,21 +69,16 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
 
 void engine::cl::Client::SendPackets(void)
 {
-    std::vector<uint8_t> packet;
-    packet::clsv_playercmd_t big;
-
     if(!this->connected)
         return;
 
-    big = this->pinput->cmd;
-    big.type = htons(big.type);
-    big.len = htons(big.len);
-    big.time = htons(big.time);
+    this->netchan.ClearUnreliable();
+    this->netchan.WriteUShort(this->pinput->cmd.type, true);
+    this->netchan.WriteUShort(this->pinput->cmd.len, true);
+    this->netchan.WriteUShort(this->pinput->cmd.time, true);
+    this->netchan.WriteUByte(this->pinput->cmd.move, true);
 
-    packet.resize(sizeof(big));
-    memcpy(packet.data(), &big, sizeof(big));
-
-    this->netchan.Send(packet.data(), packet.size());
+    this->netchan.Send();
 }
 
 void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
