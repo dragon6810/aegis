@@ -99,11 +99,63 @@ void engine::sv::Server::ProcessHandshake(const packet::clsv_handshake_t* packet
     newcl = &clients[icl];
 
     newcl->state = NetClient::NETCLIENT_CONNECTED;
-    memcpy(newcl->ipv4, addr, 4);
+
+    newcl->netchan = NetChan();
+    newcl->netchan.socket = this->clsocket;
+    memcpy(newcl->netchan.ipv4, addr, 4);
+    newcl->netchan.port = ENGINE_DEFAULTCLPORT;
+
+    newcl->player = Player();
+
     strcpy(newcl->username, packet->username);
 
     Console::Print("accepted client from %hhu.%hhu.%hhu.%hhu under the username \"%s\".\n",
         addr[0], addr[1], addr[2], addr[3], packet->username);
+}
+
+void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int datalen)
+{
+    NetClient *cl;
+    uint16_t type, len;
+    packet::clsv_playercmd_t playercmd;
+
+    cl = &clients[icl];
+
+    if(!cl->netchan.Recieve(data, datalen))
+        return;
+
+    type = cl->netchan.NextUShort();
+    len = cl->netchan.NextUShort();
+    switch(type)
+    {
+    case packet::TYPE_PLAYERCMD:
+        playercmd.time = cl->netchan.NextUShort();
+        playercmd.move = cl->netchan.NextUByte();
+
+        cl->player.wishdir = Eigen::Vector2f::Zero();
+        if(playercmd.move & 0x8)
+            cl->player.wishdir[0] -= 1;
+        if(playercmd.move & 0x4)
+            cl->player.wishdir[0] += 1;
+        if(playercmd.move & 0x2)
+            cl->player.wishdir[1] -= 1;
+        if(playercmd.move & 0x1)
+            cl->player.wishdir[1] += 1;
+        cl->player.wishdir.normalize();
+
+        cl->player.Move((float) playercmd.time / 1000.0);
+        Console::Print("player pos: %hu %f %f.\n", playercmd.time, cl->player.pos[0], cl->player.pos[1]);
+        break;
+    default:
+        goto invalidpacket;
+    }
+
+    return;
+
+invalidpacket:
+
+    Console::Print("invalid packet from %hhu.%hhu.%hhu.%hhu (%d).\n",
+            cl->netchan.ipv4[0], cl->netchan.ipv4[1], cl->netchan.ipv4[2], cl->netchan.ipv4[3], cl->username);
 }
 
 void engine::sv::Server::ProcessRecieved(void)
@@ -113,6 +165,7 @@ void engine::sv::Server::ProcessRecieved(void)
     struct sockaddr_in claddr;
     socklen_t claddrlen;
     uint8_t *ipv4;
+    int icl;
 
     do
     {
@@ -129,12 +182,23 @@ void engine::sv::Server::ProcessRecieved(void)
         }
 
         ipv4 = (uint8_t*) &claddr.sin_addr.s_addr;
-        if(buflen == sizeof(packet::clsv_handshake_t) &&
+        icl = ClientByAddr(ipv4);
+
+        // if it's an unknown client, try a handshake
+        if(icl < 0 &&
+           buflen == sizeof(packet::clsv_handshake_t) &&
            !strncmp((char*) buf, packet::clsv_handshake_message, sizeof(packet::clsv_handshake_message)))
         {
             ProcessHandshake((packet::clsv_handshake_t*) buf, ipv4);
             continue;
         }
+
+        // random packet
+        // TODO: ban ips that send a bunch of these
+        if(icl < 0)
+            continue;
+
+        ProcessClientPacket(icl, buf, buflen);
     } while(1);
 }
 
@@ -151,7 +215,7 @@ int engine::sv::Server::ClientByAddr(const uint8_t addr[4])
 
         found++;
 
-        if(!memcmp(this->clients[i].ipv4, addr, 4))
+        if(!memcmp(this->clients[i].netchan.ipv4, addr, 4))
             return i;
     }
 

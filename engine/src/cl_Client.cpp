@@ -69,6 +69,7 @@ void engine::cl::Client::SendPackets(void)
     big = this->pinput->cmd;
     big.type = htons(big.type);
     big.len = htons(big.len);
+    big.time = htons(big.time);
 
     packet.resize(sizeof(big));
     memcpy(packet.data(), &big, sizeof(big));
@@ -287,6 +288,7 @@ int engine::cl::Client::Run(void)
         this->ProcessRecieved();
 
         this->pinput->GenerateCmd();
+        this->pinput->cmd.time = thisframe - lastframe;
         this->player.ParseCmd(this->pinput->cmd);
         this->player.Move(frametime);
 

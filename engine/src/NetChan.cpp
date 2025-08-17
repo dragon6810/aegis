@@ -7,6 +7,28 @@
 
 #include <engine/Console.h>
 
+uint8_t engine::NetChan::NextUByte(void)
+{
+    if(this->dragmpos > this->dgram.size() - sizeof(uint8_t))
+        return 0;
+
+    return this->dgram[this->dragmpos++];
+}
+
+uint16_t engine::NetChan::NextUShort(void)
+{
+    uint16_t ushort;
+
+    if(this->dragmpos > this->dgram.size() - sizeof(uint16_t))
+        return 0;
+
+    ushort = 0;
+    ushort |= (uint16_t) this->dgram[this->dragmpos++] << 8;
+    ushort |= (uint16_t) this->dgram[this->dragmpos++];
+    
+    return ushort;
+}
+
 void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
 {
     header_t *header;
@@ -25,6 +47,8 @@ void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
 
     header = (header_t*) message.data();
     *header = {};
+    header->magic[0] = 'N';
+    header->magic[1] = 'C';
     header->seq = nsent++;
     header->ack = lastseen;
 
@@ -54,28 +78,34 @@ void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
     sockaddr.sin_port = htons(this->port);
     sockaddr.sin_addr.s_addr = *((uint32_t*)this->ipv4);
 
+    header = (header_t*) message.data();
+    header->seq = htonl(header->seq);
+    header->ack = htonl(header->ack);
+
     sendto(this->socket, message.data(), message.size(), 0, (struct sockaddr*) &sockaddr, sizeof(sockaddr));
 }
 
-void engine::NetChan::Recieve(const void* data, int datalen)
+bool engine::NetChan::Recieve(const void* data, int datalen)
 {
     header_t header;
     const void *pos;
     int lenleft;
 
     if(!data || !datalen)
-        return;
+        return false;
 
     if(datalen < sizeof(header_t))
-    {
-        Console::Print("packet from %hhu.%hhu.%hhu.%hhu doesn't contain netchan header!. ignoring.\n",
-            this->ipv4[0], this->ipv4[1], this->ipv4[2], this->ipv4[3]);
-        return;
-    }
+        return false;
 
     header = *((header_t*) data);
     pos = (char*) data + sizeof(header_t);
     lenleft = datalen - sizeof(header_t);
+
+    if(header.magic[0] != 'N' || header.magic[1] != 'C')
+        return false;
+
+    header.seq = ntohl(header.seq);
+    header.ack = ntohl(header.ack);
 
     this->hasreliable = false;
     if(header.seq & 0x80000000)
@@ -84,11 +114,14 @@ void engine::NetChan::Recieve(const void* data, int datalen)
         header.seq &= 0x7FFFFFFF;
     }
 
+    Console::Print("seq: %d.\n", header.seq);
+    Console::Print("lastseen: %d.\n", this->lastseen);
+
     if(header.seq <= this->lastseen)
     {
         Console::Print("packet from %hhu.%hhu.%hhu.%hhu contains invalid netchan header! ignoring.\n",
             this->ipv4[0], this->ipv4[1], this->ipv4[2], this->ipv4[3]);
-        return;
+        return false;
     }
 
     if(this->lastseen >= 0)
@@ -108,4 +141,6 @@ void engine::NetChan::Recieve(const void* data, int datalen)
     this->dragmpos = 0;
     this->dgram.resize(lenleft);
     memcpy(this->dgram.data(), pos, lenleft);
+
+    return true;
 }

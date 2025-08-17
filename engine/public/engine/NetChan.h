@@ -20,6 +20,7 @@ public:
     // if you have issues, try adding it back.
     typedef struct
     {
+        char magic[2]; // 'N' 'C'
         int32_t seq;
         int32_t ack;
     } header_t;
@@ -44,7 +45,10 @@ public:
     int32_t dragmpos = 0;
     std::vector<uint8_t> dgram;
 
+    uint8_t NextUByte(void);
+    uint16_t NextUShort(void);
+
     void Send(const void* unreliabledata, int unreliablelen);
-    void Recieve(const void* data, int datalen);
+    bool Recieve(const void* data, int datalen);
 };
 };

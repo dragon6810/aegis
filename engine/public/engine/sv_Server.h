@@ -24,6 +24,7 @@ namespace engine::sv
         void Init(void);
         void Cleanup(void);
         void ProcessHandshake(const packet::clsv_handshake_t* packet, const uint8_t addr[4]);
+        void ProcessClientPacket(int icl, const void* data, int datalen);
         void ProcessRecieved(void);
     public:
         // returns -1 if no client
