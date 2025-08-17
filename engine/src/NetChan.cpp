@@ -144,8 +144,9 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
 
     if(header.seq <= this->lastseen)
     {
-        Console::Print("packet from %hhu.%hhu.%hhu.%hhu contains invalid netchan header! ignoring.\n",
-            this->ipv4[0], this->ipv4[1], this->ipv4[2], this->ipv4[3]);
+        Console::Print("packet from %hhu.%hhu.%hhu.%hhu:%hu contains invalid netchan header! ignoring.\n",
+            this->ipv4[0], this->ipv4[1], this->ipv4[2], this->ipv4[3], this->port);
+        Console::Print("seq: %d.\n lastseen: %d.\n", header.seq, this->lastseen);
         return false;
     }
 

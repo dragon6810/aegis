@@ -30,6 +30,7 @@ typedef struct clsv_handshake_s
 {
     char message[sizeof(clsv_handshake_message)];
     uint32_t version; // PROTOCOL_VERSION
+    uint16_t port; // the what port to talk to the client through
     char username[ENGINE_PACKET_MAXPLAYERNAME];
 } clsv_handshake_t;
 #pragma pack(pop)

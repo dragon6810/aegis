@@ -30,6 +30,7 @@ namespace engine::sv
     public:
         // returns -1 if no client
         int ClientByAddr(const uint8_t addr[4]);
+        int ClientByAddr(const uint8_t addr[4], uint16_t port);
 
         // returns -1 if full
         int FindFreeClient(void);

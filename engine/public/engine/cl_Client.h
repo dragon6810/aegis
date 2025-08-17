@@ -40,6 +40,7 @@ namespace engine::cl
         bool tryconnect = false;
         uint8_t serveraddr[4];
         int serverport;
+        int clport;
         uint64_t connectstart;
 
         bool connected = false;

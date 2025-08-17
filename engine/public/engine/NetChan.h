@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <vector>
 
-#define ENGINE_DEFAULTCLPORT 19770
 #define ENGINE_DEFAULTSVPORT 19771
 #define MAX_PACKET_SIZE 1024
 #define MAX_RELIABLE 128 // the maximum number of queued up reliables before suspicion

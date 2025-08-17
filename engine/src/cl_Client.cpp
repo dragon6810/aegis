@@ -59,7 +59,7 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
             return;
 
         playersquare = {};
-        SDL_RenderCoordinatesFromWindow(render, this->player.pos[0], -this->player.pos[1], &playersquare.x, &playersquare.y);
+        SDL_RenderCoordinatesFromWindow(render, cl->player.pos[0], -cl->player.pos[1], &playersquare.x, &playersquare.y);
         playersquare.w = 16;
         playersquare.h = 16;
         SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
@@ -155,6 +155,7 @@ void engine::cl::Client::TryConnection(void)
 {
     int iconnectiontimeout;
     struct sockaddr_in svaddr;
+    socklen_t addrlen;
     packet::clsv_handshake_t handshake;
 
     iconnectiontimeout = std::stoi(cl_connection_timeout.strval);
@@ -167,7 +168,7 @@ void engine::cl::Client::TryConnection(void)
 
     svaddr = {};
     svaddr.sin_family = AF_INET;
-    svaddr.sin_port = htons(ENGINE_DEFAULTCLPORT);
+    svaddr.sin_port = 0;
     svaddr.sin_addr.s_addr = *((uint32_t*)this->serveraddr);
 
     if(this->svsocket < 0)
@@ -185,6 +186,15 @@ void engine::cl::Client::TryConnection(void)
             exit(1);
         }
 
+        if(getsockname(this->svsocket, (struct sockaddr*) &svaddr, &addrlen) < 0)
+        {
+            Console::Print("error %d with getsockname.\n", errno);
+            exit(1);
+        }
+
+        this->clport = ntohs(svaddr.sin_port);
+        Console::Print("bound socket on port %d.\n", this->clport);
+
         fcntl(this->svsocket, F_SETFL, fcntl(this->svsocket, F_GETFL, 0) | O_NONBLOCK);
     }
 
@@ -193,6 +203,7 @@ void engine::cl::Client::TryConnection(void)
     handshake = {};
     strcpy(handshake.message, packet::clsv_handshake_message);
     handshake.version = htonl(ENGINE_PACKET_PROTOCOL_VERSION);
+    handshake.port = htons(this->clport);
     strcpy(handshake.username, "client");
 
     sendto(this->svsocket, &handshake, sizeof(handshake), 0, (struct sockaddr*) &svaddr, sizeof(svaddr));
@@ -213,8 +224,6 @@ void engine::cl::Client::ProcessPacket(void)
         playerstate.id = netchan.NextUByte();
         playerstate.x = netchan.NextFloat();
         playerstate.y = netchan.NextFloat();
-
-        Console::Print("player info: ( %f %f )\n", playerstate.x, playerstate.y);
 
         if(playerstate.id >= MAX_PLAYER)
             return;
@@ -290,7 +299,8 @@ void engine::cl::Client::ProcessRecieved(void)
         if(!netchan.Recieve(buf, buflen))
             continue;
 
-        ProcessPacket();
+        while(netchan.dragmpos < netchan.dgram.size())
+            ProcessPacket();
     } while(1);
 }
 
