@@ -48,14 +48,23 @@ void engine::cl::Client::DestroyWindow(void)
 
 void engine::cl::Client::DrawClients(SDL_Renderer* render)
 {
+    int i;
+    DumbClient *cl;
+
     SDL_FRect playersquare;
 
-    playersquare = {};
-    SDL_RenderCoordinatesFromWindow(render, this->player.pos[0], -this->player.pos[1], &playersquare.x, &playersquare.y);
-    playersquare.w = 16;
-    playersquare.h = 16;
-    SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
-    SDL_RenderFillRect(render, &playersquare);
+    for(i=0, cl=this->svclients; i<MAX_PLAYER; i++, cl++)
+    {
+        if(cl->state != DumbClient::STATE_CONNECTED)
+            return;
+
+        playersquare = {};
+        SDL_RenderCoordinatesFromWindow(render, this->player.pos[0], -this->player.pos[1], &playersquare.x, &playersquare.y);
+        playersquare.w = 16;
+        playersquare.h = 16;
+        SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
+        SDL_RenderFillRect(render, &playersquare);
+    }
 }
 
 void engine::cl::Client::SendPackets(void)
@@ -189,6 +198,45 @@ void engine::cl::Client::TryConnection(void)
     sendto(this->svsocket, &handshake, sizeof(handshake), 0, (struct sockaddr*) &svaddr, sizeof(svaddr));
 }
 
+void engine::cl::Client::ProcessPacket(void)
+{
+    uint16_t type, len;
+    packet::svcl_playerstate_t playerstate;
+
+    type = netchan.NextUShort();
+    len = netchan.NextUShort();
+
+    switch(type)
+    {
+    case packet::TYPE_SVCL_PLAYERSTATE:
+        playerstate = {};
+        playerstate.id = netchan.NextUByte();
+        playerstate.x = netchan.NextFloat();
+        playerstate.y = netchan.NextFloat();
+
+        Console::Print("player info: ( %f %f )\n", playerstate.x, playerstate.y);
+
+        if(playerstate.id >= MAX_PLAYER)
+            return;
+
+        this->svclients[playerstate.id].player.pos[0] = playerstate.x;
+        this->svclients[playerstate.id].player.pos[1] = playerstate.y;
+        this->svclients[playerstate.id].state = DumbClient::STATE_CONNECTED;
+        if(playerstate.id == this->clientid)
+            this->player.pos = this->svclients[playerstate.id].player.pos;
+
+        break;
+    default:
+        goto invalidpacket;
+    }
+
+    return;
+
+invalidpacket:
+
+    Console::Print("invalid packet from server.\n");
+}
+
 void engine::cl::Client::ProcessHandshakeResponse(const packet::svcl_handshake_t* packet)
 {
     this->tryconnect = false;
@@ -198,6 +246,7 @@ void engine::cl::Client::ProcessHandshakeResponse(const packet::svcl_handshake_t
     this->netchan.socket = this->svsocket;
     memcpy(this->netchan.ipv4, this->serveraddr, 4);
     this->netchan.port = this->serverport;
+    this->clientid = packet->clid;
 
     Console::Print("handshake with server complete.\n");
 }
@@ -234,6 +283,14 @@ void engine::cl::Client::ProcessRecieved(void)
             ProcessHandshakeResponse((packet::svcl_handshake_t*) buf);
             continue;
         }
+
+        if(tryconnect)
+            continue;
+
+        if(!netchan.Recieve(buf, buflen))
+            continue;
+
+        ProcessPacket();
     } while(1);
 }
 
@@ -267,7 +324,6 @@ int engine::cl::Client::Run(void)
     uint64_t lastframe, thisframe;
     float frametime;
     
-
     Init();
 
     this->MakeWindow();
@@ -285,6 +341,7 @@ int engine::cl::Client::Run(void)
 
         if(this->tryconnect)
             this->TryConnection();
+
         this->ProcessRecieved();
 
         this->pinput->GenerateCmd();

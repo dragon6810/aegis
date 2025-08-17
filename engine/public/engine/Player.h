@@ -4,6 +4,8 @@
 
 #include "Packets.h"
 
+#define MAX_PLAYER 64
+
 namespace engine
 {
     class Player

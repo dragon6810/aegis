@@ -29,6 +29,34 @@ uint16_t engine::NetChan::NextUShort(void)
     return ushort;
 }
 
+uint32_t engine::NetChan::NextUInt(void)
+{
+    uint32_t uint;
+
+    if(this->dragmpos > this->dgram.size() - sizeof(uint32_t))
+        return 0;
+
+    uint = 0;
+    uint |= (uint32_t) this->dgram[this->dragmpos++] << 24;
+    uint |= (uint32_t) this->dgram[this->dragmpos++] << 16; 
+    uint |= (uint32_t) this->dgram[this->dragmpos++] << 8;
+    uint |= (uint32_t) this->dgram[this->dragmpos++];
+    
+    return uint;
+}
+
+float engine::NetChan::NextFloat(void)
+{
+    union
+    {
+        uint32_t uint;
+        float f;
+    } intfloat;
+
+    intfloat.uint = NextUInt();
+    return intfloat.f;
+}
+
 void engine::NetChan::Send(const void* unreliabledata, int unreliablelen)
 {
     header_t *header;
@@ -113,9 +141,6 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
         this->hasreliable = true;
         header.seq &= 0x7FFFFFFF;
     }
-
-    Console::Print("seq: %d.\n", header.seq);
-    Console::Print("lastseen: %d.\n", this->lastseen);
 
     if(header.seq <= this->lastseen)
     {

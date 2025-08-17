@@ -6,8 +6,6 @@
 #include <engine/Packets.h>
 #include <engine/Player.h>
 
-#define MAX_NETCLIENT 64
-
 namespace engine::sv
 {
 class NetClient

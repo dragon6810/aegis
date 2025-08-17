@@ -47,6 +47,8 @@ public:
 
     uint8_t NextUByte(void);
     uint16_t NextUShort(void);
+    uint32_t NextUInt(void);
+    float NextFloat(void);
 
     void Send(const void* unreliabledata, int unreliablelen);
     bool Recieve(const void* data, int datalen);

@@ -16,7 +16,7 @@ namespace engine::sv
     public:
         bool lasttick = false;
         int nclients = 0;
-        NetClient clients[MAX_NETCLIENT];
+        NetClient clients[MAX_PLAYER];
     public:
         static Server* GetServer();
     private:
@@ -26,6 +26,7 @@ namespace engine::sv
         void ProcessHandshake(const packet::clsv_handshake_t* packet, const uint8_t addr[4]);
         void ProcessClientPacket(int icl, const void* data, int datalen);
         void ProcessRecieved(void);
+        void SendPackets(void);
     public:
         // returns -1 if no client
         int ClientByAddr(const uint8_t addr[4]);

@@ -61,6 +61,7 @@ void engine::sv::Server::ProcessHandshake(const packet::clsv_handshake_t* packet
     NetClient *newcl;
     struct sockaddr_in claddr;
     packet::svcl_handshake_t response;
+    bool repeat;
 
     if(packet->version != ntohl(ENGINE_PACKET_PROTOCOL_VERSION))
         return;
@@ -68,32 +69,38 @@ void engine::sv::Server::ProcessHandshake(const packet::clsv_handshake_t* packet
     if(strnlen(packet->username, ENGINE_PACKET_MAXPLAYERNAME) >= ENGINE_PACKET_MAXPLAYERNAME)
         return;
 
+    repeat = true;
     icl = this->ClientByAddr(addr);
-    if(nclients < MAX_NETCLIENT || icl >= 0)
+    if(nclients < MAX_PLAYER || icl >= 0)
     {
         claddr = {};
         claddr.sin_family = AF_INET;
         claddr.sin_port = htons(ENGINE_DEFAULTCLPORT);
         claddr.sin_addr.s_addr = *((uint32_t*)addr);
 
+        if(icl < 0)
+        {
+            repeat = false;
+            icl = FindFreeClient();
+        }
+        if(icl < 0)
+        {
+            Console::Print("rejected connection from %hhu.%hhu.%hhu.%hhu because server was full.\n", 
+                addr[0], addr[1], addr[2], addr[3]);
+            return;
+        }
+
         response = {};
         strcpy(response.message, packet::clsv_handshake_message);
         response.version = htonl(ENGINE_PACKET_PROTOCOL_VERSION);
+        response.clid = icl;
 
         sendto(this->clsocket, &response, sizeof(response), 0, (struct sockaddr*) &claddr, sizeof(claddr));
     }
 
     // don't make another client for the same one.
-    if(icl >= 0)
+    if(repeat)
         return;
-
-    icl = FindFreeClient();
-    if(icl < 0)
-    {
-        Console::Print("rejected connection from %hhu.%hhu.%hhu.%hhu because server was full.\n", 
-            addr[0], addr[1], addr[2], addr[3]);
-        return;
-    }
 
     nclients++;
     newcl = &clients[icl];
@@ -144,7 +151,6 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         cl->player.wishdir.normalize();
 
         cl->player.Move((float) playercmd.time / 1000.0);
-        Console::Print("player pos: %hu %f %f.\n", playercmd.time, cl->player.pos[0], cl->player.pos[1]);
         break;
     default:
         goto invalidpacket;
@@ -202,13 +208,62 @@ void engine::sv::Server::ProcessRecieved(void)
     } while(1);
 }
 
+void engine::sv::Server::SendPackets(void)
+{
+    int i;
+    NetClient *cl;
+
+    std::vector<uint8_t> unreliable;
+    packet::svcl_playerstate_t playerstate;
+    union
+    {
+        uint32_t uint;
+        float f;
+    } intfloat;
+
+    for(i=0, cl=this->clients; i<MAX_PLAYER; i++, cl++)
+    {
+        if(cl->state != NetClient::NETCLIENT_CONNECTED)
+            continue;
+        
+        playerstate = {};
+        playerstate.type = htons(packet::TYPE_SVCL_PLAYERSTATE);
+        playerstate.len = sizeof(playerstate) - 4;
+        
+        playerstate.id = i;
+
+        intfloat.f = cl->player.pos[0];
+        intfloat.uint = htonl(intfloat.uint);
+        playerstate.x = intfloat.f;
+        intfloat.f = cl->player.pos[1];
+        intfloat.uint = htonl(intfloat.uint);
+        playerstate.y = intfloat.f;
+
+        intfloat.f = playerstate.x;
+        intfloat.uint = ntohl(intfloat.uint);
+
+        Console::Print("player pos: %f %f.\n", intfloat.f, cl->player.pos[1]);
+
+        unreliable.resize(unreliable.size() + sizeof(playerstate));
+        memcpy(unreliable.data() + unreliable.size() - sizeof(playerstate), &playerstate, sizeof(playerstate));
+    }
+
+    for(i=0, cl=this->clients; i<MAX_PLAYER; i++, cl++)
+    {
+        if(cl->state != NetClient::NETCLIENT_CONNECTED)
+            continue;
+        
+        cl->netchan.Send(unreliable.data(), unreliable.size());
+    }
+}
+
 int engine::sv::Server::ClientByAddr(const uint8_t addr[4])
 {
     int i;
 
     int found;
 
-    for(i=found=0; i<MAX_NETCLIENT && found<nclients; i++)
+    for(i=found=0; i<MAX_PLAYER && found<nclients; i++)
     {
         if(this->clients[i].state == NetClient::NETCLIENT_FREE)
             continue;
@@ -226,7 +281,7 @@ int engine::sv::Server::FindFreeClient(void)
 {
     int i;
 
-    for(i=0; i<MAX_NETCLIENT; i++)
+    for(i=0; i<MAX_PLAYER; i++)
         if(this->clients[i].state == NetClient::NETCLIENT_FREE)
             return i;
 
@@ -257,6 +312,8 @@ int engine::sv::Server::Run(void)
         Console::ExecTerm();
 
         ProcessRecieved();
+
+        SendPackets();
 
         //printf("tick time: %llu.\n", time);
 

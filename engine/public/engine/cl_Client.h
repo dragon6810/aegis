@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL.h>
 
+#include <engine/cl_DumbClient.h>
 #include <engine/cl_PlayerInput.h>
 #include <engine/NetChan.h>
 #include <engine/Packets.h>
@@ -26,6 +27,7 @@ namespace engine::cl
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
         void TryConnection(void);
+        void ProcessPacket(void);
         void ProcessHandshakeResponse(const packet::svcl_handshake_t* packet);
         void ProcessRecieved(void);
         void Init(void);
@@ -42,6 +44,8 @@ namespace engine::cl
 
         bool connected = false;
         NetChan netchan = NetChan();
+        int clientid = -1;
+        DumbClient svclients[MAX_PLAYER];
 
         // games: set this to your own input class if you want to.
         std::unique_ptr<PlayerInput> pinput;
