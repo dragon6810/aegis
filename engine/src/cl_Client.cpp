@@ -26,7 +26,7 @@ void engine::cl::Client::PollWindow(void)
         switch(event.type)
         {
         case SDL_EVENT_QUIT:
-            this->lastframe = true;
+            islastframe = true;
             break;
         case SDL_EVENT_KEY_DOWN:
             KeyDown(event.key.scancode);
@@ -69,6 +69,10 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
 
 void engine::cl::Client::SendPackets(void)
 {
+    int i;
+
+    gamestate_t *state;
+
     if(!this->connected && !this->tryconnect)
         return;
 
@@ -81,7 +85,18 @@ void engine::cl::Client::SendPackets(void)
         this->netchan.WriteUByte(this->pinput->cmd.move, true);
     }
 
+    // copy current
+    state = &states[netchan.curseq % STATE_WINDOW];
+
+    for(i=0; i<MAX_PLAYER; i++)
+        if(svclients[i].state != DumbClient::STATE_FREE)
+            state->svclients[i] = svclients[i];
+    state->senttime = TIMEMS;
+    state->sequence = netchan.curseq;
+
     this->netchan.Send();
+
+    states[netchan.lastack % STATE_WINDOW].recievedtime = TIMEMS;
 }
 
 void engine::cl::Client::Connect(void)
@@ -208,8 +223,6 @@ bool engine::cl::Client::ProcessPacket(void)
         this->svclients[playerstate.id].player.pos[0] = playerstate.x;
         this->svclients[playerstate.id].player.pos[1] = playerstate.y;
         this->svclients[playerstate.id].state = DumbClient::STATE_CONNECTED;
-        if(playerstate.id == this->clientid)
-            this->player.pos = this->svclients[playerstate.id].player.pos;
 
         break;
     default:
@@ -235,6 +248,8 @@ void engine::cl::Client::ProcessHandshakeResponse(void)
 
 void engine::cl::Client::ProcessRecieved(void)
 {
+    int i;
+
     uint8_t buf[MAX_PACKET_SIZE];
     int buflen;
     struct sockaddr_in claddr;
@@ -277,6 +292,49 @@ void engine::cl::Client::ProcessRecieved(void)
     } while(1);
 }
 
+void engine::cl::Client::RecordInput(void)
+{
+    pinput->GenerateCmd();
+    pinput->cmd.time = frametime * 1000;
+    states[netchan.curseq % STATE_WINDOW].cmd = pinput->cmd;
+}
+
+void engine::cl::Client::PredictLocal(void)
+{
+    int i;
+
+    int start;
+    gamestate_t *state;
+    uint64_t netlag, starttime;
+    Player *player;
+
+    if(!connected)
+        return;
+
+    if(netchan.lastseen < 0)
+        return;
+
+    if(netchan.curseq - netchan.lastseen >= STATE_WINDOW)
+        return;
+
+    start = netchan.lastseen;
+
+    state = &states[start % STATE_WINDOW];
+    netlag = state->recievedtime - state->senttime;
+
+    player = &svclients[clientid].player;
+    for(i=start; i<netchan.curseq; i++)
+    {
+        state = &states[i % STATE_WINDOW];
+
+        player->ParseCmd(states[i % STATE_WINDOW].cmd);
+        // Console::Print("wishdir %d: %f %f.\n", i - netchan.lastseen, player.wishdir[0], player.wishdir[1]);
+        player->Move((float) states[i % STATE_WINDOW].cmd.time / 1000.0);
+    }
+
+    //player->pos = Eigen::Vector2f::Zero();
+}
+
 void engine::cl::Client::Init(void)
 {
     InputInit();
@@ -305,38 +363,39 @@ int engine::cl::Client::Run(void)
     // temporary until 3d
     SDL_Renderer *render;
     uint64_t lastframe, thisframe;
-    float frametime;
     
     Init();
 
     this->MakeWindow();
     render = SDL_CreateRenderer(this->win, NULL);
+    SDL_SetRenderVSync(render, 1);
     lastframe = 0;
-    while(!this->lastframe)
+    while(!this->islastframe)
     {
         thisframe = TIMEMS;
         if(!lastframe)
             lastframe = thisframe;
-        frametime = (float) (thisframe - lastframe) / 1000.0;
+        frametime = thisframe - lastframe;
+        if(frametime < 1)
+            frametime = 1;
+        frametime /= 1000.0;
+
+        SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+        SDL_RenderClear(render);
 
         this->PollWindow();
         Console::ExecTerm();
 
         this->ProcessRecieved();
 
-        this->pinput->GenerateCmd();
-        this->pinput->cmd.time = thisframe - lastframe;
-        this->player.ParseCmd(this->pinput->cmd);
-        this->player.Move(frametime);
-
-        this->SendPackets();
-
-        SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-        SDL_RenderClear(render);
-
+        this->RecordInput();
+        
+        this->PredictLocal();
         this->DrawClients(render);
 
         SDL_RenderPresent(render);
+
+        this->SendPackets();
 
         lastframe = thisframe;
     }

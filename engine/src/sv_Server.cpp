@@ -126,6 +126,9 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
     if(!cl->netchan.Recieve(data, datalen))
         return;
 
+    if(cl->netchan.curseq < cl->netchan.lastseen)
+        cl->netchan.curseq = cl->netchan.lastseen;
+
     if(!cl->netchan.dgram.size())
         return;
 

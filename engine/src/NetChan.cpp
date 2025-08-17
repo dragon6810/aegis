@@ -179,7 +179,7 @@ void engine::NetChan::Send(void)
     *header = {};
     header->magic[0] = 'N';
     header->magic[1] = 'C';
-    header->seq = nsent++;
+    header->seq = curseq++;
     header->ack = lastseen;
 
     if(this->reliablequeue.size())
@@ -231,6 +231,8 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
 
     header.seq = ntohl(header.seq);
     header.ack = ntohl(header.ack);
+
+    this->lastack = header.ack;
 
     this->hasreliable = false;
     if(header.seq & 0x80000000)

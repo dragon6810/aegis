@@ -15,6 +15,16 @@ namespace engine::cl
 {
     class Client
     {
+    public:
+        typedef struct gamestate_s
+        {
+            int32_t sequence;
+            
+            DumbClient svclients[MAX_PLAYER];
+            packet::clsv_playercmd_t cmd;
+            uint64_t senttime;
+            uint64_t recievedtime;
+        } gamestate_t;
     private:
         SDL_Window *win = NULL;
     private:
@@ -29,11 +39,14 @@ namespace engine::cl
         bool ProcessPacket(void);
         void ProcessHandshakeResponse(void);
         void ProcessRecieved(void);
+        void RecordInput(void);
+        void PredictLocal(void);
         void Init(void);
         void Cleanup(void);
     public:
-        bool lastframe = false;
-        
+        bool islastframe = false;
+        float frametime;
+
         bool tryconnect = false;
         int clport;
         uint64_t connectstart;
@@ -43,9 +56,10 @@ namespace engine::cl
         int clientid = -1;
         DumbClient svclients[MAX_PLAYER];
 
+        gamestate_t states[STATE_WINDOW];
+
         // games: set this to your own input class if you want to.
         std::unique_ptr<PlayerInput> pinput;
-        Player player;
 
         void Setup(void);
         int Run(void);

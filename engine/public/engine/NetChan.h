@@ -7,6 +7,7 @@
 #define ENGINE_DEFAULTSVPORT 19771
 #define MAX_PACKET_SIZE 1024
 #define MAX_RELIABLE 128 // the maximum number of queued up reliables before suspicion
+#define STATE_WINDOW 64
 
 namespace engine
 {
@@ -32,9 +33,10 @@ public:
     uint8_t ipv4[4] = { 0, 0, 0, 0, };
     uint16_t port = 0;
 
-    int32_t nsent = 0; // used for sequence number
+    int32_t curseq = 0; // used for sequence number
     int32_t lastseen = -1; // last seen sequence from the other end
     int32_t reliableseq = -1; // the sequence number the current reliable was first sent on
+    int32_t lastack = 0; // last of our sequences the other end has acknowledged
 
     // a metric of how many packets have been lost between the other and and your end.
     // does NOT count how many packets have been lost from your end to the other end.
