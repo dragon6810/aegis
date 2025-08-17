@@ -56,7 +56,7 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
     for(i=0, cl=this->svclients; i<MAX_PLAYER; i++, cl++)
     {
         if(cl->state != DumbClient::STATE_CONNECTED)
-            return;
+            continue;
 
         playersquare = {};
         SDL_RenderCoordinatesFromWindow(render, cl->player.pos[0], -cl->player.pos[1], &playersquare.x, &playersquare.y);
@@ -88,9 +88,6 @@ void engine::cl::Client::SendPackets(void)
     // copy current
     state = &states[netchan.curseq % STATE_WINDOW];
 
-    for(i=0; i<MAX_PLAYER; i++)
-        if(svclients[i].state != DumbClient::STATE_FREE)
-            state->svclients[i] = svclients[i];
     state->senttime = TIMEMS;
     state->sequence = netchan.curseq;
 
@@ -202,6 +199,7 @@ bool engine::cl::Client::ProcessPacket(void)
 {
     uint16_t type, len;
     packet::svcl_playerstate_t playerstate;
+    gamestate_t *gamestate;
 
     type = netchan.NextUShort();
     len = netchan.NextUShort();
@@ -223,6 +221,7 @@ bool engine::cl::Client::ProcessPacket(void)
         this->svclients[playerstate.id].player.pos[0] = playerstate.x;
         this->svclients[playerstate.id].player.pos[1] = playerstate.y;
         this->svclients[playerstate.id].state = DumbClient::STATE_CONNECTED;
+        states[netchan.lastseen % STATE_WINDOW].svclients[playerstate.id] = this->svclients[playerstate.id];
 
         break;
     default:
@@ -319,12 +318,14 @@ void engine::cl::Client::PredictLocal(void)
     }
 
     player = &svclients[clientid].player;
-    for(i=netchan.lastseen; i<=netchan.curseq; i++)
+    *player = states[netchan.lastseen % STATE_WINDOW].svclients[clientid].player;
+
+    for(i=netchan.lastseen+1; i<netchan.curseq; i++)
     {
         state = &states[i % STATE_WINDOW];
 
-        player->ParseCmd(states[i % STATE_WINDOW].cmd);
-        player->Move((float) states[i % STATE_WINDOW].cmd.time / 1000.0);
+        player->ParseCmd(state->cmd);
+        player->Move((float) state->cmd.time / 1000.0);
     }
 }
 

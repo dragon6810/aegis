@@ -54,6 +54,7 @@ namespace engine::cl
         bool connected = false;
         NetChan netchan = NetChan();
         int clientid = -1;
+        // these have prediction applied, unlike the ones in the current gametate in states[].
         DumbClient svclients[MAX_PLAYER];
 
         gamestate_t states[STATE_WINDOW];
