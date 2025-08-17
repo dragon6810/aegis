@@ -21,6 +21,7 @@ namespace engine::cl
         void PollWindow(void);
         void DestroyWindow(void);
         void DrawClients(SDL_Renderer* render);
+        void SendPackets(void);
         void Connect(const uint8_t svaddr[4], int port);
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
@@ -38,6 +39,9 @@ namespace engine::cl
         uint8_t serveraddr[4];
         int serverport;
         uint64_t connectstart;
+
+        bool connected = false;
+        NetChan netchan = NetChan();
 
         // games: set this to your own input class if you want to.
         std::unique_ptr<PlayerInput> pinput;

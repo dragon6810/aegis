@@ -1,5 +1,6 @@
 #include <engine/cl_Client.h>
 
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -55,6 +56,24 @@ void engine::cl::Client::DrawClients(SDL_Renderer* render)
     playersquare.h = 16;
     SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
     SDL_RenderFillRect(render, &playersquare);
+}
+
+void engine::cl::Client::SendPackets(void)
+{
+    std::vector<uint8_t> packet;
+    packet::clsv_playercmd_t big;
+
+    if(!this->connected)
+        return;
+
+    big = this->pinput->cmd;
+    big.type = htons(big.type);
+    big.len = htons(big.len);
+
+    packet.resize(sizeof(big));
+    memcpy(packet.data(), &big, sizeof(big));
+
+    this->netchan.Send(packet.data(), packet.size());
 }
 
 void engine::cl::Client::Connect(const uint8_t svaddr[4], int port)
@@ -155,6 +174,8 @@ void engine::cl::Client::TryConnection(void)
             Console::Print("error binding socket on client.\n");
             exit(1);
         }
+
+        fcntl(this->svsocket, F_SETFL, fcntl(this->svsocket, F_GETFL, 0) | O_NONBLOCK);
     }
 
     svaddr.sin_port = htons(ENGINE_DEFAULTSVPORT);
@@ -170,6 +191,12 @@ void engine::cl::Client::TryConnection(void)
 void engine::cl::Client::ProcessHandshakeResponse(const packet::svcl_handshake_t* packet)
 {
     this->tryconnect = false;
+
+    this->connected = true;
+    this->netchan = NetChan();
+    this->netchan.socket = this->svsocket;
+    memcpy(this->netchan.ipv4, this->serveraddr, 4);
+    this->netchan.port = this->serverport;
 
     Console::Print("handshake with server complete.\n");
 }
@@ -194,11 +221,13 @@ void engine::cl::Client::ProcessRecieved(void)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
                 break;
-            Console::Print("warning: error with recvfrom on client.\n");
+            Console::Print("warning: error %d with recvfrom on client.\n", errno);
             break;
         }
 
-        if(buflen == sizeof(packet::svcl_handshake_t) &&
+        // check for handshake response if you're trying to connect to the server.
+        if(tryconnect &&
+           buflen == sizeof(packet::svcl_handshake_t) &&
            !strncmp((char*) buf, packet::clsv_handshake_message, sizeof(packet::clsv_handshake_message)))
         {
             ProcessHandshakeResponse((packet::svcl_handshake_t*) buf);
@@ -236,6 +265,7 @@ int engine::cl::Client::Run(void)
     SDL_Renderer *render;
     uint64_t lastframe, thisframe;
     float frametime;
+    
 
     Init();
 
@@ -256,8 +286,11 @@ int engine::cl::Client::Run(void)
             this->TryConnection();
         this->ProcessRecieved();
 
-        this->player.ParseCmd(this->pinput->GenerateCmd());
+        this->pinput->GenerateCmd();
+        this->player.ParseCmd(this->pinput->cmd);
         this->player.Move(frametime);
+
+        this->SendPackets();
 
         SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
         SDL_RenderClear(render);

@@ -7,6 +7,20 @@
 
 namespace engine::packet
 {
+/*
+ * Packet Structure:
+ * uint16_t type (type_e)
+ * uint16_t length (length of payload only)
+ * payload
+ * 
+ * NOTE: all packets should be big endian
+*/
+
+typedef enum
+{
+    TYPE_PLAYERCMD=0,
+} type_e;
+
 static const char clsv_handshake_message[] = "aegis handshake";
 
 typedef struct clsv_handshake_s
@@ -24,6 +38,9 @@ typedef struct svcl_handshake_s
 
 typedef struct clsv_playercmd_s
 {
+    uint16_t type;
+    uint16_t len;
+    
     uint8_t move; // bits are 0 0 0 0 left right back forward
 } clsv_playercmd_t;
 };

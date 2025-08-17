@@ -19,11 +19,13 @@ void engine::cl::PlayerInput::InitClient(void)
     Console::SubmitStr("bind d +right");
 }
 
-engine::packet::clsv_playercmd_t engine::cl::PlayerInput::GenerateCmd(void)
+void engine::cl::PlayerInput::GenerateCmd(void)
 {
-    packet::clsv_playercmd_t cmd;
-
     cmd = {};
+
+    cmd.type = packet::TYPE_PLAYERCMD;
+    cmd.len = sizeof(packet::clsv_playercmd_t) - 4;
+
     if(left)
         cmd.move |= 0x8;
     if(right)
@@ -32,8 +34,6 @@ engine::packet::clsv_playercmd_t engine::cl::PlayerInput::GenerateCmd(void)
         cmd.move |= 0x2;
     if(forward)
         cmd.move |= 0x1;
-
-    return cmd;
 }
 
 void engine::cl::PlayerInput::Init(void)
