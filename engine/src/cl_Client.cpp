@@ -303,9 +303,7 @@ void engine::cl::Client::PredictLocal(void)
 {
     int i;
 
-    int start;
     gamestate_t *state;
-    uint64_t netlag, starttime;
     Player *player;
 
     if(!connected)
@@ -314,25 +312,20 @@ void engine::cl::Client::PredictLocal(void)
     if(netchan.lastseen < 0)
         return;
 
-    if(netchan.curseq - netchan.lastseen >= STATE_WINDOW)
+    if(netchan.curseq - netchan.lastseen >= STATE_WINDOW - 1)
+    {
+        Console::Print("warning: latency too high for client prediction!\n");
         return;
-
-    start = netchan.lastseen;
-
-    state = &states[start % STATE_WINDOW];
-    netlag = state->recievedtime - state->senttime;
+    }
 
     player = &svclients[clientid].player;
-    for(i=start; i<netchan.curseq; i++)
+    for(i=netchan.lastseen; i<=netchan.curseq; i++)
     {
         state = &states[i % STATE_WINDOW];
 
         player->ParseCmd(states[i % STATE_WINDOW].cmd);
-        // Console::Print("wishdir %d: %f %f.\n", i - netchan.lastseen, player.wishdir[0], player.wishdir[1]);
         player->Move((float) states[i % STATE_WINDOW].cmd.time / 1000.0);
     }
-
-    //player->pos = Eigen::Vector2f::Zero();
 }
 
 void engine::cl::Client::Init(void)

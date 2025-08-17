@@ -145,18 +145,7 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         playercmd.time = cl->netchan.NextUShort();
         playercmd.move = cl->netchan.NextUByte();
 
-        cl->player.wishdir = Eigen::Vector2f::Zero();
-        if(playercmd.move & 0x8)
-            cl->player.wishdir[0] -= 1;
-        if(playercmd.move & 0x4)
-            cl->player.wishdir[0] += 1;
-        if(playercmd.move & 0x2)
-            cl->player.wishdir[1] -= 1;
-        if(playercmd.move & 0x1)
-            cl->player.wishdir[1] += 1;
-        if(cl->player.wishdir.squaredNorm() > 0.01)
-            cl->player.wishdir.normalize();
-
+        cl->player.ParseCmd(playercmd);
         cl->player.Move((float) playercmd.time / 1000.0);
         break;
     default:
