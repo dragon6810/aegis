@@ -51,6 +51,8 @@
         "alignedvector3": "cpp",
         "any": "cpp",
         "*.inc": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "nnls": "cpp",
+        "mprealsupport": "cpp"
     }
 }

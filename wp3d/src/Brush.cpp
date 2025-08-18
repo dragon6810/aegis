@@ -124,13 +124,14 @@ void Brush::MakeFaces(void)
     this->planes = newplanes;
 }
 
-void Brush::AddPlane(Eigen::Vector3f n, float d)
+void Brush::AddPlane(Eigen::Vector3f n, float d, Map& map)
 {
     Plane p;
 
-    p = Plane();
+    p = Plane(map);
     p.normal = n;
     p.d = d;
+    p.AlignTexGrid();
 
     this->planes.push_back(p);
     this->MakeFaces();
@@ -226,9 +227,8 @@ void Brush::FinalizeVertexEdit(void)
         d = n.dot(this->points[this->planes[i].indices[0]]);
 
         newplanemapping[i] = newplanes.size();
-        newplanes.push_back(Plane());
+        newplanes.push_back(this->planes[i]);
         pl = &newplanes.back();
-        *pl = this->planes[i];
         pl->normal = n;
         pl->d = d;
     }
@@ -359,6 +359,40 @@ void Brush::DeleteSelected()
     }
 
     this->MakeFaces();
+}
+
+void Brush::MoveSelected(Eigen::Vector3f add)
+{
+    std::unordered_set<int>::iterator it;
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        this->planes[*it].Move(add);
+    this->MakeFaces();
+}
+
+void Brush::Move(Eigen::Vector3f add)
+{
+    int i;
+
+    for(i=0; i<this->planes.size(); i++)
+        this->planes[i].Move(add);
+    this->MakeFaces();
+}
+
+void Brush::ApplyTextureToSelected(const char* name)
+{
+    std::unordered_set<int>::iterator it;
+
+    for(it=this->plselection.begin(); it!=this->plselection.end(); it++)
+        this->planes[*it].texname = name;
+}
+
+void Brush::ApplyTexture(const char* name)
+{
+    int i;
+
+    for(i=0; i<this->planes.size(); i++)
+        this->planes[i].texname = name;
 }
 
 void Brush::Draw(const Viewport& view, int index, int ent, Map& map, bool drawselected)

@@ -13,3 +13,12 @@
 [submodule "thirdparty/filedialog/ImGuiFileDialog"]
 	path = thirdparty/filedialog/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog.git
+[submodule "thirdparty/zlib"]
+	path = thirdparty/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "thirdparty/argparse"]
+	path = thirdparty/argparse
+	url = https://github.com/p-ranav/argparse.git
+[submodule "thirdparty/cpptrace"]
+	path = thirdparty/cpptrace
+	url = https://github.com/jeremy-rifkin/cpptrace.git

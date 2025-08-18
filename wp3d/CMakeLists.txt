@@ -15,6 +15,9 @@ add_executable (
     "src/GuiElementToolBar.cpp"
     "src/GuiElementToolSettings.cpp"
     "src/GuiElementEntityEditor.cpp"
+    "src/GuiElementTextureBrowser.cpp"
+    "src/TextureManager.cpp"
+    "src/GuiElementTextureMapping.cpp"
 )
 
 if (APPLE)
@@ -37,6 +40,7 @@ if (APPLE)
         maplib
         fgdlib
         cfglib
+        tpklib
         GLEW::GLEW
         glfw
         "-framework OpenGL"
@@ -63,6 +67,7 @@ elseif (UNIX)
         maplib
         fgdlib
         cfglib
+        tpklib
         OpenGL::GL
         GLEW::GLEW
         ${GLFW3_LIBRARIES}

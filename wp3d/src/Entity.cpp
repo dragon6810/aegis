@@ -246,6 +246,66 @@ void Entity::DeleteSelected(Map& map)
     }
 }
 
+void Entity::MoveSelected(Map& map, Eigen::Vector3f add)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+            this->brushes[*it].Move(add);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].MoveSelected(add);
+}
+
+void Entity::Move(Eigen::Vector3f add)
+{
+    int i;
+
+    Eigen::Vector3i origin;
+
+    if(this->pairs.find("origin") != this->pairs.end())
+    {
+        origin = (this->GetOrigin() + add).cast<int>();
+        this->pairs["origin"] =
+            std::to_string(origin[0]) + " " +
+            std::to_string(origin[1]) + " " +
+            std::to_string(origin[2]);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].Move(add);
+}
+
+void Entity::ApplyTextureToSelected(Map& map, const char* name)
+{
+    int i;
+    std::unordered_set<int>::iterator it;
+
+    if(map.selectiontype == Map::SELECT_BRUSH)
+    {
+        for(it=this->brselection.begin(); it!=this->brselection.end(); it++)
+            this->brushes[*it].ApplyTexture(name);
+        return;
+    }
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].ApplyTextureToSelected(name);
+}
+
+void Entity::ApplyTexture(const char* name)
+{
+    int i;
+
+    for(i=0; i<this->brushes.size(); i++)
+        this->brushes[i].ApplyTexture(name);
+}
+
 void Entity::Draw(const Viewport& view, int index, Map& map, bool drawselected)
 {
     int i;

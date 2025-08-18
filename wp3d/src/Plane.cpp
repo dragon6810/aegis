@@ -2,6 +2,22 @@
 
 #include "Map.h"
 
+Plane::Plane(void)
+{
+
+}
+
+Plane::Plane(Map& map)
+{
+    TextureManager::texture_t *tex;
+
+    tex = map.GetSelectedTextureID();
+    if(!tex)
+        return;
+
+    this->texname = tex->name;
+}
+
 void Plane::DrawWire(const Viewport& view, bool drawselected)
 {
     int i;
@@ -32,11 +48,15 @@ void Plane::DrawWire(const Viewport& view, bool drawselected)
     glEnd();
 }
 
-void Plane::DrawShaded(const Viewport& view, bool drawselected)
+void Plane::DrawShaded(const Viewport& view, bool drawselected, Map& map)
 {
     int i;
 
+    TextureManager::texture_t *tex;
     float brightness;
+    Eigen::Vector2f texcoord;
+
+    tex = map.texmanager.FindTexture(this->texname.c_str());
 
     brightness = (this->normal.dot(Map::light_dir) / 2.0 + 0.5) * (1.0 - Map::light_ambient) + Map::light_ambient;
     if(brightness > 1)
@@ -49,14 +69,81 @@ void Plane::DrawShaded(const Viewport& view, bool drawselected)
     else
         glColor3f(brightness, brightness, brightness);
 
+    if(tex)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, tex->glid);
+    }
+
     glBegin(GL_POLYGON);
 
     for(i=0; i<this->poly.size(); i++)
     {
+        if(tex)
+        {
+            texcoord[0] = this->poly[i].dot(this->texbasis[0]) + this->texshift[0];
+            texcoord[1] = this->poly[i].dot(this->texbasis[1]) + this->texshift[1];
+            texcoord[0] /= (float) tex->size[0];
+            texcoord[1] /= (float) tex->size[1];
+            glTexCoord2f(texcoord[0], texcoord[1]);
+        }
         glVertex3f(this->poly[i][0], this->poly[i][1], this->poly[i][2]);
     }
 
     glEnd();
+
+    if(tex)
+        glDisable(GL_TEXTURE_2D);
+}
+
+void Plane::AlignTexGrid(void)
+{
+    int i;
+
+    int axis;
+    float longestlen;
+    bool flip;
+
+    for(i=0; i<3; i++)
+    {
+        if(!i || fabsf(normal[i]) > longestlen)
+        {
+            axis = i;
+            longestlen = fabsf(normal[i]);
+            flip = normal[i] < 0;
+        }
+    }
+
+    switch(axis)
+    {
+    case 0:
+        this->texbasis[0] =  Eigen::Vector3f::UnitY();
+        this->texbasis[1] =  Eigen::Vector3f::UnitZ();
+        break;
+    case 1:
+        this->texbasis[0] = -Eigen::Vector3f::UnitX();
+        this->texbasis[1] =  Eigen::Vector3f::UnitZ();
+        break;
+    case 2:
+        this->texbasis[0] =  Eigen::Vector3f::UnitX();
+        this->texbasis[1] =  Eigen::Vector3f::UnitY();
+        break;
+    default:
+        break;
+    }
+
+    this->texshift[0] = this->texshift[1] = 0;
+    
+    if(flip)
+        this->texbasis[0] = -this->texbasis[0];
+}
+
+void Plane::AlignTexFace(void)
+{
+    this->AlignTexGrid();
+
+    this->texbasis[0] = this->texbasis[1].cross(this->normal);
+    this->texbasis[1] = this->normal.cross(this->texbasis[0]);
 }
 
 bool Plane::RayIntersectFace(Eigen::Vector3f o, Eigen::Vector3f d, float* dist)
@@ -138,6 +225,11 @@ void Plane::SelectVerts(Eigen::Vector3f o, Eigen::Vector3f r, Brush& brush, cons
     }
 }
 
+void Plane::Move(Eigen::Vector3f add)
+{
+    this->d += this->normal.dot(add);
+}
+
 void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map, bool drawselected)
 {
     int i;
@@ -165,7 +257,7 @@ void Plane::Draw(const Viewport& view, int index, int brush, int ent, Map& map, 
     if(view.wireframe)
         this->DrawWire(view, selected);
     else
-        this->DrawShaded(view, selected);
+        this->DrawShaded(view, selected, map);
 
     if(selected && map.tool == Map::TOOL_VERTEX)
         map.entities[ent].brushes[brush].drawvertexpreview = true;
