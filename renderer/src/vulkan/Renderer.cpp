@@ -32,7 +32,11 @@ struct renderer::Renderer::Impl
 	std::vector<VkImageView> swapchainviews;
 	VkExtent2D swapchainextent;
 
+    void VkShutdownInst(void);
+    void VkShutdownDevice(void);
     void VkShutdownSwapchain(void);
+    void VkShutdown(void);
+    void SDLShutdown(void);
 
     void VkInitSwapchain(void);
     void VkInitDevice(void);
@@ -44,9 +48,38 @@ struct renderer::Renderer::Impl
     void Shutdown(void);
 };
 
+void renderer::Renderer::Impl::VkShutdownInst(void)
+{
+    vkb::destroy_debug_utils_messenger(inst, dbgmessenger);
+	vkDestroyInstance(inst, nullptr);
+}
+
+void renderer::Renderer::Impl::VkShutdownDevice(void)
+{
+    vkDestroyDevice(device, NULL);
+    vkDestroySurfaceKHR(inst, surface, NULL);
+}
+
 void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 {
+    int i;
 
+    vkDestroySwapchainKHR(device, swapchain, NULL);
+    for(i=0; i<swapchainviews.size(); i++)
+        vkDestroyImageView(device, swapchainviews[i], NULL);
+}
+
+void renderer::Renderer::Impl::VkShutdown(void)
+{
+    // VkShutdownInst(); // validation layer test
+    VkShutdownSwapchain();
+    VkShutdownDevice();
+    VkShutdownInst();
+}
+
+void renderer::Renderer::Impl::SDLShutdown(void)
+{
+    SDL_DestroyWindow(win);
 }
 
 void renderer::Renderer::Impl::VkInitSwapchain(void)
@@ -57,6 +90,8 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
     vkb::Swapchain vkbswapchain;
 
     UTILS_ASSERT(SDL_GetWindowSize(win, &w, &h));
+    swapchainextent.width = w;
+    swapchainextent.height = h;
 
 	swapchainformat = VK_FORMAT_B8G8R8A8_UNORM;
     
@@ -206,7 +241,8 @@ void renderer::Renderer::Impl::Initialize(void)
 
 void renderer::Renderer::Impl::Shutdown(void)
 {
-    printf("cleaning up vulkan.\n");
+    VkShutdown();
+    SDLShutdown();
 }
 
 void renderer::Renderer::Initialize(void)
