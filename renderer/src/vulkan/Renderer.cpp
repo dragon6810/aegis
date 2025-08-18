@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 #include <VkBootstrap.h>
 
@@ -19,6 +20,8 @@ struct renderer::Renderer::Impl
 	VkSurfaceKHR surface;
     SDL_Window *win = NULL;
 
+    void VkInitDevice(void);
+    void VkInitInst(void);
     void VkInit(void);
     void SDLInit(void);
 
@@ -26,9 +29,48 @@ struct renderer::Renderer::Impl
     void Shutdown(void);
 };
 
+void renderer::Renderer::Impl::VkInitDevice(void)
+{
+    if(!SDL_Vulkan_CreateSurface(win, inst, NULL, &surface))
+    {
+        printf("error creating SDL vulkan surface:\n%s\n", SDL_GetError());
+        exit(1);
+    }
+}
+
+void renderer::Renderer::Impl::VkInitInst(void)
+{
+#ifdef DEBUG
+    const bool uselayers = true;
+#else
+    const bool uselayers = false;
+#endif
+
+    vkb::InstanceBuilder instbuilder;
+
+    instbuilder.set_app_name("aegis");
+    instbuilder.request_validation_layers(uselayers);
+    instbuilder.use_default_debug_messenger();
+    instbuilder.require_api_version(1, 2, 0);
+    // theyre making me declare a variable outside of the top of scope!
+    // noooooo!!!!!
+    vkb::Result<vkb::Instance> instres = instbuilder.build();
+    if(!instres)
+    {
+        printf("error %d when trying to create vulkan instance!\n", instres.vk_result());
+        exit(1);
+    }
+
+    inst = instres.value();
+    dbgmessenger = instres.value().debug_messenger;
+
+    printf("vulkan instance created.\n");
+}
+
 void renderer::Renderer::Impl::VkInit(void)
 {
-
+    VkInitInst();
+    VkInitDevice();
 }
 
 void renderer::Renderer::Impl::SDLInit(void)
