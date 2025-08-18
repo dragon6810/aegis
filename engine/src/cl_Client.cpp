@@ -1,0 +1,472 @@
+#include <engine/cl_Client.h>
+
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+#include <mathlib.h>
+#include <utilslib.h>
+
+#include <engine/Console.h>
+
+#include "cl_Input.h"
+
+void engine::cl::Client::MakeWindow(void)
+{
+    this->win = SDL_CreateWindow("aegis", 640, 360, 0);
+}
+
+void engine::cl::Client::PollWindow(void)
+{
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) 
+    {
+        switch(event.type)
+        {
+        case SDL_EVENT_QUIT:
+            islastframe = true;
+            break;
+        case SDL_EVENT_KEY_DOWN:
+            KeyDown(event.key.scancode);
+            break;
+        case SDL_EVENT_KEY_UP:
+            KeyUp(event.key.scancode);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void engine::cl::Client::DestroyWindow(void)
+{
+    SDL_DestroyWindow(this->win);
+    this->win = NULL;
+}
+
+void engine::cl::Client::DrawClients(SDL_Renderer* render)
+{
+    int i;
+    DumbClient *cl;
+
+    SDL_FRect playersquare;
+
+    for(i=0, cl=this->svclients; i<MAX_PLAYER; i++, cl++)
+    {
+        if(cl->state != DumbClient::STATE_CONNECTED)
+            continue;
+
+        playersquare = {};
+        SDL_RenderCoordinatesFromWindow(render, cl->player.pos[0], -cl->player.pos[1], &playersquare.x, &playersquare.y);
+        playersquare.w = 16;
+        playersquare.h = 16;
+        SDL_SetRenderDrawColor(render, 128, 128, 128, 255);
+        SDL_RenderFillRect(render, &playersquare);
+    }
+}
+
+void engine::cl::Client::SendPackets(void)
+{
+    int i;
+
+    gamestate_t *state;
+
+    if(!this->connected && !this->tryconnect)
+        return;
+
+    if(this->connected)
+    {
+        this->netchan.ClearUnreliable();
+        this->netchan.WriteUShort(this->pinput->cmd.type, true);
+        this->netchan.WriteUShort(this->pinput->cmd.time, true);
+        this->netchan.WriteUByte(this->pinput->cmd.move, true);
+    }
+
+    // copy current
+    state = &states[netchan.curseq % STATE_WINDOW];
+
+    state->senttime = TIMEMS;
+    state->sequence = netchan.curseq;
+
+    this->netchan.Send();
+
+    states[netchan.lastack % STATE_WINDOW].recievedtime = TIMEMS;
+}
+
+void engine::cl::Client::Disconnect(void)
+{
+    if(!connected)
+        return;
+    
+    Console::Print("disconnecting from %hhu.%hhu.%hhu.%hhu:%d.\n",
+        netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+
+    connected = false;
+    CleanNetwork();
+}
+
+void engine::cl::Client::Connect(const uint8_t addr[4], int port)
+{
+    const char username[ENGINE_PACKET_MAXPLAYERNAME] = "client";
+
+    struct sockaddr_in svaddr;
+    socklen_t addrlen;
+
+    Disconnect();
+
+    Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", 
+        netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+
+    this->MakeNetwork(addr, port, 0);
+
+    this->tryconnect = true;
+    connectstart = TIMEMS;
+
+    // write the packet (reliable)
+    netchan.NewReliable();
+    netchan.WriteUShort(packet::TYPE_HANDSHAKE, false);
+    netchan.WriteUInt(ENGINE_PACKET_PROTOCOL_VERSION, false);
+    netchan.WriteString(username, ENGINE_PACKET_MAXPLAYERNAME, false);
+}
+
+void engine::cl::Client::ConnectStr(const std::string& str)
+{
+    size_t icolon;
+    std::string ipstr, portstr;
+    uint8_t ipv4[4];
+    int portnum;
+
+    icolon = str.find(':');
+    if(icolon == std::string::npos)
+    {
+        ipstr = str;
+        portstr = "";
+        portnum = ENGINE_DEFAULTSVPORT;
+    }
+    else
+    {
+        ipstr = str.substr(0, icolon);
+        portstr = str.substr(icolon + 1);
+        portnum = std::stoi(portstr);
+        if(!INRANGE(1, 65535, portnum))
+        {
+            Console::Print("invalid port number.\n");
+            return;
+        }
+    }
+
+    if(sscanf(ipstr.c_str(), " %hhu.%hhu.%hhu.%hhu", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) != 4)
+    {
+        Console::Print("invald ipv4 address.\n");
+        return;
+    }
+
+    Connect(ipv4, portnum);
+}
+
+void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
+{
+    if(args.size() != 2)
+    {
+        Console::Print("expected exactly 1 arg.\n");
+        return;
+    }
+
+    ConnectStr(args[1]);
+}
+
+bool engine::cl::Client::ProcessReliablePacket(void)
+{
+    return true;
+}
+
+bool engine::cl::Client::ProcessUnreliablePacket(void)
+{
+    uint16_t type;
+    packet::svcl_playerstate_t playerstate;
+    gamestate_t *gamestate;
+
+    type = netchan.NextUShort();
+
+    switch(type)
+    {
+    case packet::TYPE_PLAYERSTATE:
+        playerstate = {};
+        playerstate.id = netchan.NextUByte();
+        playerstate.x = netchan.NextFloat();
+        playerstate.y = netchan.NextFloat();
+
+        if(playerstate.id >= MAX_PLAYER)
+            return false;
+
+        this->svclients[playerstate.id].player.pos[0] = playerstate.x;
+        this->svclients[playerstate.id].player.pos[1] = playerstate.y;
+        this->svclients[playerstate.id].state = DumbClient::STATE_CONNECTED;
+        states[netchan.lastseen % STATE_WINDOW].svclients[playerstate.id] = this->svclients[playerstate.id];
+
+        break;
+    default:
+        Console::Print("invalid packet type %d from server.\n", type);
+        return false;
+    }
+
+    return true;
+}
+
+void engine::cl::Client::ProcessHandshakeResponse(void)
+{
+    Console::Print("check for handshake\n");
+    if(netchan.NextUShort() != packet::TYPE_HANDSHAKE)
+        return;
+
+    this->clientid = netchan.NextUByte();
+
+    this->tryconnect = false;
+    this->connected = true;
+    Console::Print("handshake with server complete.\n");
+}
+
+void engine::cl::Client::ProcessRecieved(void)
+{
+    int i;
+
+    uint8_t buf[MAX_PACKET_SIZE];
+    int buflen;
+    struct sockaddr_in claddr;
+    socklen_t claddrlen;
+
+    if(this->netchan.socket < 0)
+        return;
+
+    do
+    {
+        claddrlen = sizeof(claddr);
+        buflen = recvfrom(this->netchan.socket, buf, MAX_PACKET_SIZE, 0, (sockaddr*) &claddr, &claddrlen);
+        if(buflen < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break;
+            Console::Print("warning: error %d with recvfrom on client.\n", errno);
+            break;
+        }
+
+        if(!buflen)
+            continue;
+            
+        if(!netchan.Recieve(buf, buflen))
+            continue;
+
+        if(!netchan.dgram.size())
+            continue;
+
+        // check for handshake response if you're trying to connect to the server.
+        if(tryconnect)
+        {
+            ProcessHandshakeResponse();
+            continue;
+        }
+
+        if(netchan.hasreliable)
+        {
+            if(netchan.reliablenew)
+                ProcessReliablePacket();
+            else
+                netchan.SkipReliable();
+        }
+        while(netchan.dragmpos < netchan.dgram.size())
+            if(!ProcessUnreliablePacket())
+                break;
+    } while(1);
+}
+
+void engine::cl::Client::RecordInput(void)
+{
+    pinput->GenerateCmd();
+    pinput->cmd.time = frametime * 1000;
+    states[netchan.curseq % STATE_WINDOW].cmd = pinput->cmd;
+}
+
+void engine::cl::Client::PredictLocal(void)
+{
+    int i;
+
+    gamestate_t *state;
+    Player *player;
+
+    if(!connected)
+        return;
+
+    if(netchan.lastseen < 0)
+        return;
+
+    if(netchan.curseq - netchan.lastseen >= STATE_WINDOW - 1)
+    {
+        Console::Print("warning: latency too high for client prediction!\n");
+        return;
+    }
+
+    player = &svclients[clientid].player;
+    *player = states[netchan.lastseen % STATE_WINDOW].svclients[clientid].player;
+
+    for(i=netchan.lastseen+1; i<netchan.curseq; i++)
+    {
+        state = &states[i % STATE_WINDOW];
+
+        player->ParseCmd(state->cmd);
+        player->Move((float) state->cmd.time / 1000.0);
+    }
+}
+
+// how long to try to connect to a server before giving up, in ms
+engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout_ms", "2000" };
+
+void engine::cl::Client::CheckTimeout(void)
+{
+    float connecttimeoutval;
+    uint64_t connectelapsed;
+
+    if(!connected && tryconnect)
+    {
+        connecttimeoutval = std::stof(cl_connection_timeout.strval);
+        connectelapsed = TIMEMS - connectstart;
+        if(connectelapsed < connecttimeoutval)
+            return;
+
+        Console::Print("connection attempt with server %hhu.%hhu.%hhu.%hhu:%d timed out.\n",
+            netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+        this->CleanNetwork();
+        this->tryconnect = false;
+        return;
+    }
+}
+
+void engine::cl::Client::MakeNetwork(const uint8_t addr[4], int svport, int clport)
+{
+    struct sockaddr_in svaddr;
+    socklen_t addrlen;
+
+    UTILS_ASSERT(addr);
+
+    this->CleanNetwork();
+
+    netchan.socket = socket(PF_INET, SOCK_DGRAM, 0);
+    if(netchan.socket < 0)
+    {
+        Console::Print("error %d creating UDP socket on client.\n", errno);
+        return;
+    }
+
+    fcntl(netchan.socket, F_SETFL, fcntl(netchan.socket, F_GETFL, 0) | O_NONBLOCK);
+
+    svaddr = {};
+    svaddr.sin_family = AF_INET;
+    svaddr.sin_addr.s_addr = INADDR_ANY;
+    svaddr.sin_port = htons(clport);
+
+    if(bind(this->netchan.socket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
+    {
+        Console::Print("error %d binding socket on client.\n", errno);
+        exit(1);
+    }
+
+    // in case clport was 0
+    addrlen = sizeof(svaddr);
+    if(getsockname(this->netchan.socket, (struct sockaddr*) &svaddr, &addrlen) < 0)
+    {
+        Console::Print("error %d with getsockname.\n", errno);
+        exit(1);
+    }
+
+    this->clport = ntohs(svaddr.sin_port);
+    Console::Print("bound socket on port %d.\n", this->clport);
+
+    memcpy(netchan.ipv4, addr, 4);
+    Console::Print("addr: %hhu.%hhu.%hhu.%hhu.\n", addr[0], addr[1], addr[2], addr[3]);
+    netchan.port = svport;
+}
+
+void engine::cl::Client::CleanNetwork(void)
+{
+    if(netchan.socket >= 0)
+        close(netchan.socket);
+
+    netchan = NetChan();
+}
+
+void engine::cl::Client::Init(void)
+{
+    InputInit();
+    this->pinput->Init();
+
+    Console::RegisterCVar(&cl_connection_timeout);
+    Console::RegisterCCmd({ "connect", [this](const std::vector<std::string>& args){ConnectCmd(args);}, });
+}
+
+void engine::cl::Client::Cleanup(void)
+{
+    if(this->netchan.socket >= 0)
+    {
+        close(this->netchan.socket);
+        this->netchan.socket = -1;
+    }
+}
+
+void engine::cl::Client::Setup(void)
+{
+    this->pinput = std::make_unique<PlayerInput>(PlayerInput());
+}
+
+int engine::cl::Client::Run(void)
+{
+    // temporary until 3d
+    SDL_Renderer *render;
+    uint64_t lastframe, thisframe;
+    
+    Init();
+
+    this->MakeWindow();
+    render = SDL_CreateRenderer(this->win, NULL);
+    SDL_SetRenderVSync(render, 1);
+    lastframe = 0;
+    while(!this->islastframe)
+    {
+        thisframe = TIMEMS;
+        if(!lastframe)
+            lastframe = thisframe;
+        frametime = thisframe - lastframe;
+        if(frametime < 1)
+            frametime = 1;
+        frametime /= 1000.0;
+
+        SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+        SDL_RenderClear(render);
+
+        this->PollWindow();
+
+        this->RecordInput();
+        Console::ExecTerm();
+
+        this->ProcessRecieved();
+        this->CheckTimeout();
+        
+        this->PredictLocal();
+        this->DrawClients(render);
+
+        // TODO: the disconnect packet could be dropped.
+        // instead wait until disconnect packet is acknowledged to exit
+        if(islastframe)
+            Disconnect();
+
+        this->SendPackets();
+
+        SDL_RenderPresent(render);
+
+        lastframe = thisframe;
+    }
+    SDL_DestroyRenderer(render);
+    this->DestroyWindow();
+
+    return 0;
+}

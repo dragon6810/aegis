@@ -1,226 +1,147 @@
-#include "Console.h"
+#include <engine/Console.h>
 
-#include <stdio.h>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <cstdarg>
-#include <algorithm>
-#include <chrono>
+#include <utilslib.h>
 
-#include "Wad.h"
-#include "Game.h"
+engine::Console console = engine::Console();
 
-void Console::Print(const char* format, ...)
+void engine::Console::RegisterCVar(cvar_t *cvar)
 {
-    va_list args;
-    char buffer[8192];
-    int len;
+    UTILS_ASSERT(cvar);
+    UTILS_ASSERT(cvar->name);
 
-    va_start(args, format);
-    len = vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-
-    printf("%s", buffer);
-
-    Game::GetGame().console.output.append(buffer);
-}
-
-Console::~Console(void)
-{
-    ResourceManager::AbandonTexture(consback);
-    ResourceManager::AbandonTexture(font.tex);
-}
-
-bool Console::IsDown(void)
-{
-    return isdown;
-}
-
-void Console::KeyInput(char c)
-{
-    if (state != 2)
-        return;
-
-    if(c == '\n')
+    if(console.ccmds.find(cvar->name) != console.ccmds.end())
     {
-        Game::GetGame().ParseCommands(input);
-        input.clear();
-        cursor = 0;
-        window = 0;
+        Print("can't add cvar for it already exists as CCmd \"%s\".\n", cvar->name);
         return;
     }
 
-    if(cursor == input.size())
-        cursor++;
-
-    input.push_back(c);
-}
-
-void Console::DecCursor(void)
-{
-    if(cursor)
-        cursor--;
-}
-
-void Console::IncCursor(void)
-{
-    if(cursor < input.size())
-        cursor++;
-}
-
-void Console::Backspace(void)
-{
-    if(!cursor)
-        return;
-    
-    if(input.size())
-        input.erase(input.begin() + cursor - 1);
-    
-    cursor--;
-}
-
-void Console::Delete(void)
-{
-    if(cursor < input.size())
-        input.erase(input.begin() + cursor);
-}
-
-void Console::Hide(void)
-{
-    isdown = false;
-    state = 3;
-}
-
-void Console::Show(void)
-{
-    isdown = true;
-    state = 1;
-}
-
-void Console::Toggle(void)
-{
-    if(IsDown())
-        Hide();
-    else
-        Show();
-}
-
-void Console::Render(void)
-{
-    int i;
-
-    int nrows;
-    std::string curline;
-    char* c;
-    int cursorw, cursorx;
-    long long now;
-
-    if(!state)
-        return;
-
-    switch (state)
+    if(console.cvars.find(cvar->name) != console.cvars.end())
     {
-    case 1:
-        curoffs -= (float)(visheight << 1) * Game::GetGame().deltatime;
-
-        if (curoffs <= lowoffs)
-        {
-            curoffs = lowoffs;
-            state = 2;
-        }
-        break;
-    case 3:
-        curoffs += (float)(visheight << 1) * Game::GetGame().deltatime;
-
-        if (curoffs >= 240)
-        {
-            curoffs = 240;
-            state = 0;
-        }
-        break;
-    default:
-        break;
+        Print("can't add cvar for it already exists as CVar \"%s\".\n", cvar->name);
+        return;
     }
 
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE0);
-    if(consback)
-        glBindTexture(GL_TEXTURE_2D, consback->name);
+    console.cvars[cvar->name] = cvar;
+}
 
-    glBegin(GL_QUADS);
-    glTexCoord2f(1, 1);
-    glVertex2f(320, 0 + (int)curoffs);
-    glTexCoord2f(1, 0);
-    glVertex2f(320, 240 + (int)curoffs);
-    glTexCoord2f(0, 0);
-    glVertex2f(0, 240 + (int)curoffs);
-    glTexCoord2f(0, 1);
-    glVertex2f(0, 0 + (int)curoffs);
-    glEnd();
+void engine::Console::RegisterCCmd(const ccmd_t& ccmd)
+{
+    UTILS_ASSERT(ccmd.name);
 
-    glDisable(GL_TEXTURE_2D);
-
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.5f);
-
-    nrows = visheight / font.tex->height - 1;
-    c = &output[output.size() - 1];
-    if (*c == '\n')
-        c--;
-    i = 0;
-    while (i < nrows && c >= output.data())
+    if(console.ccmds.find(ccmd.name) != console.ccmds.end())
     {
-        curline = "";
-        while (*c != '\n' && c >= output.data())
+        Print("can't add cvar for it already exists as CCmd \"%s\".\n", ccmd.name);
+        return;
+    }
+
+    if(console.cvars.find(ccmd.name) != console.cvars.end())
+    {
+        Print("can't add cvar for it already exists as CVar \"%s\".\n", ccmd.name);
+        return;
+    }
+
+    console.ccmds[ccmd.name] = ccmd;
+}
+
+void engine::Console::ExecStr(const char* str)
+{
+    const char *c, *argstart;
+    std::vector<std::string> args;
+
+    UTILS_ASSERT(str);
+
+    begin:
+    args.clear();
+    c = argstart = str;
+    while(1)
+    {
+        while(*c <= 32 && *c)
+            c++;
+
+        argstart = c;
+
+        if(!*c)
+            break;
+
+        // TODO: quoted args should be tolerable to whitespace, then unqote the arg.
+
+        while(*c > 32)
+            c++;
+        args.push_back(std::string(argstart, c - argstart));
+    }
+
+    // silent return because i dont think this should print an error right?
+    if(!args.size())
+        return;
+
+    if(console.ccmds.find(args[0]) != console.ccmds.end())
+    {
+        console.ccmds[args[0]].func(args);
+        return;
+    }
+    if(console.cvars.find(args[0]) != console.cvars.end())
+    {
+        if(args.size() == 1)
         {
-            curline.push_back(*c);
-            c--;
+            Print("%s = \"%s\"\n", args[0].c_str(), console.cvars[args[0]]->strval.c_str());
+            return;
         }
 
-        std::reverse(curline.begin(), curline.end());
-        font.DrawText(curline, 0, (int) curoffs + (i + 2) * font.tex->height);
-        i++;
-        c--;
+        if(args.size() != 2)
+        {
+            Print("expected exactly 0 or 1 argument after CVar.\n");
+            return;
+        }
+        console.cvars[args[0]]->strval = args[1];
+        return;
     }
 
-    font.DrawText(input, 0, (int) curoffs);
-
-    if(cursor < input.size())
-        cursorw = font.widths[input[cursor]];
-    else
-        cursorw = 5;
-
-    for(i=0, cursorx=0; i<cursor && i<input.size(); i++)
-        cursorx += font.widths[input[i]];
-
-    if(cursor)
-        cursorx += cursor;
-
-    now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-    if((now >> 10) & 1)
-    {
-        glBegin(GL_QUADS);
-        glVertex2f(cursorx, curoffs);
-        glVertex2f(cursorx + cursorw, curoffs);
-        glVertex2f(cursorx + cursorw, curoffs + font.tex->height);
-        glVertex2f(cursorx, curoffs + font.tex->height);
-        glEnd();
-    }
-
-    glDisable(GL_ALPHA_TEST);
+    Print("unknown CCmd/CVar \"%s\".\n", str);
 }
 
-void Console::Load(void)
+void engine::Console::SubmitStr(const char* str)
 {
-    Wad wad;
+    console.termmtx.lock();
+    console.termcmds.push_back(str);
+    console.termmtx.unlock();
+}
 
-    wad.Open("aegis.wad");
-    consback = wad.LoadTexture("CONSBACK");
-    font = wad.LoadFont("grit");
-    wad.Unload();
+void engine::Console::Print(const char* fmt, ...)
+{
+    va_list		args;
+	
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+}
 
-    ResourceManager::UseTexture(consback);
-    ResourceManager::UseTexture(font.tex);
+void engine::Console::LaunchTerm(void)
+{
+    console.termthread = std::thread([]
+    {
+        char buf[1024];
+
+        while(1)
+        {
+            scanf("%1023[^\n]%*c", buf);
+
+            SubmitStr(buf);
+        }
+    });
+}
+
+void engine::Console::ExecTerm(void)
+{
+    console.termmtx.lock();
+    while(console.termcmds.size())
+    {
+        ExecStr(console.termcmds.front().c_str());
+        console.termcmds.pop_front();
+    }
+    console.termmtx.unlock();
+}
+
+void engine::Console::KillTerm(void)
+{
+    console.termthread.detach();
 }

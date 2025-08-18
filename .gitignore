@@ -2,6 +2,9 @@
 *.swp
 *.swo
 
+# annoying stuff
+.DS_Store
+
 # CMake
 build/
 CMakeFiles/
