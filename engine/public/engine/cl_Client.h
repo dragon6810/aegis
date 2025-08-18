@@ -4,6 +4,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <renderer/Renderer.h>
+
 #include <engine/cl_DumbClient.h>
 #include <engine/cl_PlayerInput.h>
 #include <engine/NetChan.h>
@@ -66,6 +68,8 @@ namespace engine::cl
 
         // games: set this to your own input class if you want to.
         std::unique_ptr<PlayerInput> pinput;
+
+        renderer::Renderer renderer;
 
         void Setup(void);
         int Run(void);

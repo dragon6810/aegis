@@ -12,7 +12,13 @@ Aegis follow a modular structure, where each folder apart from `.vscode/`, `asse
 
 Aegis uses CMake as its primary build system (again the exception here is `tools/`, which uses Make). Currently, only MacOS is supported, but Linux support should work in the near future. 
 
-First, you will need to install some dependencies. This is platform specific:
+First, you will need to install some dependencies.
+
+One such depency is the Vulkan SDK. It can be found here:
+
+https://vulkan.lunarg.com/sdk/home
+
+The rest can be installed with the following commands:
     
 ### MacOS (brew):
 

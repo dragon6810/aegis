@@ -18,6 +18,7 @@ target_link_libraries(engine PRIVATE
 target_link_libraries(engine PUBLIC
     eigen
     SDL3::SDL3
+    renderer
 )
 
 target_include_directories(engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/public)

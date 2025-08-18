@@ -426,6 +426,8 @@ int engine::cl::Client::Run(void)
     
     Init();
 
+    this->renderer.Initialize();
+
     this->MakeWindow();
     render = SDL_CreateRenderer(this->win, NULL);
     SDL_SetRenderVSync(render, 1);
@@ -467,6 +469,8 @@ int engine::cl::Client::Run(void)
     }
     SDL_DestroyRenderer(render);
     this->DestroyWindow();
+
+    this->renderer.Shutdown();
 
     return 0;
 }

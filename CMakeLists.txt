@@ -40,6 +40,7 @@ add_subdirectory(fgdlib)
 add_subdirectory(cfglib)
 add_subdirectory(tpklib)
 add_subdirectory(bsplib)
+add_subdirectory(renderer)
 add_subdirectory(engine)
 add_subdirectory(game/grunge)
 
