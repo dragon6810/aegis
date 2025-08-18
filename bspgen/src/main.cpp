@@ -7,9 +7,35 @@
 
 #include "Bsp.h"
 #include "Csg.h"
+#include "Portals.h"
+#include "Write.h"
 
 int nbrush = 0;
 int nbrface = 0;
+
+void ProcessModel(model_t *mdl, bool world)
+{
+    int beforenodes, beforeleaves, beforefaces, beforeportals;
+
+    CsgModel(mdl);
+    beforenodes = nodes.size();
+    beforeleaves = leaves.size();
+    beforefaces = faces.size();
+    beforeportals = portals.size();
+    BspModel(mdl);
+    Portalize(mdl);
+
+    if(world)
+    {
+        FillModel(mdl);
+        nodes.resize(beforenodes);
+        leaves.resize(beforeleaves);
+        faces.resize(beforefaces);
+        portals.resize(beforeportals);
+        BspModel(mdl);
+        Portalize(mdl);
+    }
+}
 
 void LoadBrush(Maplib::brush_t *fbr, brush_t *outbr)
 {
@@ -122,6 +148,8 @@ void LoadMap(const char* file)
 
 int main(int argc, char** argv)
 {
+    int i;
+
     argparse::ArgumentParser argparser("bspgen", "0.1.0", argparse::default_arguments::help, false);
     std::string infile, outfile, hullfile;
 
@@ -169,7 +197,9 @@ int main(int argc, char** argv)
     }
 
     LoadMap(infile.c_str());
-    CsgMap();
+    for(i=0; i<models.size(); i++)
+        ProcessModel(&models[i], !i);
+    Write(outfile.c_str());
 
     return 0;
 }

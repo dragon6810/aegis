@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Bsp.h"
+
 extern std::string objout;
 
-void CsgMap(void);
+void CsgModel(model_t *mdl);

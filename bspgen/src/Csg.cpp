@@ -2,16 +2,13 @@
 
 #include <utilslib.h>
 
-#include "Bsp.h"
-
 std::string objout = "";
 
 void WriteObjs(void)
 {
-    int i, j, h, m, b, f, v;
+    int i, j, h, m, f, v;
     model_t *mdl;
-    brush_t *br;
-    brface_t *face;
+    face_t *face;
 
     FILE *ptr;
     std::string name;
@@ -25,16 +22,15 @@ void WriteObjs(void)
 
         for(m=0, mdl=models.data(); m<models.size(); m++, mdl++)
         {
-            for(b=0, br=mdl->brushes[h].data(); b<mdl->brushes[h].size(); b++, br++)
+            for(f=0; f<mdl->faces[h].size(); f++)
             {
-                for(f=0, face=br->faces.data(); f<br->faces.size(); f++, face++)
+                face = &faces[mdl->faces[h][f]];
+
+                index.push_back({});
+                for(v=0; v<face->poly.size(); v++)
                 {
-                    index.push_back({});
-                    for(v=0; v<face->poly.size(); v++)
-                    {
-                        index.back().push_back(verts.size());
-                        verts.push_back(face->poly[v]);
-                    }
+                    index.back().push_back(verts.size());
+                    verts.push_back(face->poly[v]);
                 }
             }
         }
@@ -65,6 +61,7 @@ void WriteObjs(void)
 }
 
 std::vector<face_t> interior, exterior;
+int nculled = 0;
 
 void FindExteriorByBrush(brush_t *b1, brush_t *b2, bool b2priority)
 {
@@ -147,6 +144,7 @@ void CullInteriorFaces(model_t *mdl)
     int i, h, b1, b2, f;
 
     brush_t *pb1, *pb2;
+    int faceoffs;
 
     for(h=0; h<Bsplib::n_hulls; h++)
     {
@@ -166,16 +164,21 @@ void CullInteriorFaces(model_t *mdl)
                 if(i < 3)
                     continue;
 
+                nculled += interior.size();
                 interior = exterior;
                 exterior.clear();
                 FindExteriorByBrush(pb1, pb2, b2 > b1);
             }
         
-            /*
-            this->bsp[h].faces.reserve(this->bsp[h].faces.size() + this->brushes[h][b1].exterior.size());
-            for(f=0; f<this->brushes[h][b1].exterior.size(); f++)
-                this->bsp[h].faces.push_back(BspFace(this->brushes[h][b1].exterior[f], &builder));
-            */
+            mdl->uncut[h].reserve(mdl->uncut[h].size() + exterior.size());
+            for(i=0; i<exterior.size(); i++)
+            {
+                exterior[i].contents[0] = CONTENTS_SOLID;
+                exterior[i].contents[1] = CONTENTS_EMPTY;
+                exterior[i].uncutnum = mdl->uncut[h].size();
+
+                mdl->uncut[h].push_back(exterior[i]);
+            }
         }
     }
 }
@@ -325,10 +328,15 @@ void CsgModel(model_t *mdl)
 
     uint64_t expandstartt, expandendt;
     uint64_t cullstartt, cullendt;
+    uint64_t startt, endt;
+
+    startt = TIMEMS;
 
     assert(mdl);
 
-    expandstartt = TIMEMS;
+    printf("---- CsgModel ----\n");
+
+    startt = expandstartt = TIMEMS;
 
     for(h=1; h<Bsplib::n_hulls; h++)
         mdl->brushes[h] = mdl->brushes[0];
@@ -348,25 +356,11 @@ void CsgModel(model_t *mdl)
     CullInteriorFaces(mdl);
 
     cullendt = TIMEMS;
-    printf("interior faces culled in %llums.\n", cullendt - cullstartt);
-}
-
-void CsgMap(void)
-{
-    int i;
-
-    uint64_t startt, endt;
-
-    startt = TIMEMS;
-
-    printf("---- CsgMap ----\n");
-
-    for(i=0; i<models.size(); i++)
-        CsgModel(&models[i]);
+    printf("%d interior faces culled in %llums.\n", nculled, cullendt - cullstartt);
 
     if(objout.size())
         WriteObjs();
 
     endt = TIMEMS;
-    printf("CsgMap done in %llums.\n", endt - startt);
+    printf("CsgModel done in %llums.\n", endt - startt);
 }
