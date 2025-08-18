@@ -25,3 +25,27 @@
 [submodule "thirdparty/sdl"]
 	path = thirdparty/sdl
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "thirdparty/vk-bootstrap"]
+	path = thirdparty/vk-bootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap.git
+[submodule "thirdparty/vma"]
+	path = thirdparty/vma
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "thirdparty/vk-headers"]
+	path = thirdparty/vk-headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "thirdparty/vk-loader"]
+	path = thirdparty/vk-loader
+	url = https://github.com/KhronosGroup/Vulkan-Loader.git
+[submodule "thirdparty/vk-validationlayers"]
+	path = thirdparty/vk-validationlayers
+	url = https://github.com/KhronosGroup/Vulkan-ValidationLayers
+[submodule "thirdparty/vk-utillib"]
+	path = thirdparty/vk-utillib
+	url = https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
+[submodule "thirdparty/vk-spirv-headers"]
+	path = thirdparty/vk-spirv-headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "thirdparty/vk-spirv-tools"]
+	path = thirdparty/vk-spirv-tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git

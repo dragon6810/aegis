@@ -14,12 +14,6 @@ Aegis uses CMake as its primary build system (again the exception here is `tools
 
 First, you will need to install some dependencies.
 
-One such depency is the Vulkan SDK. It can be found here:
-
-https://vulkan.lunarg.com/sdk/home
-
-The rest can be installed with the following commands:
-    
 ### MacOS (brew):
 
     brew install glew glfw
@@ -33,5 +27,7 @@ In order to build the project, run:
     git submodule update --init --recursive
     ./configure.sh
     ./build.sh
+
+The first build can be quite lengthy, mostly due to vulkan and its related tools. Since these are rarely modified, all non-clean builds should be quite fast.
 
 This will place the compiled binaries, including tests, into `build/bin`. For a streamlined way to build and run a given binary, `engine.sh`, `tests.sh`, and `wp3d.sh` will do just that. Note those scripts build every binary but only run their corresponding executable, so build time will not be any different from `build.sh`.
