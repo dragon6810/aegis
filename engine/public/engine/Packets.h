@@ -19,9 +19,16 @@ namespace engine::packet
 typedef enum
 {
     TYPE_INVALIDPACKET=0,
+    
+    // two-way
     TYPE_HANDSHAKE,
+
+    // cl -> sv
+    TYPE_DISCONNECT,
     TYPE_PLAYERCMD,
-    TYPE_SVCL_PLAYERSTATE,
+
+    // sv -> cl
+    TYPE_PLAYERSTATE,
 } type_e;
 
 static const char clsv_handshake_message[] = "aegis handshake";

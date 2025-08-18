@@ -37,7 +37,8 @@ namespace engine::cl
         void Connect(const uint8_t addr[4], int port);
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
-        bool ProcessPacket(void);
+        bool ProcessReliablePacket(void);
+        bool ProcessUnreliablePacket(void);
         void ProcessHandshakeResponse(void);
         void ProcessRecieved(void);
         void RecordInput(void);

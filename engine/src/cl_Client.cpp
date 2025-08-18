@@ -177,7 +177,12 @@ void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
     ConnectStr(args[1]);
 }
 
-bool engine::cl::Client::ProcessPacket(void)
+bool engine::cl::Client::ProcessReliablePacket(void)
+{
+    return true;
+}
+
+bool engine::cl::Client::ProcessUnreliablePacket(void)
 {
     uint16_t type;
     packet::svcl_playerstate_t playerstate;
@@ -187,10 +192,7 @@ bool engine::cl::Client::ProcessPacket(void)
 
     switch(type)
     {
-    case packet::TYPE_HANDSHAKE:
-        netchan.NextUByte();
-        break;
-    case packet::TYPE_SVCL_PLAYERSTATE:
+    case packet::TYPE_PLAYERSTATE:
         playerstate = {};
         playerstate.id = netchan.NextUByte();
         playerstate.x = netchan.NextFloat();
@@ -266,8 +268,15 @@ void engine::cl::Client::ProcessRecieved(void)
             continue;
         }
 
+        if(netchan.hasreliable)
+        {
+            if(netchan.reliablenew)
+                ProcessReliablePacket();
+            else
+                netchan.SkipReliable();
+        }
         while(netchan.dragmpos < netchan.dgram.size())
-            if(!ProcessPacket())
+            if(!ProcessUnreliablePacket())
                 break;
     } while(1);
 }

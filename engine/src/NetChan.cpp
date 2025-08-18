@@ -92,6 +92,11 @@ void engine::NetChan::NextString(char* dest, int len)
     dragmpos += len;
 }
 
+void engine::NetChan::SkipReliable(void)
+{
+    this->dragmpos = this->reliablesize;
+}
+
 void engine::NetChan::ClearUnreliable(void)
 {
     this->unreliablebuf.clear();
@@ -177,8 +182,6 @@ void engine::NetChan::Send(void)
 
     header = (header_t*) message.data();
     *header = {};
-    header->magic[0] = 'N';
-    header->magic[1] = 'C';
     header->seq = curseq++;
     header->ack = lastseen;
 
@@ -187,6 +190,13 @@ void engine::NetChan::Send(void)
         if(this->reliableseq < 0)
             this->reliableseq = header->seq;
         header->seq |= 0x80000000;
+        message.reserve(message.size() + 6);
+        message.push_back((reliableseq & 0xFF000000) >> 24);
+        message.push_back((reliableseq & 0xFF0000) >> 16);
+        message.push_back((reliableseq & 0xFF00) >> 8);
+        message.push_back((reliableseq & 0xFF) >> 0);
+        message.push_back((this->reliablequeue.front().size() & 0xFF00) >> 8);
+        message.push_back((this->reliablequeue.front().size() & 0xFF) >> 0);
         message.append_range(this->reliablequeue.front());
     }
 
@@ -215,6 +225,7 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
     header_t header;
     const void *pos;
     int lenleft;
+    int32_t reliablenum;
 
     if(!data || !datalen)
         return false;
@@ -226,19 +237,35 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
     pos = (char*) data + sizeof(header_t);
     lenleft = datalen - sizeof(header_t);
 
-    if(header.magic[0] != 'N' || header.magic[1] != 'C')
-        return false;
-
     header.seq = ntohl(header.seq);
     header.ack = ntohl(header.ack);
 
     this->lastack = header.ack;
 
-    this->hasreliable = false;
+    this->hasreliable = this->reliablenew = false;
     if(header.seq & 0x80000000)
     {
         this->hasreliable = true;
         header.seq &= 0x7FFFFFFF;
+
+        // reliable header
+        if(lenleft < sizeof(int32_t) + sizeof(uint16_t))
+            return false;
+        
+        memcpy(&reliablenum, pos, sizeof(int32_t));
+        pos = (char*) pos + sizeof(int32_t);
+        memcpy(&this->reliablesize, pos, sizeof(uint16_t));
+        pos = (char*) pos + sizeof(uint16_t);
+        lenleft -= sizeof(int32_t) + sizeof(uint16_t);
+
+        reliablenum = ntohl(reliablenum);
+        this->reliablesize = ntohs(reliablesize);
+
+        if(this->reliablesize > lenleft)
+            return false;
+
+        this->reliablenew = reliablenum != this->lastseenreliable;
+        this->lastseenreliable = reliablenum;
     }
 
     if(header.seq <= this->lastseen)
@@ -258,9 +285,9 @@ bool engine::NetChan::Recieve(const void* data, int datalen)
     //Console::Print("seq: %d, ack: %d.\n", reliableseq, header.ack);
 
     // our current reliable command was acknowledged
-    if(this->reliableseq >= 0 && header.ack >= this->reliableseq)
+    if(this->reliablequeue.size() && header.ack >= this->reliableseq)
     {
-        this->reliableseq = -1;
+        this->reliableseq++;
         this->reliablequeue.pop_front();
     }
 

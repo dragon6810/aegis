@@ -68,9 +68,6 @@ void engine::sv::Server::ProcessUnknownPacket(const uint8_t* data, int datalen, 
     // check if its a handshake. use an open netchan, but don't confirm the client
     // until you're sure
 
-    Console::Print("packet from %hhu.%hhu.%hhu.%hhu:%d.\n",
-            addr[0], addr[1], addr[2], addr[3], port);
-
     icl = FindFreeClient();
     if(icl < 0)
     {
@@ -86,9 +83,13 @@ void engine::sv::Server::ProcessUnknownPacket(const uint8_t* data, int datalen, 
     memcpy(cl->netchan.ipv4, addr, 4);
     cl->netchan.port = port;
 
+    Console::Print("got packaet2\n");
+
     // just a random packet
     if(!cl->netchan.Recieve(data, datalen))
         return;
+
+    Console::Print("got packaet1\n");
 
     if(!cl->netchan.hasreliable)
         return;
@@ -115,7 +116,14 @@ void engine::sv::Server::ProcessUnknownPacket(const uint8_t* data, int datalen, 
     cl->netchan.WriteUByte(icl, false);
 }
 
-void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int datalen)
+void engine::sv::Server::ProcessReliablePacket(int icl)
+{
+    NetClient *cl;
+
+    cl = &clients[icl];
+}
+
+bool engine::sv::Server::ProcessUnreliablePacket(int icl)
 {
     NetClient *cl;
     uint16_t type, len;
@@ -123,23 +131,15 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
 
     cl = &clients[icl];
 
-    if(!cl->netchan.Recieve(data, datalen))
-        return;
-
-    if(cl->netchan.curseq < cl->netchan.lastseen)
-        cl->netchan.curseq = cl->netchan.lastseen;
-
     if(!cl->netchan.dgram.size())
-        return;
+        return false;
+
+    if(cl->netchan.dragmpos >= cl->netchan.dgram.size())
+        return false;
 
     type = cl->netchan.NextUShort();
     switch(type)
     {
-    case packet::TYPE_HANDSHAKE:
-        cl->netchan.NextUShort();
-        cl->netchan.NextUInt();
-        cl->netchan.NextString(NULL, ENGINE_PACKET_MAXPLAYERNAME);
-        break;
     case packet::TYPE_PLAYERCMD:
         playercmd.time = cl->netchan.NextUShort();
         playercmd.move = cl->netchan.NextUByte();
@@ -148,13 +148,13 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         cl->player.Move((float) playercmd.time / 1000.0);
         break;
     default:
-        Console::Print("invalid packet type %d from %hhu.%hhu.%hhu.%hhu:%d (%d).\n",
+        Console::Print("invalid packet type %d from %hhu.%hhu.%hhu.%hhu:%d (%s).\n",
             type, cl->netchan.ipv4[0], cl->netchan.ipv4[1], cl->netchan.ipv4[2], cl->netchan.ipv4[3], 
             cl->netchan.port, cl->username);
-        break;
+        return false;
     }
 
-    return;
+    return true;
 }
 
 void engine::sv::Server::ProcessRecieved(void)
@@ -189,7 +189,21 @@ void engine::sv::Server::ProcessRecieved(void)
         if(icl < 0)
             ProcessUnknownPacket(buf, buflen, ipv4, ntohs(claddr.sin_port));
         else
-            ProcessClientPacket(icl, buf, buflen);
+        {
+            if(clients[icl].netchan.curseq < clients[icl].netchan.lastseen)
+                clients[icl].netchan.curseq = clients[icl].netchan.lastseen;
+
+            clients[icl].netchan.Recieve(buf, buflen);
+            if(clients[icl].netchan.hasreliable)
+            {
+                if(clients[icl].netchan.reliablenew)
+                    ProcessReliablePacket(icl);
+                else
+                    clients[icl].netchan.SkipReliable();
+            }
+            // only do one since we currently only expect input
+            while(ProcessUnreliablePacket(icl));
+        }
     } while(1);
 }
 
@@ -211,7 +225,7 @@ void engine::sv::Server::SendPackets(void)
             if(othercl->state == NetClient::NETCLIENT_FREE)
                 continue;
 
-            cl->netchan.WriteUShort(packet::TYPE_SVCL_PLAYERSTATE, true);
+            cl->netchan.WriteUShort(packet::TYPE_PLAYERSTATE, true);
             cl->netchan.WriteUByte(j, true);
             cl->netchan.WriteFloat(othercl->player.pos[0], true);
             cl->netchan.WriteFloat(othercl->player.pos[1], true);

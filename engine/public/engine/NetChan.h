@@ -11,8 +11,8 @@
 
 namespace engine
 {
-// this uses quakeworld's netchan, maybe a more modern implementation
-// should be looked into if this doesn't suffice.
+// this uses a slightly modified version of QW netchan.
+// the main changes are removing qport and adding a reliable header to prevent duplicate reads.
 class NetChan
 {
 public:
@@ -20,7 +20,6 @@ public:
     // if you have issues, try adding it back.
     typedef struct
     {
-        char magic[2]; // 'N' 'C'
         int32_t seq;
         int32_t ack;
     } header_t;
@@ -35,8 +34,9 @@ public:
 
     int32_t curseq = 0; // used for sequence number
     int32_t lastseen = -1; // last seen sequence from the other end
-    int32_t reliableseq = -1; // the sequence number the current reliable was first sent on
+    int32_t reliableseq = 0; // the index of the reliable being sent
     int32_t lastack = 0; // last of our sequences the other end has acknowledged
+    int32_t lastseenreliable = -1; // the last seen reliable index from the other ent
 
     // a metric of how many packets have been lost between the other and and your end.
     // does NOT count how many packets have been lost from your end to the other end.
@@ -47,6 +47,8 @@ public:
 
     // last recieved packet
     bool hasreliable = false;
+    bool reliablenew = false; // is this the first time we've seen this reliable?
+    uint16_t reliablesize;
     int32_t dragmpos = 0;
     std::vector<uint8_t> dgram;
 
@@ -55,6 +57,7 @@ public:
     uint32_t NextUInt(void);
     float NextFloat(void);
     void NextString(char* dest, int len);
+    void SkipReliable(void);
 
     void ClearUnreliable(void);
     bool NewReliable(void);

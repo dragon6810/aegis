@@ -24,7 +24,8 @@ namespace engine::sv
         void Init(void);
         void Cleanup(void);
         void ProcessUnknownPacket(const uint8_t* data, int datalen, const uint8_t addr[4], int port);
-        void ProcessClientPacket(int icl, const void* data, int datalen);
+        void ProcessReliablePacket(int icl);
+        bool ProcessUnreliablePacket(int icl);
         void ProcessRecieved(void);
         void SendPackets(void);
     public:
