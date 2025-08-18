@@ -33,7 +33,7 @@ namespace engine::cl
         void DestroyWindow(void);
         void DrawClients(SDL_Renderer* render);
         void SendPackets(void);
-        void Connect(void);
+        void Connect(const uint8_t addr[4], int port);
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
         bool ProcessPacket(void);
@@ -41,6 +41,9 @@ namespace engine::cl
         void ProcessRecieved(void);
         void RecordInput(void);
         void PredictLocal(void);
+        void CheckTimeout(void);
+        void MakeNetwork(const uint8_t addr[4], int svport, int clport);
+        void CleanNetwork(void);
         void Init(void);
         void Cleanup(void);
     public:

@@ -141,7 +141,6 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         cl->netchan.NextString(NULL, ENGINE_PACKET_MAXPLAYERNAME);
         break;
     case packet::TYPE_PLAYERCMD:
-        cl->netchan.NextUShort();
         playercmd.time = cl->netchan.NextUShort();
         playercmd.move = cl->netchan.NextUByte();
 
@@ -149,9 +148,9 @@ void engine::sv::Server::ProcessClientPacket(int icl, const void* data, int data
         cl->player.Move((float) playercmd.time / 1000.0);
         break;
     default:
-        Console::Print("invalid packet from %hhu.%hhu.%hhu.%hhu:%d (%d).\n",
-            cl->netchan.ipv4[0], cl->netchan.ipv4[1], cl->netchan.ipv4[2], cl->netchan.ipv4[3], cl->netchan.port, cl->username);
-        Console::Print("dgram: %d, size: %d\n", cl->netchan.dragmpos, cl->netchan.dgram.size());
+        Console::Print("invalid packet type %d from %hhu.%hhu.%hhu.%hhu:%d (%d).\n",
+            type, cl->netchan.ipv4[0], cl->netchan.ipv4[1], cl->netchan.ipv4[2], cl->netchan.ipv4[3], 
+            cl->netchan.port, cl->username);
         break;
     }
 
@@ -213,7 +212,6 @@ void engine::sv::Server::SendPackets(void)
                 continue;
 
             cl->netchan.WriteUShort(packet::TYPE_SVCL_PLAYERSTATE, true);
-            cl->netchan.WriteUShort(sizeof(packet::svcl_playerstate_t) - 4, true);
             cl->netchan.WriteUByte(j, true);
             cl->netchan.WriteFloat(othercl->player.pos[0], true);
             cl->netchan.WriteFloat(othercl->player.pos[1], true);

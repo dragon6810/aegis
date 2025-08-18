@@ -80,7 +80,6 @@ void engine::cl::Client::SendPackets(void)
     {
         this->netchan.ClearUnreliable();
         this->netchan.WriteUShort(this->pinput->cmd.type, true);
-        this->netchan.WriteUShort(this->pinput->cmd.len, true);
         this->netchan.WriteUShort(this->pinput->cmd.time, true);
         this->netchan.WriteUByte(this->pinput->cmd.move, true);
     }
@@ -96,7 +95,7 @@ void engine::cl::Client::SendPackets(void)
     states[netchan.lastack % STATE_WINDOW].recievedtime = TIMEMS;
 }
 
-void engine::cl::Client::Connect(void)
+void engine::cl::Client::Connect(const uint8_t addr[4], int port)
 {
     const char username[ENGINE_PACKET_MAXPLAYERNAME] = "client";
 
@@ -106,35 +105,10 @@ void engine::cl::Client::Connect(void)
     Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", 
         netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
 
-    // set up connection
-    if(this->netchan.socket >= 0)
-        close(this->netchan.socket);
-
-    this->netchan.socket = socket(PF_INET, SOCK_DGRAM, 0);
-    if(this->netchan.socket < 0)
-    {
-        Console::Print("error %d creating UDP socket on client.\n", errno);
-        return;
-    }
-
-    if(bind(this->netchan.socket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
-    {
-        Console::Print("error %d binding socket on client.\n", errno);
-        exit(1);
-    }
-
-    if(getsockname(this->netchan.socket, (struct sockaddr*) &svaddr, &addrlen) < 0)
-    {
-        Console::Print("error %d with getsockname.\n", errno);
-        exit(1);
-    }
-
-    this->clport = ntohs(svaddr.sin_port);
-    Console::Print("bound socket on port %d.\n", this->clport);
-
-    fcntl(netchan.socket, F_SETFL, fcntl(netchan.socket, F_GETFL, 0) | O_NONBLOCK);
+    this->MakeNetwork(addr, port, 0);
 
     this->tryconnect = true;
+    connectstart = TIMEMS;
 
     // write the packet (reliable)
     netchan.NewReliable();
@@ -175,10 +149,7 @@ void engine::cl::Client::ConnectStr(const std::string& str)
         return;
     }
 
-    this->netchan = NetChan();
-    memcpy(this->netchan.ipv4, ipv4, 4);
-    this->netchan.port = portnum;
-    Connect();
+    Connect(ipv4, portnum);
 }
 
 void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
@@ -192,17 +163,13 @@ void engine::cl::Client::ConnectCmd(const std::vector<std::string>& args)
     ConnectStr(args[1]);
 }
 
-// how long to try to connect to a server before giving up, in ms
-engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout_ms", "2000" };
-
 bool engine::cl::Client::ProcessPacket(void)
 {
-    uint16_t type, len;
+    uint16_t type;
     packet::svcl_playerstate_t playerstate;
     gamestate_t *gamestate;
 
     type = netchan.NextUShort();
-    len = netchan.NextUShort();
 
     switch(type)
     {
@@ -225,7 +192,7 @@ bool engine::cl::Client::ProcessPacket(void)
 
         break;
     default:
-        Console::Print("invalid packet from server.\n");
+        Console::Print("invalid packet type %d from server.\n", type);
         return false;
     }
 
@@ -329,6 +296,77 @@ void engine::cl::Client::PredictLocal(void)
     }
 }
 
+// how long to try to connect to a server before giving up, in ms
+engine::Console::cvar_t cl_connection_timeout = { "cl_connection_timeout_ms", "2000" };
+
+void engine::cl::Client::CheckTimeout(void)
+{
+    float connecttimeoutval;
+    uint64_t connectelapsed;
+
+    if(!connected && tryconnect)
+    {
+        connecttimeoutval = std::stof(cl_connection_timeout.strval);
+        connectelapsed = TIMEMS - connectstart;
+        if(connectelapsed < connecttimeoutval)
+            return;
+
+        Console::Print("connection attempt with server %hhu.%hhu.%hhu.%hhu:%d timed out.\n",
+            netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3]);
+    }
+}
+
+void engine::cl::Client::MakeNetwork(const uint8_t addr[4], int svport, int clport)
+{
+    struct sockaddr_in svaddr;
+    socklen_t addrlen;
+
+    UTILS_ASSERT(addr);
+
+    this->CleanNetwork();
+
+    netchan.socket = socket(PF_INET, SOCK_DGRAM, 0);
+    if(netchan.socket < 0)
+    {
+        Console::Print("error %d creating UDP socket on client.\n", errno);
+        return;
+    }
+
+    fcntl(netchan.socket, F_SETFL, fcntl(netchan.socket, F_GETFL, 0) | O_NONBLOCK);
+
+    svaddr = {};
+    svaddr.sin_family = AF_INET;
+    svaddr.sin_addr.s_addr = *((uint32_t*) addr);
+    svaddr.sin_port = htons(clport);
+
+    if(bind(this->netchan.socket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
+    {
+        Console::Print("error %d binding socket on client.\n", errno);
+        exit(1);
+    }
+
+    // in case clport was 0
+    if(getsockname(this->netchan.socket, (struct sockaddr*) &svaddr, &addrlen) < 0)
+    {
+        Console::Print("error %d with getsockname.\n", errno);
+        exit(1);
+    }
+
+    this->clport = ntohs(svaddr.sin_port);
+    Console::Print("bound socket on port %d.\n", this->clport);
+
+    memcpy(netchan.ipv4, addr, 4);
+    netchan.port = svport;
+}
+
+void engine::cl::Client::CleanNetwork(void)
+{
+    if(netchan.socket >= 0)
+        close(netchan.socket);
+
+    netchan = NetChan();
+}
+
 void engine::cl::Client::Init(void)
 {
     InputInit();
@@ -378,11 +416,11 @@ int engine::cl::Client::Run(void)
         SDL_RenderClear(render);
 
         this->PollWindow();
+
+        this->RecordInput();
         Console::ExecTerm();
 
         this->ProcessRecieved();
-
-        this->RecordInput();
         
         this->PredictLocal();
         this->DrawClients(render);

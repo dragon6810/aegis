@@ -24,7 +24,6 @@ void engine::cl::PlayerInput::GenerateCmd(void)
     cmd = {};
 
     cmd.type = packet::TYPE_PLAYERCMD;
-    cmd.len = sizeof(packet::clsv_playercmd_t) - 4;
 
     if(left)
         cmd.move |= 0x8;
