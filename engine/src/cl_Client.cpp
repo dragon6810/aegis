@@ -95,12 +95,26 @@ void engine::cl::Client::SendPackets(void)
     states[netchan.lastack % STATE_WINDOW].recievedtime = TIMEMS;
 }
 
+void engine::cl::Client::Disconnect(void)
+{
+    if(!connected)
+        return;
+    
+    Console::Print("disconnecting from %hhu.%hhu.%hhu.%hhu:%d.\n",
+        netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+
+    connected = false;
+    CleanNetwork();
+}
+
 void engine::cl::Client::Connect(const uint8_t addr[4], int port)
 {
     const char username[ENGINE_PACKET_MAXPLAYERNAME] = "client";
 
     struct sockaddr_in svaddr;
     socklen_t addrlen;
+
+    Disconnect();
 
     Console::Print("connecting to %hhu.%hhu.%hhu.%hhu on port %d.\n", 
         netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
@@ -312,7 +326,10 @@ void engine::cl::Client::CheckTimeout(void)
             return;
 
         Console::Print("connection attempt with server %hhu.%hhu.%hhu.%hhu:%d timed out.\n",
-            netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3]);
+            netchan.ipv4[0], netchan.ipv4[1], netchan.ipv4[2], netchan.ipv4[3], netchan.port);
+        this->CleanNetwork();
+        this->tryconnect = false;
+        return;
     }
 }
 
@@ -336,7 +353,7 @@ void engine::cl::Client::MakeNetwork(const uint8_t addr[4], int svport, int clpo
 
     svaddr = {};
     svaddr.sin_family = AF_INET;
-    svaddr.sin_addr.s_addr = *((uint32_t*) addr);
+    svaddr.sin_addr.s_addr = INADDR_ANY;
     svaddr.sin_port = htons(clport);
 
     if(bind(this->netchan.socket, (const struct sockaddr*) &svaddr, sizeof(svaddr)) < 0)
@@ -346,6 +363,7 @@ void engine::cl::Client::MakeNetwork(const uint8_t addr[4], int svport, int clpo
     }
 
     // in case clport was 0
+    addrlen = sizeof(svaddr);
     if(getsockname(this->netchan.socket, (struct sockaddr*) &svaddr, &addrlen) < 0)
     {
         Console::Print("error %d with getsockname.\n", errno);
@@ -356,6 +374,7 @@ void engine::cl::Client::MakeNetwork(const uint8_t addr[4], int svport, int clpo
     Console::Print("bound socket on port %d.\n", this->clport);
 
     memcpy(netchan.ipv4, addr, 4);
+    Console::Print("addr: %hhu.%hhu.%hhu.%hhu.\n", addr[0], addr[1], addr[2], addr[3]);
     netchan.port = svport;
 }
 
@@ -421,13 +440,19 @@ int engine::cl::Client::Run(void)
         Console::ExecTerm();
 
         this->ProcessRecieved();
+        this->CheckTimeout();
         
         this->PredictLocal();
         this->DrawClients(render);
 
-        SDL_RenderPresent(render);
+        // TODO: the disconnect packet could be dropped.
+        // instead wait until disconnect packet is acknowledged to exit
+        if(islastframe)
+            Disconnect();
 
         this->SendPackets();
+
+        SDL_RenderPresent(render);
 
         lastframe = thisframe;
     }

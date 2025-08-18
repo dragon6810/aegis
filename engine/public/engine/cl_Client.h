@@ -33,6 +33,7 @@ namespace engine::cl
         void DestroyWindow(void);
         void DrawClients(SDL_Renderer* render);
         void SendPackets(void);
+        void Disconnect(void);
         void Connect(const uint8_t addr[4], int port);
         void ConnectStr(const std::string& str);
         void ConnectCmd(const std::vector<std::string>& args);
