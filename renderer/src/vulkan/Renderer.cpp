@@ -33,6 +33,8 @@ struct renderer::Renderer::Impl
     VkQueue gfxque;
 	uint32_t gfxquefam;
 
+    PFN_vkCmdPipelineBarrier2KHR pipelinebarrier2proc;
+
     void VkShutdownInst(void);
     void VkShutdownDevice(void);
     void VkShutdownSwapchain(void);
@@ -108,7 +110,7 @@ void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layou
     VkImageMemoryBarrier2KHR imgbarrier;
     VkDependencyInfo depinfo;
 
-    UTILS_ASSERT(cmdbf);
+    UTILS_ASSERT(cmdbuf);
     
     imgbarrier = {};
     imgbarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
@@ -135,22 +137,20 @@ void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layou
     depinfo.imageMemoryBarrierCount = 1;
     depinfo.pImageMemoryBarriers = &imgbarrier;
 
-    vkCmdPipelineBarrier2(cmdbuf->impl->cmdbuf, &depinfo);
+    renderer->impl->pipelinebarrier2proc(cmdbuf->impl->cmdbuf, &depinfo);
 }
 
-void renderer::Image::Init(void)
+void renderer::Image::Init(Renderer* renderer)
 {
+    UTILS_ASSERT(renderer);
+
+    this->renderer = renderer;
     this->impl = std::make_unique<Impl>();
 }
 
 void renderer::Image::Shutdown(void)
 {
 
-}
-
-void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout)
-{
-    UTILS_ASSERT(cmdbuf);
 }
 
 void renderer::Fence::Impl::Reset(void)
@@ -313,7 +313,7 @@ void renderer::CmdBuf::Reset(bool releaseresources)
     res = vkResetCommandBuffer(impl->cmdbuf, flags);
     if(res != VK_SUCCESS)
     {
-        printf("error %d with vkResetCommandBuffer!\n");
+        printf("error %d with vkResetCommandBuffer!\n", res);
         exit(1);
     }
 }
@@ -331,7 +331,7 @@ void renderer::CmdBuf::Begin(uint32_t usageflags)
     res = vkBeginCommandBuffer(impl->cmdbuf, &begininfo);
     if(res != VK_SUCCESS)
     {
-        printf("error %d with vkBeginCommandBuffer!\n");
+        printf("error %d with vkBeginCommandBuffer!\n", res);
         exit(1);
     }
 }
@@ -343,7 +343,7 @@ void renderer::CmdBuf::End(void)
     res = vkEndCommandBuffer(impl->cmdbuf);
     if(res != VK_SUCCESS)
     {
-        printf("error %d with vkEndCommandBuffer!\n");
+        printf("error %d with vkEndCommandBuffer!\n", res);
         exit(1);
     }
 }
@@ -529,7 +529,7 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
     renderer->swapchainimgs.resize(vkbswapchain.get_images().value().size());
     for(i=0; i<renderer->swapchainimgs.size(); i++)
     {
-        renderer->swapchainimgs[i].Init();
+        renderer->swapchainimgs[i].Init(renderer);
         renderer->swapchainimgs[i].impl->vkimg = vkbswapchain.get_images().value()[i];
     }
 
@@ -599,6 +599,13 @@ void renderer::Renderer::Impl::VkInitDevice(void)
 
 	vkbdevice = deviceres.value();
     device = vkbdevice.device;
+    
+    pipelinebarrier2proc = (PFN_vkCmdPipelineBarrier2KHR) vkGetDeviceProcAddr(device, "vkCmdPipelineBarrier2KHR");
+    if(!pipelinebarrier2proc)
+    {
+        printf("error retrieving vkCmdPipelineBarrier2KHR procedure!\n");
+        exit(1);
+    }
 
     printf("vulkan device created.\n");
 }

@@ -21,6 +21,8 @@ namespace renderer
             LAYOUT_DEPTH_ATTACHMENT_OPTIMAL = 1000241000,
             LAYOUT_PRESENT_SRC              = 1000001002,
         } layout_e;
+    private:
+        Renderer *renderer = NULL;
     public:
         struct Impl;
         std::unique_ptr<Impl> impl;
@@ -29,7 +31,7 @@ namespace renderer
         void TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout);
 
         // doesnt' create the image itself
-        void Init(void);
+        void Init(Renderer* renderer);
         void Shutdown(void);
     };
 
