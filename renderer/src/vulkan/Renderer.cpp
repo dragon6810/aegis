@@ -27,7 +27,6 @@ struct renderer::Renderer::Impl
 
     VkSwapchainKHR swapchain;
 	VkFormat swapchainformat;
-	std::vector<VkImage> swapchainimgs;
 	std::vector<VkImageView> swapchainviews;
 	VkExtent2D swapchainextent;
 
@@ -98,6 +97,61 @@ struct renderer::Fence::Impl
     void Init(bool startsignaled);
     void Shutdown(void);
 };
+
+struct renderer::Image::Impl
+{
+    VkImage vkimg;
+};
+
+void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout)
+{
+    VkImageMemoryBarrier2KHR imgbarrier;
+    VkDependencyInfo depinfo;
+
+    UTILS_ASSERT(cmdbf);
+    
+    imgbarrier = {};
+    imgbarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
+    imgbarrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    imgbarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+    imgbarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    imgbarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+    imgbarrier.oldLayout = (VkImageLayout) srclayout;
+    imgbarrier.newLayout = (VkImageLayout) dstlayout;
+    
+    imgbarrier.subresourceRange = {};
+    imgbarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    if(dstlayout == LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
+        imgbarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    imgbarrier.subresourceRange.baseMipLevel = 0;
+    imgbarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    imgbarrier.subresourceRange.baseArrayLayer = 0;
+    imgbarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+    imgbarrier.image = impl->vkimg;
+
+    depinfo = {};
+    depinfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    depinfo.imageMemoryBarrierCount = 1;
+    depinfo.pImageMemoryBarriers = &imgbarrier;
+
+    vkCmdPipelineBarrier2(cmdbuf->impl->cmdbuf, &depinfo);
+}
+
+void renderer::Image::Init(void)
+{
+    this->impl = std::make_unique<Impl>();
+}
+
+void renderer::Image::Shutdown(void)
+{
+
+}
+
+void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout)
+{
+    UTILS_ASSERT(cmdbuf);
+}
 
 void renderer::Fence::Impl::Reset(void)
 {
@@ -219,6 +273,77 @@ void renderer::CmdBuf::Impl::Alloc(VkCommandPool pool)
     if(res != VK_SUCCESS)
     {
         printf("error %d when allocating vulkan cmd buf!\n", res);
+        exit(1);
+    }
+}
+
+void renderer::CmdBuf::CmdClearColorImage(Image* img, Image::layout_e imglayout, Eigen::Vector3f col)
+{
+    int i;
+
+    VkImageSubresourceRange subresource;
+
+    VkClearColorValue vkcol;
+
+    UTILS_ASSERT(img);
+
+    for(i=0; i<3; i++)
+        vkcol.float32[i] = col[i];
+    vkcol.float32[i] = 1; // always opaque for now
+
+    subresource = {};
+    subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresource.baseMipLevel = 0;
+    subresource.levelCount = VK_REMAINING_MIP_LEVELS;
+    subresource.baseArrayLayer = 0;
+    subresource.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+    vkCmdClearColorImage(impl->cmdbuf, img->impl->vkimg, (VkImageLayout) imglayout, &vkcol, 1, &subresource);
+}
+
+void renderer::CmdBuf::Reset(bool releaseresources)
+{
+    VkResult res;
+    VkCommandBufferResetFlags flags;
+
+    flags = 0;
+    if(releaseresources)
+        flags |= VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT;
+
+    res = vkResetCommandBuffer(impl->cmdbuf, flags);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d with vkResetCommandBuffer!\n");
+        exit(1);
+    }
+}
+
+void renderer::CmdBuf::Begin(uint32_t usageflags)
+{
+    VkResult res;
+    VkCommandBufferBeginInfo begininfo;
+
+    begininfo = {};
+    begininfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begininfo.pInheritanceInfo = NULL;
+    begininfo.flags = usageflags;
+
+    res = vkBeginCommandBuffer(impl->cmdbuf, &begininfo);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d with vkBeginCommandBuffer!\n");
+        exit(1);
+    }
+}
+
+void renderer::CmdBuf::End(void)
+{
+    VkResult res;
+
+    res = vkEndCommandBuffer(impl->cmdbuf);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d with vkEndCommandBuffer!\n");
         exit(1);
     }
 }
@@ -367,6 +492,8 @@ void renderer::Renderer::Impl::VkInitQues(void)
 
 void renderer::Renderer::Impl::VkInitSwapchain(void)
 {
+    int i;
+
     int w, h;
     VkSurfaceFormatKHR surfaceformat;
     vkb::SwapchainBuilder swapchainbuilder(physicaldevice, device, surface);
@@ -397,8 +524,14 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
 
     vkbswapchain = swapchainres.value();
     swapchain = vkbswapchain.swapchain;
-    swapchainimgs = vkbswapchain.get_images().value();
     swapchainviews = vkbswapchain.get_image_views().value();
+
+    renderer->swapchainimgs.resize(vkbswapchain.get_images().value().size());
+    for(i=0; i<renderer->swapchainimgs.size(); i++)
+    {
+        renderer->swapchainimgs[i].Init();
+        renderer->swapchainimgs[i].impl->vkimg = vkbswapchain.get_images().value()[i];
+    }
 
     printf("vulkan/SDL3 swapchain created.\n");
 }
@@ -532,6 +665,35 @@ void renderer::Renderer::Impl::Shutdown(void)
 {
     VkShutdown();
     SDLShutdown();
+}
+
+renderer::Frame* renderer::Renderer::CurFrame(void)
+{
+    return &frames[curframe % max_fif];
+}
+
+uint32_t renderer::Renderer::SwapchainImage(uint64_t timeoutns, Semaphore* sem, Fence* fence)
+{
+    VkResult res;
+    uint32_t imageidx;
+    VkSemaphore vksem;
+    VkFence vkfence;
+
+    vksem = NULL;
+    vkfence = NULL;
+    if(sem)
+        vksem = sem->impl->vksem;
+    if(fence)
+        vkfence = fence->impl->vkfence;
+
+    res = vkAcquireNextImageKHR(impl->device, impl->swapchain, timeoutns, vksem, vkfence, &imageidx);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d with vkAcquireNextImageKHR!\n", res);
+        exit(1);
+    }
+
+    return imageidx;
 }
 
 void renderer::Renderer::Initialize(void)

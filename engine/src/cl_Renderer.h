@@ -14,6 +14,9 @@ namespace engine::cl
     private:
         Client& cl;
         renderer::Renderer renderer;
+
+        // cur frame data
+        uint32_t iswapchain;
     public:
         void Render(void);
 
