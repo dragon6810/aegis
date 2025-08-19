@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
 
 struct renderer::Renderer::Impl
@@ -18,6 +19,7 @@ struct renderer::Renderer::Impl
 	VkPhysicalDevice physicaldevice;
     vkb::Device vkbdevice;
 	VkDevice device;
+    VmaAllocator allocator;
 	VkSurfaceKHR surface;
     SDL_Window *win = NULL;
 
@@ -31,12 +33,14 @@ struct renderer::Renderer::Impl
 
     void VkShutdownInst(void);
     void VkShutdownDevice(void);
+    void VkShutdownVma(void);
     void VkShutdownSwapchain(void);
     void VkShutdown(void);
     void SDLShutdown(void);
 
     void VkInitQues(void);
     void VkInitSwapchain(void);
+    void VkInitVma(void);
     void VkInitDevice(void);
     void VkInitInst(void);
     void VkInit(void);
@@ -98,6 +102,13 @@ struct renderer::Fence::Impl
 
     void Init(bool startsignaled);
     void Shutdown(void);
+};
+
+struct renderer::FreeImage::Impl
+{
+    VkImageView imgview;
+    VmaAllocation allocation;
+    VkExtent3D extent;
 };
 
 struct renderer::Image::Impl

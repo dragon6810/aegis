@@ -42,6 +42,25 @@ namespace renderer
         void Shutdown(void);
     };
 
+    class FreeImage
+    {
+    private:
+        Renderer *renderer = NULL;
+    public:
+        Image img;
+        Image::layout_e layout;
+
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+    public:
+        // cmdbuf must be in a recording state
+        void TransitionLayout(CmdBuf* cmdbuf, Image::layout_e dstlayout);
+
+        // doesnt' create the image itself
+        void Init(Renderer* renderer);
+        void Shutdown(void);
+    };
+
     class Fence
     {
     private:

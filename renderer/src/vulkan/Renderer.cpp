@@ -16,6 +16,11 @@ void renderer::Renderer::Impl::VkShutdownDevice(void)
     vkDestroySurfaceKHR(inst, surface, NULL);
 }
 
+void renderer::Renderer::Impl::VkShutdownVma(void)
+{
+    vmaDestroyAllocator(allocator);
+}
+
 void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 {
     int i;
@@ -37,6 +42,7 @@ void renderer::Renderer::Impl::VkShutdown(void)
         renderer->frames[i].Shutdown();
 
     VkShutdownSwapchain();
+    VkShutdownVma();
     VkShutdownDevice();
     VkShutdownInst();
 }
@@ -95,6 +101,27 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
     }
 
     printf("vulkan/SDL3 swapchain created.\n");
+}
+
+void renderer::Renderer::Impl::VkInitVma(void)
+{
+    VkResult res;
+    VmaAllocatorCreateInfo allocatorinfo;
+
+    allocatorinfo = {};
+    allocatorinfo.physicalDevice = physicaldevice;
+    allocatorinfo.device = device;
+    allocatorinfo.instance = inst;
+    allocatorinfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+    
+    res = vmaCreateAllocator(&allocatorinfo, &allocator);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d creating vulkan memory allocator!\n", res);
+        exit(1);
+    }
+
+    printf("vulkan memory allocator created.\n");
 }
 
 void renderer::Renderer::Impl::VkInitDevice(void)
@@ -215,6 +242,7 @@ void renderer::Renderer::Impl::VkInit(void)
 
     VkInitInst();
     VkInitDevice();
+    VkInitVma();
     VkInitSwapchain();
     VkInitQues();
     for(i=0; i<max_fif; i++)
