@@ -27,10 +27,12 @@ struct renderer::Renderer::Impl
 
     VkSwapchainKHR swapchain;
 	VkFormat swapchainformat;
-
 	std::vector<VkImage> swapchainimgs;
 	std::vector<VkImageView> swapchainviews;
 	VkExtent2D swapchainextent;
+
+    VkQueue gfxque;
+	uint32_t gfxquefam;
 
     void VkShutdownInst(void);
     void VkShutdownDevice(void);
@@ -38,6 +40,7 @@ struct renderer::Renderer::Impl
     void VkShutdown(void);
     void SDLShutdown(void);
 
+    void VkInitQues(void);
     void VkInitSwapchain(void);
     void VkInitDevice(void);
     void VkInitInst(void);
@@ -47,6 +50,116 @@ struct renderer::Renderer::Impl
     void Initialize(void);
     void Shutdown(void);
 };
+
+struct renderer::Frame::Impl
+{
+    renderer::Frame *frame = NULL;
+
+    VkCommandPool cmdpool;
+
+    void ShutdownCmdPools(void);
+
+    void InitCmdPools(void);
+
+    void Init(void);
+    void Shutdown(void);
+};
+
+struct renderer::CmdBuf::Impl
+{
+    renderer::CmdBuf *buf = NULL;
+
+    VkCommandBuffer cmdbuf;
+
+    void Alloc(VkCommandPool pool);
+};
+
+void renderer::CmdBuf::Impl::Alloc(VkCommandPool pool)
+{
+    VkResult res;
+    VkCommandBufferAllocateInfo cmdbufinfo;
+
+    cmdbufinfo = {};
+    cmdbufinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cmdbufinfo.pNext = nullptr;
+    cmdbufinfo.commandPool = pool;
+    cmdbufinfo.commandBufferCount = 1;
+    cmdbufinfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+    res = vkAllocateCommandBuffers(buf->renderer->impl->device, &cmdbufinfo, &cmdbuf);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when allocating vulkan cmd buf!\n", res);
+        exit(1);
+    }
+}
+
+void renderer::CmdBuf::Init(Frame* frame, Renderer* renderer)
+{
+    this->renderer = renderer;
+    impl = std::make_unique<Impl>();
+    impl->buf = this;
+}
+
+void renderer::CmdBuf::Shutdown(void)
+{
+
+}
+
+void renderer::Frame::Impl::ShutdownCmdPools(void)
+{
+    vkDestroyCommandPool(frame->renderer->impl->device, cmdpool, NULL);
+}
+
+void renderer::Frame::Impl::InitCmdPools(void)
+{
+    VkResult res;
+    VkCommandPoolCreateInfo cmdpoolinfo;
+    
+    cmdpoolinfo = {};
+    cmdpoolinfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	cmdpoolinfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	cmdpoolinfo.queueFamilyIndex = frame->renderer->impl->gfxquefam;
+
+    res = vkCreateCommandPool(frame->renderer->impl->device, &cmdpoolinfo, NULL, &cmdpool);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when creating vulkan command pool!\n", res);
+        exit(1);
+    }
+
+    frame->maincmdbuf.impl->Alloc(cmdpool);
+}
+
+void renderer::Frame::Impl::Init(void)
+{
+    InitCmdPools();
+}
+
+void renderer::Frame::Impl::Shutdown(void)
+{
+    ShutdownCmdPools();
+}
+
+void renderer::Frame::Init(Renderer* renderer)
+{
+    UTILS_ASSERT(renderer);
+
+    this->renderer = renderer;
+
+    impl = std::make_unique<Impl>();
+    impl->frame = this;
+
+    maincmdbuf.Init(this, renderer);
+    impl->Init();
+}
+
+void renderer::Frame::Shutdown(void)
+{
+    UTILS_ASSERT(renderer);
+
+    impl->Shutdown();
+}
 
 void renderer::Renderer::Impl::VkShutdownInst(void)
 {
@@ -71,7 +184,13 @@ void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 
 void renderer::Renderer::Impl::VkShutdown(void)
 {
+    int i;
+
     // VkShutdownInst(); // validation layer test
+
+    for(i=0; i<max_fif; i++)
+        renderer->frames[i].Shutdown();
+
     VkShutdownSwapchain();
     VkShutdownDevice();
     VkShutdownInst();
@@ -80,6 +199,25 @@ void renderer::Renderer::Impl::VkShutdown(void)
 void renderer::Renderer::Impl::SDLShutdown(void)
 {
     SDL_DestroyWindow(win);
+}
+
+void renderer::Renderer::Impl::VkInitQues(void)
+{
+    vkb::Result<VkQueue> queres = vkbdevice.get_queue(vkb::QueueType::graphics).value();
+    vkb::Result<uint32_t> famres = vkbdevice.get_queue_index(vkb::QueueType::graphics).value();
+    if(!queres)
+    {
+        printf("failed to retrieve vulkan graphics queue!\n");
+        exit(1);
+    }
+    if(!famres)
+    {
+        printf("failed to retrieve vulkan graphics queue family!\n");
+        exit(1);
+    }
+
+	gfxque = queres.value();
+    gfxquefam = famres.value();
 }
 
 void renderer::Renderer::Impl::VkInitSwapchain(void)
@@ -219,9 +357,14 @@ void renderer::Renderer::Impl::VkInitInst(void)
 
 void renderer::Renderer::Impl::VkInit(void)
 {
+    int i;
+
     VkInitInst();
     VkInitDevice();
     VkInitSwapchain();
+    VkInitQues();
+    for(i=0; i<max_fif; i++)
+        renderer->frames[i].Init(renderer);
 }
 
 void renderer::Renderer::Impl::SDLInit(void)
