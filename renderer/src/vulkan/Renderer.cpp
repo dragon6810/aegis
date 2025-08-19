@@ -25,6 +25,8 @@ void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 {
     int i;
 
+    renderer->drawimg.Destroy();
+
     vkDestroySwapchainKHR(device, swapchain, NULL);
     for(i=0; i<swapchainviews.size(); i++)
         vkDestroyImageView(device, swapchainviews[i], NULL);
@@ -99,6 +101,16 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
         renderer->swapchainimgs[i].Init(renderer);
         renderer->swapchainimgs[i].impl->vkimg = vkbswapchain.get_images().value()[i];
     }
+
+    renderer->drawimg.Init
+    (
+        Eigen::Vector2i(w, h),
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | 
+        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        Image::ASPECT_COLOR_BIT,
+        Image::FORMAT_R16G16B16A16_SFLOAT,
+        renderer
+    );
 
     printf("vulkan/SDL3 swapchain created.\n");
 }
