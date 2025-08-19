@@ -11,6 +11,13 @@ namespace renderer
     class Frame;
     class Renderer;
 
+    typedef enum
+    {
+        STAGE_TRANSFER                = 0x00001000ULL,
+        STAGE_ALL_GRAPHICS            = 0x00008000ULL,
+        STAGE_COLOR_ATTACHMENT_OUTPUT = 0x00000400ULL,
+    } stageflags_e;
+
     class Image
     {
     public:
@@ -92,6 +99,28 @@ namespace renderer
         void Shutdown(void);
     };
 
+    class Queue
+    {
+    public:
+        typedef enum
+        {
+            TYPE_GFX,
+            TYPE_COMP,
+            TYPE_TRANSFER,
+        } type_e;
+    private:
+        Renderer *renderer = NULL;
+    public:
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+    public:
+        // buf must be valid. waitsem, signalsem, and signalfence can all be NULL.
+        void SubmitCmdBuf(CmdBuf* buf, Semaphore* waitsem, Semaphore* signalsem, Fence* signalfence, stageflags_e waitstage, stageflags_e signalstage);
+
+        void Init(type_e type, Renderer* renderer);
+        void Shutdown(void);
+    };
+
     class Frame
     {
     private:
@@ -121,6 +150,7 @@ namespace renderer
         std::string windowname = "aegis";
 
         std::vector<Image> swapchainimgs;
+        Queue gfxque;
 
         Frame frames[max_fif];
         uint32_t curframe = 0;
@@ -132,6 +162,8 @@ namespace renderer
         // get the next image from the swapchain to render to
         // sem and fence can both be NULL if you don't want to signal any
         uint32_t SwapchainImage(uint64_t timeoutns, Semaphore* sem, Fence* fence);
+
+        void Present(uint32_t swapchainimg);
 
         void Initialize(void);
         void Shutdown(void);

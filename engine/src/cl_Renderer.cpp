@@ -23,13 +23,20 @@ void engine::cl::Renderer::Render(void)
     frame->renderfence.Reset();
     
     iswapchain = renderer.SwapchainImage(1000000000, &frame->swapchainsem, NULL);
-    
-    frame->maincmdbuf.Begin(renderer::CmdBuf::USAGE_ONE_TIME_SUBMIT);
     img = &renderer.swapchainimgs[iswapchain];
+
+    frame->maincmdbuf.Begin(renderer::CmdBuf::USAGE_ONE_TIME_SUBMIT);
     img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_UNDEFINED, renderer::Image::LAYOUT_GENERAL);
-    frame->maincmdbuf.CmdClearColorImage(img, renderer::Image::LAYOUT_GENERAL, Eigen::Vector3f::UnitX());
+    frame->maincmdbuf.CmdClearColorImage(img, renderer::Image::LAYOUT_GENERAL, Eigen::Vector3f(1, 0, 0));
     img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_GENERAL, renderer::Image::LAYOUT_PRESENT_SRC);
     frame->maincmdbuf.End();
+
+    renderer.gfxque.SubmitCmdBuf(&frame->maincmdbuf, 
+        &frame->swapchainsem, &frame->rendersem, 
+        &frame->renderfence, 
+        renderer::STAGE_COLOR_ATTACHMENT_OUTPUT, renderer::STAGE_ALL_GRAPHICS);
+
+    renderer.Present(iswapchain);
 }
 
 void engine::cl::Renderer::Init(void)
