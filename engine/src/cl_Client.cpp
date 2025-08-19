@@ -11,6 +11,17 @@
 #include <engine/Console.h>
 
 #include "cl_Input.h"
+#include "cl_Renderer.h"
+
+engine::cl::Client::Client(void)
+{
+
+}
+
+engine::cl::Client::~Client(void)
+{
+
+}
 
 void engine::cl::Client::MakeWindow(void)
 {
@@ -400,6 +411,9 @@ void engine::cl::Client::Init(void)
     InputInit();
     this->pinput->Init();
 
+    renderer = std::make_unique<Renderer>(*this);
+    renderer->Init();
+
     Console::RegisterCVar(&cl_connection_timeout);
     Console::RegisterCCmd({ "connect", [this](const std::vector<std::string>& args){ConnectCmd(args);}, });
 }
@@ -425,8 +439,6 @@ int engine::cl::Client::Run(void)
     uint64_t lastframe, thisframe;
     
     Init();
-
-    this->renderer.Initialize();
 
     this->MakeWindow();
     render = SDL_CreateRenderer(this->win, NULL);
@@ -463,6 +475,8 @@ int engine::cl::Client::Run(void)
 
         this->SendPackets();
 
+        renderer->Render();
+
         SDL_RenderPresent(render);
 
         lastframe = thisframe;
@@ -470,7 +484,7 @@ int engine::cl::Client::Run(void)
     SDL_DestroyRenderer(render);
     this->DestroyWindow();
 
-    this->renderer.Shutdown();
+    renderer->Shutdown();
 
     return 0;
 }

@@ -58,7 +58,9 @@ struct renderer::Frame::Impl
     VkCommandPool cmdpool;
 
     void ShutdownCmdPools(void);
+    void ShutdownSync(void);
 
+    void InitSync(void);
     void InitCmdPools(void);
 
     void Init(void);
@@ -73,6 +75,133 @@ struct renderer::CmdBuf::Impl
 
     void Alloc(VkCommandPool pool);
 };
+
+struct renderer::Semaphore::Impl
+{
+    Semaphore *sem = NULL;
+
+    VkSemaphore vksem;
+
+    void Init(void);
+    void Shutdown(void);
+};
+
+struct renderer::Fence::Impl
+{
+    Fence *fence = NULL;
+
+    VkFence vkfence;
+
+    void Reset(void);
+    void Wait(uint64_t timeoutns);
+
+    void Init(bool startsignaled);
+    void Shutdown(void);
+};
+
+void renderer::Fence::Impl::Reset(void)
+{
+    vkResetFences(fence->renderer->impl->device, 1, &vkfence);
+}
+
+void renderer::Fence::Impl::Wait(uint64_t timeoutns)
+{
+    vkWaitForFences(fence->renderer->impl->device, 1, &vkfence, true, timeoutns);
+}
+
+void renderer::Fence::Impl::Init(bool startsignaled)
+{
+    VkResult res;
+    VkFenceCreateInfo fencecreateinfo;
+
+    fencecreateinfo = {};
+    fencecreateinfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    if(startsignaled)
+        fencecreateinfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    
+    res = vkCreateFence(fence->renderer->impl->device, &fencecreateinfo, NULL, &vkfence);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when creating vulkan fence!\n", res);
+        exit(1);
+    }
+}
+
+void renderer::Fence::Impl::Shutdown(void)
+{
+    vkDestroyFence(fence->renderer->impl->device, vkfence, NULL);
+}
+
+void renderer::Fence::Reset(void)
+{
+    UTILS_ASSERT(renderer);
+
+    impl->Reset();
+}
+
+void renderer::Fence::Wait(uint64_t timeoutns)
+{
+    UTILS_ASSERT(renderer);
+
+    impl->Wait(timeoutns);
+}
+
+void renderer::Fence::Init(bool startsignaled, Renderer* renderer)
+{
+    UTILS_ASSERT(renderer);
+
+    this->renderer = renderer;
+    impl = std::make_unique<Impl>();
+    impl->fence = this;
+
+    impl->Init(startsignaled);
+}
+
+void renderer::Fence::Shutdown(void)
+{
+    UTILS_ASSERT(renderer);
+
+    impl->Shutdown();
+}
+
+void renderer::Semaphore::Impl::Init(void)
+{
+    VkResult res;
+    VkSemaphoreCreateInfo semcreateinfo;
+
+    semcreateinfo = {};
+    semcreateinfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semcreateinfo.pNext = nullptr;
+    semcreateinfo.flags = 0;
+
+    res = vkCreateSemaphore(sem->renderer->impl->device, &semcreateinfo, NULL, &vksem);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when creating vulkan semaphore!\n", res);
+        exit(1);
+    }
+}
+
+void renderer::Semaphore::Impl::Shutdown(void)
+{
+    vkDestroySemaphore(sem->renderer->impl->device, vksem, NULL);
+}
+
+void renderer::Semaphore::Init(Renderer* renderer)
+{
+    UTILS_ASSERT(renderer);
+
+    this->renderer = renderer;
+    impl = std::make_unique<Impl>();
+    impl->sem = this;
+
+    impl->Init();
+}
+
+void renderer::Semaphore::Shutdown(void)
+{
+    impl->Shutdown();
+}
 
 void renderer::CmdBuf::Impl::Alloc(VkCommandPool pool)
 {
@@ -111,6 +240,20 @@ void renderer::Frame::Impl::ShutdownCmdPools(void)
     vkDestroyCommandPool(frame->renderer->impl->device, cmdpool, NULL);
 }
 
+void renderer::Frame::Impl::ShutdownSync(void)
+{
+    frame->rendersem.Shutdown();
+    frame->swapchainsem.Shutdown();
+    frame->renderfence.Shutdown();
+}
+
+void renderer::Frame::Impl::InitSync(void)
+{
+    frame->renderfence.Init(true, frame->renderer);
+    frame->swapchainsem.Init(frame->renderer);
+    frame->rendersem.Init(frame->renderer);
+}
+
 void renderer::Frame::Impl::InitCmdPools(void)
 {
     VkResult res;
@@ -134,10 +277,12 @@ void renderer::Frame::Impl::InitCmdPools(void)
 void renderer::Frame::Impl::Init(void)
 {
     InitCmdPools();
+    InitSync();
 }
 
 void renderer::Frame::Impl::Shutdown(void)
 {
+    ShutdownSync();
     ShutdownCmdPools();
 }
 
@@ -339,6 +484,7 @@ void renderer::Renderer::Impl::VkInitInst(void)
     instbuilder.request_validation_layers(uselayers);
     instbuilder.use_default_debug_messenger();
     instbuilder.require_api_version(1, 2, 0);
+    instbuilder.enable_extension(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
     // theyre making me declare a variable outside of the top of scope!
     // noooooo!!!!!
     vkb::Result<vkb::Instance> instres = instbuilder.build();
