@@ -25,6 +25,8 @@ namespace renderer
         {
             LAYOUT_UNDEFINED                = 0,
             LAYOUT_GENERAL                  = 1,
+            LAYOUT_TRANSFER_SRC_OPTIMAL = 6,
+            LAYOUT_TRANSFER_DST_OPTIMAL = 7,
             LAYOUT_DEPTH_ATTACHMENT_OPTIMAL = 1000241000,
             LAYOUT_PRESENT_SRC              = 1000001002,
         } layout_e;
@@ -181,6 +183,7 @@ namespace renderer
     public:
         // cmdbuf must be in a recording state
         void TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout);
+        void BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i srcsize, Eigen::Vector2i dstsize);
 
         // doesnt' create the image itself
         void Init(Renderer* renderer);
@@ -193,6 +196,7 @@ namespace renderer
         Renderer *renderer = NULL;
     public:
         Image img;
+        Eigen::Vector2i size;
         Image::layout_e layout;
         uint32_t usage;
         Image::format_e format;
@@ -202,8 +206,8 @@ namespace renderer
     public:
         // cmdbuf must be in a recording state
         void TransitionLayout(CmdBuf* cmdbuf, Image::layout_e dstlayout);
+        void BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i dstsize);
 
-        // doesnt' create the image itself
         void Init(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt, Renderer* renderer);
         void Destroy(void);
     };

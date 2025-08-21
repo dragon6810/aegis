@@ -16,6 +16,7 @@ void engine::cl::Renderer::Render(void)
 {
     renderer::Frame *frame;
     renderer::Image *img;
+    renderer::FreeImage *drawimg;
 
     frame = renderer.CurFrame();
 
@@ -24,11 +25,19 @@ void engine::cl::Renderer::Render(void)
     
     iswapchain = renderer.SwapchainImage(1000000000, &frame->swapchainsem, NULL);
     img = &renderer.swapchainimgs[iswapchain];
+    drawimg = &renderer.drawimg;
 
     frame->maincmdbuf.Begin(renderer::CmdBuf::USAGE_ONE_TIME_SUBMIT);
-    img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_UNDEFINED, renderer::Image::LAYOUT_GENERAL);
-    frame->maincmdbuf.CmdClearColorImage(img, renderer::Image::LAYOUT_GENERAL, Eigen::Vector3f(1, 0, 0));
-    img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_GENERAL, renderer::Image::LAYOUT_PRESENT_SRC);
+
+    drawimg->layout = renderer::Image::LAYOUT_UNDEFINED;
+    drawimg->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_GENERAL);
+    frame->maincmdbuf.CmdClearColorImage(&drawimg->img, drawimg->layout, Eigen::Vector3f(1, 0, 0));
+    drawimg->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_TRANSFER_SRC_OPTIMAL);
+    
+    img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_UNDEFINED, renderer::Image::LAYOUT_TRANSFER_DST_OPTIMAL);
+    drawimg->BlitToImage(&frame->maincmdbuf, img, drawimg->size);
+    img->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_TRANSFER_DST_OPTIMAL, renderer::Image::LAYOUT_PRESENT_SRC);
+    
     frame->maincmdbuf.End();
 
     renderer.gfxque.SubmitCmdBuf(&frame->maincmdbuf, 

@@ -30,6 +30,7 @@ struct renderer::Renderer::Impl
 
     PFN_vkCmdPipelineBarrier2KHR pipelinebarrier2proc;
     PFN_vkQueueSubmit2KHR queuesubmit2proc;
+    PFN_vkCmdBlitImage2KHR blitimage2proc;
 
     void VkShutdownInst(void);
     void VkShutdownDevice(void);

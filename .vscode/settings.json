@@ -54,6 +54,7 @@
         "ios": "cpp",
         "nnls": "cpp",
         "mprealsupport": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "*.hpp11": "cpp"
     }
 }

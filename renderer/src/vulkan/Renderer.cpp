@@ -174,6 +174,7 @@ void renderer::Renderer::Impl::VkInitDevice(void)
     deviceselector.add_required_extension(VK_KHR_MULTIVIEW_EXTENSION_NAME);
     deviceselector.add_required_extension(VK_KHR_MAINTENANCE_2_EXTENSION_NAME);
     deviceselector.add_required_extension(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+    deviceselector.add_required_extension(VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME);
     deviceselector.add_required_extension_features(sync2features);
     deviceselector.set_surface(surface);
 
@@ -211,6 +212,13 @@ void renderer::Renderer::Impl::VkInitDevice(void)
     if(!queuesubmit2proc)
     {
         printf("error retrieving vkQueueSubmit2KHR procedure!\n");
+        exit(1);
+    }
+
+    blitimage2proc = (PFN_vkCmdBlitImage2KHR) vkGetDeviceProcAddr(device, "vkCmdBlitImage2KHR");
+    if(!blitimage2proc)
+    {
+        printf("error retrieving vkCmdBlitImage2KHR procedure!\n");
         exit(1);
     }
 

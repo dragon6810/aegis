@@ -7,6 +7,12 @@
 void renderer::FreeImage::TransitionLayout(CmdBuf* cmdbuf, Image::layout_e dstlayout)
 {
     img.TransitionLayout(cmdbuf, layout, dstlayout);
+    layout = dstlayout;
+}
+
+void renderer::FreeImage::BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i dstsize)
+{
+    img.BlitToImage(cmdbuf, dst, size, dstsize);
 }
 
 void renderer::FreeImage::Init(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt, Renderer* renderer)
@@ -19,6 +25,8 @@ void renderer::FreeImage::Init(Eigen::Vector2i size, uint32_t usageflags, uint32
     this->renderer = renderer;
     impl = std::make_unique<Impl>();
     img.Init(renderer);
+
+    this->size = size;
 
     impl->extent = { (uint32_t) size[0], (uint32_t) size[1], 1u, };
     format = fmt;
