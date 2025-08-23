@@ -127,13 +127,15 @@ void renderer::Image::Create(Eigen::Vector2i size, uint32_t usageflags, uint32_t
     viewinfo.subresourceRange.baseArrayLayer = 0;
     viewinfo.subresourceRange.layerCount = 1;
     viewinfo.subresourceRange.aspectMask = aspectflags;
-    
+
     res = vkCreateImageView(renderer->impl->device, &viewinfo, NULL, &impl->imgview);
     if(res != VK_SUCCESS)
     {
         printf("error %d when creating image view!\n", res);
         exit(1);
     }
+
+    printf("created view 0x%016llx\n", impl->imgview);
 }
 
 void renderer::Image::Init(Renderer* renderer)
@@ -146,14 +148,20 @@ void renderer::Image::Init(Renderer* renderer)
 
 void renderer::Image::Shutdown(void)
 {
+    if(impl->imgview)
+    {
+        vkDestroyImageView(renderer->impl->device, impl->imgview, NULL);
+        impl->imgview = NULL;
+    }
+
     if(impl->vkimg)
     {
         if(impl->allocation)
             vmaDestroyImage(renderer->impl->allocator, impl->vkimg, impl->allocation);
         else
             vkDestroyImage(renderer->impl->device, impl->vkimg, NULL);
-    }
 
-    if(impl->imgview)
-        vkDestroyImageView(renderer->impl->device, impl->imgview, NULL);
+        impl->vkimg = NULL;
+        impl->allocation = NULL;
+    }
 }

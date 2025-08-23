@@ -27,9 +27,10 @@ void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 
     renderer->drawimg.Shutdown();
 
-    vkDestroySwapchainKHR(device, swapchain, NULL);
     for(i=0; i<renderer->swapchainimgs.size(); i++)
         vkDestroyImageView(device, renderer->swapchainimgs[i].impl->imgview, NULL);
+
+    vkDestroySwapchainKHR(device, swapchain, NULL);
 }
 
 void renderer::Renderer::Impl::VkShutdown(void)
@@ -37,8 +38,8 @@ void renderer::Renderer::Impl::VkShutdown(void)
     int i;
 
     vkDeviceWaitIdle(device);
-
-    // VkShutdownInst(); // validation layer test
+    for(i=0; i<max_fif; i++)
+        renderer->frames[i].renderfence.Wait(1000000000);
 
     for(i=0; i<max_fif; i++)
         renderer->frames[i].Shutdown();
@@ -67,6 +68,8 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
     VkSurfaceFormatKHR surfaceformat;
     vkb::SwapchainBuilder swapchainbuilder(physicaldevice, device, surface);
     vkb::Swapchain vkbswapchain;
+    std::vector<VkImage> imgs;
+    std::vector<VkImageView> views;
 
     UTILS_ASSERT(SDL_GetWindowSize(win, &w, &h));
 
@@ -91,15 +94,18 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
 
     vkbswapchain = swapchainres.value();
     swapchain = vkbswapchain.swapchain;
-    
-    renderer->swapchainimgs.resize(vkbswapchain.get_images().value().size());
+    imgs = vkbswapchain.get_images().value();
+    views = vkbswapchain.get_image_views().value();
+
+    renderer->swapchainimgs.resize(imgs.size());
     for(i=0; i<renderer->swapchainimgs.size(); i++)
     {
         renderer->swapchainimgs[i].Init(renderer);
         renderer->swapchainimgs[i].size = Eigen::Vector2i(w, h);
         renderer->swapchainimgs[i].format = (renderer::Image::format_e) swapchainformat;
-        renderer->swapchainimgs[i].impl->vkimg = vkbswapchain.get_images().value()[i];
-        renderer->swapchainimgs[i].impl->imgview = vkbswapchain.get_image_views().value()[i];
+        renderer->swapchainimgs[i].impl->vkimg = imgs[i];
+        renderer->swapchainimgs[i].impl->imgview = views[i];
+        printf("swapchain view 0x%016llx\n", renderer->swapchainimgs[i].impl->imgview);
     }
 
     renderer->drawimg.Init(renderer);
