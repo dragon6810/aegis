@@ -84,6 +84,30 @@ void renderer::Image::BlitToImage(CmdBuf* cmdbuf, Image* dst)
 	renderer->impl->blitimage2proc(cmdbuf->impl->cmdbuf, &blitinfo);
 }
 
+void renderer::Image::ClearColor(CmdBuf* cmdbuf, Eigen::Vector3f col)
+{
+    int i;
+
+    VkImageSubresourceRange subresource;
+
+    VkClearColorValue vkcol;
+
+    UTILS_ASSERT(cmdbuf);
+
+    for(i=0; i<3; i++)
+        vkcol.float32[i] = col[i];
+    vkcol.float32[i] = 1; // always opaque for now
+
+    subresource = {};
+    subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresource.baseMipLevel = 0;
+    subresource.levelCount = VK_REMAINING_MIP_LEVELS;
+    subresource.baseArrayLayer = 0;
+    subresource.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+    vkCmdClearColorImage(cmdbuf->impl->cmdbuf, impl->vkimg, (VkImageLayout) layout, &vkcol, 1, &subresource);
+}
+
 void renderer::Image::Create(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt)
 {
     VkResult res;

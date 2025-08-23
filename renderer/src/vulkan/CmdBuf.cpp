@@ -24,30 +24,6 @@ void renderer::CmdBuf::Impl::Alloc(VkCommandPool pool)
     }
 }
 
-void renderer::CmdBuf::CmdClearColorImage(Image* img, Image::layout_e imglayout, Eigen::Vector3f col)
-{
-    int i;
-
-    VkImageSubresourceRange subresource;
-
-    VkClearColorValue vkcol;
-
-    UTILS_ASSERT(img);
-
-    for(i=0; i<3; i++)
-        vkcol.float32[i] = col[i];
-    vkcol.float32[i] = 1; // always opaque for now
-
-    subresource = {};
-    subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresource.baseMipLevel = 0;
-    subresource.levelCount = VK_REMAINING_MIP_LEVELS;
-    subresource.baseArrayLayer = 0;
-    subresource.layerCount = VK_REMAINING_ARRAY_LAYERS;
-
-    vkCmdClearColorImage(impl->cmdbuf, img->impl->vkimg, (VkImageLayout) imglayout, &vkcol, 1, &subresource);
-}
-
 void renderer::CmdBuf::Reset(bool releaseresources)
 {
     VkResult res;

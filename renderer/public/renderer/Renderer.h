@@ -188,6 +188,7 @@ namespace renderer
         // cmdbuf must be in a recording state
         void TransitionLayout(CmdBuf* cmdbuf, layout_e dstlayout);
         void BlitToImage(CmdBuf* cmdbuf, Image* dst);
+        void ClearColor(CmdBuf* cmdbuf, Eigen::Vector3f col);
 
         void Create(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt);
 
@@ -240,10 +241,7 @@ namespace renderer
     public:
         struct Impl;
         std::unique_ptr<Impl> impl;
-
-        // commands
-        void CmdClearColorImage(Image* img, Image::layout_e imglayout, Eigen::Vector3f col);
-
+        
         void Reset(bool releaseresources);
         void Begin(uint32_t usageflags);
         void End(void);

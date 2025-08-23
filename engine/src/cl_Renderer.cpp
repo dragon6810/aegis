@@ -31,7 +31,7 @@ void engine::cl::Renderer::Render(void)
 
     drawimg->layout = renderer::Image::LAYOUT_UNDEFINED;
     drawimg->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_GENERAL);
-    frame->maincmdbuf.CmdClearColorImage(drawimg, drawimg->layout, Eigen::Vector3f(1, 0, 0));
+    drawimg->ClearColor(&frame->maincmdbuf, Eigen::Vector3f(1, 0, 0));
     drawimg->TransitionLayout(&frame->maincmdbuf, renderer::Image::LAYOUT_TRANSFER_SRC_OPTIMAL);
     
     img->layout = renderer::Image::LAYOUT_UNDEFINED;
