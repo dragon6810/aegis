@@ -4,7 +4,7 @@
 
 #include <utilslib.h>
 
-void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout)
+void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e dstlayout)
 {
     VkImageMemoryBarrier2KHR imgbarrier;
     VkDependencyInfo depinfo;
@@ -17,7 +17,7 @@ void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layou
     imgbarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
     imgbarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
     imgbarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-    imgbarrier.oldLayout = (VkImageLayout) srclayout;
+    imgbarrier.oldLayout = (VkImageLayout) layout;
     imgbarrier.newLayout = (VkImageLayout) dstlayout;
     
     imgbarrier.subresourceRange = {};
@@ -37,9 +37,11 @@ void renderer::Image::TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layou
     depinfo.pImageMemoryBarriers = &imgbarrier;
 
     renderer->impl->pipelinebarrier2proc(cmdbuf->impl->cmdbuf, &depinfo);
+
+    layout = dstlayout;
 }
 
-void renderer::Image::BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i srcsize, Eigen::Vector2i dstsize)
+void renderer::Image::BlitToImage(CmdBuf* cmdbuf, Image* dst)
 {
     VkImageBlit2 region;
     VkBlitImageInfo2 blitinfo;
@@ -51,12 +53,12 @@ void renderer::Image::BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i sr
 
     region = {};
     region.sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2;
-	region.srcOffsets[1].x = srcsize[0];
-	region.srcOffsets[1].y = srcsize[1];
+	region.srcOffsets[1].x = size[0];
+	region.srcOffsets[1].y = size[1];
 	region.srcOffsets[1].z = 1;
 
-	region.dstOffsets[1].x = dstsize[0];
-	region.dstOffsets[1].y = dstsize[1];
+	region.dstOffsets[1].x = dst->size[0];
+	region.dstOffsets[1].y = dst->size[1];
 	region.dstOffsets[1].z = 1;
 
 	region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -82,6 +84,58 @@ void renderer::Image::BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i sr
 	renderer->impl->blitimage2proc(cmdbuf->impl->cmdbuf, &blitinfo);
 }
 
+void renderer::Image::Create(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt)
+{
+    VkResult res;
+    VkImageCreateInfo imginfo;
+    VmaAllocationCreateInfo allocinfo;
+    VkImageViewCreateInfo viewinfo;
+
+    this->size = size;
+
+    impl->extent = { (uint32_t) size[0], (uint32_t) size[1], 1u, };
+    format = fmt;
+
+    imginfo = {};
+    imginfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imginfo.imageType = VK_IMAGE_TYPE_2D;
+    imginfo.format = (VkFormat) fmt;
+    imginfo.extent = impl->extent;
+    imginfo.mipLevels = 1;
+    imginfo.arrayLayers = 1;
+    imginfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imginfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imginfo.usage = usageflags;
+
+    allocinfo = {};
+    allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    res = vmaCreateImage(renderer->impl->allocator, &imginfo, &allocinfo, &impl->vkimg, &impl->allocation, NULL);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when allocating image!\n", res);
+        exit(1);
+    }
+
+    viewinfo = {};
+    viewinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewinfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewinfo.image = impl->vkimg;
+    viewinfo.format = (VkFormat) format;
+    viewinfo.subresourceRange.levelCount = 1;
+    viewinfo.subresourceRange.baseArrayLayer = 0;
+    viewinfo.subresourceRange.layerCount = 1;
+    viewinfo.subresourceRange.aspectMask = aspectflags;
+    
+    res = vkCreateImageView(renderer->impl->device, &viewinfo, NULL, &impl->imgview);
+    if(res != VK_SUCCESS)
+    {
+        printf("error %d when creating image view!\n", res);
+        exit(1);
+    }
+}
+
 void renderer::Image::Init(Renderer* renderer)
 {
     UTILS_ASSERT(renderer);
@@ -92,5 +146,14 @@ void renderer::Image::Init(Renderer* renderer)
 
 void renderer::Image::Shutdown(void)
 {
+    if(impl->vkimg)
+    {
+        if(impl->allocation)
+            vmaDestroyImage(renderer->impl->allocator, impl->vkimg, impl->allocation);
+        else
+            vkDestroyImage(renderer->impl->device, impl->vkimg, NULL);
+    }
 
+    if(impl->imgview)
+        vkDestroyImageView(renderer->impl->device, impl->imgview, NULL);
 }

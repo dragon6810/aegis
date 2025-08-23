@@ -25,8 +25,6 @@ struct renderer::Renderer::Impl
 
     VkSwapchainKHR swapchain;
 	VkFormat swapchainformat;
-	std::vector<VkImageView> swapchainviews;
-	VkExtent2D swapchainextent;
 
     PFN_vkCmdPipelineBarrier2KHR pipelinebarrier2proc;
     PFN_vkQueueSubmit2KHR queuesubmit2proc;
@@ -105,14 +103,10 @@ struct renderer::Fence::Impl
     void Shutdown(void);
 };
 
-struct renderer::FreeImage::Impl
-{
-    VkImageView imgview;
-    VmaAllocation allocation;
-    VkExtent3D extent;
-};
-
 struct renderer::Image::Impl
 {
-    VkImage vkimg;
+    VkImage vkimg = NULL;
+    VkImageView imgview = NULL;
+    VmaAllocation allocation = NULL;
+    VkExtent3D extent = {};
 };

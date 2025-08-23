@@ -25,11 +25,11 @@ void renderer::Renderer::Impl::VkShutdownSwapchain(void)
 {
     int i;
 
-    renderer->drawimg.Destroy();
+    renderer->drawimg.Shutdown();
 
     vkDestroySwapchainKHR(device, swapchain, NULL);
-    for(i=0; i<swapchainviews.size(); i++)
-        vkDestroyImageView(device, swapchainviews[i], NULL);
+    for(i=0; i<renderer->swapchainimgs.size(); i++)
+        vkDestroyImageView(device, renderer->swapchainimgs[i].impl->imgview, NULL);
 }
 
 void renderer::Renderer::Impl::VkShutdown(void)
@@ -69,8 +69,6 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
     vkb::Swapchain vkbswapchain;
 
     UTILS_ASSERT(SDL_GetWindowSize(win, &w, &h));
-    swapchainextent.width = w;
-    swapchainextent.height = h;
 
 	swapchainformat = VK_FORMAT_B8G8R8A8_UNORM;
     
@@ -93,23 +91,25 @@ void renderer::Renderer::Impl::VkInitSwapchain(void)
 
     vkbswapchain = swapchainres.value();
     swapchain = vkbswapchain.swapchain;
-    swapchainviews = vkbswapchain.get_image_views().value();
-
+    
     renderer->swapchainimgs.resize(vkbswapchain.get_images().value().size());
     for(i=0; i<renderer->swapchainimgs.size(); i++)
     {
         renderer->swapchainimgs[i].Init(renderer);
+        renderer->swapchainimgs[i].size = Eigen::Vector2i(w, h);
+        renderer->swapchainimgs[i].format = (renderer::Image::format_e) swapchainformat;
         renderer->swapchainimgs[i].impl->vkimg = vkbswapchain.get_images().value()[i];
+        renderer->swapchainimgs[i].impl->imgview = vkbswapchain.get_image_views().value()[i];
     }
 
-    renderer->drawimg.Init
+    renderer->drawimg.Init(renderer);
+    renderer->drawimg.Create
     (
         Eigen::Vector2i(w, h),
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | 
-        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        Image::USAGE_TRANSFER_SRC | Image::USAGE_TRANSFER_DST | 
+        Image::USAGE_STORAGE | Image::USAGE_COLOR_ATTACHMENT,
         Image::ASPECT_COLOR_BIT,
-        Image::FORMAT_R16G16B16A16_SFLOAT,
-        renderer
+        Image::FORMAT_R16G16B16A16_SFLOAT
     );
 
     printf("vulkan/SDL3 swapchain created.\n");

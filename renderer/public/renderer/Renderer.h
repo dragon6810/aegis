@@ -180,36 +180,20 @@ namespace renderer
     public:
         struct Impl;
         std::unique_ptr<Impl> impl;
+        Eigen::Vector2i size;
+        Image::layout_e layout = LAYOUT_UNDEFINED;
+        uint32_t usage;
+        Image::format_e format;
     public:
         // cmdbuf must be in a recording state
-        void TransitionLayout(CmdBuf* cmdbuf, layout_e srclayout, layout_e dstlayout);
-        void BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i srcsize, Eigen::Vector2i dstsize);
+        void TransitionLayout(CmdBuf* cmdbuf, layout_e dstlayout);
+        void BlitToImage(CmdBuf* cmdbuf, Image* dst);
+
+        void Create(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt);
 
         // doesnt' create the image itself
         void Init(Renderer* renderer);
         void Shutdown(void);
-    };
-
-    class FreeImage
-    {
-    private:
-        Renderer *renderer = NULL;
-    public:
-        Image img;
-        Eigen::Vector2i size;
-        Image::layout_e layout;
-        uint32_t usage;
-        Image::format_e format;
-
-        struct Impl;
-        std::unique_ptr<Impl> impl;
-    public:
-        // cmdbuf must be in a recording state
-        void TransitionLayout(CmdBuf* cmdbuf, Image::layout_e dstlayout);
-        void BlitToImage(CmdBuf* cmdbuf, Image* dst, Eigen::Vector2i dstsize);
-
-        void Init(Eigen::Vector2i size, uint32_t usageflags, uint32_t aspectflags, Image::format_e fmt, Renderer* renderer);
-        void Destroy(void);
     };
 
     class Fence
@@ -319,7 +303,7 @@ namespace renderer
 
         std::string windowname = "aegis";
 
-        FreeImage drawimg;
+        Image drawimg;
         std::vector<Image> swapchainimgs;
         Queue gfxque;
 
