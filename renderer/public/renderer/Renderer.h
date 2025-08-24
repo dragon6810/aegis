@@ -18,6 +18,48 @@ namespace renderer
         STAGE_COLOR_ATTACHMENT_OUTPUT = 0x00000400ULL,
     } stageflags_e;
 
+    class DescLayout
+    {
+    public:
+        typedef enum
+        {
+            TYPE_SAMPLER                = 0,
+            TYPE_COMBINED_IMAGE_SAMPLER = 1,
+            TYPE_SAMPLED_IMAGE          = 2,
+            TYPE_STORAGE_IMAGE          = 3,
+            TYPE_UNIFORM_TEXEL_BUFFER   = 4,
+            TYPE_STORAGE_TEXEL_BUFFER   = 5,
+            TYPE_UNIFORM_BUFFER         = 6,
+            TYPE_STORAGE_BUFFER         = 7,
+            TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
+            TYPE_STORAGE_BUFFER_DYNAMIC = 9,
+            YPE_INPUT_ATTACHMENT        = 10,
+        } type_e;
+
+        typedef enum
+        {
+            SHADER_STAGE_VERTEX_BIT                  = 0x00000001,
+            SHADER_STAGE_TESSELLATION_CONTROL_BIT    = 0x00000002,
+            SHADER_STAGE_TESSELLATION_EVALUATION_BIT = 0x00000004,
+            SHADER_STAGE_GEOMETRY_BIT                = 0x00000008,
+            SHADER_STAGE_FRAGMENT_BIT                = 0x00000010,
+            SHADER_STAGE_COMPUTE_BIT                 = 0x00000020,
+            SHADER_STAGE_ALL_GRAPHICS                = 0x0000001F,
+            SHADER_STAGE_ALL                         = 0x7FFFFFFF,
+        } shaderstage_e;
+    private:
+        Renderer *renderer = NULL;
+    public:
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+    public:
+        void AddBinding(int bindnum, type_e type);
+        void Build(shaderstage_e stage);
+
+        void Init(Renderer* renderer);
+        void Shutdown(void);
+    };
+
     class Image
     {
     public:
@@ -241,7 +283,7 @@ namespace renderer
     public:
         struct Impl;
         std::unique_ptr<Impl> impl;
-        
+
         void Reset(bool releaseresources);
         void Begin(uint32_t usageflags);
         void End(void);

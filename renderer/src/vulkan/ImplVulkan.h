@@ -110,3 +110,9 @@ struct renderer::Image::Impl
     VmaAllocation allocation = NULL;
     VkExtent3D extent = {};
 };
+
+struct renderer::DescLayout::Impl
+{
+    std::vector<VkDescriptorSetLayoutBinding> vkbindings = {};
+    VkDescriptorSetLayout vklayout = NULL;
+};
